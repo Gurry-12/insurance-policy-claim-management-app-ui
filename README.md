@@ -1,1 +1,0 @@
-# insurance-policy-claim-management-app-ui
