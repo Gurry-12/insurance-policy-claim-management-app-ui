@@ -10,6 +10,8 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AgentDashboard from "./pages/agent/AgentDashboard";
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 import VerifyOtp from './pages/auth/VerifyOtp';
+import ProfilePage from "./pages/customer/profile/ProfilePage";
+import EditProfilePage from "./pages/customer/profile/EditProfilePage";
 
 
 const ProtectedRoute = () => {
@@ -55,7 +57,22 @@ const App = () => {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<RoleProtectedRoute allowedRole={ROLES.CUSTOMER} />}>
-          <Route path="/customer/dashboard" element={<CustomerDashboard></CustomerDashboard>} />
+
+          <Route
+            path="/customer/dashboard"
+            element={<CustomerDashboard />}
+          />
+
+          <Route
+            path="/customer/profile"
+            element={<ProfilePage />}
+          />
+
+          <Route
+            path="/customer/profile/edit"
+            element={<EditProfilePage />}
+          />
+
         </Route>
       </Route>
 

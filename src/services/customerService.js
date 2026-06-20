@@ -1,22 +1,30 @@
 import axiosInstance from "../api/axiosInstance";
 
 export const getProfile = async () => {
-  const { data } = await axiosInstance.get("/customer/profile");
+  const { data } = await axiosInstance.get(
+    "/customers/profile"
+  );
+
   return data;
 };
 
 export const createProfile = async (payload) => {
   const { data } = await axiosInstance.post(
-    "/customer/profile",
+    "/customers",
     payload
   );
+
   return data;
 };
 
-export const updateProfile = async (payload) => {
+export const updateProfile = async (
+  customerId,
+  payload
+) => {
   const { data } = await axiosInstance.put(
-    "/customer/profile",
+    `/customers/${customerId}`,
     payload
   );
+
   return data;
 };
