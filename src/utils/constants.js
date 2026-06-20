@@ -1,1 +1,27 @@
-// TODO: App-wide constants (API base URL, pagination defaults, etc.)
+export const APP_NAME = 'InsuranceFlow';
+
+export const POLICY_STATUS = {
+  PENDING_PAYMENT: 'PENDING_PAYMENT',
+  ACTIVE: 'ACTIVE',
+  EXPIRED: 'EXPIRED',
+  CANCELLED: 'CANCELLED',
+};
+
+export const CLAIM_STATUS = {
+  PENDING: 'PENDING',
+  UNDER_REVIEW: 'UNDER_REVIEW',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+};
+
+export const PAYMENT_MODE = {
+  CASH: 'CASH',
+  ONLINE: 'ONLINE',
+  CHEQUE: 'CHEQUE',
+};
+
+export const DEFAULT_PAGE_SIZE = 10;
+export const DEFAULT_PAGE = 0;
+
+export const TOKEN_KEY = 'ss_token';
+export const USER_KEY = 'ss_user';

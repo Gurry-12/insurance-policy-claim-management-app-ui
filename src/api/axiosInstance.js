@@ -1,39 +1,30 @@
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
 const axiosInstance = axios.create({
-  baseURL: BASE_URL,
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
 });
 
-// ── Request interceptor: attach JWT ─────────────────────────────────────────
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    const token = localStorage.getItem('ss_token');
+    if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// ── Response interceptor: handle 401 / 403 ──────────────────────────────────
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response?.status;
-
     if (status === 401) {
-      // Token expired or invalid – clear storage and redirect to login
-      localStorage.removeItem('authToken');
+      localStorage.removeItem('ss_token');
+      localStorage.removeItem('ss_user');
       window.location.href = '/login';
     } else if (status === 403) {
-      // Authenticated but not authorised for this resource
       window.location.href = '/unauthorized';
     }
-
     return Promise.reject(error);
   }
 );
