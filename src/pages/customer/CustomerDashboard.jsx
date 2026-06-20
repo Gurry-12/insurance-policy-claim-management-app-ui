@@ -5,6 +5,7 @@ const CustomerDashboard = () => {
   const {  logout } = useAuth();
 
   return (
+    
     <div>
       <h4>Customer Dashboard</h4>
 
