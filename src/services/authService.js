@@ -20,11 +20,12 @@ export const register = async (userData) => {
 };
 
 export const verifyOtpApi = async (payload) => {
-  const {data} = await axiosInstance.post('auth/verfy-otp', payload);
+  const { data } = await axiosInstance.post('/auth/verify-otp', payload);
   return data.success;
-}
+};
 
 export const resendOtpApi = async (payload) => {
-  const {data} = await axiosInstance.post('auth/resend-otp' , payload);
+  const { data } = await axiosInstance.post('/auth/resend-otp', payload);
   return data.success;
-}
+};
+

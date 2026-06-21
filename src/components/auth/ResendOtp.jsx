@@ -2,12 +2,12 @@ import { useState } from "react";
 import { resendOtpApi } from "../../services/authService";
 import "../../pages/css/Otp.css";
 
-const ResendOtp = () => {
+const ResendOtp = ({ email = '' }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [formData, setFormData] = useState({ email: "", phone: "" });
+  const [formData, setFormData] = useState({ email, phone: '' });
   const [errors, setErrors] = useState({});
-  const [apiError, setApiError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [apiError, setApiError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {

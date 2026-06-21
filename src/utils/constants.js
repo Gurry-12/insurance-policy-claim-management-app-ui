@@ -22,6 +22,3 @@ export const PAYMENT_MODE = {
 
 export const DEFAULT_PAGE_SIZE = 10;
 export const DEFAULT_PAGE = 0;
-
-export const TOKEN_KEY = 'ss_token';
-export const USER_KEY = 'ss_user';

@@ -1,30 +1,38 @@
-import { createContext, useState, useCallback } from 'react';
-import { getToken, getUser, saveToken, saveUser, clearAuth } from '../utils/storageUtils';
+import { createContext, useState, useCallback } from "react";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(() => getToken());
-  const [user, setUser] = useState(() => getUser());
+  const [token, setToken] = useState(() => localStorage.getItem("ss_token"));
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("ss_user"));
+    } catch {
+      return null;
+    }
+  });
 
   const isAuthenticated = !!token;
 
   const login = useCallback((newToken, newUser) => {
-    saveToken(newToken);
-    saveUser(newUser);
+    localStorage.setItem("ss_token", newToken);
+    localStorage.setItem("ss_user", JSON.stringify(newUser));
     setToken(newToken);
     setUser(newUser);
   }, []);
 
   const logout = useCallback(() => {
-    clearAuth();
+    localStorage.removeItem("ss_token");
+    localStorage.removeItem("ss_user");
     setToken(null);
     setUser(null);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ token, user, isAuthenticated, login, logout }}>
+    <AuthContext.Provider
+      value={{ token, user, isAuthenticated, login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );
