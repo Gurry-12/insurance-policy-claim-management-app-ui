@@ -7,3 +7,12 @@ export const getMyPolicies = async () => {
 
   return data;
 };
+
+export const purchasePolicy = async (payload) => {
+  const { data } = await axiosInstance.post(
+    "/policies/purchase",
+    payload
+  );
+
+  return data;
+};

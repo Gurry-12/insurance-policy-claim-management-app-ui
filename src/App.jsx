@@ -12,6 +12,10 @@ import CustomerDashboard from "./pages/customer/CustomerDashboard";
 import VerifyOtp from './pages/auth/VerifyOtp';
 import ProfilePage from "./pages/customer/profile/ProfilePage";
 import EditProfilePage from "./pages/customer/profile/EditProfilePage";
+import CustomerProductListPage from "./pages/customer/products/CustomerProductListPage";
+import CustomerPlanListPage from "./pages/customer/plans/CustomerPlanListPage";
+import PurchasePolicyPage from "./pages/customer/policies/PurchasePolicyPage";
+import CustomerPolicyListPage from "./pages/customer/policies/CustomerPolicyListPage";
 
 
 const ProtectedRoute = () => {
@@ -72,6 +76,28 @@ const App = () => {
             path="/customer/profile/edit"
             element={<EditProfilePage />}
           />
+
+          <Route
+            path="/customer/products"
+            element={<CustomerProductListPage />}
+          />
+
+          <Route
+            path="/customer/plans"
+            element={<CustomerPlanListPage />}
+          />
+
+          <Route
+            path="/customer/purchase-policy/:planId"
+            element={<PurchasePolicyPage />}
+          />
+
+          <Route
+            path="/customer/policies"
+            element={<CustomerPolicyListPage />}
+          />
+
+
 
         </Route>
       </Route>
