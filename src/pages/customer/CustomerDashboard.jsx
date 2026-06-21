@@ -85,6 +85,24 @@ const CustomerDashboard = () => {
             </Link>
           </li>
 
+          <li className="nav-item mb-3">
+            <Link
+              to="/customer/payments"
+              className="nav-link text-white"
+            >
+              Payment History
+            </Link>
+          </li>
+
+          <li className="nav-item mb-3">
+            <Link
+              to="/customer/claims"
+              className="nav-link text-white"
+            >
+              My Claims
+            </Link>
+          </li>
+
           <button
             className="btn btn-danger mt-4 w-100"
             onClick={logout}
