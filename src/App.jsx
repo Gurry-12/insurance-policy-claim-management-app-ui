@@ -16,6 +16,12 @@ import CustomerProductListPage from "./pages/customer/products/CustomerProductLi
 import CustomerPlanListPage from "./pages/customer/plans/CustomerPlanListPage";
 import PurchasePolicyPage from "./pages/customer/policies/PurchasePolicyPage";
 import CustomerPolicyListPage from "./pages/customer/policies/CustomerPolicyListPage";
+import CustomerPaymentHistoryPage from "./pages/customer/payments/CustomerPaymentHistoryPage";
+import RecordPaymentPage from "./pages/customer/payments/RecordPaymentPage";
+import CustomerClaimListPage from "./pages/customer/claims/CustomerClaimListPage";
+import RaiseClaimPage from "./pages/customer/claims/RaiseClaimPage";
+import ClaimStatusHistoryPage from "./pages/customer/claims/ClaimStatusHistoryPage";
+import UploadDocumentsPage from "./pages/customer/claims/UploadDocumentsPage";
 
 
 const ProtectedRoute = () => {
@@ -96,6 +102,37 @@ const App = () => {
             path="/customer/policies"
             element={<CustomerPolicyListPage />}
           />
+
+          <Route
+            path="/customer/payments"
+            element={<CustomerPaymentHistoryPage />}
+          />
+
+          <Route
+            path="/customer/payments/pay/:policyId"
+            element={<RecordPaymentPage />}
+          />
+
+          <Route
+            path="/customer/claims"
+            element={<CustomerClaimListPage />}
+          />
+
+          <Route
+            path="/customer/claims/raise"
+            element={<RaiseClaimPage />}
+          />
+
+          <Route
+            path="/customer/claims/history/:claimId"
+            element={<ClaimStatusHistoryPage />}
+          />
+
+          <Route
+            path="/customer/claims/upload/:claimId"
+            element={<UploadDocumentsPage />}
+          />
+
 
 
 
