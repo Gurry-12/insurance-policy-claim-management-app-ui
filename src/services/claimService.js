@@ -1,4 +1,5 @@
 import axiosInstance from "../api/axiosInstance";
+
 import { safeExtractArray } from "../utils/formatters";
 
 export const getAllClaims = async () => {
@@ -20,3 +21,57 @@ export const rejectClaim = async (claimId, reason) => {
   const response = await axiosInstance.put(`/claims/${claimId}/reject`, { reason });
   return safeExtractArray(response);
 };
+
+export const raiseClaim = async (formData) => {
+  const { data } = await axiosInstance.post(
+    "/claims/raise",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return data;
+};
+
+export const getMyClaims = async () => {
+  const { data } = await axiosInstance.get(
+    "/claims/my-claims"
+  );
+
+  return data;
+};
+
+export const getClaimHistory = async (claimId) => {
+  const { data } = await axiosInstance.get(
+    `/claims/${claimId}/history`
+  );
+
+  return data;
+};
+
+export const uploadDocuments = async (
+  claimId,
+  files
+) => {
+  const formData = new FormData();
+
+  files.forEach((file) => {
+    formData.append("files", file);
+  });
+
+  const { data } = await axiosInstance.post(
+    `/document/upload/${claimId}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return data;
+};
+

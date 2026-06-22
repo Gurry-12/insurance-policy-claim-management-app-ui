@@ -35,4 +35,11 @@ export const activateProduct = async (productId) => {
 export const deactivateProduct = async (productId) => {
   const response = await axiosInstance.patch(`/products/${productId}/deactivate`);
   return response.data;
+
+export const getActiveProducts = async () => {
+  const { data } = await axiosInstance.get(
+    "/products/active"
+  );
+
+  return data;
 };

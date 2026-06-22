@@ -32,4 +32,13 @@ export const issuePolicy = async (payload) => {
 export const cancelPolicy = async (policyId) => {
   const response = await axiosInstance.patch(`/policies/${policyId}/cancel`);
   return response.data;
+
+export const purchasePolicy = async (payload) => {
+  const { data } = await axiosInstance.post(
+    "/policies/purchase",
+    payload
+  );
+
+  return data;
+
 };

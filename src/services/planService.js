@@ -36,4 +36,19 @@ export const activatePlan = async (planId) => {
 export const deactivatePlan = async (planId) => {
   const response = await axiosInstance.patch(`/plans/${planId}/deactivate`);
   return safeExtractArray(response);
+
+export const getActivePlans = async () => {
+  const { data } = await axiosInstance.get(
+    "/plans/active"
+  );
+
+  return data;
+};
+
+export const getPlansByProduct = async (productId) => {
+  const { data } = await axiosInstance.get(
+    `/plans/${productId}/active`
+  );
+
+  return data;
 };
