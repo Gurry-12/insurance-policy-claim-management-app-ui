@@ -23,6 +23,7 @@ import CustomerClaimListPage from "./pages/customer/claims/CustomerClaimListPage
 import RaiseClaimPage from "./pages/customer/claims/RaiseClaimPage";
 import ClaimStatusHistoryPage from "./pages/customer/claims/ClaimStatusHistoryPage";
 import UploadDocumentsPage from "./pages/customer/claims/UploadDocumentsPage";
+import ClaimDetailsPage from './pages/customer/claims/ClaimDetailsPage';
 
 /* Admin */
 import AdminLayout       from './pages/admin/shared/AdminLayout';
@@ -175,6 +176,11 @@ const App = () => (
           <Route
             path="/customer/claims/upload/:claimId"
             element={<UploadDocumentsPage />}
+          />
+
+          <Route
+            path="/customer/claims/:claimId"
+            element={<ClaimDetailsPage />}
           />
 
 
