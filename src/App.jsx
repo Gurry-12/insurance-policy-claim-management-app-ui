@@ -2,14 +2,22 @@ import { Navigate, Outlet, Routes, Route, useLocation } from 'react-router-dom';
 import useAuth from './hooks/useAuth';
 import { ROLES } from './utils/roles';
 
+
+import AgentDashboard from "./pages/agent/AgentDashboard";
+import AgentIssuePolicyPage from "./pages/agent/policies/AgentIssuePolicyPage";
+
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import NotFound from './pages/shared/NotFound';
 import Unauthorized from './pages/shared/Unauthorized';
 import AdminDashboard from './pages/admin/AdminDashboard';
-import AgentDashboard from "./pages/agent/AgentDashboard";
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 import VerifyOtp from './pages/auth/VerifyOtp';
+import AgentClaimHistory from './pages/agent/claims/AgentClaimHistory';
+import AgentPolicyListPage from './pages/agent/policies/AgentPolicyListPage';
+import AgentCustomerListPage from './pages/agent/customers/AgentCustomerListPage';
+import AgentClaimListPage from './pages/agent/claims/AgentClaimListPage';
+import AgentPaymentListPage from './pages/agent/payments/AgentPaymentListPage';
 
 
 const ProtectedRoute = () => {
@@ -26,7 +34,8 @@ const RoleProtectedRoute = ({ allowedRole }) => {
   return <Outlet />;
 };
 
-const App = () => {
+
+function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
@@ -46,10 +55,41 @@ const App = () => {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<RoleProtectedRoute allowedRole={ROLES.AGENT} />}>
-          <Route
-            path="/agent/dashboard"
-            element={<AgentDashboard></AgentDashboard>}
+         
+          <Route path="/agent/dashboard" 
+                  element={<AgentDashboard />}
           />
+
+           <Route
+              path="/agent/claims"
+              element={<AgentClaimListPage />}
+            />
+
+            <Route
+              path="/agent/customers"
+              element={<AgentCustomerListPage />}
+            />
+
+            <Route
+              path="/agent/policies"
+              element={<AgentPolicyListPage />}
+            />
+
+            <Route
+              path="/agent/payments/page"
+              element={<AgentPaymentListPage />}
+            />
+
+             <Route
+              path="/agent/issue-policy"
+              element={<AgentIssuePolicyPage />}
+            />
+
+             <Route
+              path="/agent/claims-history"
+              element={<AgentClaimHistory />}
+            />
+
         </Route>
       </Route>
 
@@ -65,4 +105,6 @@ const App = () => {
 };
 
 export default App;
+
+    
 
