@@ -1,4 +1,39 @@
-const ConfirmModal = () => {
-  return <div>ConfirmModal</div>;
+import React from 'react';
+
+const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel, confirmText = 'Confirm', cancelText = 'Cancel', isDanger = false }) => {
+  if (!isOpen) return null;
+
+  return (
+    <>
+      <div className="modal-backdrop fade show" style={{ zIndex: 1040 }}></div>
+      <div className="modal fade show d-block" tabIndex="-1" style={{ zIndex: 1050 }}>
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content" style={{ borderRadius: '12px', border: 'none', boxShadow: 'var(--ss-shadow-lg)' }}>
+            <div className="modal-header border-0 pb-0">
+              <h5 className="modal-title" style={{ fontWeight: 700 }}>{title}</h5>
+              <button type="button" className="btn-close" onClick={onCancel} aria-label="Close"></button>
+            </div>
+            <div className="modal-body py-4">
+              <p className="mb-0" style={{ color: 'var(--ss-text-secondary)' }}>{message}</p>
+            </div>
+            <div className="modal-footer border-0 pt-0">
+              <button type="button" className="btn btn-light" style={{ borderRadius: '8px' }} onClick={onCancel}>
+                {cancelText}
+              </button>
+              <button 
+                type="button" 
+                className={`btn ${isDanger ? 'btn-danger' : 'btn-primary'}`} 
+                style={{ borderRadius: '8px' }} 
+                onClick={onConfirm}
+              >
+                {confirmText}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 };
+
 export default ConfirmModal;

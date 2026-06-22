@@ -71,9 +71,9 @@ const Register = () => {
       };
 
       await registerService(payload);
-      setSuccess("Account created! Redirecting to verify emsil and phone");
+      setSuccess("Account created! Redirecting to verify email and phone...");
       setTimeout(
-        () => navigate("/verify-otp", { state: { registered: true } }),
+        () => navigate("/verify-otp", { state: { registered: true, email: payload.email } }),
         2200,
       );
     } catch (err) {
