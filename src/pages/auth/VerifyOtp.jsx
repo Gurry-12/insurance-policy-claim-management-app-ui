@@ -21,7 +21,7 @@ const VerifyOtp = () => {
   const [apiError, setApiError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-  const [timer, setTimer] = useState(5);
+  const [timer, setTimer] = useState(60);
 
   useEffect(() => {
     let interval = null;
@@ -235,7 +235,7 @@ const VerifyOtp = () => {
             ) : (
               <>
                 <span>Didn't receive code?</span>
-                <ResendOtp />
+              <ResendOtp email={formData.email} />
               </>
             )}
           </div>

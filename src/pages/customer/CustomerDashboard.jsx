@@ -10,6 +10,7 @@ const CustomerDashboard = () => {
   const [pendingPolicies, setPendingPolicies] = useState(0);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/immutability
     fetchPolicies();
   }, []);
 
