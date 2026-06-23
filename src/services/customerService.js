@@ -1,5 +1,5 @@
 import axiosInstance from "../api/axiosInstance";
-import { safeExtractArray } from "../utils/formatters";
+import { safeExtractPaginated } from "../utils/formatters";
 
 export const getProfile = async () => {
   const { data } = await axiosInstance.get(
@@ -31,10 +31,15 @@ export const updateProfile = async (
 };
 
 
-export const getAllCustomers = async () => {
-  const response = await axiosInstance.get('/customers');
-  return safeExtractArray(response);
+export const getAllCustomersPaginated = async (params = {}) => {
+  const response = await axiosInstance.get('/customers/page', { params });
+  return safeExtractPaginated(response);
 }
+
+export const getAllCustomers = async () => {
+  const {data } = await axiosInstance.get("/customers");
+  return data.data;
+};
 
 export const getCustomerById = async (customerId) => {
   const response = await axiosInstance.get(`/customers/${customerId}`);

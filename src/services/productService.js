@@ -1,5 +1,5 @@
 import axiosInstance from "../api/axiosInstance";
-import { safeExtractArray } from "../utils/formatters";
+import { safeExtractArray, safeExtractPaginated } from "../utils/formatters";
 
 export const getAllProducts = async () => {
   const response = await axiosInstance.get("/products/active");
@@ -7,9 +7,9 @@ export const getAllProducts = async () => {
   return safeExtractArray(response);
 };
 
-export const getAllProductsPaginated = async () => {
-  const response = await axiosInstance.get("/products/page");
-  return safeExtractArray(response);
+export const getAllProductsPaginated = async (params = {}) => {
+  const response = await axiosInstance.get("/products/page", { params });
+  return safeExtractPaginated(response);
 };
 
 export const getProductById = async (productId) => {
@@ -35,6 +35,8 @@ export const activateProduct = async (productId) => {
 export const deactivateProduct = async (productId) => {
   const response = await axiosInstance.patch(`/products/${productId}/deactivate`);
   return response.data;
+
+};
 
 export const getActiveProducts = async () => {
   const { data } = await axiosInstance.get(

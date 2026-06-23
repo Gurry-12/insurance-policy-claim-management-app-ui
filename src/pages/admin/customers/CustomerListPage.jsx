@@ -4,15 +4,20 @@ import PageHeader from '../../../components/common/PageHeader';
 import DataTable from '../../../components/tables/DataTable';
 import PaginationBar from '../../../components/tables/PaginationBar';
 import StatusBadge from '../../../components/ui/StatusBadge';
-import { getAllCustomers } from '../../../services/customerService';
+import { getAllCustomersPaginated } from '../../../services/customerService';
+import usePagination from '../../../hooks/usePagination';
 
 const CustomerListPage = () => {
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState(1);
-const [customers, setCustomers] = useState(null);
+  const { currentPage, totalPages, setTotalPages, setCurrentPage, pageParams, pageSize } = usePagination(1, 10);
+  const [customers, setCustomers] = useState(null);
 
   const columns = [
-    { header: "Customer ID", accessor: "customerId", minWidth: "100px" },
+    { 
+      header: "#", 
+      cell: (row, index) => (currentPage - 1) * pageSize + index + 1, 
+      minWidth: "60px" 
+    },
     { header: "Name", accessor: "fullName" },
     { header: "Email", accessor: "email" },
     { header: "Phone", accessor: "mobileNumber" },
@@ -37,9 +42,18 @@ const [customers, setCustomers] = useState(null);
     },
   ];
 
-  useEffect( () => {
-    getAllCustomers().then(setCustomers).catch( (error) => console.log(error))
-  }, []);
+  const fetchCustomers = () => {
+    getAllCustomersPaginated(pageParams)
+      .then((res) => {
+        setCustomers(res.content);
+        setTotalPages(res.totalPages);
+      })
+      .catch((error) => console.log(error));
+  };
+
+  useEffect(() => {
+    fetchCustomers();
+  }, [currentPage]);
 
   return (
     <div>
@@ -63,11 +77,10 @@ const [customers, setCustomers] = useState(null);
             <DataTable 
               columns={columns} 
               data={customers} 
-              onRowClick={(row) => navigate(`/admin/customers/${row.id}`)}
             />
             <PaginationBar 
               currentPage={currentPage} 
-              totalPages={1} 
+              totalPages={totalPages} 
               onPageChange={setCurrentPage} 
             />
           </div>

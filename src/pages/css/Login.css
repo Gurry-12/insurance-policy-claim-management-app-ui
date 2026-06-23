@@ -132,6 +132,10 @@
   z-index: 4;
 }
 
+.login-footer-text {
+  color: black;
+}
+
 .login-footer-link {
   color: #f05a28;
   font-size: 0.78rem;

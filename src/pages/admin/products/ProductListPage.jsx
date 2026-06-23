@@ -4,20 +4,23 @@ import PageHeader from '../../../components/common/PageHeader';
 import DataTable from '../../../components/tables/DataTable';
 import PaginationBar from '../../../components/tables/PaginationBar';
 import StatusBadge from '../../../components/ui/StatusBadge';
-import ConfirmModal from '../../../components/modals/ConfirmModal';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
-import { activateProduct, deactivateProduct, getAllProductsPaginated } from '../../../services/productService';
+import { getAllProductsPaginated } from '../../../services/productService';
+import usePagination from '../../../hooks/usePagination';
 
 const ProductListPage = () => {
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState(1);
+  const { currentPage, totalPages, setTotalPages, setCurrentPage, pageParams, pageSize } = usePagination(1, 10);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [statusModal, setStatusModal] = useState({ isOpen: false, productId: null, currentStatus: false });
-
+ 
   const columns = [
-    { header: "Product ID", accessor: "productId", minWidth: "100px" },
+    { 
+      header: "#", 
+      cell: (row, index) => (currentPage - 1) * pageSize + index + 1, 
+      minWidth: "60px" 
+    },
     { header: "Name", accessor: "productName" },
     { header: "Category", accessor: "productType" },
     { header: "Created", accessor: "createdDate" },
@@ -33,43 +36,22 @@ const ProductListPage = () => {
             className="btn btn-sm btn-light text-primary border-0"
             onClick={(e) => {
               e.stopPropagation();
+              navigate(`/admin/products/${row.productId}`);
+            }}
+            title="View Details"
+          >
+            <i className="bi bi-eye"></i>
+          </button>
+          <button
+            className="btn btn-sm btn-light text-primary border-0"
+            onClick={(e) => {
+              e.stopPropagation();
               navigate(`/admin/products/edit/${row.productId}`);
             }}
             title="Edit Product"
           >
             <i className="bi bi-pencil-square"></i>
           </button>
-          {row.active ? (
-            <button
-              className="btn btn-sm btn-light text-warning border-0"
-              onClick={(e) => {
-                e.stopPropagation();
-                setStatusModal({
-                  isOpen: true,
-                  productId: row.productId,
-                  currentStatus: true,
-                });
-              }}
-              title="Deactivate Product"
-            >
-              <i className="bi bi-dash-circle"></i>
-            </button>
-          ) : (
-            <button
-              className="btn btn-sm btn-light text-success border-0"
-              onClick={(e) => {
-                e.stopPropagation();
-                setStatusModal({
-                  isOpen: true,
-                  productId: row.productId,
-                  currentStatus: false,
-                });
-              }}
-              title="Activate Product"
-            >
-              <i className="bi bi-check-circle"></i>
-            </button>
-          )}
         </div>
       ),
     },
@@ -77,34 +59,18 @@ const ProductListPage = () => {
 
   const fetchProducts = () => {
     setLoading(true);
-    getAllProductsPaginated()
-      .then(setProducts)
+    getAllProductsPaginated(pageParams)
+      .then((res) => {
+        setProducts(res.content);
+        setTotalPages(res.totalPages);
+      })
       .catch(() => setError('Could not load products. Please check your API connection.'))
       .finally(() => setLoading(false));
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchProducts();
-  }, []);
-
-  const handleStatusToggle = () => {
-    const { productId, currentStatus } = statusModal;
-    const action = currentStatus ? deactivateProduct(productId) : activateProduct(productId);
-    
-    setLoading(true);
-    setStatusModal({ isOpen: false, productId: null, currentStatus: false });
-    
-    action
-      .then(() => {
-        alert(`Product ${currentStatus ? 'deactivated' : 'activated'} successfully!`);
-        fetchProducts();
-      })
-      .catch(() => {
-        alert(`Failed to ${currentStatus ? 'deactivate' : 'activate'} product.`);
-        setLoading(false);
-      });
-  };
+  }, [currentPage]);
 
   return (
     <div>
@@ -131,27 +97,16 @@ const ProductListPage = () => {
               columns={columns} 
               data={products} 
               loading={loading}
+              onRowClick={(row) => navigate(`/admin/products/${row.productId}`)}
             />
             <PaginationBar 
               currentPage={currentPage} 
-              totalPages={1} 
+              totalPages={totalPages} 
               onPageChange={setCurrentPage} 
             />
           </div>
         </div>
       </div>
-
-      <ConfirmModal 
-        isOpen={statusModal.isOpen}
-        title={statusModal.currentStatus ? "Deactivate Product" : "Activate Product"}
-        message={statusModal.currentStatus 
-          ? "Are you sure you want to deactivate this product? This will make the product category unavailable." 
-          : "Are you sure you want to activate this product?"}
-        isDanger={statusModal.currentStatus}
-        confirmText={statusModal.currentStatus ? "Deactivate" : "Activate"}
-        onCancel={() => setStatusModal({ isOpen: false, productId: null, currentStatus: false })}
-        onConfirm={handleStatusToggle}
-      />
     </div>
   );
 };

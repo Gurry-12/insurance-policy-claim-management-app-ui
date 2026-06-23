@@ -1,17 +1,15 @@
 import axiosInstance from "../api/axiosInstance";
-import { safeExtractArray } from "../utils/formatters";
+import { safeExtractArray, safeExtractPaginated } from "../utils/formatters";
 
 export const getMyPolicies = async () => {
-  const { data } = await axiosInstance.get(
-    "/policies/my-policies"
-  );
+  const { data } = await axiosInstance.get("/policies/my-policies");
   return data;
 };
 
-export const getAllPolicies = async () => {
-  const response = await axiosInstance.get('/policies');
+export const getAllPolicies = async (params = {}) => {
+  const response = await axiosInstance.get("/policies", { params });
   console.log(response);
-  return safeExtractArray(response);
+  return safeExtractPaginated(response);
 };
 
 export const getPolicyById = async (policyId) => {
@@ -32,13 +30,10 @@ export const issuePolicy = async (payload) => {
 export const cancelPolicy = async (policyId) => {
   const response = await axiosInstance.patch(`/policies/${policyId}/cancel`);
   return response.data;
+};
 
 export const purchasePolicy = async (payload) => {
-  const { data } = await axiosInstance.post(
-    "/policies/purchase",
-    payload
-  );
+  const { data } = await axiosInstance.post("/policies/purchase", payload);
 
   return data;
-
 };

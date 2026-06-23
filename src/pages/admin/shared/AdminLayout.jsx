@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import Sidebar from '../../../components/navigation/Sidebar';
 import TopNavbar from '../../../components/navigation/TopNavbar';
 
@@ -16,6 +16,7 @@ const NAV = [
 
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--ss-bg)' }}>

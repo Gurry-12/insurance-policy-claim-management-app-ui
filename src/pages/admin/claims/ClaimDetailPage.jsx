@@ -1,4 +1,4 @@
-import  { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import StatusBadge from '../../../components/ui/StatusBadge';
@@ -18,14 +18,24 @@ const ClaimDetailPage = () => {
   const [actionModal, setActionModal] = useState({ isOpen: false, type: null });
   const [actionLoading, setActionLoading] = useState(false);
 
-  useEffect(() => {
-    getClaimById(id)
-      .then(setClaim)
+  const fetchClaimData = (id) => {
+    setLoading(true);
+    Promise.all([
+      getClaimById(id),
+    ])
+      .then(([claimData]) => {
+        setClaim(claimData);
+      })
       .catch((err) => {
         console.error("Claim fetch error:", err);
         setError(err.response?.data?.message || err.message || 'Could not load claim details.');
       })
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchClaimData(id);
   }, [id]);
 
   const handleAction = () => {
@@ -44,14 +54,14 @@ const ClaimDetailPage = () => {
         alert(`Claim ${actionModal.type === 'approve' ? 'approved' : 'rejected'} successfully!`);
         setActionModal({ isOpen: false, type: null });
         setRemark('');
-        // Reload details
-        setLoading(true);
-        return getClaimById(id).then(setClaim);
+        fetchClaimData();
       })
-      .catch(() => alert('Failed to process claim action.'))
+      .catch(() => {
+        alert('Failed to process claim action.');
+        setLoading(false);
+      })
       .finally(() => {
         setActionLoading(false);
-        setLoading(false);
       });
   };
 
@@ -87,7 +97,7 @@ const ClaimDetailPage = () => {
         subtitle={`Reviewing Claim #${claim.claimNumber || claim.id}`}
         onBack={() => navigate('/admin/claims')}
         action={
-          status === 'Pending' && (
+          status?.toUpperCase() !== 'APPROVED' && status?.toUpperCase() !== 'REJECTED' && (
             <div className="d-flex gap-2">
               <button 
                 className="btn btn-outline-danger" 
@@ -149,7 +159,7 @@ const ClaimDetailPage = () => {
 
               <h6 className="fw-bold mb-3">Attached Documents</h6>
               {documents.length > 0 ? (
-                <div className="d-flex flex-column gap-2">
+                <div className="d-flex flex-column gap-2 mb-4">
                   {documents.map((doc, idx) => {
                     const isPdf = doc.documentType?.includes('pdf') || doc.documentName?.endsWith('.pdf');
                     return (
@@ -177,7 +187,7 @@ const ClaimDetailPage = () => {
                   })}
                 </div>
               ) : (
-                <p className="text-muted my-2">No documents attached to this claim.</p>
+                <p className="text-muted my-2 mb-4">No documents attached to this claim.</p>
               )}
             </div>
           </div>

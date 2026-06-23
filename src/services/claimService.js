@@ -1,10 +1,9 @@
 import axiosInstance from "../api/axiosInstance";
+import { safeExtractPaginated } from "../utils/formatters";
 
-import { safeExtractArray } from "../utils/formatters";
-
-export const getAllClaims = async () => {
-  const response = await axiosInstance.get("/claims");
-  return safeExtractArray(response);
+export const getAllClaims = async (params = {}) => {
+  const response = await axiosInstance.get("/claims", { params });
+  return safeExtractPaginated(response);
 };
 
 export const getClaimById = async (claimId) => {
@@ -13,13 +12,19 @@ export const getClaimById = async (claimId) => {
 };
 
 export const approveClaim = async (claimId, payload) => {
-  const response = await axiosInstance.put(`/claims/${claimId}/approve`, payload);
-  return safeExtractArray(response);
+  const response = await axiosInstance.patch(`/claims/${claimId}/final-decision`, {
+    recommendedStatus: "APPROVED",
+    remarks: payload.remarks
+  });
+  return response.data;
 };
 
-export const rejectClaim = async (claimId, reason) => {
-  const response = await axiosInstance.put(`/claims/${claimId}/reject`, { reason });
-  return safeExtractArray(response);
+export const rejectClaim = async (claimId, remarks) => {
+  const response = await axiosInstance.patch(`/claims/${claimId}/final-decision`, {
+    recommendedStatus: "REJECTED",
+    remarks: remarks
+  });
+  return response.data;
 };
 
 export const raiseClaim = async (formData) => {

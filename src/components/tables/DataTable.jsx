@@ -43,7 +43,7 @@ const DataTable = ({
             >
               {columns.map((col, colIndex) => (
                 <td key={colIndex}>
-                  {col.cell ? col.cell(row) : row[col.accessor]}
+                  {col.cell ? col.cell(row, rowIndex) : row[col.accessor]}
                 </td>
               ))}
             </tr>

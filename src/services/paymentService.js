@@ -1,13 +1,11 @@
 
-// TODO: Premium payment API service
-
 import axiosInstance from "../api/axiosInstance";
-import { safeExtractArray } from "../utils/formatters";
+import { safeExtractArray, safeExtractPaginated } from "../utils/formatters";
 
-export const getAllPayments = async () => {
-  const response = await axiosInstance.get("payments/page");
+export const getAllPayments = async (params = {}) => {
+  const response = await axiosInstance.get("payments/page", { params });
   console.log(response)
-  return safeExtractArray(response);
+  return safeExtractPaginated(response);
 };
 
 export const recordPayment = async (paymentData) => {
