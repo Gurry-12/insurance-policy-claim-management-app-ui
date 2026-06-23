@@ -1,4 +1,3 @@
-import React from 'react';
 
 const FormTextarea = ({ label, name, value, onChange, placeholder, error, required = false, rows = 3, ...props }) => {
   return (

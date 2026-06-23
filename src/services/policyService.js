@@ -1,11 +1,15 @@
 import axiosInstance from "../api/axiosInstance";
-import { safeExtractArray } from "../utils/formatters";
+import { safeExtractArray, safeExtractPaginated } from "../utils/formatters";
 
 export const getMyPolicies = async () => {
-  const { data } = await axiosInstance.get(
-    "/policies/my-policies"
-  );
+  const { data } = await axiosInstance.get("/policies/my-policies");
   return data;
+};
+
+export const getAllPoliciesPaginated = async (params = {}) => {
+  const response = await axiosInstance.get("/policies", { params });
+  console.log(response);
+  return safeExtractPaginated(response);
 };
 
 // export const getAllPolicies = async () => {
@@ -35,40 +39,32 @@ export const cancelPolicy = async (policyId) => {
 };
 
 export const purchasePolicy = async (payload) => {
-  const { data } = await axiosInstance.post(
-    "/policies/purchase",
-    payload
-  );
+  const { data } = await axiosInstance.post("/policies/purchase", payload);
 
   return data;
-
 };
 // TODO: Policy API service
-
 
 // export const getAllPolicies = async (userData) => {
 //   const { data } = await axiosInstance.get('/policies', userData);
 //   return data;
 // };
 
-export const getAllPolicies = async (userData, pageNumber = 0,
+export const getAllPolicies = async (
+  userData,
+  pageNumber = 0,
   pageSize = 10,
   sortBy = "policyId",
-  sortDirection = "asc") => {
-
-  
-  const { data } = await axiosInstance.get('/policies', userData,{
-
-   params: {
+  sortDirection = "asc",
+) => {
+  const { data } = await axiosInstance.get("/policies", userData, {
+    params: {
       pageNumber,
       pageSize,
       sortBy,
       sortDirection,
-     },
-
-
+    },
   });
 
-     
   return data;
 };

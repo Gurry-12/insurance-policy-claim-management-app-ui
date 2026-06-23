@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 
-const Sidebar = ({ isOpen, setIsOpen, title = "Agent Portal" }) => {
+const Sidebar = ({ navItems, isOpen, setIsOpen, title }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -10,102 +10,76 @@ const Sidebar = ({ isOpen, setIsOpen, title = "Agent Portal" }) => {
     navigate("/login", { replace: true });
   };
 
-  const navItems = [
-    {
-      to: "/agent/dashboard",
-      icon: "bi-speedometer2",
-      label: "Dashboard",
-      end: true,
-    },
-    {
-      to: "/agent/claims",
-      icon: "bi-file-earmark-text",
-      label: "Claims",
-    },
-    {
-      to: "/agent/claims-history",
-      icon: "bi-clock-history",
-      label: "Claims History",
-    },
-    {
-      to: "/agent/customers",
-      icon: "bi-people",
-      label: "Customers",
-    },
-    {
-      to: "/agent/policies",
-      icon: "bi-shield-check",
-      label: "Policies",
-    },
-    {
-      to: "/agent/issue-policy",
-      icon: "bi-file-earmark-plus",
-      label: "Issue Policy",
-    },
-    {
-      to: "/agent/payments/page",
-      icon: "bi-credit-card",
-      label: "Payments",
-    },
-  ];
-
   return (
     <>
       <aside
+        className={`sidebar sidebar-open-${isOpen}`}
         style={{
           position: "fixed",
           top: 0,
           left: 0,
           bottom: 0,
-          width: "260px",
+          width: 260,
           zIndex: 1040,
-          backgroundColor: "#fff",
-          borderRight: "1px solid #dee2e6",
+          backgroundColor: "var(--ss-sidebar-bg)",
+          borderRight: "1px solid var(--ss-border)",
           display: "flex",
           flexDirection: "column",
-          transition: "all 0.3s ease",
+          transition: "transform 0.25s ease",
+          transform: isOpen ? "translateX(0)" : undefined,
         }}
       >
-        {/* Logo */}
+        {/* Brand */}
         <div
           style={{
-            padding: "20px",
-            borderBottom: "1px solid #dee2e6",
+            padding: "1.25rem 1.5rem",
+            borderBottom: "1px solid var(--ss-border)",
           }}
         >
           <div className="d-flex align-items-center gap-2">
             <div
               style={{
-                width: 40,
-                height: 40,
+                width: 34,
+                height: 34,
                 borderRadius: 10,
-                background: "#f05a28",
+                background: "linear-gradient(135deg, var(--ss-primary), var(--ss-secondary, #1e3a8a))",
                 display: "flex",
-                justifyContent: "center",
                 alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
               }}
             >
               <i
                 className="bi bi-shield-fill-check text-white"
-                style={{ fontSize: "18px" }}
+                style={{ fontSize: "1rem" }}
               />
             </div>
-
             <div>
-              <h6 className="mb-0 fw-bold">InsureFlow</h6>
-              <small className="text-muted">{title}</small>
+              <div
+                style={{
+                  fontWeight: 700,
+                  fontSize: "0.95rem",
+                  color: "var(--ss-text-primary)",
+                  lineHeight: 1.2,
+                }}
+              >
+                InsureFlow
+              </div>
+              <div
+                style={{
+                  fontSize: "0.7rem",
+                  color: "var(--ss-text-muted)",
+                  fontWeight: 500,
+                }}
+              >
+                {title}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Navigation */}
-        <nav
-          style={{
-            flex: 1,
-            overflowY: "auto",
-            padding: "12px",
-          }}
-        >
+        {/* Nav */}
+        <nav style={{ flex: 1, overflowY: "auto", padding: "0.75rem 0.75rem" }}>
           {navItems.map(({ to, icon, label, end }) => (
             <NavLink
               key={to}
@@ -113,71 +87,96 @@ const Sidebar = ({ isOpen, setIsOpen, title = "Agent Portal" }) => {
               end={end}
               onClick={() => setIsOpen(false)}
               className={({ isActive }) =>
-                `d-flex align-items-center gap-3 px-3 py-3 mb-2 rounded text-decoration-none ${
-                  isActive
-                    ? "bg-primary text-white"
-                    : "text-dark"
-                }`
+                `sidebar-link d-flex align-items-center gap-2 px-3 py-2 mb-1 rounded-3 text-decoration-none fw-500 ${isActive ? "sidebar-link-active" : ""}`
               }
+              style={{ fontSize: "0.875rem", fontWeight: 500 }}
             >
-              <i className={`bi ${icon}`} />
-              <span>{label}</span>
+              <i
+                className={`bi ${icon}`}
+                style={{ fontSize: "1rem", width: 20, textAlign: "center" }}
+              />
+              {label}
             </NavLink>
           ))}
         </nav>
 
-        {/* User Section */}
+        {/* User footer */}
         <div
           style={{
-            padding: "16px",
-            borderTop: "1px solid #dee2e6",
+            padding: "1rem 1.25rem",
+            borderTop: "1px solid var(--ss-border)",
           }}
         >
-          <div className="d-flex align-items-center gap-2 mb-3">
+          <div className="d-flex align-items-center gap-2 mb-2">
             <div
               style={{
-                width: 35,
-                height: 35,
+                width: 32,
+                height: 32,
                 borderRadius: "50%",
-                background: "#f05a28",
-                color: "#fff",
+                background: "linear-gradient(135deg, var(--ss-primary), var(--ss-secondary, #1e3a8a))",
                 display: "flex",
-                justifyContent: "center",
                 alignItems: "center",
-                fontWeight: "bold",
+                justifyContent: "center",
+                fontSize: "0.8rem",
+                color: "#fff",
+                fontWeight: 700,
+                flexShrink: 0,
+                boxShadow: "var(--ss-shadow-sm)",
               }}
             >
-              {user?.name?.charAt(0)?.toUpperCase() || "A"}
+              {user?.name?.[0]?.toUpperCase() ?? "U"}
             </div>
-
-            <div>
-              <div className="fw-semibold">
-                {user?.name || "Agent"}
+            <div style={{ overflow: "hidden" }}>
+              <div
+                style={{
+                  fontSize: "0.8rem",
+                  fontWeight: 600,
+                  color: "var(--ss-text-primary)",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {user?.name ?? "User"}
               </div>
-
-              <small className="text-muted">
+              <div
+                style={{
+                  fontSize: "0.7rem",
+                  color: "var(--ss-text-muted)",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
                 {user?.email}
-              </small>
+              </div>
             </div>
           </div>
-
           <button
-            className="btn btn-outline-danger w-100"
             onClick={handleLogout}
+            className="btn btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
+            style={{
+              borderRadius: 8,
+              border: "1px solid var(--ss-border)",
+              color: "var(--ss-text-secondary)",
+              backgroundColor: "transparent",
+              fontSize: "0.8rem",
+            }}
           >
-            Logout
+            <i className="bi bi-box-arrow-right" /> Logout
           </button>
         </div>
       </aside>
 
+      {/* Mobile overlay */}
       {isOpen && (
         <div
           onClick={() => setIsOpen(false)}
           style={{
             position: "fixed",
             inset: 0,
-            background: "rgba(0,0,0,0.4)",
             zIndex: 1039,
+            background: "rgba(0,0,0,0.4)",
           }}
         />
       )}

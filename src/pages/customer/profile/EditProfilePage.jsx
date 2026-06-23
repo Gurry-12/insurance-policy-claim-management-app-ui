@@ -5,6 +5,7 @@ import {
   updateProfile,
   getProfile,
 } from "../../../services/customerService";
+import PageHeader from "../../../components/common/PageHeader";
 
 const EditProfilePage = () => {
   const location = useLocation();
@@ -24,14 +25,9 @@ const EditProfilePage = () => {
     nomineeRelation: "",
   });
 
-  useEffect(() => {
-    loadProfile();
-  }, []);
-
   const loadProfile = async () => {
     try {
       const response = await getProfile();
-
       const data = response.data;
 
       setCustomerId(data.customerId);
@@ -45,8 +41,16 @@ const EditProfilePage = () => {
         nomineeName: data.nomineeName || "",
         nomineeRelation: data.nomineeRelation || "",
       });
-    } catch (error) {}
+    } catch (error) {
+      // Ignore if no profile exists yet
+    }
   };
+
+  useEffect(() => {
+    loadProfile();
+  }, []);
+
+  
 
   const handleChange = (e) => {
     setFormData({
@@ -72,106 +76,146 @@ const EditProfilePage = () => {
   };
 
   return (
-    <div className="container mt-4">
+    <div className="animate-fade-in">
+      <PageHeader 
+        title={customerId ? "Update Profile" : "Create Profile"} 
+        subtitle="Manage your personal information and contact details"
+      />
 
-      <div className="card">
-        <div className="card-header">
-          <h3>{customerId ? "Update Profile" : "Create Profile"}</h3>
-        </div>
+      <div className="row justify-content-center mt-4">
+        <div className="col-lg-8">
+          <div className="card border-0 shadow-sm">
+            <div className="card-body p-4 p-md-5">
+              <form onSubmit={handleSubmit}>
+                <div className="row g-4">
+                  
+                  <div className="col-12">
+                    <h5 className="mb-0 text-primary">Personal Details</h5>
+                    <hr className="mt-2 mb-3" />
+                  </div>
 
-        <div className="card-body">
+                  <div className="col-md-6">
+                    <label className="form-label fw-medium">Date of Birth</label>
+                    <input
+                      type="date"
+                      name="dateOfBirth"
+                      className="form-control"
+                      value={formData.dateOfBirth}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
 
-          <form onSubmit={handleSubmit}>
+                  <div className="col-12">
+                    <h5 className="mb-0 mt-2 text-primary">Contact Information</h5>
+                    <hr className="mt-2 mb-3" />
+                  </div>
 
-            <div className="mb-3">
-              <label>DOB</label>
-              <input
-                type="date"
-                name="dateOfBirth"
-                className="form-control"
-                value={formData.dateOfBirth}
-                onChange={handleChange}
-              />
+                  <div className="col-12">
+                    <label className="form-label fw-medium">Address</label>
+                    <input
+                      type="text"
+                      name="address"
+                      className="form-control"
+                      value={formData.address}
+                      onChange={handleChange}
+                      placeholder="Street address, P.O. box, etc."
+                      required
+                    />
+                  </div>
+
+                  <div className="col-md-4">
+                    <label className="form-label fw-medium">City</label>
+                    <input
+                      type="text"
+                      name="city"
+                      className="form-control"
+                      value={formData.city}
+                      onChange={handleChange}
+                      placeholder="City"
+                      required
+                    />
+                  </div>
+
+                  <div className="col-md-4">
+                    <label className="form-label fw-medium">State</label>
+                    <input
+                      type="text"
+                      name="state"
+                      className="form-control"
+                      value={formData.state}
+                      onChange={handleChange}
+                      placeholder="State"
+                      required
+                    />
+                  </div>
+
+                  <div className="col-md-4">
+                    <label className="form-label fw-medium">Pin Code</label>
+                    <input
+                      type="text"
+                      name="pinCode"
+                      className="form-control"
+                      value={formData.pinCode}
+                      onChange={handleChange}
+                      placeholder="Postal code"
+                      required
+                    />
+                  </div>
+
+                  <div className="col-12">
+                    <h5 className="mb-0 mt-2 text-primary">Nominee Details</h5>
+                    <hr className="mt-2 mb-3" />
+                  </div>
+
+                  <div className="col-md-6">
+                    <label className="form-label fw-medium">Nominee Name</label>
+                    <input
+                      type="text"
+                      name="nomineeName"
+                      className="form-control"
+                      value={formData.nomineeName}
+                      onChange={handleChange}
+                      placeholder="Full name of nominee"
+                      required
+                    />
+                  </div>
+
+                  <div className="col-md-6">
+                    <label className="form-label fw-medium">Nominee Relation</label>
+                    <input
+                      type="text"
+                      name="nomineeRelation"
+                      className="form-control"
+                      value={formData.nomineeRelation}
+                      onChange={handleChange}
+                      placeholder="e.g., Spouse, Child, Parent"
+                      required
+                    />
+                  </div>
+
+                  <div className="col-12 mt-5 d-flex gap-2 justify-content-end border-top pt-4">
+                    <button
+                      type="button"
+                      className="btn btn-light px-4"
+                      onClick={() => navigate(-1)}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn btn-primary px-4"
+                    >
+                      <i className="bi bi-check-circle me-2"></i>
+                      {customerId ? "Update Profile" : "Save Profile"}
+                    </button>
+                  </div>
+                </div>
+              </form>
             </div>
-
-            <div className="mb-3">
-              <label>Address</label>
-              <input
-                type="text"
-                name="address"
-                className="form-control"
-                value={formData.address}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="mb-3">
-              <label>City</label>
-              <input
-                type="text"
-                name="city"
-                className="form-control"
-                value={formData.city}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="mb-3">
-              <label>State</label>
-              <input
-                type="text"
-                name="state"
-                className="form-control"
-                value={formData.state}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="mb-3">
-              <label>Pin Code</label>
-              <input
-                type="text"
-                name="pinCode"
-                className="form-control"
-                value={formData.pinCode}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="mb-3">
-              <label>Nominee Name</label>
-              <input
-                type="text"
-                name="nomineeName"
-                className="form-control"
-                value={formData.nomineeName}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="mb-3">
-              <label>Nominee Relation</label>
-              <input
-                type="text"
-                name="nomineeRelation"
-                className="form-control"
-                value={formData.nomineeRelation}
-                onChange={handleChange}
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="btn btn-success"
-            >
-              {customerId ? "Update Profile" : "Create Profile"}
-            </button>
-
-          </form>
-
+          </div>
         </div>
       </div>
-
     </div>
   );
 };

@@ -110,7 +110,7 @@ const VerifyOtp = () => {
         <div className="inner-form-card">
           {/* Header Context Elements */}
           <div className="mb-2 text-start">
-            <span className="orange-logo-sub">Security Check</span>
+            <span className="brand-logo-sub">Security Check</span>
             <h1 className="form-display-title" style={{ textAlign: "left" }}>
               Verify OTP
             </h1>
@@ -207,7 +207,7 @@ const VerifyOtp = () => {
             <button
               id="otp-submit-btn"
               type="submit"
-              className="btn vivid-orange-btn w-100 mt-2 mb-3"
+              className="btn login-submit-btn w-100 mt-2 mb-3"
               disabled={loading}
             >
               {loading ? (

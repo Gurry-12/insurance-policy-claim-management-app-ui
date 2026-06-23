@@ -1,96 +1,152 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { getClaimById } from "../../../services/claimService";
+import PageHeader from "../../../components/common/PageHeader";
+import LoadingSpinner from "../../../components/common/LoadingSpinner";
+import StatusBadge from "../../../components/ui/StatusBadge";
+import { FileText, ArrowLeft, ExternalLink, History, Upload } from "lucide-react";
 
 const ClaimDetailsPage = () => {
   const { claimId } = useParams();
-
   const [claim, setClaim] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const loadClaim = async () => {
+    try {
+      setIsLoading(true);
+      const response = await getClaimById(claimId);
+      setClaim(response);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     loadClaim();
   }, []);
 
-  const loadClaim = async () => {
-    try {
-      const response = await getClaimById(claimId);
+  
 
-      setClaim(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  if (isLoading) {
+    return <LoadingSpinner text="Loading claim details..." />;
+  }
 
   if (!claim) {
-    return <h4>Loading...</h4>;
+    return <div className="alert alert-warning">Claim not found</div>;
   }
 
   return (
-    <div className="container mt-4">
+    <div className="animate-fade-in">
+      <PageHeader
+        title={`Claim ${claim.claimNumber}`}
+        subtitle="Detailed view of your claim"
+        icon={FileText}
+        action={
+          <div className="d-flex gap-2">
+            <Link
+              to={`/customer/claims/history/${claim.claimId}`}
+              className="btn btn-outline-primary"
+            >
+              <History size={18} className="me-2" />
+              History
+            </Link>
+            <Link
+              to={`/customer/claims/upload/${claim.claimId}`}
+              className="btn btn-outline-warning text-dark"
+            >
+              <Upload size={18} className="me-2" />
+              Upload Docs
+            </Link>
+            <Link to="/customer/claims" className="btn btn-outline-secondary">
+              <ArrowLeft size={18} className="me-2" />
+              Back
+            </Link>
+          </div>
+        }
+      />
 
-      <h2>Claim Details</h2>
-
-      <div className="card p-3">
-
-        <p>
-          <strong>Claim Number:</strong>{" "}
-          {claim.claimNumber}
-        </p>
-
-        <p>
-          <strong>Status:</strong>{" "}
-          {claim.claimStatus}
-        </p>
-
-        <p>
-          <strong>Amount:</strong> ₹
-          {claim.claimAmount}
-        </p>
-
-        <p>
-          <strong>Reason:</strong>{" "}
-          {claim.claimReason}
-        </p>
-
-        <p>
-          <strong>Agent Remarks:</strong>{" "}
-          {claim.agentRemarks || "N/A"}
-        </p>
-
-        <p>
-          <strong>Admin Remarks:</strong>{" "}
-          {claim.adminRemarks || "N/A"}
-        </p>
-
-        <hr />
-
-        <h4>Uploaded Documents</h4>
-
-        {claim.documents?.length > 0 ? (
-          claim.documents.map((doc, index) => (
-            <div key={index} className="mb-2">
-
-              <strong>
-                {doc.documentName}
-              </strong>
-
-              <br />
-
-              <a
-                href={doc.documentReference}
-                target="_blank"
-                rel="noreferrer"
-                className="btn btn-primary btn-sm"
-              >
-                Open
-              </a>
-
+      <div className="row g-4">
+        <div className="col-lg-8">
+          <div className="card border-0 shadow-sm h-100">
+            <div className="card-header bg-white border-bottom-0 pt-4 pb-0">
+              <h5 className="card-title mb-0">Claim Information</h5>
             </div>
-          ))
-        ) : (
-          <p>No Documents Uploaded</p>
-        )}
+            <div className="card-body">
+              <div className="row g-3">
+                <div className="col-sm-6">
+                  <div className="p-3 bg-light rounded">
+                    <small className="text-muted d-block mb-1">Status</small>
+                    <StatusBadge status={claim.claimStatus} />
+                  </div>
+                </div>
+                <div className="col-sm-6">
+                  <div className="p-3 bg-light rounded">
+                    <small className="text-muted d-block mb-1">Claim Amount</small>
+                    <div className="fw-semibold">₹{claim.claimAmount?.toLocaleString()}</div>
+                  </div>
+                </div>
+                <div className="col-12">
+                  <div className="p-3 bg-light rounded">
+                    <small className="text-muted d-block mb-1">Reason</small>
+                    <div>{claim.claimReason}</div>
+                  </div>
+                </div>
+                {claim.agentRemarks && (
+                  <div className="col-12">
+                    <div className="p-3 bg-light rounded">
+                      <small className="text-muted d-block mb-1">Agent Remarks</small>
+                      <div>{claim.agentRemarks}</div>
+                    </div>
+                  </div>
+                )}
+                {claim.adminRemarks && (
+                  <div className="col-12">
+                    <div className="p-3 bg-light rounded border border-warning">
+                      <small className="text-muted d-block mb-1">Admin Remarks</small>
+                      <div>{claim.adminRemarks}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
 
+        <div className="col-lg-4">
+          <div className="card border-0 shadow-sm h-100">
+            <div className="card-header bg-white border-bottom-0 pt-4 pb-0">
+              <h5 className="card-title mb-0">Uploaded Documents</h5>
+            </div>
+            <div className="card-body">
+              {claim.documents?.length > 0 ? (
+                <div className="d-flex flex-column gap-3">
+                  {claim.documents.map((doc, index) => (
+                    <div key={index} className="d-flex align-items-center justify-content-between p-3 border rounded bg-light">
+                      <div className="text-truncate me-3" style={{ maxWidth: "200px" }} title={doc.documentName}>
+                        <span className="fw-medium small">{doc.documentName}</span>
+                      </div>
+                      <a
+                        href={doc.documentReference}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="btn btn-sm btn-primary"
+                      >
+                        <ExternalLink size={14} className="me-1" />
+                        Open
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center text-muted p-4">
+                  No documents uploaded yet
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

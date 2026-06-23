@@ -3,11 +3,12 @@ import PageHeader from '../../../components/common/PageHeader';
 import DataTable from '../../../components/tables/DataTable';
 import PaginationBar from '../../../components/tables/PaginationBar';
 import StatusBadge from '../../../components/ui/StatusBadge';
-import { getAllPayments } from '../../../services/paymentService';
+import { getAllPaymentsPaginated } from '../../../services/paymentService';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
+import usePagination from '../../../hooks/usePagination';
 
 const PaymentListPage = () => {
-  const [currentPage, setCurrentPage] = useState(1);
+  const { currentPage, totalPages, setTotalPages, setCurrentPage, pageParams } = usePagination(1, 10);
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -32,11 +33,14 @@ const PaymentListPage = () => {
   ];
 
   useEffect( () => {
-      getAllPayments()
-        .then(setPayments)
+      getAllPaymentsPaginated(pageParams)
+        .then((res) => {
+          setPayments(res.content);
+          setTotalPages(res.totalPages);
+        })
         .catch(() => setError('Could not load payment transactions. Please check your API connection.'))
         .finally(() => setLoading(false));
-  }, [] );
+  }, [currentPage] );
 
   return (
     <div>
@@ -66,7 +70,7 @@ const PaymentListPage = () => {
             />
             <PaginationBar 
               currentPage={currentPage} 
-              totalPages={1} 
+              totalPages={totalPages} 
               onPageChange={setCurrentPage} 
             />
           </div>

@@ -5,7 +5,7 @@ export const ROLES = {
 };
 
 export const ROLE_HOME = {
-  [ROLES.ADMIN]: '/admin/dashboard',
-  [ROLES.AGENT]: '/agent/dashboard',
-  [ROLES.CUSTOMER]: '/customer/dashboard',
+  [ROLES.ADMIN]: '/dashboard',
+  [ROLES.AGENT]: '/dashboard',
+  [ROLES.CUSTOMER]: '/dashboard',
 };

@@ -9,7 +9,7 @@ export const getAdminStats = async () => {
     totalCustomers: await getCustomerCount().catch(() => 0),
     activePolicies: await getTotalCativePolicies().catch(() => 0),
     openClaims: await getOpenClaimsCount().catch(() => 0),
-    activeAgents: await getActiveAgents().catch(() => 0),
+    activeUsers: await getActiveUsers().catch(() => 0),
     totalProducts: await getTotalProducts().catch(() => 0),
     recentClaims: await getRecentClaims().catch(() => []),
     recentPolicies: await getRecentPolicies().catch(() => [])
@@ -27,7 +27,7 @@ const getTotalProducts = async () => {
   return safeExtractArray(response).length;
 };
 
-const getActiveAgents = async () => {
+const getActiveUsers = async () => {
   const response = await axiosInstance.get('/users');
   return safeExtractArray(response).length;
 };

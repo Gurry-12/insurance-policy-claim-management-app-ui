@@ -65,6 +65,49 @@
   --bs-card-bg:         #161b22;
 }
 
+/* ── Role Themes ────────────────────────────────────────────────── */
+.theme-admin {
+  --ss-primary:         #0f172a; /* Slate / Navy */
+  --ss-primary-hover:   #1e293b;
+  --ss-primary-light:   rgba(15, 23, 42, 0.08);
+  --ss-secondary:       #1e3a8a; /* Deep Cobalt Blue */
+}
+[data-theme='dark'] .theme-admin,
+[data-bs-theme='dark'] .theme-admin {
+  --ss-primary:         #38bdf8; /* Vibrant light blue */
+  --ss-primary-hover:   #0ea5e9;
+  --ss-primary-light:   rgba(56, 189, 248, 0.15);
+  --ss-secondary:       #94a3b8;
+}
+
+.theme-agent {
+  --ss-primary:         #0d9488; /* Teal */
+  --ss-primary-hover:   #0f766e;
+  --ss-primary-light:   rgba(13, 148, 136, 0.1);
+  --ss-secondary:       #059669; /* Emerald */
+}
+[data-theme='dark'] .theme-agent,
+[data-bs-theme='dark'] .theme-agent {
+  --ss-primary:         #2dd4bf; /* Mint Teal */
+  --ss-primary-hover:   #14b8a6;
+  --ss-primary-light:   rgba(45, 212, 191, 0.15);
+  --ss-secondary:       #34d399;
+}
+
+.theme-customer {
+  --ss-primary:         #0284c7; /* Sky Blue */
+  --ss-primary-hover:   #0369a1;
+  --ss-primary-light:   rgba(2, 132, 199, 0.1);
+  --ss-secondary:       #10b981; /* Sage Green */
+}
+[data-theme='dark'] .theme-customer,
+[data-bs-theme='dark'] .theme-customer {
+  --ss-primary:         #38bdf8; /* Light Sky */
+  --ss-primary-hover:   #0ea5e9;
+  --ss-primary-light:   rgba(56, 189, 248, 0.15);
+  --ss-secondary:       #34d399;
+}
+
 /* ── Base ─────────────────────────────────────────────────────────── */
 *,
 *::before,
@@ -260,8 +303,176 @@ hr {
 /* ── Utility ─────────────────────────────────────────────────────── */
 .text-muted { color: var(--ss-text-secondary) !important; }
 
+/* Fix Bootstrap hardcoded dark classes for Dark Theme */
+[data-theme='dark'] .text-dark,
+[data-bs-theme='dark'] .text-dark {
+  color: var(--ss-text-primary) !important;
+}
+
+[data-theme='dark'] .bg-light,
+[data-bs-theme='dark'] .bg-light {
+  background-color: var(--ss-surface-hover) !important;
+  color: var(--ss-text-primary) !important;
+}
+
+/* Exception for btn-warning text which should stay dark on yellow */
+[data-theme='dark'] .btn-warning.text-dark,
+[data-bs-theme='dark'] .btn-warning.text-dark {
+  color: #212529 !important;
+}
+
 /* ── Placeholder page ────────────────────────────────────────────── */
 .placeholder-module-card {
   border: 2px dashed var(--ss-border) !important;
   background: var(--ss-surface) !important;
 }
+
+/* ── Global Premium UI Styling Overrides ─────────────────────────── */
+
+/* 1. Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ss-border);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ss-text-secondary);
+}
+
+/* 2. Sleek Form Elements */
+.form-control, .form-select, textarea {
+  background-color: var(--ss-surface) !important;
+  border: 1.5px solid var(--ss-border) !important;
+  color: var(--ss-text-primary) !important;
+  border-radius: 10px !important;
+  padding: 0.65rem 0.9rem !important;
+  font-size: 0.88rem !important;
+  font-weight: 500 !important;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out !important;
+}
+.form-control:focus, .form-select:focus, textarea:focus {
+  border-color: var(--ss-primary) !important;
+  box-shadow: 0 0 0 3px var(--ss-primary-light) !important;
+  outline: none !important;
+}
+.form-control::placeholder {
+  color: var(--ss-text-muted) !important;
+  font-weight: 400;
+}
+.form-label {
+  font-weight: 600 !important;
+  color: var(--ss-text-primary) !important;
+  font-size: 0.82rem !important;
+  margin-bottom: 0.45rem !important;
+  letter-spacing: 0.01em;
+}
+
+/* 3. Modern Interactive Buttons */
+.btn {
+  font-weight: 600 !important;
+  font-size: 0.84rem !important;
+  padding: 0.55rem 1.25rem !important;
+  border-radius: 10px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: var(--ss-shadow-sm);
+}
+.btn-primary {
+  background-color: var(--ss-primary) !important;
+  border-color: var(--ss-primary) !important;
+  color: #ffffff !important;
+}
+.btn-primary:hover {
+  background-color: var(--ss-primary-hover) !important;
+  border-color: var(--ss-primary-hover) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px var(--ss-primary-light) !important;
+}
+.btn-outline-primary {
+  color: var(--ss-primary) !important;
+  border-color: var(--ss-primary) !important;
+}
+.btn-outline-primary:hover {
+  background-color: var(--ss-primary) !important;
+  color: #ffffff !important;
+}
+.btn-secondary {
+  background-color: var(--ss-surface) !important;
+  border-color: var(--ss-border) !important;
+  color: var(--ss-text-primary) !important;
+}
+.btn-secondary:hover {
+  background-color: var(--ss-surface-hover) !important;
+  border-color: var(--ss-border) !important;
+}
+
+/* 4. Elegant Tables */
+.table-responsive {
+  border: 1px solid var(--ss-border) !important;
+  border-radius: 16px !important;
+  background-color: var(--ss-surface) !important;
+  box-shadow: var(--ss-shadow-sm) !important;
+  overflow: hidden !important;
+  margin-bottom: 1.5rem;
+}
+.table {
+  margin-bottom: 0 !important;
+  color: var(--ss-text-primary) !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+.table thead th {
+  background-color: var(--ss-surface-hover) !important;
+  color: var(--ss-text-secondary) !important;
+  font-size: 0.74rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  font-weight: 700 !important;
+  padding: 0.95rem 1.25rem !important;
+  border-bottom: 1px solid var(--ss-border) !important;
+  border-top: none !important;
+}
+.table tbody td {
+  padding: 0.95rem 1.25rem !important;
+  border-bottom: 1px solid var(--ss-border-light) !important;
+  font-size: 0.84rem !important;
+  background-color: transparent !important;
+}
+.table-hover tbody tr {
+  transition: background-color 0.15s ease !important;
+}
+.table-hover tbody tr:hover td {
+  background-color: var(--ss-surface-hover) !important;
+}
+
+/* 5. Modern Card & Shadow Styling */
+.card {
+  border-radius: 16px !important;
+  border: 1px solid var(--ss-border) !important;
+  box-shadow: var(--ss-shadow-sm) !important;
+  overflow: hidden;
+}
+.card-header {
+  padding: 1.25rem 1.5rem !important;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--ss-text-primary);
+}
+.card-body {
+  padding: 1.5rem !important;
+}
+
+/* 6. Animating transitions */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+

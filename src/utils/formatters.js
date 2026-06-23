@@ -9,3 +9,29 @@ export const safeExtractArray = (response) => {
   const list = response.data.content || response.data.data || response.data;
   return Array.isArray(list) ? list : [];
 };
+
+export const safeExtractPaginated = (response) => {
+  if (!response || !response.data) return { content: [], totalPages: 1, totalElements: 0 };
+  
+  if (typeof response.data === 'string') return { content: [], totalPages: 1, totalElements: 0 };
+  
+  const dataObj = response.data.data || response.data;
+  
+  if (dataObj && typeof dataObj === 'object') {
+    const content = dataObj.content || dataObj.data || (Array.isArray(dataObj) ? dataObj : []);
+    const totalPages = dataObj.totalPages || 1;
+    const totalElements = dataObj.totalElements || content.length;
+    return {
+      content: Array.isArray(content) ? content : [],
+      totalPages,
+      totalElements
+    };
+  }
+  
+  const list = Array.isArray(response.data) ? response.data : [];
+  return {
+    content: list,
+    totalPages: 1,
+    totalElements: list.length
+  };
+};

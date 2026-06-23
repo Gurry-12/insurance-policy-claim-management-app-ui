@@ -1,9 +1,9 @@
 import axiosInstance from "../api/axiosInstance";
-import { safeExtractArray } from "../utils/formatters";
+import { safeExtractPaginated } from "../utils/formatters";
 
-export const getAllUsers = async () => {
-  const response = await axiosInstance.get("/users");
-  return safeExtractArray(response);
+export const getAllUsers = async (params = {}) => {
+  const response = await axiosInstance.get("/users/page", { params });
+  return safeExtractPaginated(response);
 };
 
 export const getUserById = async (userId) => {
@@ -17,12 +17,12 @@ export const createAgent = async (payload) => {
 };
 
 export const activateUser = async (userId) => {
-  const response = await axiosInstance.put(`/users/${userId}/activate`);
+  const response = await axiosInstance.patch(`/users/${userId}/activate`);
   return response.data;
 };
 
 export const deactivateUser = async (userId) => {
-  const response = await axiosInstance.put(`/users/${userId}/deactivate`);
+  const response = await axiosInstance.patch(`/users/${userId}/deactivate`);
   return response.data;
 };
 

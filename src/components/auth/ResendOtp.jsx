@@ -160,7 +160,7 @@ const ResendOtp = ({ email = '' }) => {
 
               <button
                 type="submit"
-                className="btn vivid-orange-btn w-100"
+                className="btn login-submit-btn w-100"
                 disabled={loading}
               >
                 {loading ? (

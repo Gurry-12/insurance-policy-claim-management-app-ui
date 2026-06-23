@@ -1,8 +1,8 @@
-  
-
   import { useEffect, useState } from "react";
 import { getAllPayments } from "../../../services/paymentService";
 import { useNavigate } from "react-router-dom";
+import PageHeader from "../../../components/common/PageHeader";
+import StatusBadge from "../../../components/ui/StatusBadge";
 
 const AgentPaymentListPage = () => {
   const [payments, setPayments] = useState([]);
@@ -25,24 +25,29 @@ const AgentPaymentListPage = () => {
   }, []);
 
   if (loading) {
-    return <h2>Loading Payments...</h2>;
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h2>Payment Management</h2>
-      </div>
+    <div className="animate-fade-in">
+      <PageHeader
+        title="Payment Management"
+        subtitle="Track your client premium transactions"
+        action={
+          <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate("/agent/dashboard")}>
+            <i className="bi bi-arrow-left"></i> Back
+          </button>
+        }
+      />
 
-          <div className="d-flex justify-content-end mb-3">
-     <button    
-        className="btn btn-secondary mb-3"
-        onClick={() => navigate("/agent/dashboard")}
-      > Back </button>
-
-      </div>
-      <div className="content-card">
-        <table className="payment-table">
+      <div className="table-responsive">
+        <table className="table table-hover align-middle mb-0">
           <thead>
             <tr>
               <th>Payment ID</th>
@@ -60,28 +65,16 @@ const AgentPaymentListPage = () => {
             {payments.length > 0 ? (
               payments.map((payment) => (
                 <tr key={payment.paymentId}>
-                  <td>{payment.paymentId}</td>
-                  <td>{payment.policyId}</td>
+                  <td style={{ fontWeight: 600 }}>#{payment.paymentId}</td>
+                  <td style={{ fontWeight: 600 }}>#{payment.policyId}</td>
                   <td>{payment.policyNumber}</td>
-                  <td>₹ {payment.amount}</td>
+                  <td style={{ fontWeight: 600 }}>₹ {payment.amount}</td>
                   <td>{payment.paymentMode}</td>
                   <td>{payment.transactionReference}</td>
-
                   <td>
-                    <span
-                      className={
-                        payment.paymentStatus === "SUCCESS"
-                          ? "approved"
-                          : payment.paymentStatus === "FAILED"
-                          ? "rejected"
-                          : "pending"
-                      }
-                    >
-                      {payment.paymentStatus}
-                    </span>
+                    <StatusBadge status={payment.paymentStatus} />
                   </td>
-
-                  <td>
+                  <td style={{ color: 'var(--ss-text-muted)' }}>
                     {payment.paymentDate
                       ? new Date(payment.paymentDate).toLocaleString()
                       : "-"}
@@ -90,7 +83,7 @@ const AgentPaymentListPage = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="8">No Payments Found</td>
+                <td colSpan="8" className="text-center py-4">No Payments Found</td>
               </tr>
             )}
           </tbody>

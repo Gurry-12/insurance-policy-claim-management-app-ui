@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { recordPayment } from "../../../services/paymentService";
+import { getMyPolicies } from "../../../services/policyService";
+import PageHeader from "../../../components/common/PageHeader";
+import { CreditCard, Wallet, AlertCircle } from "lucide-react";
 
 const RecordPaymentPage = () => {
   const navigate = useNavigate();
@@ -12,6 +15,25 @@ const RecordPaymentPage = () => {
     paymentMode: "UPI",
     paymentStatus: "SUCCESS",
   });
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+  const [policies, setPolicies] = useState([]);
+  const [isLoadingPolicies, setIsLoadingPolicies] = useState(true);
+
+  useEffect(() => {
+    const fetchPolicies = async () => {
+      try {
+        const response = await getMyPolicies();
+        setPolicies(response.content || response.data || (Array.isArray(response) ? response : []));
+      } catch (err) {
+        console.error("Failed to fetch policies:", err);
+      } finally {
+        setIsLoadingPolicies(false);
+      }
+    };
+    fetchPolicies();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -22,6 +44,8 @@ const RecordPaymentPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
 
     try {
       await recordPayment({
@@ -30,68 +54,119 @@ const RecordPaymentPage = () => {
       });
 
       alert("Payment Recorded Successfully");
-
       navigate("/customer/payments");
     } catch (error) {
       console.error(error);
-      alert(
-        error?.response?.data?.message ||
-          "Payment Failed"
-      );
+      setError(error?.response?.data?.message || "Payment Failed");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="container mt-4">
-      <h3>Make Payment</h3>
+    <div className="animate-fade-in">
+      <PageHeader
+        title="Make Payment"
+        subtitle="Securely pay your policy premium"
+        icon={CreditCard}
+        backButton={true}
+      />
 
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label>Policy Id</label>
-          <input
-            type="number"
-            name="policyId"
-            className="form-control"
-            value={formData.policyId}
-            onChange={handleChange}
-            required
-          />
+      <div className="row justify-content-center mt-4">
+        <div className="col-md-8 col-lg-6">
+          <div className="card border-0 shadow-sm">
+            <div className="card-body p-4 p-md-5">
+              <div className="d-flex align-items-center mb-4">
+                <div className="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
+                  <Wallet size={24} className="text-primary" />
+                </div>
+                <div>
+                  <h5 className="card-title mb-1">Payment Details</h5>
+                  <p className="card-text text-muted small mb-0">Enter your payment information</p>
+                </div>
+              </div>
+
+              {error && (
+                <div className="alert alert-danger d-flex align-items-center" role="alert">
+                  <AlertCircle size={18} className="me-2" />
+                  <div>{error}</div>
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit}>
+                <div className="mb-4">
+                  <label className="form-label fw-medium">Select Policy</label>
+                  {isLoadingPolicies ? (
+                    <div className="form-control form-control-lg bg-light text-muted">Loading policies...</div>
+                  ) : (
+                    <select
+                      name="policyId"
+                      className="form-select form-select-lg"
+                      value={formData.policyId}
+                      onChange={handleChange}
+                      required
+                      disabled={!!policyId}
+                    >
+                      <option value="">-- Select a Policy --</option>
+                      {policies.map((policy) => (
+                        <option key={policy.id || policy.policyId} value={policy.id || policy.policyId}>
+                          {policy.planName ? `${policy.planName} (ID: ${policy.id || policy.policyId})` : `Policy ID: ${policy.id || policy.policyId}`}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+
+                <div className="mb-4">
+                  <label className="form-label fw-medium">Amount (₹)</label>
+                  <input
+                    type="number"
+                    name="amount"
+                    className="form-control form-control-lg"
+                    value={formData.amount}
+                    onChange={handleChange}
+                    required
+                    min="1"
+                    placeholder="Enter amount"
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="form-label fw-medium">Payment Mode</label>
+                  <select
+                    name="paymentMode"
+                    className="form-select form-select-lg"
+                    value={formData.paymentMode}
+                    onChange={handleChange}
+                  >
+                    <option value="UPI">UPI</option>
+                    <option value="CARD">Credit/Debit Card</option>
+                    <option value="NET_BANKING">Net Banking</option>
+                    <option value="CASH">Cash</option>
+                  </select>
+                </div>
+
+                <button 
+                  className="btn btn-primary btn-lg w-100 mt-2" 
+                  type="submit"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <span className="d-flex align-items-center justify-content-center">
+                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      Processing...
+                    </span>
+                  ) : (
+                    "Pay Premium"
+                  )}
+                </button>
+              </form>
+            </div>
+          </div>
         </div>
-
-        <div className="mb-3">
-          <label>Amount</label>
-          <input
-            type="number"
-            name="amount"
-            className="form-control"
-            value={formData.amount}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="mb-3">
-          <label>Payment Mode</label>
-
-          <select
-            name="paymentMode"
-            className="form-control"
-            value={formData.paymentMode}
-            onChange={handleChange}
-          >
-            <option value="UPI">UPI</option>
-            <option value="CARD">CARD</option>
-            <option value="NET_BANKING">NET_BANKING</option>
-            <option value="CASH">CASH</option>
-          </select>
-        </div>
-
-        <button className="btn btn-success">
-          Pay Premium
-        </button>
-      </form>
+      </div>
     </div>
   );
 };
 
-export default RecordPaymentPage;
+export default RecordPaymentPage;
