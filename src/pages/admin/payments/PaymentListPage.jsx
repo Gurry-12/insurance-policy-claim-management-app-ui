@@ -3,7 +3,7 @@ import PageHeader from '../../../components/common/PageHeader';
 import DataTable from '../../../components/tables/DataTable';
 import PaginationBar from '../../../components/tables/PaginationBar';
 import StatusBadge from '../../../components/ui/StatusBadge';
-import { getAllPayments } from '../../../services/paymentService';
+import { getAllPaymentsPaginated } from '../../../services/paymentService';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import usePagination from '../../../hooks/usePagination';
 
@@ -33,7 +33,7 @@ const PaymentListPage = () => {
   ];
 
   useEffect( () => {
-      getAllPayments(pageParams)
+      getAllPaymentsPaginated(pageParams)
         .then((res) => {
           setPayments(res.content);
           setTotalPages(res.totalPages);

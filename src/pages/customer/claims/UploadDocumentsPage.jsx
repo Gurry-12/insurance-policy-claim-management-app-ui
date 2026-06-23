@@ -30,6 +30,7 @@ const UploadDocumentsPage = () => {
         <input
           type="file"
           multiple
+          accept=".pdf,.jpg,.jpeg,.png"
           className="form-control"
           onChange={(e) =>
             setFiles([...e.target.files])

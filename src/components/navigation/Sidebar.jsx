@@ -1,6 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
-import logoSrc from "../../assets/logo/insurance-heart-vector.png";
 
 const Sidebar = ({ navItems, isOpen, setIsOpen, title }) => {
   const { user, logout } = useAuth();
@@ -33,49 +32,43 @@ const Sidebar = ({ navItems, isOpen, setIsOpen, title }) => {
         {/* Brand */}
         <div
           style={{
-            padding: "1.75rem 1rem",
+            padding: "1.25rem 1.5rem",
             borderBottom: "1px solid var(--ss-border)",
-            cursor: "pointer",
-            textAlign: "center",
-          }}
-          onClick={() => {
-            navigate("/admin/dashboard");
-            setIsOpen(false);
           }}
         >
-          <div className="d-flex flex-column align-items-center gap-2">
+          <div className="d-flex align-items-center gap-2">
             <div
               style={{
-                width: "100%",
+                width: 34,
+                height: 34,
+                borderRadius: 10,
+                background: "linear-gradient(135deg,#f05a28,#e04f1e)",
                 display: "flex",
+                alignItems: "center",
                 justifyContent: "center",
-                marginBottom: "0.5rem",
               }}
             >
-              <img
-                src={logoSrc}
-                alt="InsureFlow Logo"
-                style={{
-                  height: 100,
-                  width: "auto",
-                  maxWidth: "100%",
-                  objectFit: "contain",
-                }}
+              <i
+                className="bi bi-shield-fill-check text-white"
+                style={{ fontSize: "1rem" }}
               />
             </div>
             <div>
-              {/* 
-              <div style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--ss-text-primary)', lineHeight: 1.2 }}>
-                InsureFlow
-              </div> */}
               <div
                 style={{
-                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  fontSize: "0.95rem",
+                  color: "var(--ss-text-primary)",
+                  lineHeight: 1.2,
+                }}
+              >
+                InsureFlow
+              </div>
+              <div
+                style={{
+                  fontSize: "0.7rem",
                   color: "var(--ss-text-muted)",
-                  fontWeight: 600,
-                  marginTop: "4px",
-                  letterSpacing: "0.05em",
-                  textTransform: "uppercase",
+                  fontWeight: 500,
                 }}
               >
                 {title}

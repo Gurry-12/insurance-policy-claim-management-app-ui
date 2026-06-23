@@ -1,4 +1,8 @@
 const AgentRecordPaymentPage = () => {
-  return <div><h4>Agent - Record Payment</h4></div>;
+  return (
+    <div className="page">
+      <h1>Payments Management</h1>
+    </div>
+  );
 };
 export default AgentRecordPaymentPage;

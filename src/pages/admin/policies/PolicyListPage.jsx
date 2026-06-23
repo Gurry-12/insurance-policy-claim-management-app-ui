@@ -4,7 +4,7 @@ import PageHeader from '../../../components/common/PageHeader';
 import DataTable from '../../../components/tables/DataTable';
 import PaginationBar from '../../../components/tables/PaginationBar';
 import StatusBadge from '../../../components/ui/StatusBadge';
-import { getAllPolicies } from '../../../services/policyService';
+import { getAllPoliciesPaginated } from '../../../services/policyService';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import usePagination from '../../../hooks/usePagination';
 
@@ -52,7 +52,7 @@ const PolicyListPage = () => {
     if (statusFilter !== 'ALL') {
       params.status = statusFilter;
     }
-    getAllPolicies(params)
+    getAllPoliciesPaginated(params)
       .then((res) => {
         setPolicies(res.content);
         setTotalPages(res.totalPages);
@@ -62,6 +62,7 @@ const PolicyListPage = () => {
   };
 
   useEffect( () => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchPolicies();
   }, [currentPage, statusFilter] );
 

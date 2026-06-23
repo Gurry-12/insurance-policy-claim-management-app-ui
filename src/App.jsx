@@ -1,15 +1,21 @@
 import { Navigate, Outlet, Routes, Route, useLocation } from "react-router-dom";
 import useAuth from "./hooks/useAuth";
 import { ROLES } from "./utils/roles";
-
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import VerifyOtp from "./pages/auth/VerifyOtp";
 import NotFound from "./pages/shared/NotFound";
-import Unauthorized from "./pages/shared/Unauthorized";
+import AgentDashboard from "./pages/agent/AgentDashboard";
+import AgentIssuePolicyPage from "./pages/agent/policies/AgentIssuePolicyPage";
+
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
+import AgentClaimHistory from './pages/agent/claims/AgentClaimHistory';
+import AgentPolicyListPage from './pages/agent/policies/AgentPolicyListPage';
+import AgentCustomerListPage from './pages/agent/customers/AgentCustomerListPage';
+import AgentClaimListPage from './pages/agent/claims/AgentClaimListPage';
+import AgentPaymentListPage from './pages/agent/payments/AgentPaymentListPage';
 import ProfilePage from "./pages/customer/profile/ProfilePage";
 import EditProfilePage from "./pages/customer/profile/EditProfilePage";
 import CustomerProductListPage from "./pages/customer/products/CustomerProductListPage";
@@ -22,6 +28,7 @@ import CustomerClaimListPage from "./pages/customer/claims/CustomerClaimListPage
 import RaiseClaimPage from "./pages/customer/claims/RaiseClaimPage";
 import ClaimStatusHistoryPage from "./pages/customer/claims/ClaimStatusHistoryPage";
 import UploadDocumentsPage from "./pages/customer/claims/UploadDocumentsPage";
+
 import AdminLayout from "./pages/admin/shared/AdminLayout";
 import UserListPage from "./pages/admin/users/UserListPage";
 import CreateAgentPage from "./pages/admin/users/CreateAgentPage";
@@ -45,9 +52,16 @@ import AdminClaimHistoryPage from "./pages/admin/claims/AdminClaimHistoryPage";
 import PaymentListPage from "./pages/admin/payments/PaymentListPage";
 
 /* Agent */
-import AgentDashboard from "./pages/agent/AgentDashboard";
 
-/* ── Guards ─────────────────────────────────────────────────────── */
+import ClaimDetailsPage from './pages/customer/claims/ClaimDetailsPage';
+
+/* Admin */
+
+/* Agent */
+
+/* Customer */
+
+/* ── Guards  */
 const ProtectedRoute = () => {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
@@ -64,14 +78,16 @@ const RoleProtectedRoute = ({ allowedRole }) => {
   return <Outlet />;
 };
 
+
 /* ── App  */
+
 const App = () => (
   <Routes>
     {/* Public */}
     <Route path="/login" element={<Login />} />
     <Route path="/register" element={<Register />} />
     <Route path="/verify-otp" element={<VerifyOtp />} />
-    <Route path="/unauthorized" element={<Unauthorized />} />
+    {/* <Route path="/unauthorized" element={<Unauthorized />} /> */}
     <Route path="/" element={<Navigate to="/login" replace />} />
 
     {/* ── Admin  */}
@@ -104,12 +120,47 @@ const App = () => (
       </Route>
     </Route>
 
+
     {/* ── Agent  */}
-    <Route element={<ProtectedRoute />}>
-      <Route element={<RoleProtectedRoute allowedRole={ROLES.AGENT} />}>
-        <Route path="/agent/dashboard" element={<AgentDashboard />} />
-      </Route>
-    </Route>
+
+      <Route element={<ProtectedRoute />}>
+        <Route element={<RoleProtectedRoute allowedRole={ROLES.AGENT} />}>
+         
+          <Route path="/agent/dashboard" 
+                  element={<AgentDashboard />}
+          />
+
+           <Route
+              path="/agent/claims"
+              element={<AgentClaimListPage />}
+            />
+
+            <Route
+              path="/agent/customers"
+              element={<AgentCustomerListPage />}
+            />
+
+            <Route
+              path="/agent/policies"
+              element={<AgentPolicyListPage />}
+            />
+
+            <Route
+              path="/agent/payments/page"
+              element={<AgentPaymentListPage />}
+            />
+
+             <Route
+              path="/agent/issue-policy"
+              element={<AgentIssuePolicyPage />}
+            />
+
+             <Route
+              path="/agent/claims-history"
+              element={<AgentClaimHistory />}
+            />
+
+        </Route>
 
     <Route element={<ProtectedRoute />}>
       <Route element={<RoleProtectedRoute allowedRole={ROLES.CUSTOMER} />}>
@@ -156,6 +207,26 @@ const App = () => (
           path="/customer/claims/upload/:claimId"
           element={<UploadDocumentsPage />}
         />
+
+          <Route
+            path="/customer/claims/history/:claimId"
+            element={<ClaimStatusHistoryPage />}
+          />
+
+          <Route
+            path="/customer/claims/upload/:claimId"
+            element={<UploadDocumentsPage />}
+          />
+
+          <Route
+            path="/customer/claims/:claimId"
+            element={<ClaimDetailsPage />}
+          />
+
+
+
+
+        </Route>
       </Route>
     </Route>
 
@@ -164,3 +235,6 @@ const App = () => (
 );
 
 export default App;
+
+    
+

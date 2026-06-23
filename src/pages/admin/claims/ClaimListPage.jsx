@@ -4,7 +4,7 @@ import PageHeader from '../../../components/common/PageHeader';
 import DataTable from '../../../components/tables/DataTable';
 import PaginationBar from '../../../components/tables/PaginationBar';
 import StatusBadge from '../../../components/ui/StatusBadge';
-import { getAllClaims } from '../../../services/claimService';
+import { getAllClaimsPaginated } from '../../../services/claimService';
 import usePagination from '../../../hooks/usePagination';
 
 const ClaimListPage = () => {
@@ -60,7 +60,7 @@ const ClaimListPage = () => {
     if (statusFilter !== 'ALL') {
       params.status = statusFilter;
     }
-    getAllClaims(params)
+    getAllClaimsPaginated(params)
       .then((res) => {
         setClaims(res.content);
         setTotalPages(res.totalPages);
