@@ -17,6 +17,7 @@ const PlanDetailPage = () => {
   const [actionLoading, setActionLoading] = useState(false);
 
   const fetchPlanData = (id) => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setError('');
     getPlanById(id)

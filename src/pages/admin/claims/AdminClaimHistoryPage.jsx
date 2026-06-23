@@ -15,6 +15,7 @@ const AdminClaimHistoryPage = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setError('');
 
@@ -27,7 +28,7 @@ const AdminClaimHistoryPage = () => {
           setError('Claim details could not be found.');
         } else {
           setClaim(claimData);
-          setHistory(historyData?.content || historyData || []);
+          setHistory(historyData?.content || historyData?.data || (Array.isArray(historyData) ? historyData : []));
         }
       })
       .catch((err) => {

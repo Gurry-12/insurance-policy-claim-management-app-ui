@@ -19,6 +19,7 @@ const ClaimDetailPage = () => {
   const [actionLoading, setActionLoading] = useState(false);
 
   const fetchClaimData = (id) => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     Promise.all([
       getClaimById(id),

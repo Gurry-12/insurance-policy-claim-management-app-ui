@@ -42,10 +42,11 @@ const Sidebar = ({ navItems, isOpen, setIsOpen, title }) => {
                 width: 34,
                 height: 34,
                 borderRadius: 10,
-                background: "linear-gradient(135deg,#f05a28,#e04f1e)",
+                background: "linear-gradient(135deg, var(--ss-primary), var(--ss-secondary, #1e3a8a))",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
               }}
             >
               <i
@@ -112,7 +113,7 @@ const Sidebar = ({ navItems, isOpen, setIsOpen, title }) => {
                 width: 32,
                 height: 32,
                 borderRadius: "50%",
-                background: "linear-gradient(135deg,#f05a28,#e04f1e)",
+                background: "linear-gradient(135deg, var(--ss-primary), var(--ss-secondary, #1e3a8a))",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -120,6 +121,7 @@ const Sidebar = ({ navItems, isOpen, setIsOpen, title }) => {
                 color: "#fff",
                 fontWeight: 700,
                 flexShrink: 0,
+                boxShadow: "var(--ss-shadow-sm)",
               }}
             >
               {user?.name?.[0]?.toUpperCase() ?? "U"}

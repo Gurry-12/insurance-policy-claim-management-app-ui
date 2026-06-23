@@ -19,6 +19,7 @@ const ProductDetailPage = () => {
   const [actionLoading, setActionLoading] = useState(false);
 
   const fetchProductData = () => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setError('');
     Promise.all([

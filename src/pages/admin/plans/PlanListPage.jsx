@@ -62,6 +62,7 @@ const PlanListPage = () => {
   ];
 
   const fetchPlans = () => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     getAllPlansPainated(pageParams)
       .then((res) => {

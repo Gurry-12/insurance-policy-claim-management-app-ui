@@ -1,64 +1,59 @@
- 
-
-  import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getAllCustomers } from "../../../services/customerService";
 import { useNavigate } from "react-router-dom";
+import PageHeader from "../../../components/common/PageHeader";
 
 const AgentCustomerListPage = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
-
+  const navigate = useNavigate();
 
   useEffect(() => {
-  
-  const loadCustomers = async () => {
-    try {
-      const data = await getAllCustomers();
-      setCustomers(data);
-    } catch (error) {
-      console.error("Error loading customers:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const loadCustomers = async () => {
+      try {
+        const data = await getAllCustomers();
+        setCustomers(data);
+      } catch (error) {
+        console.error("Error loading customers:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
     loadCustomers();
   }, []);
 
   if (loading) {
-    return <h2>Loading Customers...</h2>;
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
   }
 
   return (
+    <div className="animate-fade-in">
+      <PageHeader
+        title="Customer Management"
+        subtitle="Manage and view your registered clients"
+        action={
+          <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate("/agent/dashboard")}>
+            <i className="bi bi-arrow-left"></i> Back
+          </button>
+        }
+      />
 
-    
-    
-    <div className="page-container">
-      <div className="page-header">
-        <h2>Customer Management</h2>
-      </div>
-
-         <div className="d-flex justify-content-end mb-3">
-    <button    
-        className="btn btn-secondary mb-3"
-        onClick={() => navigate("/agent/dashboard")}
-      > Back </button>
-      </div>
-      <div className="content-card">
-        <table className="customer-table">
+      <div className="table-responsive">
+        <table className="table table-hover align-middle mb-0">
           <thead>
             <tr>
-              <th>Customer ID</th>
               <th>Full Name</th>
               <th>Email</th>
               <th>Mobile</th>
-              <th>Date Of Birth</th>
               <th>City</th>
               <th>State</th>
-              <th>Nominee Name</th>
-              <th>Relation</th>
-              <th>Created Date</th>
             </tr>
           </thead>
 
@@ -66,33 +61,22 @@ const AgentCustomerListPage = () => {
             {customers.length > 0 ? (
               customers.map((customer) => (
                 <tr key={customer.customerId}>
-                  <td>{customer.customerId}</td>
-                  <td>{customer.fullName}</td>
+                  <td style={{ fontWeight: 600 }}>{customer.fullName}</td>
                   <td>{customer.email}</td>
                   <td>{customer.mobileNumber}</td>
-                  <td>{customer.dateOfBirth}</td>
                   <td>{customer.city}</td>
                   <td>{customer.state}</td>
-                  <td>{customer.nomineeName}</td>
-                  <td>{customer.nomineeRelation}</td>
-                  <td>
-                    {customer.createdDate
-                      ? new Date(customer.createdDate).toLocaleDateString()
-                      : "-"}
-                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="10">No Customers Found</td>
+                <td colSpan="5" className="text-center py-4">No Customers Found</td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
     </div>
-
-    
   );
 };
 

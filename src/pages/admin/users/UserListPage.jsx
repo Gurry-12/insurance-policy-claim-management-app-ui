@@ -19,6 +19,7 @@ const UserListPage = () => {
   const [roleFilter, setRoleFilter] = useState('ALL');
 
   const fetchUsers = () => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     const params = { ...pageParams };
     if (statusFilter === 'ACTIVE') {

@@ -17,6 +17,7 @@ const UserDetailPage = () => {
   const [actionLoading, setActionLoading] = useState(false);
 
   const fetchUserData = (id) => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setError('');
     getUserById(id)

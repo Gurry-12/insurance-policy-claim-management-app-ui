@@ -58,6 +58,7 @@ const ProductListPage = () => {
   ];
 
   const fetchProducts = () => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     getAllProductsPaginated(pageParams)
       .then((res) => {

@@ -47,6 +47,7 @@ const PolicyListPage = () => {
   ];
 
   const fetchPolicies = () => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     const params = { ...pageParams };
     if (statusFilter !== 'ALL') {

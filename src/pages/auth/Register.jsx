@@ -251,7 +251,7 @@ const Register = () => {
                 <button
                   id="reg-submit-btn"
                   type="submit"
-                  className="btn vivid-orange-btn w-100 mt-2 mb-3"
+                  className="btn login-submit-btn w-100 mt-2 mb-3"
                   disabled={loading}
                 >
                   {loading ? (
