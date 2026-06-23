@@ -5,13 +5,14 @@ import useAuth from "../../hooks/useAuth";
 import "./AgentDashboard.css";
 
 
-import Sidebar from "../../components/navigation/Sidebar";
-import Navbar from "../../components/navigation/TopNavbar";
+
 
 import { getAllPayments } from "../../services/paymentService";
 import { getAllClaims } from "../../services/claimService";
 import { getAllPolicies } from "../../services/policyService";
 import { getAllCustomers } from "../../services/customerService";
+import TopNavbar from "../../components/navigation/TopNavbar";
+import Sidebar from "../../components/navigation/Sidebar";
 
 const AgentDashboard = () => {
   const { logout } = useAuth();
@@ -72,20 +73,25 @@ const AgentDashboard = () => {
 
 
   return (
-    <div className="layout">
+    <div 
+     style={{
+    marginLeft: "260px",
+    padding: "20px",
+  }}
+ className="layout">
       <Sidebar />
 
-      <div className="main-content">
-        <Navbar />
+     <div className="main-content">
+        <TopNavbar />
 
         <div className="dashboard">
 
-          {/* Header */}
-          <div className="dashboard-header">
+           {/* Header */}
+           <div className="dashboard-header">
             <div>
               <h1>Agent Dashboard</h1>
               <p>Welcome Back, Agent</p>
-            </div>
+             </div>
 
             <div>
               <button
@@ -220,7 +226,11 @@ const AgentDashboard = () => {
         </div>
       </div>
     </div>
-  );
+ );
 };
 
 export default AgentDashboard;
+
+
+
+

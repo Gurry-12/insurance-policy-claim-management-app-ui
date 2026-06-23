@@ -67,7 +67,7 @@ const TopNavbar = ({ onMenuClick, breadcrumb }) => {
           />
 
           <div>
-            <h4>Agent John</h4>
+            {/* <h4>Agent John</h4> */}
             <p>Agent</p>
           </div>
         </div>

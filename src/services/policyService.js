@@ -8,11 +8,11 @@ export const getMyPolicies = async () => {
   return data;
 };
 
-export const getAllPolicies = async () => {
-  const response = await axiosInstance.get('/policies');
-  console.log(response);
-  return safeExtractArray(response);
-};
+// export const getAllPolicies = async () => {
+//   const response = await axiosInstance.get('/policies');
+//   console.log(response);
+//   return safeExtractArray(response);
+// };
 
 export const getPolicyById = async (policyId) => {
   const response = await axiosInstance.get(`/policies/${policyId}`);
@@ -42,4 +42,33 @@ export const purchasePolicy = async (payload) => {
 
   return data;
 
+};
+// TODO: Policy API service
+
+
+// export const getAllPolicies = async (userData) => {
+//   const { data } = await axiosInstance.get('/policies', userData);
+//   return data;
+// };
+
+export const getAllPolicies = async (userData, pageNumber = 0,
+  pageSize = 10,
+  sortBy = "policyId",
+  sortDirection = "asc") => {
+
+  
+  const { data } = await axiosInstance.get('/policies', userData,{
+
+   params: {
+      pageNumber,
+      pageSize,
+      sortBy,
+      sortDirection,
+     },
+
+
+  });
+
+     
+  return data;
 };
