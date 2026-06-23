@@ -1,4 +1,9 @@
 const AgentClaimDetailPage = () => {
-  return <div><h4>Agent - Claim Detail</h4></div>;
+  return  (<div className="page">
+      <h1>Claims Management</h1>
+    </div>
+  );
 };
 export default AgentClaimDetailPage;
+
+

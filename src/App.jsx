@@ -2,15 +2,23 @@ import { Navigate, Outlet, Routes, Route, useLocation } from 'react-router-dom';
 import useAuth from './hooks/useAuth';
 import { ROLES } from './utils/roles';
 
-import Login        from './pages/auth/Login';
-import Register     from './pages/auth/Register';
+
+import AgentDashboard from "./pages/agent/AgentDashboard";
+import AgentIssuePolicyPage from "./pages/agent/policies/AgentIssuePolicyPage";
+
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
+import NotFound from './pages/shared/NotFound';
 import VerifyOtp    from './pages/auth/VerifyOtp';
-import NotFound     from './pages/shared/NotFound';
-import Unauthorized from './pages/shared/Unauthorized';
 
 import AdminDashboard from './pages/admin/AdminDashboard';
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
-import VerifyOtp from './pages/auth/VerifyOtp';
+import AgentClaimHistory from './pages/agent/claims/AgentClaimHistory';
+import AgentPolicyListPage from './pages/agent/policies/AgentPolicyListPage';
+import AgentCustomerListPage from './pages/agent/customers/AgentCustomerListPage';
+import AgentClaimListPage from './pages/agent/claims/AgentClaimListPage';
+import AgentPaymentListPage from './pages/agent/payments/AgentPaymentListPage';
+
 import ProfilePage from "./pages/customer/profile/ProfilePage";
 import EditProfilePage from "./pages/customer/profile/EditProfilePage";
 import CustomerProductListPage from "./pages/customer/products/CustomerProductListPage";
@@ -45,12 +53,8 @@ import ClaimDetailPage   from './pages/admin/claims/ClaimDetailPage';
 import PaymentListPage   from './pages/admin/payments/PaymentListPage';
 
 /* Agent */
-import AgentDashboard from './pages/agent/AgentDashboard';
 
 /* Customer */
-import CustomerDashboard from './pages/customer/CustomerDashboard';
-import ProfilePage       from './pages/customer/profile/ProfilePage';
-import EditProfilePage   from './pages/customer/profile/EditProfilePage';
 
 /* ── Guards ─────────────────────────────────────────────────────── */
 const ProtectedRoute = () => {
@@ -67,14 +71,14 @@ const RoleProtectedRoute = ({ allowedRole }) => {
   return <Outlet />;
 };
 
-/* ── App ─────────────────────────────────────────────────────────── */
+
 const App = () => (
   <Routes>
     {/* Public */}
     <Route path="/login"      element={<Login />} />
     <Route path="/register"   element={<Register />} />
     <Route path="/verify-otp" element={<VerifyOtp />} />
-    <Route path="/unauthorized" element={<Unauthorized />} />
+    {/* <Route path="/unauthorized" element={<Unauthorized />} /> */}
     <Route path="/" element={<Navigate to="/login" replace />} />
 
     {/* ── Admin ────────────────────────────────── */}
@@ -102,6 +106,45 @@ const App = () => (
         </Route>
       </Route>
     </Route>
+
+      <Route element={<ProtectedRoute />}>
+        <Route element={<RoleProtectedRoute allowedRole={ROLES.AGENT} />}>
+         
+          <Route path="/agent/dashboard" 
+                  element={<AgentDashboard />}
+          />
+
+           <Route
+              path="/agent/claims"
+              element={<AgentClaimListPage />}
+            />
+
+            <Route
+              path="/agent/customers"
+              element={<AgentCustomerListPage />}
+            />
+
+            <Route
+              path="/agent/policies"
+              element={<AgentPolicyListPage />}
+            />
+
+            <Route
+              path="/agent/payments/page"
+              element={<AgentPaymentListPage />}
+            />
+
+             <Route
+              path="/agent/issue-policy"
+              element={<AgentIssuePolicyPage />}
+            />
+
+             <Route
+              path="/agent/claims-history"
+              element={<AgentClaimHistory />}
+            />
+
+        </Route>
 
     {/* ── Agent ────────────────────────────────── */}
     <Route element={<ProtectedRoute />}>
@@ -195,3 +238,6 @@ const App = () => (
 );
 
 export default App;
+
+    
+

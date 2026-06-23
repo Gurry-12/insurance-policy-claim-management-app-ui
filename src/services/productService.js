@@ -35,6 +35,7 @@ export const activateProduct = async (productId) => {
 export const deactivateProduct = async (productId) => {
   const response = await axiosInstance.patch(`/products/${productId}/deactivate`);
   return response.data;
+};
 
 export const getActiveProducts = async () => {
   const { data } = await axiosInstance.get(
@@ -43,3 +44,5 @@ export const getActiveProducts = async () => {
 
   return data;
 };
+// TODO: Insurance product API service
+

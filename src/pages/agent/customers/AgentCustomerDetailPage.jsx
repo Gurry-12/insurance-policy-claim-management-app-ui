@@ -1,4 +1,9 @@
 const AgentCustomerDetailPage = () => {
-  return <div><h4>Agent - Customer Detail</h4></div>;
+  return (
+     <div className="page">
+      <h1>Customers Management</h1>
+    </div>
+  );
 };
 export default AgentCustomerDetailPage;
+
