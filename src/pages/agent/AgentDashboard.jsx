@@ -170,7 +170,7 @@ const AgentDashboard = () => {
                 {[1, 2, 3].map(i => (
                   <div key={i} className="placeholder-glow d-flex align-items-center gap-3 p-2">
                     <span className="placeholder rounded-circle" style={{ width: 36, height: 36, flexShrink: 0 }} />
-                    <div className="flex-grow-1">
+                    <div className="grow">
                       <span className="placeholder col-5 d-block mb-1" style={{ height: 12 }} />
                       <span className="placeholder col-8 d-block" style={{ height: 10 }} />
                     </div>
@@ -192,7 +192,7 @@ const AgentDashboard = () => {
                     }}>
                       <i className="bi bi-shield-exclamation" style={{ color: '#d97706', fontSize: '1rem' }} />
                     </div>
-                    <div className="flex-grow-1">
+                    <div className="grow">
                       <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--ss-text-primary)' }}>
                         {claim.customerName ?? 'Customer'} — #{claim.claimNumber ?? claim.claimId}
                       </div>
@@ -218,7 +218,7 @@ const AgentDashboard = () => {
                 {[1, 2, 3, 4].map(i => (
                   <div key={i} className="placeholder-glow d-flex align-items-center gap-3 p-2">
                     <span className="placeholder rounded-circle" style={{ width: 36, height: 36, flexShrink: 0 }} />
-                    <div className="flex-grow-1">
+                    <div className="grow">
                       <span className="placeholder col-6 d-block mb-1" style={{ height: 12 }} />
                       <span className="placeholder col-9 d-block" style={{ height: 10 }} />
                     </div>
@@ -240,7 +240,7 @@ const AgentDashboard = () => {
                     }}>
                       <i className="bi bi-person-fill" style={{ color: '#0d9488', fontSize: '1rem' }} />
                     </div>
-                    <div className="flex-grow-1">
+                    <div className="grow">
                       <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--ss-text-primary)' }}>
                         {c.fullName}
                       </div>

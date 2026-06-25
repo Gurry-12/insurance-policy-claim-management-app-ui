@@ -67,7 +67,8 @@ const AdminDashboard = () => {
   const STAT_CARDS = [
     { icon: 'bi-people-fill',        label: 'Total Customers', value: s.totalCustomers, color: '#3b82f6', to: '/admin/customers', delta: s.customersDelta },
     { icon: 'bi-shield-fill-check',  label: 'Active Policies', value: s.activePolicies, color: '#22c55e', to: '/admin/policies',  delta: s.policiesDelta  },
-    { icon: 'bi-shield-exclamation', label: 'Open Claims',     value: s.openClaims,     color: '#f59e0b', to: '/admin/claims',    delta: s.claimsDelta    },
+    { icon: 'bi-shield-exclamation', label: 'Submitted Claims',     value: s.claims?.pendingClaims,     color: '#f59e0b', to: '/admin/claims',    delta: s.claimsDelta    },
+     { icon: 'bi-shield-fill-x',      label: 'Reviewed Claims',   value: s.claims?.reviewedClaims, color: '#6b7280', to: '/admin/claims', delta: s.claimsDelta },
     { icon: 'bi-person-badge-fill',  label: 'Active Users',   value: s.activeUsers,   color: '#06b6d4', to: '/admin/users',     delta: s.agentsDelta    },
     { icon: 'bi-box-seam-fill',      label: 'Products',        value: s.totalProducts,  color: '#f05a28', to: '/admin/products'                           },
   ];
@@ -95,7 +96,7 @@ const AdminDashboard = () => {
       <ErrorAlert message={error} />
 
       {/* Stat cards */}
-      <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3 mb-4">
+      <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-3 g-3 mb-4">
         {STAT_CARDS.map(card => (
           <div key={card.label} className="col">
             <DashboardCard {...card} />
@@ -125,7 +126,7 @@ const AdminDashboard = () => {
                 {[1, 2, 3].map(i => (
                   <div key={i} className="placeholder-glow d-flex align-items-center gap-3 p-2">
                     <span className="placeholder rounded-circle" style={{ width: 36, height: 36, flexShrink: 0 }} />
-                    <div className="flex-grow-1">
+                    <div className="grow">
                       <span className="placeholder col-5 d-block mb-1" style={{ height: 12 }} />
                       <span className="placeholder col-8 d-block" style={{ height: 10 }} />
                     </div>
@@ -146,7 +147,7 @@ const AdminDashboard = () => {
                     }}>
                       <i className="bi bi-shield-exclamation" style={{ color: '#f59e0b', fontSize: '1rem' }} />
                     </div>
-                    <div className="flex-grow-1">
+                    <div className="grow">
                       <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--ss-text-primary)' }}>
                         {claim.customerName ?? 'Customer'} — #{claim.id}
                       </div>

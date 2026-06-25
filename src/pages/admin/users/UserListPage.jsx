@@ -7,82 +7,96 @@ import StatusBadge from '../../../components/ui/StatusBadge';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import getAllUsers from '../../../services/userService';
-import usePagination from '../../../hooks/usePagination';
+import useTableState from '../../../hooks/useTableState';
+import SortableHeader from '../../../components/tables/SortableHeader';
 
 const UserListPage = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(null);
   const [error, setError] = useState('');
-  const { currentPage, totalPages, setTotalPages, setCurrentPage, pageParams, pageSize } = usePagination(1, 10);
-  const [statusFilter, setStatusFilter] = useState('ALL');
-  const [roleFilter, setRoleFilter] = useState('ALL');
 
-  const fetchUsers = () => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+  const tableState = useTableState({
+    initialSortBy: 'id',
+    initialFilters: { statusFilter: 'ALL', roleFilter: 'ALL' }
+  });
+
+  const fetchUsers = () => { 
     setLoading(true);
-    const params = { ...pageParams };
-    if (statusFilter === 'ACTIVE') {
+    const params = tableState.getQueryParams();
+    
+    // Custom mapping for this page's specific filters
+    if (tableState.filters.statusFilter === 'ACTIVE') {
       params.isActive = 1;
-    } else if (statusFilter === 'INACTIVE') {
+    } else if (tableState.filters.statusFilter === 'INACTIVE') {
       params.isActive = 0;
     }
-    if (roleFilter !== 'ALL') {
-      params.role = roleFilter;
+    delete params.statusFilter; // Cleanup generic filter key
+    
+    if (tableState.filters.roleFilter !== 'ALL') {
+      params.role = tableState.filters.roleFilter;
     }
+    delete params.roleFilter;
 
     getAllUsers(params)
       .then((res) => {
         setUsers(res.content);
-        setTotalPages(res.totalPages);
+        tableState.setTotalPages(res.totalPages);
+        tableState.setTotalElements(res.totalElements || res.totalRecords || 0);
       })
       .catch(() => setError('Could not load agents list. Check your API connection.'))
       .finally(() => setLoading(false));
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchUsers();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, statusFilter, roleFilter]);
+  }, [
+    tableState.currentPage, 
+    tableState.filters.statusFilter, 
+    tableState.filters.roleFilter, 
+    tableState.sortBy, 
+    tableState.sortDirection, 
+    tableState.debouncedSearch
+  ]);
 
-  const handleStatusFilterChange = (status) => {
-    setStatusFilter(status);
-    setCurrentPage(1);
-  };
-
-  const handleRoleFilterChange = (role) => {
-    setRoleFilter(role);
-    setCurrentPage(1);
-  };
+  const renderHeader = (label, field) => (
+    <SortableHeader 
+      label={label} 
+      field={field} 
+      currentSortBy={tableState.sortBy} 
+      currentDirection={tableState.sortDirection} 
+      onSort={tableState.handleSort} 
+    />
+  );
 
   const columns = [
     {
-      header: "#",
-      cell: (row, index) => (currentPage - 1) * pageSize + index + 1,
-      minWidth: "60px",
+      header: renderHeader("Sr. No.", "id"),
+      cell: (row, index) => tableState.getSrNo(index),
+      minWidth: "85px",
     },
     {
-      header: "Name",
+      header: renderHeader("Name", "fullName"),
       cell: (row) =>
         row.fullName ||
         `${row.firstName || ""} ${row.lastName || ""}`.trim() ||
         "N/A",
     },
     {
-      header: "Email",
+      header: renderHeader("Email", "email"),
       cell: (row) => row.email || "N/A",
     },
     {
-      header: "Phone",
+      header: renderHeader("Phone", "mobileNumber"),
       cell: (row) => row.mobileNumber || row.phoneNumber || "N/A",
     },
     {
-      header: "Role",
+      header: renderHeader("Role", "role"),
       cell: (row) => row.role || "N/A",
     },
     {
-      header: "Status",
+      header: renderHeader("Status", "isActive"),
       cell: (row) => <StatusBadge status={row.isActive ? "Active" : "Inactive"} />,
     },
     {
@@ -124,8 +138,8 @@ const UserListPage = () => {
               <select 
                 className="form-select form-select-sm" 
                 style={{ width: '130px', borderRadius: '8px', border: '1px solid var(--ss-border)' }}
-                value={statusFilter}
-                onChange={(e) => handleStatusFilterChange(e.target.value)}
+                value={tableState.filters.statusFilter}
+                onChange={(e) => tableState.handleFilterChange({ statusFilter: e.target.value })}
               >
                 <option value="ALL">All Statuses</option>
                 <option value="ACTIVE">Active</option>
@@ -134,8 +148,8 @@ const UserListPage = () => {
               <select 
                 className="form-select form-select-sm" 
                 style={{ width: '140px', borderRadius: '8px', border: '1px solid var(--ss-border)' }}
-                value={roleFilter}
-                onChange={(e) => handleRoleFilterChange(e.target.value)}
+                value={tableState.filters.roleFilter}
+                onChange={(e) => tableState.handleFilterChange({ roleFilter: e.target.value })}
               >
                 <option value="ALL">All Roles</option>
                 <option value="ROLE_ADMIN">Admin</option>
@@ -146,7 +160,14 @@ const UserListPage = () => {
                 <span className="input-group-text bg-white border-end-0" style={{ border: '1px solid var(--ss-border)' }}>
                   <i className="bi bi-search text-muted"></i>
                 </span>
-                <input type="text" className="form-control border-start-0 ps-0" placeholder="Search users..." style={{ border: '1px solid var(--ss-border)', borderRadius: '0 8px 8px 0' }} />
+                <input 
+                  type="text" 
+                  className="form-control border-start-0 ps-0" 
+                  placeholder="Search users..." 
+                  style={{ border: '1px solid var(--ss-border)', borderRadius: '0 8px 8px 0' }} 
+                  value={tableState.searchQuery}
+                  onChange={(e) => tableState.handleSearchChange(e.target.value)}
+                />
               </div>
             </div>
           </div>
@@ -161,9 +182,9 @@ const UserListPage = () => {
                   onRowClick={(row) => navigate(`/admin/users/${row.id}`)}
                 />
                 <PaginationBar 
-                  currentPage={currentPage} 
-                  totalPages={totalPages} 
-                  onPageChange={setCurrentPage} 
+                  currentPage={tableState.currentPage} 
+                  totalPages={tableState.totalPages} 
+                  onPageChange={tableState.setCurrentPage} 
                 />
               </>
             )}

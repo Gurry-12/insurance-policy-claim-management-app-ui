@@ -1,29 +1,76 @@
-import  { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import DataTable from '../../../components/tables/DataTable';
 import PaginationBar from '../../../components/tables/PaginationBar';
 import StatusBadge from '../../../components/ui/StatusBadge';
 import { getAllClaimsPaginated } from '../../../services/claimService';
-import usePagination from '../../../hooks/usePagination';
+import useTableState from '../../../hooks/useTableState';
+import SortableHeader from '../../../components/tables/SortableHeader';
 
 const ClaimListPage = () => {
   const navigate = useNavigate();
-  const { currentPage, totalPages, setTotalPages, setCurrentPage, pageParams } = usePagination(1, 10);
   const [claims, setClaims] = useState(null);
-  const [statusFilter, setStatusFilter] = useState('ALL');
+  
+  const tableState = useTableState({
+    initialSortBy: 'createdDate',
+    initialFilters: { statusFilter: 'ALL' }
+  });
+
+  const fetchClaims = () => {
+    const params = tableState.getQueryParams();
+    
+    if (tableState.filters.statusFilter !== 'ALL') {
+      params.status = tableState.filters.statusFilter;
+    }
+    delete params.statusFilter;
+
+    getAllClaimsPaginated(params)
+      .then((res) => {
+        setClaims(res.content);
+        tableState.setTotalPages(res.totalPages);
+        tableState.setTotalElements(res.totalElements || res.totalRecords || 0);
+      })
+      .catch((error) => console.log(error));
+  };
+
+  useEffect(() => {
+    fetchClaims();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    tableState.currentPage, 
+    tableState.filters.statusFilter, 
+    tableState.sortBy, 
+    tableState.sortDirection, 
+    tableState.debouncedSearch
+  ]);
+
+  const renderHeader = (label, field) => (
+    <SortableHeader 
+      label={label} 
+      field={field} 
+      currentSortBy={tableState.sortBy} 
+      currentDirection={tableState.sortDirection} 
+      onSort={tableState.handleSort} 
+    />
+  );
 
   const columns = [
-    { header: "Claim ID", accessor: "claimNumber", minWidth: "100px" },
+    { 
+      header: renderHeader("Sr. No.", "id"), 
+      cell: (row, index) => tableState.getSrNo(index), 
+      minWidth: "85px" 
+    },
+    { header: renderHeader("Claim ID", "claimNumber"), accessor: "claimNumber", minWidth: "100px" },
     { header: "Policy #", accessor: "policyNumber" },
     { header: "Customer", accessor: "customerName" },
     {
-      header: "Amount (₹)",
+      header: renderHeader("Amount (₹)", "claimAmount"),
       cell: (row) => `₹${row.claimAmount.toLocaleString("en-IN")}`,
     },
-    { header: "Date Filed", accessor: "createdDate" },
+    { header: renderHeader("Date Filed", "createdDate"), accessor: "createdDate", cell: (row) => new Date(row.createdDate).toLocaleDateString() },
     {
-      header: "Status",
+      header: renderHeader("Status", "claimStatus"),
       cell: (row) => <StatusBadge status={row.claimStatus} />,
     },
     {
@@ -55,28 +102,6 @@ const ClaimListPage = () => {
     },
   ];
 
-  const fetchClaims = () => {
-    const params = { ...pageParams };
-    if (statusFilter !== 'ALL') {
-      params.status = statusFilter;
-    }
-    getAllClaimsPaginated(params)
-      .then((res) => {
-        setClaims(res.content);
-        setTotalPages(res.totalPages);
-      })
-      .catch((error) => console.log(error));
-  };
-
-  useEffect(() => {
-    fetchClaims();
-  }, [currentPage, statusFilter]);
-
-  const handleStatusFilterChange = (status) => {
-    setStatusFilter(status);
-    setCurrentPage(1);
-  };
-
   return (
     <div>
       <PageHeader
@@ -90,10 +115,10 @@ const ClaimListPage = () => {
       >
         <div className="card-body p-0">
           <div className="p-4 border-bottom border-light d-flex flex-wrap gap-3 justify-content-between align-items-center">
-            <div className="d-flex gap-2">
+            <div className="d-flex gap-2 flex-wrap">
               {[
                 { label: "All Claims", val: "ALL" },
-                { label: "Submited", val: "SUBMITTED" },
+                { label: "Submitted", val: "SUBMITTED" },
                 { label: "Under Review", val: "UNDER_REVIEW" },
                 { label: "Reviewed", val: "RECOMMENDED_FOR_APPROVAL" },
                 { label: "Approved", val: "APPROVED" },
@@ -101,21 +126,24 @@ const ClaimListPage = () => {
               ].map((pill) => (
                 <button
                   key={pill.val}
-                  onClick={() => handleStatusFilterChange(pill.val)}
-                  className={`btn btn-sm px-3 rounded-pill ${statusFilter === pill.val ? "btn-primary" : "btn-light text-muted"}`}
+                  onClick={() => tableState.handleFilterChange({ statusFilter: pill.val })}
+                  className={`btn btn-sm px-3 rounded-pill ${tableState.filters.statusFilter === pill.val ? "btn-primary" : "btn-light text-muted"}`}
                 >
                   {pill.label}
                 </button>
               ))}
             </div>
-            <div className="input-group" style={{ width: "250px" }}>
-              <span className="input-group-text bg-white border-end-0">
+            <div className="input-group input-group-sm" style={{ width: "250px" }}>
+              <span className="input-group-text bg-white border-end-0" style={{ border: '1px solid var(--ss-border)' }}>
                 <i className="bi bi-search text-muted"></i>
               </span>
               <input
                 type="text"
                 className="form-control border-start-0 ps-0"
                 placeholder="Search claims..."
+                style={{ border: '1px solid var(--ss-border)', borderRadius: '0 8px 8px 0' }}
+                value={tableState.searchQuery}
+                onChange={(e) => tableState.handleSearchChange(e.target.value)}
               />
             </div>
           </div>
@@ -126,9 +154,9 @@ const ClaimListPage = () => {
               onRowClick={(row) => navigate(`/admin/claims/${row.claimId}`)}
             />
             <PaginationBar
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
+              currentPage={tableState.currentPage}
+              totalPages={tableState.totalPages}
+              onPageChange={tableState.setCurrentPage}
             />
           </div>
         </div>

@@ -6,23 +6,74 @@ import PaginationBar from '../../../components/tables/PaginationBar';
 import StatusBadge from '../../../components/ui/StatusBadge';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import { getAllProductsPaginated } from '../../../services/productService';
-import usePagination from '../../../hooks/usePagination';
+import useTableState from '../../../hooks/useTableState';
+import SortableHeader from '../../../components/tables/SortableHeader';
 
 const ProductListPage = () => {
   const navigate = useNavigate();
-  const { currentPage, totalPages, setTotalPages, setCurrentPage, pageParams, pageSize } = usePagination(1, 10);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
- 
+  
+  const tableState = useTableState({
+    initialSortBy: 'id',
+    initialFilters: { statusFilter: 'ALL', productTypeFilter: 'ALL' }
+  });
+
+  const fetchProducts = () => {
+    setLoading(true);
+    const params = tableState.getQueryParams();
+    
+    if (tableState.filters.statusFilter !== 'ALL') {
+      params.isActive = tableState.filters.statusFilter === 'ACTIVE';
+    }
+    delete params.statusFilter;
+
+    if (tableState.filters.productTypeFilter !== 'ALL') {
+      params.productType = tableState.filters.productTypeFilter;
+    }
+    delete params.productTypeFilter;
+
+    getAllProductsPaginated(params)
+      .then((res) => {
+        setProducts(res.content);
+        tableState.setTotalPages(res.totalPages);
+        tableState.setTotalElements(res.totalElements || res.totalRecords || 0);
+      })
+      .catch(() => setError('Could not load products. Please check your API connection.'))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    tableState.currentPage, 
+    tableState.filters.statusFilter, 
+    tableState.filters.productTypeFilter,
+    tableState.sortBy, 
+    tableState.sortDirection, 
+    tableState.debouncedSearch
+  ]);
+
+  const renderHeader = (label, field) => (
+    <SortableHeader 
+      label={label} 
+      field={field} 
+      currentSortBy={tableState.sortBy} 
+      currentDirection={tableState.sortDirection} 
+      onSort={tableState.handleSort} 
+    />
+  );
+
   const columns = [
     { 
-      header: "#", 
-      cell: (row, index) => (currentPage - 1) * pageSize + index + 1, 
-      minWidth: "60px" 
+      header: renderHeader("Sr. No.", "id"), 
+      cell: (row, index) => tableState.getSrNo(index), 
+      minWidth: "85px" 
     },
-    { header: "Name", accessor: "productName" },
-    { header: "Category", accessor: "productType" },
+    { header: renderHeader("Name", "productName"), accessor: "productName" },
+    { header: renderHeader("Category", "productType"), accessor: "productType" },
     { header: "Created", accessor: "createdDate" },
     {
       header: "Status",
@@ -57,53 +108,109 @@ const ProductListPage = () => {
     },
   ];
 
-  const fetchProducts = () => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLoading(true);
-    getAllProductsPaginated(pageParams)
-      .then((res) => {
-        setProducts(res.content);
-        setTotalPages(res.totalPages);
-      })
-      .catch(() => setError('Could not load products. Please check your API connection.'))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => {
-    fetchProducts();
-  }, [currentPage]);
-
   return (
     <div>
-      <PageHeader 
-        title="Insurance Products" 
+      <PageHeader
+        title="Insurance Products"
         subtitle="Manage product categories and offerings"
         action={
-          <Link to="/admin/products/create" className="btn btn-primary d-flex align-items-center gap-2" style={{ borderRadius: '8px' }}>
+          <Link
+            to="/admin/products/create"
+            className="btn btn-primary d-flex align-items-center gap-2"
+            style={{ borderRadius: "8px" }}
+          >
             <i className="bi bi-plus-lg"></i>
             Create Product
           </Link>
         }
       />
-      
+
       <ErrorAlert message={error} />
-      
-      <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+
+      <div
+        className="card border-0"
+        style={{ borderRadius: 16, boxShadow: "var(--ss-shadow)" }}
+      >
         <div className="card-body p-0">
-          <div className="p-4 border-bottom border-light d-flex justify-content-between align-items-center">
+          <div className="p-4 border-bottom border-light d-flex justify-content-between align-items-center flex-wrap gap-3">
             <h6 className="m-0 fw-bold">All Products</h6>
+            <div className="d-flex gap-2 flex-wrap">
+              <select
+                className="form-select form-select-sm"
+                style={{
+                  width: "160px",
+                  borderRadius: "8px",
+                  border: "1px solid var(--ss-border)",
+                }}
+                value={tableState.filters.statusFilter}
+                onChange={(e) =>
+                  tableState.handleFilterChange({
+                    statusFilter: e.target.value,
+                  })
+                }
+              >
+                <option value="ALL">All Statuses</option>
+                <option value="ACTIVE">Active</option>
+                <option value="INACTIVE">Inactive</option>
+              </select>
+              <select
+                className="form-select form-select-sm"
+                style={{
+                  width: "160px",
+                  borderRadius: "8px",
+                  border: "1px solid var(--ss-border)",
+                }}
+                value={tableState.filters.productTypeFilter}
+                onChange={(e) =>
+                  tableState.handleFilterChange({
+                    productTypeFilter: e.target.value,
+                  })
+                }
+              >
+                <option value="ALL">All Categories</option>
+                <option value="HEALTH">Health</option>
+                <option value="MOTOR">Motor</option>
+                <option value="LIFE">Life</option>
+                <option value="TRAVEL">Travel</option>
+                <option value="INSURANCE">Insurance</option>
+              </select>
+              <div
+                className="input-group input-group-sm"
+                style={{ width: "220px" }}
+              >
+                <span
+                  className="input-group-text bg-white border-end-0"
+                  style={{ border: "1px solid var(--ss-border)" }}
+                >
+                  <i className="bi bi-search text-muted"></i>
+                </span>
+                <input
+                  type="text"
+                  className="form-control border-start-0 ps-0"
+                  placeholder="Search products..."
+                  style={{
+                    border: "1px solid var(--ss-border)",
+                    borderRadius: "0 8px 8px 0",
+                  }}
+                  value={tableState.searchQuery}
+                  onChange={(e) =>
+                    tableState.handleSearchChange(e.target.value)
+                  }
+                />
+              </div>
+            </div>
           </div>
           <div className="p-4">
-            <DataTable 
-              columns={columns} 
-              data={products} 
+            <DataTable
+              columns={columns}
+              data={products}
               loading={loading}
               onRowClick={(row) => navigate(`/admin/products/${row.productId}`)}
             />
-            <PaginationBar 
-              currentPage={currentPage} 
-              totalPages={totalPages} 
-              onPageChange={setCurrentPage} 
+            <PaginationBar
+              currentPage={tableState.currentPage}
+              totalPages={tableState.totalPages}
+              onPageChange={tableState.setCurrentPage}
             />
           </div>
         </div>

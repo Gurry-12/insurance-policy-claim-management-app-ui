@@ -1,30 +1,77 @@
-import  { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import DataTable from '../../../components/tables/DataTable';
 import PaginationBar from '../../../components/tables/PaginationBar';
-import StatusBadge from '../../../components/ui/StatusBadge';
 import { getAllCustomersPaginated } from '../../../services/customerService';
-import usePagination from '../../../hooks/usePagination';
+import useTableState from '../../../hooks/useTableState';
+import SortableHeader from '../../../components/tables/SortableHeader';
 
 const CustomerListPage = () => {
   const navigate = useNavigate();
-  const { currentPage, totalPages, setTotalPages, setCurrentPage, pageParams, pageSize } = usePagination(1, 10);
   const [customers, setCustomers] = useState(null);
+  const tableState = useTableState({ initialSortBy: 'id' });
+
+  // Custom debounced filter for City
+  const [cityQuery, setCityQuery] = useState('');
+  const [debouncedCity, setDebouncedCity] = useState('');
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedCity(cityQuery);
+    }, 400);
+    return () => clearTimeout(handler);
+  }, [cityQuery]);
+
+  const fetchCustomers = () => {
+    const params = tableState.getQueryParams();
+    if (debouncedCity) {
+      params.city = debouncedCity;
+    }
+
+    getAllCustomersPaginated(params)
+      .then((res) => {
+        setCustomers(res.content);
+        tableState.setTotalPages(res.totalPages);
+        tableState.setTotalElements(res.totalElements || res.totalRecords || 0);
+      })
+      .catch((error) => console.log(error));
+  };
+
+  useEffect(() => {
+    fetchCustomers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    tableState.currentPage, 
+    tableState.sortBy, 
+    tableState.sortDirection, 
+    tableState.debouncedSearch, 
+    debouncedCity
+  ]);
+
+  const renderHeader = (label, field) => (
+    <SortableHeader 
+      label={label} 
+      field={field} 
+      currentSortBy={tableState.sortBy} 
+      currentDirection={tableState.sortDirection} 
+      onSort={tableState.handleSort} 
+    />
+  );
 
   const columns = [
-    { 
-      header: "#", 
-      cell: (row, index) => (currentPage - 1) * pageSize + index + 1, 
-      minWidth: "60px" 
+    {
+      header: renderHeader("Sr. No.", "id"),
+      cell: (row, index) => tableState.getSrNo(index),
+      minWidth: "85px",
     },
     { header: "Name", accessor: "fullName" },
     { header: "Email", accessor: "email" },
     { header: "Phone", accessor: "mobileNumber" },
-    { header: "Joined", accessor: "createdDate" },
+    { header: renderHeader("Joined", "createdDate"), accessor: "createdDate" },
     {
-      header: "Status",
-      cell: (row) => <StatusBadge status={row.status} />,
+      header: renderHeader("City", "city"),
+      accessor: "city"
     },
     {
       header: "Actions",
@@ -42,19 +89,6 @@ const CustomerListPage = () => {
     },
   ];
 
-  const fetchCustomers = () => {
-    getAllCustomersPaginated(pageParams)
-      .then((res) => {
-        setCustomers(res.content);
-        setTotalPages(res.totalPages);
-      })
-      .catch((error) => console.log(error));
-  };
-
-  useEffect(() => {
-    fetchCustomers();
-  }, [currentPage]);
-
   return (
     <div>
       <PageHeader 
@@ -64,13 +98,38 @@ const CustomerListPage = () => {
       
       <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
         <div className="card-body p-0">
-          <div className="p-4 border-bottom border-light d-flex justify-content-between align-items-center">
+          <div className="p-4 border-bottom border-light d-flex justify-content-between align-items-center flex-wrap gap-3">
             <h6 className="m-0 fw-bold">All Customers</h6>
-            <div className="input-group" style={{ width: '250px' }}>
-              <span className="input-group-text bg-white border-end-0">
-                <i className="bi bi-search text-muted"></i>
-              </span>
-              <input type="text" className="form-control border-start-0 ps-0" placeholder="Search customers..." />
+            <div className="d-flex gap-2 flex-wrap">
+              <div className="input-group input-group-sm" style={{ width: '180px' }}>
+                <span className="input-group-text bg-white border-end-0" style={{ border: '1px solid var(--ss-border)' }}>
+                  <i className="bi bi-geo-alt text-muted"></i>
+                </span>
+                <input 
+                  type="text" 
+                  className="form-control border-start-0 ps-0" 
+                  placeholder="City..." 
+                  style={{ border: '1px solid var(--ss-border)', borderRadius: '0 8px 8px 0' }}
+                  value={cityQuery}
+                  onChange={(e) => {
+                    setCityQuery(e.target.value);
+                    tableState.setCurrentPage(1);
+                  }}
+                />
+              </div>
+              <div className="input-group input-group-sm" style={{ width: '220px' }}>
+                <span className="input-group-text bg-white border-end-0" style={{ border: '1px solid var(--ss-border)' }}>
+                  <i className="bi bi-search text-muted"></i>
+                </span>
+                <input 
+                  type="text" 
+                  className="form-control border-start-0 ps-0" 
+                  placeholder="Search customers..." 
+                  style={{ border: '1px solid var(--ss-border)', borderRadius: '0 8px 8px 0' }}
+                  value={tableState.searchQuery}
+                  onChange={(e) => tableState.handleSearchChange(e.target.value)}
+                />
+              </div>
             </div>
           </div>
           <div className="p-4">
@@ -79,9 +138,9 @@ const CustomerListPage = () => {
               data={customers} 
             />
             <PaginationBar 
-              currentPage={currentPage} 
-              totalPages={totalPages} 
-              onPageChange={setCurrentPage} 
+              currentPage={tableState.currentPage} 
+              totalPages={tableState.totalPages} 
+              onPageChange={tableState.setCurrentPage} 
             />
           </div>
         </div>

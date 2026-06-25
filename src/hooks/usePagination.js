@@ -7,8 +7,6 @@ export const usePagination = (initialPage = 1, initialSize = 10) => {
   const [pageSize, setPageSize] = useState(initialSize);
 
   const pageParams = {
-    page: currentPage - 1,
-    size: pageSize,
     pageNumber: currentPage - 1,
     pageSize: pageSize
   };

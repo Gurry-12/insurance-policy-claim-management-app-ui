@@ -16,8 +16,7 @@ const CustomerDetailPage = () => {
   const [policies, setPolicies] = useState([]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    
     setLoading(true);
     setError("");
 
@@ -30,6 +29,7 @@ const CustomerDetailPage = () => {
         console.error("Policies load failed:", err);
         return [];
       })
+
     ]).then(([customerData, policiesData]) => {
       if (!customerData) {
         setError("Could not load customer profile details.");
@@ -101,7 +101,6 @@ const CustomerDetailPage = () => {
                 </div>
               </div>
               <h5 className="fw-bold mb-1">{name}</h5>
-              <p className="text-muted mb-3">ID: {customer.customerId}</p>
 
               <hr
                 className="my-4"

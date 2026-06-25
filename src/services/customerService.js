@@ -33,6 +33,7 @@ export const updateProfile = async (
 
 export const getAllCustomersPaginated = async (params = {}) => {
   const response = await axiosInstance.get('/customers/page', { params });
+  console.log(response)
   return safeExtractPaginated(response);
 }
 

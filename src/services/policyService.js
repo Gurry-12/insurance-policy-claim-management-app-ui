@@ -8,7 +8,6 @@ export const getMyPolicies = async () => {
 
 export const getAllPoliciesPaginated = async (params = {}) => {
   const response = await axiosInstance.get("/policies", { params });
-  console.log(response);
   return safeExtractPaginated(response);
 };
 
