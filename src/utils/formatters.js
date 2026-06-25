@@ -20,7 +20,7 @@ export const safeExtractPaginated = (response) => {
   if (dataObj && typeof dataObj === 'object') {
     const content = dataObj.content || dataObj.data || (Array.isArray(dataObj) ? dataObj : []);
     const totalPages = dataObj.totalPages || 1;
-    const totalElements = dataObj.totalElements || content.length;
+    const totalElements = dataObj.totalElements ?? dataObj.totalRecords ?? content.length;
     return {
       content: Array.isArray(content) ? content : [],
       totalPages,

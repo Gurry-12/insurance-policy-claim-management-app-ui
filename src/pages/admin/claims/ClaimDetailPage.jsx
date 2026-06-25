@@ -19,7 +19,6 @@ const ClaimDetailPage = () => {
   const [actionLoading, setActionLoading] = useState(false);
 
   const fetchClaimData = (id) => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     Promise.all([
       getClaimById(id),
@@ -35,7 +34,6 @@ const ClaimDetailPage = () => {
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchClaimData(id);
   }, [id]);
 
@@ -84,7 +82,6 @@ const ClaimDetailPage = () => {
   }
 
   const customerName = claim.customerName || 'Customer';
-  const customerPhone = claim.customerPhone || 'N/A';
   const amount = claim.claimAmount || claim.amount || 0;
   const status = claim.claimStatus || claim.status || 'Pending';
   const documents = claim.documents || [];
@@ -204,12 +201,8 @@ const ClaimDetailPage = () => {
                 <span>{customerName}</span>
               </div>
               <div className="mb-3">
-                <small className="text-muted d-block fw-bold mb-1">Phone</small>
-                <span>{customerPhone}</span>
-              </div>
-              <div className="mb-3">
-                <small className="text-muted d-block fw-bold mb-1">Policy ID</small>
-                <span className="text-primary fw-bold" style={{ cursor: 'pointer' }}>{claim.policyId || claim.policyNumber || 'N/A'}</span>
+                <small className="text-muted d-block fw-bold mb-1">Policy Number</small>
+                <span className="text-primary fw-bold" style={{ cursor: 'pointer' }}>{claim.policyNumber || 'N/A'}</span>
               </div>
             </div>
           </div>

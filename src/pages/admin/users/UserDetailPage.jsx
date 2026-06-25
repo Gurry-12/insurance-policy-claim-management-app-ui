@@ -16,11 +16,11 @@ const UserDetailPage = () => {
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
-  const fetchUserData = (id) => {
+  const fetchUserData = (userId = id) => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setError('');
-    getUserById(id)
+    getUserById(userId)
       .then((data) => {
         if (!data) {
           setError('Could not load user details.');

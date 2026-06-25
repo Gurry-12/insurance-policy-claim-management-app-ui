@@ -6,26 +6,71 @@ import PaginationBar from '../../../components/tables/PaginationBar';
 import StatusBadge from '../../../components/ui/StatusBadge';
 import { getAllPoliciesPaginated } from '../../../services/policyService';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
-import usePagination from '../../../hooks/usePagination';
+import useTableState from '../../../hooks/useTableState';
+import SortableHeader from '../../../components/tables/SortableHeader';
 
 const PolicyListPage = () => {
-   const navigate = useNavigate();
-  const { currentPage, totalPages, setTotalPages, setCurrentPage, pageParams } = usePagination(1, 10);
+  const navigate = useNavigate();
   const [policies, setPolicies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [statusFilter, setStatusFilter] = useState('ALL');
+  
+  const tableState = useTableState({
+    initialSortBy: 'id',
+    initialFilters: { statusFilter: 'ALL' }
+  });
+
+  const fetchPolicies = () => {
+    setLoading(true);
+    const params = tableState.getQueryParams();
+    
+    if (tableState.filters.statusFilter !== 'ALL') {
+      params.status = tableState.filters.statusFilter;
+      params.policyStatus = tableState.filters.statusFilter;
+    }
+    delete params.statusFilter;
+
+    getAllPoliciesPaginated(params)
+      .then((res) => {
+        setPolicies(res.content);
+        tableState.setTotalPages(res.totalPages);
+        tableState.setTotalElements(res.totalElements || res.totalRecords || 0);
+      })
+      .catch(() => setError('Could not load policies. Please check your API connection.'))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchPolicies();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    tableState.currentPage, 
+    tableState.filters.statusFilter, 
+    tableState.sortBy, 
+    tableState.sortDirection, 
+    tableState.debouncedSearch
+  ]);
+
+  const renderHeader = (label, field) => (
+    <SortableHeader 
+      label={label} 
+      field={field} 
+      currentSortBy={tableState.sortBy} 
+      currentDirection={tableState.sortDirection} 
+      onSort={tableState.handleSort} 
+    />
+  );
 
   const columns = [
-    { header: "Policy #", accessor: "policyNumber", minWidth: "100px" },
+    { header: renderHeader("Policy #", "policyNumber"), accessor: "policyNumber", minWidth: "100px" },
     { header: "Customer", accessor: "customerName" },
     { header: "Plan", accessor: "planName" },
     {
-      header: "Premium (₹)",
+      header: renderHeader("Premium (₹)", "premiumAmount"),
       cell: (row) => `₹${row.premiumAmount.toLocaleString("en-IN")}`,
     },
-    { header: "Start Date", accessor: "startDate" },
-    { header: "Expiry Date", accessor: "endDate" },
+    { header: renderHeader("Start Date", "startDate"), accessor: "startDate" },
+    { header: renderHeader("Expiry Date", "endDate"), accessor: "endDate" },
     {
       header: "Status",
       cell: (row) => <StatusBadge status={row.policyStatus} />,
@@ -45,32 +90,6 @@ const PolicyListPage = () => {
       ),
     },
   ];
-
-  const fetchPolicies = () => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLoading(true);
-    const params = { ...pageParams };
-    if (statusFilter !== 'ALL') {
-      params.status = statusFilter;
-    }
-    getAllPoliciesPaginated(params)
-      .then((res) => {
-        setPolicies(res.content);
-        setTotalPages(res.totalPages);
-      })
-      .catch(() => setError('Could not load policies. Please check your API connection.'))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect( () => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchPolicies();
-  }, [currentPage, statusFilter] );
-
-  const handleStatusFilterChange = (status) => {
-    setStatusFilter(status);
-    setCurrentPage(1);
-  };
 
   return (
     <div>
@@ -95,8 +114,8 @@ const PolicyListPage = () => {
               <select 
                 className="form-select form-select-sm" 
                 style={{ width: '160px', borderRadius: '8px', border: '1px solid var(--ss-border)' }}
-                value={statusFilter}
-                onChange={(e) => handleStatusFilterChange(e.target.value)}
+                value={tableState.filters.statusFilter}
+                onChange={(e) => tableState.handleFilterChange({ statusFilter: e.target.value })}
               >
                 <option value="ALL">All Statuses</option>
                 <option value="ACTIVE">Active</option>
@@ -108,7 +127,14 @@ const PolicyListPage = () => {
                 <span className="input-group-text bg-white border-end-0" style={{ border: '1px solid var(--ss-border)' }}>
                   <i className="bi bi-search text-muted"></i>
                 </span>
-                <input type="text" className="form-control border-start-0 ps-0" placeholder="Search policies..." style={{ border: '1px solid var(--ss-border)', borderRadius: '0 8px 8px 0' }} />
+                <input 
+                  type="text" 
+                  className="form-control border-start-0 ps-0" 
+                  placeholder="Search policies..." 
+                  style={{ border: '1px solid var(--ss-border)', borderRadius: '0 8px 8px 0' }}
+                  value={tableState.searchQuery}
+                  onChange={(e) => tableState.handleSearchChange(e.target.value)}
+                />
               </div>
             </div>
           </div>
@@ -119,9 +145,9 @@ const PolicyListPage = () => {
               loading={loading}
             />
             <PaginationBar 
-              currentPage={currentPage} 
-              totalPages={totalPages} 
-              onPageChange={setCurrentPage} 
+              currentPage={tableState.currentPage} 
+              totalPages={tableState.totalPages} 
+              onPageChange={tableState.setCurrentPage} 
             />
           </div>
         </div>

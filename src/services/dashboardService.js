@@ -7,8 +7,8 @@ import { safeExtractArray } from '../utils/formatters';
 export const getAdminStats = async () => {
   return {
     totalCustomers: await getCustomerCount().catch(() => 0),
-    activePolicies: await getTotalCativePolicies().catch(() => 0),
-    openClaims: await getOpenClaimsCount().catch(() => 0),
+    activePolicies: await getTotalActivePolicies().catch(() => 0),
+    claims: await getOpenClaimsCount().catch(() => {}),
     activeUsers: await getActiveUsers().catch(() => 0),
     totalProducts: await getTotalProducts().catch(() => 0),
     recentClaims: await getRecentClaims().catch(() => []),
@@ -19,7 +19,22 @@ export const getAdminStats = async () => {
 
 const getOpenClaimsCount = async () => {
   const response = await axiosInstance.get('/claims');
-  return safeExtractArray(response).length;
+  const claims = safeExtractArray(response);
+
+  const pending = claims.filter(
+    (c) => c.claimStatus === "SUBMITTED" || c.claimStatus === "UNDER_REVIEW",
+  ).length;
+  const reviewed = claims.filter(
+    (c) =>
+      c.claimStatus === "APPROVED" ||
+      c.claimStatus === "REJECTED" ||
+      c.claimStatus === "REVIEWED",
+  ).length;
+
+  console.log(claims)
+  console.log(pending)
+  console.log(reviewed)
+  return {pendingClaims: pending, reviewedClaims: reviewed};
 };
 
 const getTotalProducts = async () => {
@@ -37,7 +52,7 @@ const getCustomerCount = async () =>  {
   return safeExtractArray(response).length;
 };
 
-const getTotalCativePolicies = async () => {
+const getTotalActivePolicies = async () => {
   const response = await axiosInstance.get('/plans/active');
   return safeExtractArray(response).length;
 };

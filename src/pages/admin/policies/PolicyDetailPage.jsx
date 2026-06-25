@@ -57,11 +57,11 @@ const PolicyDetailPage = () => {
 
   const customerName = policy.customerName || 'Customer';
   const planName = policy.planName || 'Insurance Plan';
-  const premium = policy.premiumAmount || policy.totalPremiumPaid || 0;
-  const status = policy.policyStatus || 'Active';
-  const startDate = policy.startDate || 'N/A';
-  const endDate = policy.endDate || 'N/A';
-  const coverageAmount = policy.coverageAmount || 0;
+  const premium = Number(policy.premiumAmount || policy.totalPremiumPaid || 0);
+  const status = (policy.policyStatus || 'ACTIVE').toUpperCase();
+  const startDate = policy.startDate || (policy.issueDate ? new Date(policy.issueDate).toLocaleDateString('en-IN') : null) || 'N/A';
+  const endDate = policy.endDate || (policy.expiryDate ? new Date(policy.expiryDate).toLocaleDateString('en-IN') : null) || 'N/A';
+  const coverageAmount = Number(policy.coverageAmount || 0);
   const premiumType = policy.premiumType || 'N/A';
   const productType = policy.productType || 'N/A';
 
@@ -79,7 +79,11 @@ const PolicyDetailPage = () => {
       <PageHeader 
         title="Policy Details" 
         subtitle={`Viewing details for Policy #${policy.policyNumber || policy.policyId}`}
-        onBack={() => navigate('/admin/policies')}
+        action={
+          <button onClick={() => navigate('/admin/policies')} className="btn btn-outline-secondary d-flex align-items-center gap-1" style={{ borderRadius: '8px' }}>
+            <i className="bi bi-arrow-left"></i> Back to Policies
+          </button>
+        }
       />
 
       <div className="row g-4">
@@ -121,7 +125,7 @@ const PolicyDetailPage = () => {
                 </div>
               </div>
 
-              {status !== 'CANCELLED' && status !== 'Expired' && (
+              {status !== 'CANCELLED' && status !== 'EXPIRED' && (
                 <button 
                   className="btn btn-outline-danger w-100 py-2 d-flex align-items-center justify-content-center gap-2"
                   style={{ borderRadius: '8px' }}
@@ -148,10 +152,6 @@ const PolicyDetailPage = () => {
                 <div className="col-sm-6">
                   <small className="text-muted d-block">Full Name</small>
                   <span className="fw-bold">{customerName}</span>
-                </div>
-                <div className="col-sm-6">
-                  <small className="text-muted d-block">Customer ID</small>
-                  <span>#{policy.customerId || 'N/A'}</span>
                 </div>
               </div>
             </div>

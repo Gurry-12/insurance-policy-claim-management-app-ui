@@ -168,9 +168,7 @@ const CreatePlanPage = () => {
                   required 
                   options={[
                     { value: 'ANNUAL', label: 'Annual' },
-                    { value: 'SEMI_ANNUAL', label: 'Semi-Annual' },
-                    { value: 'QUARTERLY', label: 'Quarterly' },
-                    { value: 'MONTHLY', label: 'Monthly' },
+                    { value: 'ONE_TIME', label: 'One-time' },
                   ]}
                 />
               </div>

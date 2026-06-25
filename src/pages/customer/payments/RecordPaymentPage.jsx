@@ -25,7 +25,19 @@ const RecordPaymentPage = () => {
     const fetchPolicies = async () => {
       try {
         const response = await getMyPolicies();
-        setPolicies(response.content || response.data || (Array.isArray(response) ? response : []));
+        const list = response.content || response.data || (Array.isArray(response) ? response : []);
+        setPolicies(list);
+        
+        // If policyId is pre-selected, find and set the default premium amount
+        if (policyId && list.length > 0) {
+          const selected = list.find(p => String(p.id || p.policyId) === String(policyId));
+          if (selected) {
+            setFormData(prev => ({
+              ...prev,
+              amount: selected.premiumAmount || selected.premium || ""
+            }));
+          }
+        }
       } catch (err) {
         console.error("Failed to fetch policies:", err);
       } finally {
@@ -33,13 +45,23 @@ const RecordPaymentPage = () => {
       }
     };
     fetchPolicies();
-  }, []);
+  }, [policyId]);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    if (name === "policyId") {
+      const selected = policies.find(p => String(p.id || p.policyId) === String(value));
+      setFormData(prev => ({
+        ...prev,
+        policyId: value,
+        amount: selected ? (selected.premiumAmount || selected.premium || "") : ""
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -68,8 +90,11 @@ const RecordPaymentPage = () => {
       <PageHeader
         title="Make Payment"
         subtitle="Securely pay your policy premium"
-        icon={CreditCard}
-        backButton={true}
+        action={
+          <button onClick={() => navigate(-1)} className="btn btn-outline-secondary d-flex align-items-center gap-1" style={{ borderRadius: '8px' }}>
+            <i className="bi bi-arrow-left"></i> Back
+          </button>
+        }
       />
 
       <div className="row justify-content-center mt-4">
