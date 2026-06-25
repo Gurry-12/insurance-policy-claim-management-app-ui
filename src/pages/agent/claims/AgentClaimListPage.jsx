@@ -9,6 +9,8 @@ const AgentClaimListPage = () => {
   const [claims, setClaims] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+    const [searchTerm, setSearchTerm] = useState("");
+
 
   useEffect(() => {
     const loadClaims = async () => {
@@ -25,6 +27,12 @@ const AgentClaimListPage = () => {
     loadClaims();
   }, []);
 
+  //filter
+   const filteredClaims = claims.filter((claim) =>
+  claim.claimNumber?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+  claim.claimAmount?.toString().includes(searchTerm) ||
+  claim.policyNumber?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+);
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
@@ -36,11 +44,29 @@ const AgentClaimListPage = () => {
   }
 
   return (
+
     <div className="animate-fade-in">
       <PageHeader
-        title="Claims Management"
-        subtitle="Review and process client claim requests"
+        title="claim Management"
+        subtitle="Track your client  claims"
+        action={
+          <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate("/agent/dashboard")}>
+            <i className="bi bi-arrow-left"></i> Back
+          </button>
+        }
       />
+      
+{/* /filter search bar */}
+{/* ADD SEARCH BAR HERE */}
+      <div className="mb-3">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Search by Claim ID or Amount and policy number"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
 
       {claims.length === 0 ? (
         <div className="alert alert-info" style={{ borderRadius: 12 }}>
@@ -51,6 +77,7 @@ const AgentClaimListPage = () => {
           <table className="table table-hover align-middle mb-0">
             <thead>
               <tr>
+                <th>ID</th>
                 <th>Claim Number</th>
                 <th>Customer Name</th>
                 <th>Policy Number</th>
@@ -60,7 +87,7 @@ const AgentClaimListPage = () => {
               </tr>
             </thead>
 
-            <tbody>
+            {/* <tbody>
               {claims.map((claim) => (
                 <tr key={claim.claimId}>
                   <td style={{ fontWeight: 600 }}>{claim.claimNumber}</td>
@@ -81,7 +108,41 @@ const AgentClaimListPage = () => {
                   </td>
                 </tr>
               ))}
-            </tbody>
+            </tbody> */}
+
+            <tbody>
+        {filteredClaims.map((claim, index) => (
+          <tr key={claim.claimId}>
+              <td>{index + 1}</td>
+            <td style={{ fontWeight: 600 }}>
+              {claim.claimNumber}
+            </td>
+
+            <td style={{ fontWeight: 600 }}>
+              {claim.customerName}
+            </td>
+
+            <td>{claim.policyNumber}</td>
+
+            <td style={{ fontWeight: 600 }}>
+              ₹ {claim.claimAmount?.toLocaleString()}
+            </td>
+
+            <td><StatusBadge status={claim.claimStatus} /></td>
+
+           <td>
+            <Link
+              to={`/agent/claims/${claim.claimId}`}
+              className="btn btn-light btn-sm text-primary"
+               title="View Details"
+        >
+          <Eye size={16} />
+          <span className="ms-1">View Details</span>
+        </Link>
+      </td>
+    </tr>
+  ))}
+</tbody>
           </table>
         </div>
       )}

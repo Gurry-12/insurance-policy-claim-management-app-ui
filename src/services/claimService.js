@@ -109,8 +109,17 @@ export const getAllClaims = async (userData, pageNumber = 0,
    
 };
 
-export const reviewClaim = async (claimId) => {
-  const {data} = await axiosInstance.patch(`/claims/${claimId}/review`);
+// export const reviewClaim = async (claimId) => {
+//   const {data} = await axiosInstance.patch(`/claims/${claimId}/review`);
+//   return data;
+// };
+
+export const reviewClaim = async (claimId, reviewData) => {
+  const { data } = await axiosInstance.patch(
+    `/claims/${claimId}/review`,
+    reviewData
+  );
+
   return data;
 };
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getAllCustomers } from "../../../services/customerService";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
+import useSearch from "../../../hooks/useSearch";
 
 const AgentCustomerListPage = () => {
   const [customers, setCustomers] = useState([]);
@@ -23,6 +24,15 @@ const AgentCustomerListPage = () => {
     loadCustomers();
   }, []);
 
+  const {
+  searchTerm,
+  setSearchTerm,
+  filteredData: filteredCustomers,
+} = useSearch(customers, [
+  "fullName",
+  "email",
+  "mobileNumber",
+]);
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
@@ -32,7 +42,6 @@ const AgentCustomerListPage = () => {
       </div>
     );
   }
-
   return (
     <div className="animate-fade-in">
       <PageHeader
@@ -45,10 +54,19 @@ const AgentCustomerListPage = () => {
         }
       />
 
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Search by Name, Email or Mobile"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+
       <div className="table-responsive">
         <table className="table table-hover align-middle mb-0">
           <thead>
             <tr>
+              <th>ID</th>
               <th>Full Name</th>
               <th>Email</th>
               <th>Mobile</th>
@@ -57,7 +75,7 @@ const AgentCustomerListPage = () => {
             </tr>
           </thead>
 
-          <tbody>
+          {/* <tbody>
             {customers.length > 0 ? (
               customers.map((customer) => (
                 <tr key={customer.customerId}>
@@ -73,7 +91,31 @@ const AgentCustomerListPage = () => {
                 <td colSpan="5" className="text-center py-4">No Customers Found</td>
               </tr>
             )}
-          </tbody>
+          </tbody> */}
+
+          <tbody>
+  {filteredCustomers.length > 0 ? (
+    filteredCustomers.map((customer,index) => (
+      <tr key={customer.customerId}>
+          <td>{index + 1}</td>
+         <td style={{ fontWeight: 600 }}>
+          {customer.fullName}
+        </td>
+
+        <td>{customer.email}</td>
+        <td>{customer.mobileNumber}</td>
+        <td>{customer.city}</td>
+        <td>{customer.state}</td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="5" className="text-center py-4">
+        No Customers Found
+      </td>
+    </tr>
+  )}
+</tbody>
         </table>
       </div>
     </div>
