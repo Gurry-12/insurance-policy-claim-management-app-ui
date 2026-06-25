@@ -126,36 +126,39 @@ const EditPlanPage = () => {
   }
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <PageHeader 
-        title="Edit Plan" 
+    <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+      <PageHeader
+        title="Edit Plan"
         subtitle={`Editing Plan: ${id}`}
-        onBack={() => navigate('/admin/plans')}
+        onBack={() => navigate("/admin/plans")}
       />
 
       <ErrorAlert message={error} />
 
       {!error && (
-        <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+        <div
+          className="card border-0"
+          style={{ borderRadius: 16, boxShadow: "var(--ss-shadow)" }}
+        >
           <div className="card-body p-4 p-md-5">
             <form onSubmit={handleSubmit}>
               <div className="row">
                 <div className="col-md-6">
-                  <FormInput 
-                    label="Plan Name" 
-                    name="name" 
-                    value={formData.name} 
-                    onChange={handleChange} 
-                    required 
+                  <FormInput
+                    label="Plan Name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
                   />
                 </div>
                 <div className="col-md-6">
-                  <FormSelect 
-                    label="Product" 
-                    name="productId" 
-                    value={formData.productId} 
-                    onChange={handleChange} 
-                    required 
+                  <FormSelect
+                    label="Product"
+                    name="productId"
+                    value={formData.productId}
+                    onChange={handleChange}
+                    required
                     options={productOptions}
                   />
                 </div>
@@ -163,51 +166,49 @@ const EditPlanPage = () => {
 
               <div className="row mt-2">
                 <div className="col-md-6">
-                  <FormInput 
-                    label="Premium Amount (₹)" 
-                    name="premium" 
+                  <FormInput
+                    label="Premium Amount (₹)"
+                    name="premium"
                     type="number"
-                    value={formData.premium} 
-                    onChange={handleChange} 
-                    required 
+                    value={formData.premium}
+                    onChange={handleChange}
+                    required
                   />
                 </div>
                 <div className="col-md-6">
-                  <FormInput 
-                    label="Coverage Amount (₹)" 
-                    name="coverage" 
+                  <FormInput
+                    label="Coverage Amount (₹)"
+                    name="coverage"
                     type="number"
-                    value={formData.coverage} 
-                    onChange={handleChange} 
-                    required 
+                    value={formData.coverage}
+                    onChange={handleChange}
+                    required
                   />
                 </div>
               </div>
 
               <div className="row mt-2">
                 <div className="col-md-6">
-                  <FormSelect 
-                    label="Premium Type" 
-                    name="premiumType" 
-                    value={formData.premiumType} 
-                    onChange={handleChange} 
-                    required 
+                  <FormSelect
+                    label="Premium Type"
+                    name="premiumType"
+                    value={formData.premiumType}
+                    onChange={handleChange}
+                    required
                     options={[
-                      { value: 'ANNUAL', label: 'Annual' },
-                      { value: 'SEMI_ANNUAL', label: 'Semi-Annual' },
-                      { value: 'QUARTERLY', label: 'Quarterly' },
-                      { value: 'MONTHLY', label: 'Monthly' },
+                      { value: "ANNUAL", label: "Annual" },
+                      { value: "ONE_TIME", label: "One-time" },
                     ]}
                   />
                 </div>
                 <div className="col-md-6">
-                  <FormInput 
-                    label="Duration (Years/Months)" 
-                    name="duration" 
+                  <FormInput
+                    label="Duration (Years/Months)"
+                    name="duration"
                     type="number"
-                    value={formData.duration} 
-                    onChange={handleChange} 
-                    required 
+                    value={formData.duration}
+                    onChange={handleChange}
+                    required
                     placeholder="e.g. 1"
                   />
                 </div>
@@ -215,15 +216,15 @@ const EditPlanPage = () => {
 
               <div className="row mt-2">
                 <div className="col-md-6">
-                  <FormSelect 
-                    label="Status" 
-                    name="status" 
-                    value={formData.status} 
-                    onChange={handleChange} 
-                    required 
+                  <FormSelect
+                    label="Status"
+                    name="status"
+                    value={formData.status}
+                    onChange={handleChange}
+                    required
                     options={[
-                      { value: 'Active', label: 'Active' },
-                      { value: 'Inactive', label: 'Inactive' },
+                      { value: "Active", label: "Active" },
+                      { value: "Inactive", label: "Inactive" },
                     ]}
                   />
                 </div>
@@ -231,12 +232,12 @@ const EditPlanPage = () => {
 
               <div className="row mt-2">
                 <div className="col-12">
-                  <FormTextarea 
-                    label="Terms & Conditions" 
-                    name="termsAndConditions" 
-                    value={formData.termsAndConditions} 
-                    onChange={handleChange} 
-                    required 
+                  <FormTextarea
+                    label="Terms & Conditions"
+                    name="termsAndConditions"
+                    value={formData.termsAndConditions}
+                    onChange={handleChange}
+                    required
                     placeholder="Describe coverage terms, rules, and conditions..."
                     rows={4}
                   />
@@ -244,22 +245,22 @@ const EditPlanPage = () => {
               </div>
 
               <div className="d-flex justify-content-end gap-3 mt-5">
-                <button 
-                  type="button" 
-                  className="btn btn-light px-4" 
-                  style={{ borderRadius: '8px' }}
-                  onClick={() => navigate('/admin/plans')}
+                <button
+                  type="button"
+                  className="btn btn-light px-4"
+                  style={{ borderRadius: "8px" }}
+                  onClick={() => navigate("/admin/plans")}
                   disabled={submitting}
                 >
                   Cancel
                 </button>
-                <button 
-                  type="submit" 
-                  className="btn btn-primary px-4" 
-                  style={{ borderRadius: '8px' }}
+                <button
+                  type="submit"
+                  className="btn btn-primary px-4"
+                  style={{ borderRadius: "8px" }}
                   disabled={submitting || productOptions.length === 0}
                 >
-                  {submitting ? 'Saving...' : 'Save Changes'}
+                  {submitting ? "Saving..." : "Save Changes"}
                 </button>
               </div>
             </form>
@@ -267,14 +268,14 @@ const EditPlanPage = () => {
         </div>
       )}
 
-      <AlertModal 
+      <AlertModal
         isOpen={showSuccess}
         type="success"
         title="Plan Updated!"
         message="The changes to the plan have been saved successfully."
         onClose={() => {
           setShowSuccess(false);
-          navigate('/admin/plans');
+          navigate("/admin/plans");
         }}
       />
     </div>

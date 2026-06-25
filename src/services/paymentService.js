@@ -39,6 +39,11 @@ export const getPaymentsByMyPolicy = async (policyId) => {
 };
 
 
+export const getPaymentsByPolicyId = async (policyId) => {
+  const response = await axiosInstance.get(`/payments/policy/${policyId}`);
+  return response.data?.data || [];
+};
+
 export const getAllPayments = async (userData, pageNumber = 0,
   pageSize = 10,
   sortBy = "paymentId",

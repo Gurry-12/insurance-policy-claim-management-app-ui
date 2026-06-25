@@ -43,7 +43,7 @@ const CustomerPolicyDetailPage = () => {
 
   const premiumType = policy.premiumType || 'ONE_TIME';
   
-  let hasPendingPayments = false;
+  let hasPendingPayments;
   const paymentsCount = Array.isArray(payments) ? payments.length : 0;
 
   if (premiumType === 'ONE_TIME') {
