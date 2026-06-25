@@ -5,18 +5,26 @@ import StatusBadge from '../../../components/ui/StatusBadge';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import { getPolicyById, cancelPolicy } from '../../../services/policyService';
+import { getAllPaymentsPaginated } from '../../../services/paymentService';
 
 const PolicyDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [policy, setPolicy] = useState(null);
+  const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
-    getPolicyById(id)
-      .then(setPolicy)
+    Promise.all([
+      getPolicyById(id),
+      getAllPaymentsPaginated({ policyId: id, pageSize: 50 }).then(res => res.content).catch(() => [])
+    ])
+      .then(([policyData, paymentsData]) => {
+        setPolicy(policyData);
+        setPayments(paymentsData);
+      })
       .catch((err) => {
         console.error("Policy fetch error:", err);
         setError(err.response?.data?.message || err.message || 'Could not load policy details.');
@@ -158,7 +166,7 @@ const PolicyDetailPage = () => {
           </div>
 
           {/* Coverage Details Card */}
-          <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+          <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
             <div className="card-body p-4">
               <h6 className="fw-bold mb-3 text-primary">
                 <i className="bi bi-shield-check me-2"></i>Coverage & Benefits
@@ -182,6 +190,47 @@ const PolicyDetailPage = () => {
                   </tbody>
                 </table>
               </div>
+            </div>
+          </div>
+
+          {/* Payment History Card */}
+          <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+            <div className="card-body p-4">
+              <h6 className="fw-bold mb-3 text-primary">
+                <i className="bi bi-receipt me-2"></i>Payment History
+              </h6>
+              
+              {payments && payments.length > 0 ? (
+                <div className="table-responsive">
+                  <table className="table table-hover align-middle mb-0" style={{ fontSize: '0.85rem' }}>
+                    <thead>
+                      <tr style={{ color: 'var(--ss-text-muted)', fontSize: '0.74rem', textTransform: 'uppercase' }}>
+                        <th className="border-0">Transaction ID</th>
+                        <th className="border-0">Date</th>
+                        <th className="border-0">Amount</th>
+                        <th className="border-0">Method</th>
+                        <th className="border-0">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {payments.map((payment, idx) => (
+                        <tr key={idx}>
+                          <td className="fw-bold text-dark">{payment.transactionReference || payment.paymentId}</td>
+                          <td className="text-muted">{new Date(payment.paymentDate || payment.paymentTime).toLocaleDateString('en-IN')}</td>
+                          <td className="fw-bold">₹{Number(payment.amount).toLocaleString('en-IN')}</td>
+                          <td>{payment.paymentMode || 'N/A'}</td>
+                          <td><StatusBadge status={payment.paymentStatus} /></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="text-center p-3 text-muted">
+                  <i className="bi bi-inbox fs-4 d-block mb-2"></i>
+                  No payments found for this policy.
+                </div>
+              )}
             </div>
           </div>
         </div>

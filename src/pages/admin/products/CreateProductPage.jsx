@@ -50,39 +50,43 @@ const CreateProductPage = () => {
   };
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <PageHeader 
-        title="Create Product" 
+    <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+      <PageHeader
+        title="Create Product"
         subtitle="Add a new insurance product"
-        onBack={() => navigate('/admin/products')}
+        onBack={() => navigate("/admin/products")}
       />
 
-      <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+      <div
+        className="card border-0"
+        style={{ borderRadius: 16, boxShadow: "var(--ss-shadow)" }}
+      >
         <div className="card-body p-4 p-md-5">
           <form onSubmit={handleSubmit}>
             <div className="row">
               <div className="col-md-6">
-                <FormInput 
-                  label="Product Name" 
-                  name="name" 
-                  value={formData.name} 
-                  onChange={handleChange} 
-                  required 
+                <FormInput
+                  label="Product Name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
                   placeholder="e.g. Health Shield Premium"
                 />
               </div>
               <div className="col-md-6">
-                <FormSelect 
-                  label="Category" 
-                  name="category" 
-                  value={formData.category} 
-                  onChange={handleChange} 
-                  required 
+                <FormSelect
+                  label="Category"
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  required
                   options={[
-                    { value: 'HEALTH', label: 'Health Insurance' },
-                    { value: 'AUTO', label: 'Auto Insurance' },
-                    { value: 'LIFE', label: 'Life Insurance' },
-                    { value: 'HOME', label: 'Home Insurance' },
+                    { value: "HEALTH", label: "Health" },
+                    { value: "MOTOR", label: "Motor" },
+                    { value: "LIFE", label: "Life" },
+                    { value: "TRAVEL", label: "Travel" },
+                    { value: "INSURANCE", label: "Insurance" }
                   ]}
                 />
               </div>
@@ -90,12 +94,12 @@ const CreateProductPage = () => {
 
             <div className="row mt-2">
               <div className="col-12">
-                <FormTextarea 
-                  label="Description" 
-                  name="description" 
-                  value={formData.description} 
-                  onChange={handleChange} 
-                  required 
+                <FormTextarea
+                  label="Description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  required
                   placeholder="Enter detailed description of the product"
                   rows={4}
                 />
@@ -104,51 +108,51 @@ const CreateProductPage = () => {
 
             <div className="row mt-2">
               <div className="col-md-6">
-                <FormSelect 
-                  label="Status" 
-                  name="status" 
-                  value={formData.status} 
-                  onChange={handleChange} 
-                  required 
+                <FormSelect
+                  label="Status"
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                  required
                   options={[
-                    { value: 'Active', label: 'Active' },
-                    { value: 'Inactive', label: 'Inactive' },
+                    { value: "Active", label: "Active" },
+                    { value: "Inactive", label: "Inactive" },
                   ]}
                 />
               </div>
             </div>
 
             <div className="d-flex justify-content-end gap-3 mt-5">
-              <button 
-                type="button" 
-                className="btn btn-light px-4" 
-                style={{ borderRadius: '8px' }}
-                onClick={() => navigate('/admin/products')}
+              <button
+                type="button"
+                className="btn btn-light px-4"
+                style={{ borderRadius: "8px" }}
+                onClick={() => navigate("/admin/products")}
                 disabled={submitting}
               >
                 Cancel
               </button>
-              <button 
-                type="submit" 
-                className="btn btn-primary px-4" 
-                style={{ borderRadius: '8px' }}
+              <button
+                type="submit"
+                className="btn btn-primary px-4"
+                style={{ borderRadius: "8px" }}
                 disabled={submitting}
               >
-                {submitting ? 'Creating...' : 'Create Product'}
+                {submitting ? "Creating..." : "Create Product"}
               </button>
             </div>
           </form>
         </div>
       </div>
 
-      <AlertModal 
+      <AlertModal
         isOpen={showSuccess}
         type="success"
         title="Product Created!"
         message="The new insurance product has been successfully added."
         onClose={() => {
           setShowSuccess(false);
-          navigate('/admin/products');
+          navigate("/admin/products");
         }}
       />
     </div>

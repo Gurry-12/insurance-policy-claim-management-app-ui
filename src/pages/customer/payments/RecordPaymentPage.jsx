@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { recordPayment } from "../../../services/paymentService";
 import { getMyPolicies } from "../../../services/policyService";
 import PageHeader from "../../../components/common/PageHeader";
-import { CreditCard, Wallet, AlertCircle } from "lucide-react";
+import { Wallet, AlertCircle } from "lucide-react";
 
 const RecordPaymentPage = () => {
   const navigate = useNavigate();
@@ -194,4 +194,4 @@ const RecordPaymentPage = () => {
   );
 };
 
-export default RecordPaymentPage;
+export default RecordPaymentPage;
