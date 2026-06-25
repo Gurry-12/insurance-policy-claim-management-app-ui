@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import PageHeader from '../../../components/common/PageHeader';
 import FormInput from '../../../components/forms/FormInput';
 import FormSelect from '../../../components/forms/FormSelect';
@@ -46,31 +47,31 @@ const CreatePlanPage = () => {
 
     const nameRegex = /^[a-zA-Z\s]*$/;
     if (!nameRegex.test(formData.name)) {
-      alert('Only letters and spaces are allowed in the plan name.');
+      toast.error('Only letters and spaces are allowed in the plan name.');
       setSubmitting(false);
       return;
     }
 
     if (Number(formData.premium) <= 0) {
-      alert('Base premium must be greater than zero.');
+      toast.error('Base premium must be greater than zero.');
       setSubmitting(false);
       return;
     }
 
     if (Number(formData.coverage) <= 0) {
-      alert('Coverage amount must be greater than zero.');
+      toast.error('Coverage amount must be greater than zero.');
       setSubmitting(false);
       return;
     }
 
     if (Number(formData.duration) <= 0 || !Number.isInteger(Number(formData.duration))) {
-      alert('Duration must be a positive integer.');
+      toast.error('Duration must be a positive integer.');
       setSubmitting(false);
       return;
     }
 
     if (!formData.termsAndConditions.trim()) {
-      alert('Terms and conditions are required.');
+      toast.error('Terms and conditions are required.');
       setSubmitting(false);
       return;
     }
@@ -88,9 +89,10 @@ const CreatePlanPage = () => {
 
     createPlan(payload)
       .then(() => {
-        setShowSuccess(true);
+        toast.success('Plan created successfully!');
+        navigate('/admin/plans');
       })
-      .catch((err) => alert(err.response?.data?.message || 'Failed to create plan. Check your connection.'))
+      .catch((err) => toast.error(err.response?.data?.message || 'Failed to create plan. Check your connection.'))
       .finally(() => setSubmitting(false));
   };
 

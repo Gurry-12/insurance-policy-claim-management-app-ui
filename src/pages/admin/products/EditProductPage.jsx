@@ -8,6 +8,7 @@ import AlertModal from '../../../components/modals/AlertModal';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import { getProductById, updateProduct } from '../../../services/productService';
+import toast from 'react-hot-toast';
 
 const EditProductPage = () => {
   const { id } = useParams();
@@ -23,8 +24,7 @@ const EditProductPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { 
     setLoading(true);
     getProductById(id)
       .then((data) => {
@@ -50,9 +50,8 @@ const EditProductPage = () => {
     e.preventDefault();
     setSubmitting(true);
 
-    const nameRegex = /^[a-zA-Z\s]*$/;
-    if (!nameRegex.test(formData.name)) {
-      alert('Only letters and spaces are allowed in the product name.');
+    if (!/^[A-Za-z\s]+$/.test(formData.name)) {
+      toast.error('Only letters and spaces are allowed in the product name.');
       setSubmitting(false);
       return;
     }
@@ -66,9 +65,10 @@ const EditProductPage = () => {
 
     updateProduct(id, payload)
       .then(() => {
-        setShowSuccess(true);
+        toast.success('Product updated successfully!');
+        navigate(`/admin/products/${id}`);
       })
-      .catch((err) => alert(err.response?.data?.message || 'Failed to save product changes.'))
+      .catch((err) => toast.error(err.response?.data?.message || 'Failed to save product changes.'))
       .finally(() => setSubmitting(false));
   };
 

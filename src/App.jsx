@@ -3,6 +3,7 @@ import useAuth from "./hooks/useAuth";
 import { ROLES } from "./utils/roles";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+import ForgotPassword from "./pages/auth/ForgotPassword";
 import VerifyOtp from "./pages/auth/VerifyOtp";
 import NotFound from "./pages/shared/NotFound";
 import AgentDashboard from "./pages/agent/AgentDashboard";
@@ -101,85 +102,91 @@ const DashboardRedirect = () => {
 
 /* ── App  */
 
+import GlobalToaster from "./components/common/GlobalToaster";
+
 const App = () => (
-  <Routes>
-    {/* Public */}
-    <Route path="/login" element={<Login />} />
-    <Route path="/register" element={<Register />} />
-    <Route path="/verify-otp" element={<VerifyOtp />} />
-    <Route path="/" element={<Navigate to="/login" replace />} />
+  <>
+    <GlobalToaster />
+    <Routes>
+      {/* Public */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/verify-otp" element={<VerifyOtp />} />
+      <Route path="/" element={<Navigate to="/login" replace />} />
 
-    {/* Protected routes under UnifiedLayout */}
-    <Route element={<ProtectedRoute />}>
-      <Route element= {<UnifiedLayout></UnifiedLayout>}
-      >
-        {/* Common Dashboard Redirect */}
-        <Route path="/dashboard" element={<DashboardRedirect />} />
+      {/* Protected routes under UnifiedLayout */}
+      <Route element={<ProtectedRoute />}>
+        <Route element= {<UnifiedLayout></UnifiedLayout>}
+        >
+          {/* Common Dashboard Redirect */}
+          <Route path="/dashboard" element={<DashboardRedirect />} />
 
-        {/* ── Admin Routes ── */}
-        <Route element={<RoleProtectedRoute allowedRole={ROLES.ADMIN} />}>
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/users" element={<UserListPage />} />
-          <Route path="/admin/users/create" element={<CreateAgentPage />} />
-          <Route path="/admin/users/:id" element={<UserDetailPage />} />
-          <Route path="/admin/customers" element={<CustomerListPage />} />
-          <Route path="/admin/customers/:id" element={<CustomerDetailPage />} />
-          <Route path="/admin/products" element={<ProductListPage />} />
-          <Route path="/admin/products/create" element={<CreateProductPage />} />
-          <Route path="/admin/products/edit/:id" element={<EditProductPage />} />
-          <Route path="/admin/products/:id" element={<ProductDetailPage />} />
-          <Route path="/admin/plans" element={<PlanListPage />} />
-          <Route path="/admin/plans/create" element={<CreatePlanPage />} />
-          <Route path="/admin/plans/edit/:id" element={<EditPlanPage />} />
-          <Route path="/admin/plans/:id" element={<PlanDetailPage />} />
-          <Route path="/admin/policies" element={<PolicyListPage />} />
-          <Route path="/admin/policies/:id" element={<PolicyDetailPage />} />
-          <Route path="/admin/policies/issue" element={<IssuePolicyPage />} />
-          <Route path="/admin/claims" element={<ClaimListPage />} />
-          <Route path="/admin/claims/:id" element={<ClaimDetailPage />} />
-          <Route path="/admin/claims/:id/history" element={<AdminClaimHistoryPage />} />
-          <Route path="/admin/payments" element={<PaymentListPage />} />
-        </Route>
+          {/* ── Admin Routes ── */}
+          <Route element={<RoleProtectedRoute allowedRole={ROLES.ADMIN} />}>
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<UserListPage />} />
+            <Route path="/admin/users/create" element={<CreateAgentPage />} />
+            <Route path="/admin/users/:id" element={<UserDetailPage />} />
+            <Route path="/admin/customers" element={<CustomerListPage />} />
+            <Route path="/admin/customers/:id" element={<CustomerDetailPage />} />
+            <Route path="/admin/products" element={<ProductListPage />} />
+            <Route path="/admin/products/create" element={<CreateProductPage />} />
+            <Route path="/admin/products/edit/:id" element={<EditProductPage />} />
+            <Route path="/admin/products/:id" element={<ProductDetailPage />} />
+            <Route path="/admin/plans" element={<PlanListPage />} />
+            <Route path="/admin/plans/create" element={<CreatePlanPage />} />
+            <Route path="/admin/plans/edit/:id" element={<EditPlanPage />} />
+            <Route path="/admin/plans/:id" element={<PlanDetailPage />} />
+            <Route path="/admin/policies" element={<PolicyListPage />} />
+            <Route path="/admin/policies/:id" element={<PolicyDetailPage />} />
+            <Route path="/admin/policies/issue" element={<IssuePolicyPage />} />
+            <Route path="/admin/claims" element={<ClaimListPage />} />
+            <Route path="/admin/claims/:id" element={<ClaimDetailPage />} />
+            <Route path="/admin/claims/:id/history" element={<AdminClaimHistoryPage />} />
+            <Route path="/admin/payments" element={<PaymentListPage />} />
+          </Route>
 
-        {/* ── Agent Routes ── */}
-        <Route element={<RoleProtectedRoute allowedRole={ROLES.AGENT} />}>
-          <Route path="/agent/dashboard" element={<AgentDashboard />} />
-          <Route path="/agent/customers" element={<AgentCustomerListPage />} />
-          <Route path="/agent/profile" element={<ProfilePage />} />
-          <Route path="/agent/profile/edit" element={<EditProfilePage />} />
-          <Route path="/agent/policies" element={<AgentPolicyListPage />} />
-          <Route path="/agent/policies/:policyId" element={<AgentPolicyDetailPage />} />
-          <Route path="/agent/claims" element={<AgentClaimListPage />} />
-          <Route path="/agent/claims/:id" element={<AgentClaimDetailPage />} />
-          <Route path="/agent/issue-policy" element={<AgentIssuePolicyPage />} />
-          <Route path="/agent/claims/:id/history" element={<AgentClaimHistory />} />
-          <Route path="/agent/payments/page" element={<AgentPaymentListPage />} />
-        </Route>
+          {/* ── Agent Routes ── */}
+          <Route element={<RoleProtectedRoute allowedRole={ROLES.AGENT} />}>
+            <Route path="/agent/dashboard" element={<AgentDashboard />} />
+            <Route path="/agent/customers" element={<AgentCustomerListPage />} />
+            <Route path="/agent/profile" element={<ProfilePage />} />
+            <Route path="/agent/profile/edit" element={<EditProfilePage />} />
+            <Route path="/agent/policies" element={<AgentPolicyListPage />} />
+            <Route path="/agent/policies/:policyId" element={<AgentPolicyDetailPage />} />
+            <Route path="/agent/claims" element={<AgentClaimListPage />} />
+            <Route path="/agent/claims/:id" element={<AgentClaimDetailPage />} />
+            <Route path="/agent/issue-policy" element={<AgentIssuePolicyPage />} />
+            <Route path="/agent/claims/:id/history" element={<AgentClaimHistory />} />
+            <Route path="/agent/payments/page" element={<AgentPaymentListPage />} />
+          </Route>
 
-        {/* ── Customer Routes ── */}
-        <Route element={<RoleProtectedRoute allowedRole={ROLES.CUSTOMER} />}>
-          <Route path="/customer/dashboard" element={<CustomerDashboard />} />
-          <Route path="/customer/profile" element={<ProfilePage />} />
-          <Route path="/customer/profile/edit" element={<EditProfilePage />} />
-          <Route path="/customer/products" element={<CustomerProductListPage />} />
-          <Route path="/customer/products/:productId/plans" element={<CustomerPlanListPage />} />
-          <Route path="/customer/plans" element={<CustomerPlanListPage />} />
-          <Route path="/customer/purchase-policy/:planId" element={<PurchasePolicyPage />} />
-          <Route path="/customer/policies" element={<CustomerPolicyListPage />} />
-          <Route path="/customer/policies/:policyId" element={<CustomerPolicyDetailPage />} />
-          <Route path="/customer/payments" element={<CustomerPaymentHistoryPage />} />
-          <Route path="/customer/payments/pay/:policyId" element={<RecordPaymentPage />} />
-          <Route path="/customer/claims" element={<CustomerClaimListPage />} />
-          <Route path="/customer/claims/raise" element={<RaiseClaimPage />} />
-          <Route path="/customer/claims/history/:claimId" element={<ClaimStatusHistoryPage />} />
-          <Route path="/customer/claims/upload/:claimId" element={<UploadDocumentsPage />} />
-          <Route path="/customer/claims/:claimId" element={<ClaimDetailsPage />} />
+          {/* ── Customer Routes ── */}
+          <Route element={<RoleProtectedRoute allowedRole={ROLES.CUSTOMER} />}>
+            <Route path="/customer/dashboard" element={<CustomerDashboard />} />
+            <Route path="/customer/profile" element={<ProfilePage />} />
+            <Route path="/customer/profile/edit" element={<EditProfilePage />} />
+            <Route path="/customer/products" element={<CustomerProductListPage />} />
+            <Route path="/customer/products/:productId/plans" element={<CustomerPlanListPage />} />
+            <Route path="/customer/plans" element={<CustomerPlanListPage />} />
+            <Route path="/customer/purchase-policy/:planId" element={<PurchasePolicyPage />} />
+            <Route path="/customer/policies" element={<CustomerPolicyListPage />} />
+            <Route path="/customer/policies/:policyId" element={<CustomerPolicyDetailPage />} />
+            <Route path="/customer/payments" element={<CustomerPaymentHistoryPage />} />
+            <Route path="/customer/payments/pay/:policyId" element={<RecordPaymentPage />} />
+            <Route path="/customer/claims" element={<CustomerClaimListPage />} />
+            <Route path="/customer/claims/raise" element={<RaiseClaimPage />} />
+            <Route path="/customer/claims/history/:claimId" element={<ClaimStatusHistoryPage />} />
+            <Route path="/customer/claims/upload/:claimId" element={<UploadDocumentsPage />} />
+            <Route path="/customer/claims/:claimId" element={<ClaimDetailsPage />} />
+          </Route>
         </Route>
       </Route>
-    </Route>
 
-    <Route path="*" element={<NotFound />} />
-  </Routes>
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  </>
 );
 
 export default App;

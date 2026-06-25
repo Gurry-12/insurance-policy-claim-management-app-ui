@@ -4,7 +4,6 @@ import { safeExtractPaginated } from "../utils/formatters";
 
 export const getAllPaymentsPaginated = async (params = {}) => {
   const response = await axiosInstance.get("payments/page", { params });
-  console.log(response)
   return safeExtractPaginated(response);
 };
 

@@ -5,6 +5,7 @@ import StatusBadge from '../../../components/ui/StatusBadge';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import { getPolicyById, cancelPolicy } from '../../../services/policyService';
+import toast from 'react-hot-toast';
 import { getAllPaymentsPaginated } from '../../../services/paymentService';
 
 const PolicyDetailPage = () => {
@@ -38,11 +39,11 @@ const PolicyDetailPage = () => {
     setCancelling(true);
     cancelPolicy(id)
       .then(() => {
-        alert('Policy cancelled successfully!');
+        toast.success('Policy cancelled successfully!');
         // Refresh details
         return getPolicyById(id).then(setPolicy);
       })
-      .catch(() => alert('Failed to cancel the policy.'))
+      .catch(() => toast.error('Failed to cancel the policy.'))
       .finally(() => setCancelling(false));
   };
 
@@ -73,14 +74,14 @@ const PolicyDetailPage = () => {
   const premiumType = policy.premiumType || 'N/A';
   const productType = policy.productType || 'N/A';
 
-  // Fallback default coverage benefits if details are not present
-  const coverageDetails = policy.coverageDetails || [
-    { benefit: 'Coverage Amount', detail: `₹${coverageAmount.toLocaleString('en-IN')}` },
-    { benefit: 'Premium Term', detail: premiumType },
-    { benefit: 'Product Category', detail: productType },
-    { benefit: 'Cashless Hospitalization', detail: 'Supported at network hospitals' },
-    { benefit: 'Pre & Post Care', detail: 'Covered according to standard plan terms' }
-  ];
+  // Extract dynamic details, or fallback to core dynamic stats if array is empty
+  const coverageDetails = (Array.isArray(policy.coverageDetails) && policy.coverageDetails.length > 0) 
+    ? policy.coverageDetails 
+    : [
+        { benefit: 'Coverage Amount', detail: `₹${coverageAmount.toLocaleString('en-IN')}` },
+        { benefit: 'Premium Term', detail: premiumType },
+        { benefit: 'Product Category', detail: productType }
+      ];
 
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
@@ -111,9 +112,6 @@ const PolicyDetailPage = () => {
               <p className="text-muted mb-3">{planName}</p>
               <div className="d-flex justify-content-center gap-2 mb-2">
                 <StatusBadge status={status} />
-                <span className="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-3 py-2" style={{ fontSize: '0.72rem' }}>
-                  Paid
-                </span>
               </div>
 
               <hr className="my-4" style={{ borderColor: 'var(--ss-border-light)' }} />

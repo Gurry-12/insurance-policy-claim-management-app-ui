@@ -4,6 +4,7 @@ import useAuth from "../../hooks/useAuth";
 import { login as loginService } from "../../services/authService";
 import { ROLE_HOME } from "../../utils/roles";
 import logoSrc from "../../assets/logo/insurance-heart-vector.png";
+import ResendOtp from "../../components/auth/ResendOtp";
 import "../css/Login.css";
 
 const Login = () => {
@@ -16,6 +17,7 @@ const Login = () => {
   const [apiError, setApiError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPw, setShowPw] = useState(false);
+  const [showUnverifiedModal, setShowUnverifiedModal] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,7 +56,13 @@ const Login = () => {
         err.response?.data?.message ||
         err.response?.data?.error ||
         "Invalid email or password. Please try again.";
-      setApiError(msg);
+      
+      // Show modal to trigger OTP resend if the account is unverified
+      if (msg.toLowerCase().includes("verif")) {
+        setShowUnverifiedModal(true);
+      } else {
+        setApiError(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -149,6 +157,10 @@ const Login = () => {
 
 
                 </div>
+                
+                <div className="text-end mt-1 mb-3">
+                  <Link to="/forgot-password" className="login-footer-link" style={{ fontSize: "0.85rem", textDecoration: "none" }}>Forgot Password?</Link>
+                </div>
 
                 {/* Action Handling Execution trigger */}
                 <button
@@ -192,6 +204,18 @@ const Login = () => {
           </div>
         </div>
       </div>
+
+      {/* Unverified Account OTP Modal */}
+      <ResendOtp
+        email={formData.email}
+        triggerButton={false}
+        isOpenProp={showUnverifiedModal}
+        onClose={() => setShowUnverifiedModal(false)}
+        onSuccess={() => {
+          setShowUnverifiedModal(false);
+          navigate("/verify-otp", { state: { email: formData.email } });
+        }}
+      />
     </div>
   );
 };

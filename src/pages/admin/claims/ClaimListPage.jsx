@@ -7,6 +7,7 @@ import StatusBadge from '../../../components/ui/StatusBadge';
 import { getAllClaimsPaginated } from '../../../services/claimService';
 import useTableState from '../../../hooks/useTableState';
 import SortableHeader from '../../../components/tables/SortableHeader';
+import useSearch from '../../../hooks/useSearch';
 
 const ClaimListPage = () => {
   const navigate = useNavigate();
@@ -34,6 +35,12 @@ const ClaimListPage = () => {
       .catch((error) => console.log(error));
   };
 
+  const { searchTerm, setSearchTerm, filteredData: filteredClaims } = useSearch(claims || [], [
+    "claimNumber",
+    "policyNumber",
+    "customerName"
+  ]);
+
   useEffect(() => {
     fetchClaims();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -41,8 +48,7 @@ const ClaimListPage = () => {
     tableState.currentPage, 
     tableState.filters.statusFilter, 
     tableState.sortBy, 
-    tableState.sortDirection, 
-    tableState.debouncedSearch
+    tableState.sortDirection
   ]);
 
   const renderHeader = (label, field) => (
@@ -140,17 +146,17 @@ const ClaimListPage = () => {
               <input
                 type="text"
                 className="form-control border-start-0 ps-0"
-                placeholder="Search claims..."
+                placeholder="Search claims on this page..."
                 style={{ border: '1px solid var(--ss-border)', borderRadius: '0 8px 8px 0' }}
-                value={tableState.searchQuery}
-                onChange={(e) => tableState.handleSearchChange(e.target.value)}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
           <div className="p-4">
             <DataTable
               columns={columns}
-              data={claims}
+              data={filteredClaims}
               onRowClick={(row) => navigate(`/admin/claims/${row.claimId}`)}
             />
             <PaginationBar

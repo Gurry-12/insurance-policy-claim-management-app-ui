@@ -6,6 +6,7 @@ import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import ConfirmModal from '../../../components/modals/ConfirmModal';
 import { getProductById, activateProduct, deactivateProduct } from '../../../services/productService';
+import toast from 'react-hot-toast';
 import { getPlansByProduct } from '../../../services/planService';
 
 const ProductDetailPage = () => {
@@ -18,8 +19,8 @@ const ProductDetailPage = () => {
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
-  const fetchProductData = () => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+  const fetchProductData = (id) => {
+     
     setLoading(true);
     setError('');
     Promise.all([
@@ -45,7 +46,7 @@ const ProductDetailPage = () => {
   };
 
   useEffect(() => {
-    fetchProductData();
+    fetchProductData(id);
   }, [id]);
 
   const handleStatusToggle = () => {
@@ -57,11 +58,12 @@ const ProductDetailPage = () => {
     
     action
       .then(() => {
-        alert(`Product ${isActive ? 'deactivated' : 'activated'} successfully!`);
-        fetchProductData();
+        toast.success(`Product ${isActive ? 'deactivated' : 'activated'} successfully!`);
+        setStatusModalOpen(false);
+        fetchProductData(id);
       })
       .catch((err) => {
-        alert(err.response?.data?.message || `Failed to ${isActive ? 'deactivate' : 'activate'} product.`);
+        toast.error(err.response?.data?.message || `Failed to ${isActive ? 'deactivate' : 'activate'} product.`);
       })
       .finally(() => {
         setActionLoading(false);

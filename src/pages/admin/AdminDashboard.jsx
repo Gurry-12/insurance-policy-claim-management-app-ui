@@ -66,7 +66,7 @@ const AdminDashboard = () => {
 
   const STAT_CARDS = [
     { icon: 'bi-people-fill',        label: 'Total Customers', value: s.totalCustomers, color: '#3b82f6', to: '/admin/customers', delta: s.customersDelta },
-    { icon: 'bi-shield-fill-check',  label: 'Active Policies', value: s.activePolicies, color: '#22c55e', to: '/admin/policies',  delta: s.policiesDelta  },
+    { icon: 'bi-shield-fill-check',  label: 'Active Policy Plans', value: s.activePolicies, color: '#22c55e', to: '/admin/plans',  delta: s.policiesDelta  },
     { icon: 'bi-shield-exclamation', label: 'Submitted Claims',     value: s.claims?.pendingClaims,     color: '#f59e0b', to: '/admin/claims',    delta: s.claimsDelta    },
      { icon: 'bi-shield-fill-x',      label: 'Reviewed Claims',   value: s.claims?.reviewedClaims, color: '#6b7280', to: '/admin/claims', delta: s.claimsDelta },
     { icon: 'bi-person-badge-fill',  label: 'Active Users',   value: s.activeUsers,   color: '#06b6d4', to: '/admin/users',     delta: s.agentsDelta    },

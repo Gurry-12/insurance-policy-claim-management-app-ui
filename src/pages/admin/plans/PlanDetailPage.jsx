@@ -6,6 +6,7 @@ import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import ConfirmModal from '../../../components/modals/ConfirmModal';
 import { getPlanById, activatePlan, deactivatePlan } from '../../../services/planService';
+import toast from 'react-hot-toast';
 
 const PlanDetailPage = () => {
   const { id } = useParams();
@@ -16,8 +17,7 @@ const PlanDetailPage = () => {
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
-  const fetchPlanData = (id) => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+  const fetchPlanData = (id) => { 
     setLoading(true);
     setError('');
     getPlanById(id)
@@ -35,8 +35,7 @@ const PlanDetailPage = () => {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { 
     fetchPlanData(id);
   }, [id]);
 
@@ -49,11 +48,11 @@ const PlanDetailPage = () => {
     
     action
       .then(() => {
-        alert(`Plan ${isActive ? 'deactivated' : 'activated'} successfully!`);
-        fetchPlanData();
+        toast.success(`Plan ${isActive ? 'deactivated' : 'activated'} successfully!`);
+        fetchPlanData(id);
       })
       .catch((err) => {
-        alert(err.response?.data?.message || `Failed to ${isActive ? 'deactivate' : 'activate'} plan.`);
+        toast.error(err.response?.data?.message || `Failed to ${isActive ? 'deactivate' : 'activate'} plan.`);
       })
       .finally(() => {
         setActionLoading(false);
@@ -160,7 +159,7 @@ const PlanDetailPage = () => {
               </div>
               <div className="d-flex justify-content-between mb-2">
                 <span className="text-muted">Duration:</span>
-                <span className="fw-medium">{duration} Months</span>
+                <span className="fw-medium">{duration} Years</span>
               </div>
             </div>
           </div>
