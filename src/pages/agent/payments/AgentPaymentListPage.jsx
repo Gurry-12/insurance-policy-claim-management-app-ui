@@ -8,6 +8,7 @@ const AgentPaymentListPage = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
   
@@ -24,6 +25,10 @@ const AgentPaymentListPage = () => {
   loadPayments();
   }, []);
 
+  const filteredPayments = payments.filter((payment) =>
+  payment.policyNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  payment.transactionReference?.toLowerCase().includes(searchTerm.toLowerCase())
+);
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
@@ -45,7 +50,13 @@ const AgentPaymentListPage = () => {
           </button>
         }
       />
-
+                <input
+          type="text"
+          className="form-control"
+          placeholder="Search by Policy Number or Payment Reference Number"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
       <div className="table-responsive">
         <table className="table table-hover align-middle mb-0">
           <thead>
@@ -61,7 +72,7 @@ const AgentPaymentListPage = () => {
             </tr>
           </thead>
 
-          <tbody>
+          {/* <tbody>
             {payments.length > 0 ? (
               payments.map((payment) => (
                 <tr key={payment.paymentId}>
@@ -86,7 +97,40 @@ const AgentPaymentListPage = () => {
                 <td colSpan="8" className="text-center py-4">No Payments Found</td>
               </tr>
             )}
-          </tbody>
+          </tbody> */}
+
+                        <tbody>
+                {filteredPayments.length > 0 ? (
+                  filteredPayments.map((payment,index) => (
+                    <tr key={payment.paymentId}>
+                      <td style={{ fontWeight: 600 }}>
+                        {index + 1}
+                      </td>
+
+                      <td style={{ fontWeight: 600 }}>
+                        #{payment.policyId}
+                      </td>
+                      <td>{payment.policyNumber}</td>
+                      <td style={{ fontWeight: 600 }}>₹ {payment.amount}</td>
+                        <td>{payment.paymentMode}</td>
+                      <td>{payment.transactionReference}</td>
+                      <td><StatusBadge status={payment.paymentStatus} /> </td>
+
+                      <td style={{ color: 'var(--ss-text-muted)' }}>
+                        {payment.paymentDate
+                          ? new Date(payment.paymentDate).toLocaleString()
+                          : "-"}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="8" className="text-center py-4">
+                      No Payments Found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
         </table>
       </div>
     </div>

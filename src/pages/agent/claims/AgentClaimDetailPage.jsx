@@ -12,6 +12,7 @@ const AgentClaimDetailPage = () => {
   const [claim, setClaim] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showReviewOptions, setShowReviewOptions] = useState(false);
 
   const fetchClaimData = (id) => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -35,9 +36,9 @@ const AgentClaimDetailPage = () => {
   }, [id]);
 
   const handleReview = async () => {
+      setShowReviewOptions(true);
     try {
-      await reviewClaim(id);
-      setClaim({ ...claim, claimStatus: "REVIEWED" });
+      
       alert("Claim reviewed successfully");
     } catch (error) {
       console.error("Review Error:", error);
@@ -45,6 +46,41 @@ const AgentClaimDetailPage = () => {
     }
   };
 
+  
+const handleRecommendApproval = async () => {
+  try {
+    const response = await reviewClaim(id, {
+      recommendedStatus: "RECOMMENDED_FOR_APPROVAL",
+      remarks: "Documents verified"
+    });
+
+    setClaim(response.data || response);
+
+    setShowReviewOptions(false);
+
+    alert("Claim recommended for approval");
+  } catch (error) {
+    console.error(error);
+    alert("Failed to recommend approval");
+  }
+};
+const handleRecommendRejection = async () => {
+  try {
+    const response = await reviewClaim(id, {
+      recommendedStatus: "RECOMMENDED_FOR_REJECTION",
+      remarks: "Documents incomplete"
+    });
+
+    setClaim(response.data || response);
+
+    setShowReviewOptions(false);
+
+    alert("Claim recommended for rejection");
+  } catch (error) {
+    console.error(error);
+    alert("Failed to recommend rejection");
+  }
+};
   const handleUnderReview = async () => {
     try {
       await markUnderReview(id);
@@ -87,6 +123,9 @@ const AgentClaimDetailPage = () => {
         title="Claim Details" 
         subtitle={`Viewing Claim #${claim.claimNumber || claim.id}`}
         action={
+
+
+          
           <div className="d-flex gap-2">
             <button
               className="btn btn-warning d-flex align-items-center gap-1"
@@ -99,9 +138,18 @@ const AgentClaimDetailPage = () => {
             >
               Under Review
             </button>
+
             <button
+                className="btn btn-success d-flex align-items-center gap-1"
+                onClick={handleReview}
+                disabled={claim.claimStatus !== "UNDER_REVIEW"}
+              >
+                Review
+              </button>
+                          {/* <button
               className="btn btn-success d-flex align-items-center gap-1"
               onClick={handleReview}
+
               disabled={
                 claim.claimStatus === "REVIEWED" ||
                 claim.claimStatus === "UNDER_REVIEW" ||
@@ -110,8 +158,33 @@ const AgentClaimDetailPage = () => {
               }
             >
               Review
-            </button>
-            <button
+            </button> */}
+          
+
+                    {showReviewOptions && claim.claimStatus === "UNDER_REVIEW" && (
+            <div className="card border-0 mb-4">
+              <div className="card-body">
+                <h6 className="fw-bold mb-3">Agent Recommendation</h6>
+
+                <div className="d-flex gap-2">
+                  <button
+                    className="btn btn-success"
+                    onClick={handleRecommendApproval}
+                  >
+                    Recommend Approval
+                  </button>
+
+                  <button
+                    className="btn btn-danger"
+                    onClick={handleRecommendRejection}
+                  >
+                    Recommend Rejection
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+              <button
               className="btn btn-primary d-flex align-items-center gap-1"
               onClick={() => navigate(`/agent/claims/${id}/history`)}
             >
@@ -131,7 +204,7 @@ const AgentClaimDetailPage = () => {
             <div className="card-body p-4">
               <div className="d-flex justify-content-between align-items-center mb-4">
                 <h6 className="fw-bold m-0">Claim Information</h6>
-                <StatusBadge status={status} />
+                <StatusBadge status={claim.claimStatus} />
               </div>
 
               <div className="row mb-4">

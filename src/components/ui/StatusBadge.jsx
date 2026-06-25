@@ -10,6 +10,9 @@ const STATUS_MAP = {
   UNDER_REVIEW: { label: 'In Review',   bg: '#dbeafe', color: '#1d4ed8' },
   APPROVED:     { label: 'Approved',    bg: '#dcfce7', color: '#16a34a' },
   REJECTED:     { label: 'Rejected',    bg: '#fee2e2', color: '#dc2626' },
+
+  RECOMMENDED_FOR_APPROVAL: {  label: 'Recommended For Approval',  bg: '#dcfce7',  color: '#16a34a'},
+  RECOMMENDED_FOR_REJECTION: {  label: 'Recommended For Rejection',  bg: '#fee2e2',  color: '#dc2626'},
   // Policies
   ACTIVE:           { label: 'Active',          bg: '#dcfce7', color: '#16a34a' },
   EXPIRED:          { label: 'Expired',         bg: '#f1f5f9', color: '#64748b' },
@@ -20,6 +23,7 @@ const STATUS_MAP = {
   FAILED:       { label: 'Failed',      bg: '#fee2e2', color: '#dc2626' },
   REFUNDED:     { label: 'Refunded',    bg: '#f3e8ff', color: '#7c3aed' },
 };
+
 
 const StatusBadge = ({ status }) => {
   const s = STATUS_MAP[status] ?? { label: status ?? '—', bg: '#f1f5f9', color: '#64748b' };
