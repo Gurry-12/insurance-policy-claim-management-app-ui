@@ -6,6 +6,7 @@ import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import ConfirmModal from '../../../components/modals/ConfirmModal';
 import { getUserById, activateUser, deactivateUser } from '../../../services/userService';
+import toast from 'react-hot-toast';
 
 const UserDetailPage = () => {
   const { id } = useParams();
@@ -49,11 +50,12 @@ const UserDetailPage = () => {
     
     action
       .then(() => {
-        alert(`User ${isActive ? 'deactivated' : 'activated'} successfully!`);
-        fetchUserData();
+        toast.success(`User ${isActive ? 'deactivated' : 'activated'} successfully!`);
+        setStatusModalOpen(false);
+        fetchUserData(id);
       })
       .catch((err) => {
-        alert(err.response?.data?.message || `Failed to ${isActive ? 'deactivate' : 'activate'} user.`);
+        toast.error(err.response?.data?.message || `Failed to ${isActive ? 'deactivate' : 'activate'} user.`);
       })
       .finally(() => {
         setActionLoading(false);

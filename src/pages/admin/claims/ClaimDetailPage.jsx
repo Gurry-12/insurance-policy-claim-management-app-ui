@@ -7,6 +7,7 @@ import FormTextarea from '../../../components/forms/FormTextarea';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import { getClaimById, approveClaim, rejectClaim } from '../../../services/claimService';
+import toast from 'react-hot-toast';
 
 const ClaimDetailPage = () => {
   const { id } = useParams();
@@ -39,7 +40,7 @@ const ClaimDetailPage = () => {
 
   const handleAction = () => {
     if (!remark.trim()) {
-      alert('Remarks are required to process the claim.');
+      toast.error('Remarks are required to process the claim.');
       return;
     }
 
@@ -50,14 +51,13 @@ const ClaimDetailPage = () => {
 
     apiCall
       .then(() => {
-        alert(`Claim ${actionModal.type === 'approve' ? 'approved' : 'rejected'} successfully!`);
+        toast.success(`Claim ${actionModal.type === 'approve' ? 'approved' : 'rejected'} successfully!`);
         setActionModal({ isOpen: false, type: null });
         setRemark('');
-        fetchClaimData();
+        fetchClaimData(id);
       })
       .catch(() => {
-        alert('Failed to process claim action.');
-        setLoading(false);
+        toast.error('Failed to process claim action.');
       })
       .finally(() => {
         setActionLoading(false);

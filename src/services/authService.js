@@ -8,7 +8,7 @@ export const login = async (credentials) => {
   const user = {
     email: decoded.sub,
     role: decoded.role ?? decoded.roles?.[0] ?? null,
-    name: decoded.name ?? decoded.fullName ?? decoded.sub,
+    name: decoded.fullName ?? decoded.name ?? decoded.sub,
   };
 
   return { token: data.token, user };
@@ -27,5 +27,15 @@ export const verifyOtpApi = async (payload) => {
 export const resendOtpApi = async (payload) => {
   const { data } = await axiosInstance.post('/auth/resend-otp', payload);
   return data.success;
+};
+
+export const forgotPasswordApi = async (payload) => {
+  const { data } = await axiosInstance.post('/auth/forgot-password', payload);
+  return data;
+};
+
+export const resetPasswordApi = async (payload) => {
+  const { data } = await axiosInstance.post('/auth/reset-password', payload);
+  return data;
 };
 

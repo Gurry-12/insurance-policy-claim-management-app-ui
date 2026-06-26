@@ -9,6 +9,7 @@ import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import { getAllProducts } from '../../../services/productService';
 import { getPlanById, updatePlan } from '../../../services/planService';
+import toast from 'react-hot-toast';
 
 const EditPlanPage = () => {
   const { id } = useParams();
@@ -30,7 +31,7 @@ const EditPlanPage = () => {
   const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     setLoading(true);
     Promise.all([
       getAllProducts().catch(() => []),
@@ -66,33 +67,32 @@ const EditPlanPage = () => {
     e.preventDefault();
     setSubmitting(true);
 
-    const nameRegex = /^[a-zA-Z\s]*$/;
-    if (!nameRegex.test(formData.name)) {
-      alert('Only letters and spaces are allowed in the plan name.');
+    if (!/^[A-Za-z\s]+$/.test(formData.name)) {
+      toast.error('Only letters and spaces are allowed in the plan name.');
       setSubmitting(false);
       return;
     }
 
     if (Number(formData.premium) <= 0) {
-      alert('Base premium must be greater than zero.');
+      toast.error('Base premium must be greater than zero.');
       setSubmitting(false);
       return;
     }
 
     if (Number(formData.coverage) <= 0) {
-      alert('Coverage amount must be greater than zero.');
+      toast.error('Coverage amount must be greater than zero.');
       setSubmitting(false);
       return;
     }
 
     if (Number(formData.duration) <= 0 || !Number.isInteger(Number(formData.duration))) {
-      alert('Duration must be a positive integer.');
+      toast.error('Duration must be a positive integer.');
       setSubmitting(false);
       return;
     }
 
     if (!formData.termsAndConditions.trim()) {
-      alert('Terms and conditions are required.');
+      toast.error('Terms and conditions are required.');
       setSubmitting(false);
       return;
     }
@@ -110,9 +110,10 @@ const EditPlanPage = () => {
 
     updatePlan(id, payload)
       .then(() => {
-        setShowSuccess(true);
+        toast.success('Plan updated successfully!');
+        navigate(`/admin/plans/${id}`);
       })
-      .catch((err) => alert(err.response?.data?.message || 'Failed to save plan changes.'))
+      .catch((err) => toast.error(err.response?.data?.message || 'Failed to save plan changes.'))
       .finally(() => setSubmitting(false));
   };
 

@@ -4,6 +4,7 @@ import PageHeader from '../../../components/common/PageHeader';
 import FormInput from '../../../components/forms/FormInput';
 import AlertModal from '../../../components/modals/AlertModal';
 import { createAgent } from '../../../services/userService';
+import toast from 'react-hot-toast';
 
 const CreateAgentPage = () => {
   const navigate = useNavigate();
@@ -29,14 +30,14 @@ const CreateAgentPage = () => {
     const fullName = `${formData.firstName} ${formData.lastName}`.trim();
 
     // 1. Full Name Validation: letters and spaces only, min 2 max 100
-    const nameRegex = /^[a-zA-Z\s]*$/;
+    const nameRegex = /^[a-zA-Z\s]+$/;
     if (!nameRegex.test(fullName)) {
-      alert('Only letters and spaces are allowed in name.');
+      toast.error('Only letters and spaces are allowed in name.');
       setSubmitting(false);
       return;
     }
     if (fullName.length < 2 || fullName.length > 100) {
-      alert('Name should be between 2 and 100 characters.');
+      toast.error('Name should be between 2 and 100 characters.');
       setSubmitting(false);
       return;
     }
@@ -44,23 +45,23 @@ const CreateAgentPage = () => {
     // 2. Email Validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      alert('Enter a valid email address.');
+      toast.error('Enter a valid email address.');
       setSubmitting(false);
       return;
     }
 
     // 3. Password Validation: uppercase, lowercase, digit, special char, length 6-15
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@#$%^&+=!]).{6,15}$/;
-    if (!passwordRegex.test(formData.password)) {
-      alert('Password must be 6-15 characters and contain at least one uppercase letter, one lowercase letter, one digit, and one special character (@#$%^&+=!).');
+    const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{6,15}$/;
+    if (!passRegex.test(formData.password)) {
+      toast.error('Password must be 6-15 characters and contain at least one uppercase letter, one lowercase letter, one digit, and one special character (@#$%^&+=!).');
       setSubmitting(false);
       return;
     }
 
     // 4. Mobile Number Validation: international format +919876543210
-    const phoneRegex = /^\+[1-9]\d{7,14}$/;
-    if (!phoneRegex.test(formData.phone)) {
-      alert('Use international format for mobile number, example: +919876543210');
+    const mobileRegex = /^\+?[1-9]\d{9,14}$/;
+    if (!mobileRegex.test(formData.phone)) {
+      toast.error('Use international format for mobile number, example: +919876543210');
       setSubmitting(false);
       return;
     }
@@ -74,11 +75,10 @@ const CreateAgentPage = () => {
 
     createAgent(payload)
       .then(() => {
-        setShowSuccess(true);
+        toast.success('Agent registered successfully!');
+        navigate('/admin/users');
       })
-      .catch((err) => {
-        alert(err.response?.data?.message || 'Failed to register new agent. Please check your connection.');
-      })
+      .catch((err) => toast.error(err.response?.data?.message || 'Failed to register new agent. Please check your connection.'))
       .finally(() => setSubmitting(false));
   };
 

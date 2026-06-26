@@ -30,6 +30,7 @@ const AgentClaimListPage = () => {
   //filter
    const filteredClaims = claims.filter((claim) =>
   claim.claimNumber?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+  claim.customerName?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
   claim.claimAmount?.toString().includes(searchTerm) ||
   claim.policyNumber?.toString().toLowerCase().includes(searchTerm.toLowerCase())
 );
@@ -62,7 +63,7 @@ const AgentClaimListPage = () => {
         <input
           type="text"
           className="form-control"
-          placeholder="Search by Claim ID or Amount and policy number"
+          placeholder="Search by Claim ID, Customer Name, Amount or Policy Number"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />

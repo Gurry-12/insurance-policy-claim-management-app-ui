@@ -3,7 +3,6 @@ import { safeExtractArray, safeExtractPaginated } from "../utils/formatters";
 
 export const getAllProducts = async () => {
   const response = await axiosInstance.get("/products/active");
-  console.log(response);
   return safeExtractArray(response);
 };
 

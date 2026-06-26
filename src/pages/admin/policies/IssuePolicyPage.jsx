@@ -2,11 +2,12 @@ import  { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import FormInput from '../../../components/forms/FormInput';
-import FormSelect from '../../../components/forms/FormSelect';
+import RichSelect from '../../../components/forms/RichSelect';
 import AlertModal from '../../../components/modals/AlertModal';
 import { getAllCustomers } from '../../../services/customerService';
 import { getAllPlans } from '../../../services/planService';
 import { issuePolicy } from '../../../services/policyService';
+import toast from 'react-hot-toast';
 
 const IssuePolicyPage = () => {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ const IssuePolicyPage = () => {
     setSubmitting(true);
 
     if (!formData.startDate) {
-      alert('Start date is required.');
+      toast.error('Start date is required.');
       setSubmitting(false);
       return;
     }
@@ -58,7 +59,7 @@ const IssuePolicyPage = () => {
     today.setHours(24, 0, 0, 0);
     const selectedDate = new Date(formData.startDate);
     if (selectedDate > today) {
-      alert('Start date cannot be in the future.');
+      toast.error('Start date cannot be in the future.');
       setSubmitting(false);
       return;
     }
@@ -71,20 +72,25 @@ const IssuePolicyPage = () => {
 
     issuePolicy(payload)
       .then(() => {
-        setShowSuccess(true);
+        toast.success('Policy Issued Successfully!');
+        navigate('/admin/policies');
       })
-      .catch((err) => alert(err.response?.data?.message || 'Failed to issue policy. Check your connection.'))
+      .catch((err) => toast.error(err.response?.data?.message || 'Failed to issue policy. Check your connection.'))
       .finally(() => setSubmitting(false));
   };
 
   const customerOptions = customers.map(c => ({
     value: c.id || c.customerId,
-    label: `${c.fullName || c.name || 'Customer'} (ID: ${c.id || c.customerId})`
+    label: `${c.fullName || c.name || 'Customer'} (Email: ${c.email })`,
+    mainText: c.fullName || c.name || 'Customer',
+    subText: `Email: ${c.email}`
   }));
 
   const planOptions = plans.map(p => ({
     value: p.id || p.planId,
-    label: `${p.planName || p.name || 'Plan'} (ID: ${p.id || p.planId})`
+    label: `${p.planName || p.name || 'Plan'} (Product : ${p.productName })`,
+    mainText: p.planName || p.name || 'Plan',
+    subText: `Product: ${p.productName}`
   }));
 
   return (
@@ -102,23 +108,23 @@ const IssuePolicyPage = () => {
             
             <div className="row">
               <div className="col-md-6">
-                <FormSelect 
+                <RichSelect 
                   label="Select Customer" 
                   name="customerId" 
                   value={formData.customerId} 
                   onChange={handleChange} 
-                  required 
                   options={customerOptions}
+                  placeholder="Choose a customer..."
                 />
               </div>
               <div className="col-md-6">
-                <FormSelect 
+                <RichSelect 
                   label="Select Plan" 
                   name="planId" 
                   value={formData.planId} 
                   onChange={handleChange} 
-                  required 
                   options={planOptions}
+                  placeholder="Choose an insurance plan..."
                 />
               </div>
             </div>

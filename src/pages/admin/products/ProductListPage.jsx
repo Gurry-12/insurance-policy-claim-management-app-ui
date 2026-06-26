@@ -8,6 +8,7 @@ import ErrorAlert from '../../../components/ui/ErrorAlert';
 import { getAllProductsPaginated } from '../../../services/productService';
 import useTableState from '../../../hooks/useTableState';
 import SortableHeader from '../../../components/tables/SortableHeader';
+import useSearch from '../../../hooks/useSearch';
 
 const ProductListPage = () => {
   const navigate = useNavigate();
@@ -44,6 +45,11 @@ const ProductListPage = () => {
       .finally(() => setLoading(false));
   };
 
+  const { searchTerm, setSearchTerm, filteredData: filteredProducts } = useSearch(products || [], [
+    "productName",
+    "productType"
+  ]);
+
   useEffect(() => {
     fetchProducts();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -52,8 +58,7 @@ const ProductListPage = () => {
     tableState.filters.statusFilter, 
     tableState.filters.productTypeFilter,
     tableState.sortBy, 
-    tableState.sortDirection, 
-    tableState.debouncedSearch
+    tableState.sortDirection
   ]);
 
   const renderHeader = (label, field) => (
@@ -187,15 +192,13 @@ const ProductListPage = () => {
                 <input
                   type="text"
                   className="form-control border-start-0 ps-0"
-                  placeholder="Search products..."
+                  placeholder="Search products on this page..."
                   style={{
                     border: "1px solid var(--ss-border)",
                     borderRadius: "0 8px 8px 0",
                   }}
-                  value={tableState.searchQuery}
-                  onChange={(e) =>
-                    tableState.handleSearchChange(e.target.value)
-                  }
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
             </div>
@@ -203,7 +206,7 @@ const ProductListPage = () => {
           <div className="p-4">
             <DataTable
               columns={columns}
-              data={products}
+              data={filteredProducts}
               loading={loading}
               onRowClick={(row) => navigate(`/admin/products/${row.productId}`)}
             />

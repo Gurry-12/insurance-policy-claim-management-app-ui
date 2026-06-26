@@ -8,6 +8,7 @@ import ErrorAlert from '../../../components/ui/ErrorAlert';
 import { getAllPlansPainated } from '../../../services/planService';
 import useTableState from '../../../hooks/useTableState';
 import SortableHeader from '../../../components/tables/SortableHeader';
+import useSearch from '../../../hooks/useSearch';
 
 const PlanListPage = () => {
   const navigate = useNavigate();
@@ -40,6 +41,11 @@ const PlanListPage = () => {
       .finally(() => setLoading(false));
   };
 
+  const { searchTerm, setSearchTerm, filteredData: filteredPlans } = useSearch(plans || [], [
+    "planName",
+    "productName"
+  ]);
+
   useEffect(() => {
     fetchPlans();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -47,8 +53,7 @@ const PlanListPage = () => {
     tableState.currentPage, 
     tableState.filters.statusFilter, 
     tableState.sortBy, 
-    tableState.sortDirection, 
-    tableState.debouncedSearch
+    tableState.sortDirection
   ]);
 
   const renderHeader = (label, field) => (
@@ -170,15 +175,13 @@ const PlanListPage = () => {
                 <input
                   type="text"
                   className="form-control border-start-0 ps-0"
-                  placeholder="Search plans..."
+                  placeholder="Search plans on this page..."
                   style={{
                     border: "1px solid var(--ss-border)",
                     borderRadius: "0 8px 8px 0",
                   }}
-                  value={tableState.searchQuery}
-                  onChange={(e) =>
-                    tableState.handleSearchChange(e.target.value)
-                  }
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
             </div>
@@ -186,7 +189,7 @@ const PlanListPage = () => {
           <div className="p-4">
             <DataTable
               columns={columns}
-              data={plans}
+              data={filteredPlans}
               loading={loading}
               onRowClick={(row) => navigate(`/admin/plans/${row.planId}`)}
             />

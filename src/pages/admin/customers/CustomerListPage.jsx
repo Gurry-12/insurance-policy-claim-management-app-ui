@@ -6,6 +6,7 @@ import PaginationBar from '../../../components/tables/PaginationBar';
 import { getAllCustomersPaginated } from '../../../services/customerService';
 import useTableState from '../../../hooks/useTableState';
 import SortableHeader from '../../../components/tables/SortableHeader';
+import useSearch from '../../../hooks/useSearch';
 
 const CustomerListPage = () => {
   const navigate = useNavigate();
@@ -38,6 +39,12 @@ const CustomerListPage = () => {
       .catch((error) => console.log(error));
   };
 
+  const { searchTerm, setSearchTerm, filteredData: filteredCustomers } = useSearch(customers || [], [
+    "fullName",
+    "email",
+    "mobileNumber"
+  ]);
+
   useEffect(() => {
     fetchCustomers();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -45,7 +52,6 @@ const CustomerListPage = () => {
     tableState.currentPage, 
     tableState.sortBy, 
     tableState.sortDirection, 
-    tableState.debouncedSearch, 
     debouncedCity
   ]);
 
@@ -124,10 +130,10 @@ const CustomerListPage = () => {
                 <input 
                   type="text" 
                   className="form-control border-start-0 ps-0" 
-                  placeholder="Search customers..." 
+                  placeholder="Search customers on this page..." 
                   style={{ border: '1px solid var(--ss-border)', borderRadius: '0 8px 8px 0' }}
-                  value={tableState.searchQuery}
-                  onChange={(e) => tableState.handleSearchChange(e.target.value)}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
             </div>
@@ -135,7 +141,7 @@ const CustomerListPage = () => {
           <div className="p-4">
             <DataTable 
               columns={columns} 
-              data={customers} 
+              data={filteredCustomers} 
             />
             <PaginationBar 
               currentPage={tableState.currentPage} 

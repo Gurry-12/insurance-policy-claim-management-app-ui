@@ -9,6 +9,7 @@ import ErrorAlert from '../../../components/ui/ErrorAlert';
 import getAllUsers from '../../../services/userService';
 import useTableState from '../../../hooks/useTableState';
 import SortableHeader from '../../../components/tables/SortableHeader';
+import useSearch from '../../../hooks/useSearch';
 
 const UserListPage = () => {
   const navigate = useNavigate();
@@ -48,6 +49,15 @@ const UserListPage = () => {
       .finally(() => setLoading(false));
   };
 
+  const { searchTerm, setSearchTerm, filteredData: filteredUsers } = useSearch(users, [
+    "fullName",
+    "firstName",
+    "lastName",
+    "email",
+    "mobileNumber",
+    "role"
+  ]);
+
   useEffect(() => {
     fetchUsers();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -56,8 +66,7 @@ const UserListPage = () => {
     tableState.filters.statusFilter, 
     tableState.filters.roleFilter, 
     tableState.sortBy, 
-    tableState.sortDirection, 
-    tableState.debouncedSearch
+    tableState.sortDirection
   ]);
 
   const renderHeader = (label, field) => (
@@ -163,10 +172,10 @@ const UserListPage = () => {
                 <input 
                   type="text" 
                   className="form-control border-start-0 ps-0" 
-                  placeholder="Search users..." 
+                  placeholder="Search users on this page..." 
                   style={{ border: '1px solid var(--ss-border)', borderRadius: '0 8px 8px 0' }} 
-                  value={tableState.searchQuery}
-                  onChange={(e) => tableState.handleSearchChange(e.target.value)}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
             </div>
@@ -178,7 +187,7 @@ const UserListPage = () => {
               <>
                 <DataTable 
                   columns={columns} 
-                  data={users} 
+                  data={filteredUsers} 
                   onRowClick={(row) => navigate(`/admin/users/${row.id}`)}
                 />
                 <PaginationBar 

@@ -1,14 +1,24 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { resendOtpApi } from "../../services/authService";
 import "../../pages/css/Otp.css";
 
-const ResendOtp = ({ email = '' }) => {
-  const [isOpen, setIsOpen] = useState(false);
+const ResendOtp = ({ email = '', triggerButton = true, isOpenProp, onClose, onSuccess }) => {
+  const [isInternalOpen, setIsInternalOpen] = useState(false);
   const [formData, setFormData] = useState({ email, phone: '' });
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const isOpen = isOpenProp !== undefined ? isOpenProp : isInternalOpen;
+
+  const handleClose = () => {
+    if (onClose) onClose();
+    setIsInternalOpen(false);
+    setErrors({});
+    setApiError("");
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -51,9 +61,10 @@ const ResendOtp = ({ email = '' }) => {
       if (await resendOtpApi(payload)) {
         setSuccess("New verification codes sent!");
         setTimeout(() => {
-          setIsOpen(false);
+          handleClose();
           setSuccess("");
           setFormData({ email: "", phone: "" });
+          if (onSuccess) onSuccess();
         }, 1800);
       }
     } catch (err) {
@@ -68,18 +79,20 @@ const ResendOtp = ({ email = '' }) => {
   };
 
   return (
-    <div className="d-inline-block">
+    <>
       {/* Trigger button styled seamlessly within the footer text */}
-      <button
-        type="button"
-        className="vivid-text-link-btn ms-1"
-        onClick={() => setIsOpen(true)}
-      >
-        Resend OTP
-      </button>
+      {triggerButton && (
+        <button
+          type="button"
+          className="vivid-text-link-btn ms-1"
+          onClick={() => setIsInternalOpen(true)}
+        >
+          Resend OTP
+        </button>
+      )}
 
       {/* Pop-up Modal Window Overlay */}
-      {isOpen && (
+      {isOpen && createPortal(
         <div className="otp-modal-backdrop">
           <div className="otp-modal-card p-4 text-start">
             {/* Modal Header */}
@@ -94,11 +107,7 @@ const ResendOtp = ({ email = '' }) => {
                 type="button"
                 className="btn-close shadow-none"
                 style={{ fontSize: "0.85rem" }}
-                onClick={() => {
-                  setIsOpen(false);
-                  setErrors({});
-                  setApiError("");
-                }}
+                onClick={handleClose}
                 disabled={loading}
               />
             </div>
@@ -129,7 +138,7 @@ const ResendOtp = ({ email = '' }) => {
                   name="email"
                   type="email"
                   className="form-control pristine-input"
-                  placeholder="shyam.verma@yopmail.com"
+                  placeholder="username@gmail.com"
                   value={formData.email}
                   onChange={handleChange}
                   disabled={loading}
@@ -178,9 +187,10 @@ const ResendOtp = ({ email = '' }) => {
               </button>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
-    </div>
+    </>
   );
 };
 

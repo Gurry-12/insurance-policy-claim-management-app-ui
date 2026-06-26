@@ -31,9 +31,6 @@ const getOpenClaimsCount = async () => {
       c.claimStatus === "REVIEWED",
   ).length;
 
-  console.log(claims)
-  console.log(pending)
-  console.log(reviewed)
   return {pendingClaims: pending, reviewedClaims: reviewed};
 };
 

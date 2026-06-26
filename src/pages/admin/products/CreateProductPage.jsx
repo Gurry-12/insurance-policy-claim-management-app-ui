@@ -6,6 +6,7 @@ import FormSelect from '../../../components/forms/FormSelect';
 import FormTextarea from '../../../components/forms/FormTextarea';
 import AlertModal from '../../../components/modals/AlertModal';
 import { createProduct } from '../../../services/productService';
+import toast from 'react-hot-toast';
 
 const CreateProductPage = () => {
   const navigate = useNavigate();
@@ -27,9 +28,8 @@ const CreateProductPage = () => {
     e.preventDefault();
     setSubmitting(true);
 
-    const nameRegex = /^[a-zA-Z\s]*$/;
-    if (!nameRegex.test(formData.name)) {
-      alert('Only letters and spaces are allowed in the product name.');
+    if (!/^[A-Za-z\s]+$/.test(formData.name)) {
+      toast.error('Only letters and spaces are allowed in the product name.');
       setSubmitting(false);
       return;
     }
@@ -43,9 +43,10 @@ const CreateProductPage = () => {
 
     createProduct(payload)
       .then(() => {
-        setShowSuccess(true);
+        toast.success('Product created successfully!');
+        navigate('/admin/products');
       })
-      .catch((err) => alert(err.response?.data?.message || 'Failed to create product. Check your connection.'))
+      .catch((err) => toast.error(err.response?.data?.message || 'Failed to create product. Check your connection.'))
       .finally(() => setSubmitting(false));
   };
 

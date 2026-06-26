@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
+import logoImg from "../../assets/logo/insurance-heart-vector.png";
 
 const Sidebar = ({ navItems, isOpen, setIsOpen, title }) => {
   const { user, logout } = useAuth();
@@ -36,44 +37,22 @@ const Sidebar = ({ navItems, isOpen, setIsOpen, title }) => {
             borderBottom: "1px solid var(--ss-border)",
           }}
         >
-          <div className="d-flex align-items-center gap-2">
+          <div className="d-flex flex-column justify-content-center align-items-center">
+            <img 
+              src={logoImg} 
+              alt="InsureFlow Logo" 
+              style={{ width: '100%', maxWidth: '180px', height: 'auto', objectFit: 'contain', marginBottom: '8px' }} 
+            />
             <div
               style={{
-                width: 34,
-                height: 34,
-                borderRadius: 10,
-                background: "linear-gradient(135deg, var(--ss-primary), var(--ss-secondary, #1e3a8a))",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                fontSize: "0.8rem",
+                color: "var(--ss-text-muted)",
+                fontWeight: 600,
+                letterSpacing: "0.5px",
+                textTransform: "uppercase"
               }}
             >
-              <i
-                className="bi bi-shield-fill-check text-white"
-                style={{ fontSize: "1rem" }}
-              />
-            </div>
-            <div>
-              <div
-                style={{
-                  fontWeight: 700,
-                  fontSize: "0.95rem",
-                  color: "var(--ss-text-primary)",
-                  lineHeight: 1.2,
-                }}
-              >
-                InsureFlow
-              </div>
-              <div
-                style={{
-                  fontSize: "0.7rem",
-                  color: "var(--ss-text-muted)",
-                  fontWeight: 500,
-                }}
-              >
-                {title}
-              </div>
+              {title}
             </div>
           </div>
         </div>
