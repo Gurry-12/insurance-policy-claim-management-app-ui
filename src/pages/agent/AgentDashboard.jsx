@@ -119,7 +119,7 @@ const AgentDashboard = () => {
 
   const QUICK_ACTIONS = [
     { icon: 'bi-file-earmark-plus', label: 'Issue Policy',   to: '/agent/issue-policy',  color: '#0d9488' },
-    { icon: 'bi-clock-history',     label: 'Claim History',  to: '/agent/claims-history', color: '#6b7280' },
+    // { icon: 'bi-clock-history',     label: 'Claim History',  to: '/agent/claims-history', color: '#6b7280' },
     { icon: 'bi-people',            label: 'View Clients',   to: '/agent/customers',     color: '#0ea5e9' },
     { icon: 'bi-shield-check',      label: 'View Policies',  to: '/agent/policies',      color: '#059669' },
   ];

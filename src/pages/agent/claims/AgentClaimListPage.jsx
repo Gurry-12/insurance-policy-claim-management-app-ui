@@ -4,12 +4,14 @@ import { useNavigate, Link } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import { Eye } from "lucide-react";
+import useClaimPdf from "../../../hooks/PdfDownload/useClaimPdf";
 
 const AgentClaimListPage = () => {
   const [claims, setClaims] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState("");
+    const { downloadClaim } = useClaimPdf();
 
 
   useEffect(() => {
@@ -85,31 +87,10 @@ const AgentClaimListPage = () => {
                 <th>Amount</th>
                 <th>Status</th>
                 <th>Actions</th>
+                <th>Download</th>
               </tr>
             </thead>
 
-            {/* <tbody>
-              {claims.map((claim) => (
-                <tr key={claim.claimId}>
-                  <td style={{ fontWeight: 600 }}>{claim.claimNumber}</td>
-                  <td style={{ fontWeight: 600 }}>{claim.customerName}</td>
-                  <td>{claim.policyNumber}</td>
-                  <td style={{ fontWeight: 600 }}>₹ {claim.claimAmount?.toLocaleString()}</td>
-                  <td>
-                    <StatusBadge status={claim.claimStatus} />
-                  </td>
-                  <td>
-                    <Link
-                      to={`/agent/claims/${claim.claimId}`}
-                      className="btn btn-light btn-sm text-primary"
-                      title="View Details"
-                    >
-                      <Eye size={16} /> <span className="ms-1">View Details</span>
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody> */}
 
             <tbody>
         {filteredClaims.map((claim, index) => (
@@ -122,6 +103,7 @@ const AgentClaimListPage = () => {
             <td style={{ fontWeight: 600 }}>
               {claim.customerName}
             </td>
+                       
 
             <td>{claim.policyNumber}</td>
 
@@ -130,6 +112,7 @@ const AgentClaimListPage = () => {
             </td>
 
             <td><StatusBadge status={claim.claimStatus} /></td>
+            
 
            <td>
             <Link
@@ -141,6 +124,15 @@ const AgentClaimListPage = () => {
           <span className="ms-1">View Details</span>
         </Link>
       </td>
+      <td>
+    <button
+        className="btn btn-danger btn-sm"
+        onClick={() => downloadClaim(claim)}
+    >
+        <i className="bi bi-download me-1"></i>
+        PDF
+    </button>
+</td>
     </tr>
   ))}
 </tbody>

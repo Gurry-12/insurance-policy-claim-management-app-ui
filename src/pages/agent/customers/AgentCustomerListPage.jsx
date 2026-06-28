@@ -3,11 +3,13 @@ import { getAllCustomers } from "../../../services/customerService";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
 import useSearch from "../../../hooks/useSearch";
+import useCustomerPdf from "../../../hooks/PdfDownload/useCustomerPdf";
 
 const AgentCustomerListPage = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { downloadCustomer } = useCustomerPdf();
 
   useEffect(() => {
     const loadCustomers = async () => {
@@ -72,27 +74,11 @@ const AgentCustomerListPage = () => {
               <th>Mobile</th>
               <th>City</th>
               <th>State</th>
+              <th>Download</th>
             </tr>
           </thead>
 
-          {/* <tbody>
-            {customers.length > 0 ? (
-              customers.map((customer) => (
-                <tr key={customer.customerId}>
-                  <td style={{ fontWeight: 600 }}>{customer.fullName}</td>
-                  <td>{customer.email}</td>
-                  <td>{customer.mobileNumber}</td>
-                  <td>{customer.city}</td>
-                  <td>{customer.state}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5" className="text-center py-4">No Customers Found</td>
-              </tr>
-            )}
-          </tbody> */}
-
+         
           <tbody>
   {filteredCustomers.length > 0 ? (
     filteredCustomers.map((customer,index) => (
@@ -106,13 +92,26 @@ const AgentCustomerListPage = () => {
         <td>{customer.mobileNumber}</td>
         <td>{customer.city}</td>
         <td>{customer.state}</td>
+
+        <td>
+    <button
+        className="btn btn-danger btn-sm"
+        onClick={() => downloadCustomer(customer)}
+    >
+        <i className="bi bi-download me-1"></i>
+        PDF
+    </button>
+</td>
+
       </tr>
     ))
   ) : (
     <tr>
-      <td colSpan="5" className="text-center py-4">
+      
+           <td colSpan="5" className="text-center py-4">
         No Customers Found
       </td>
+
     </tr>
   )}
 </tbody>
