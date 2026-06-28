@@ -89,25 +89,44 @@ const ClaimDetailsPage = () => {
                 </div>
                 <div className="col-12">
                   <div className="p-3 bg-light rounded">
+                    <small className="text-muted d-block mb-1">Assigned Agent</small>
+                    <div className="fw-semibold">
+                      {claim.assignedAgentName ? (
+                        <span className="badge bg-white text-dark border px-2 py-1">
+                          {claim.assignedAgentName}
+                        </span>
+                      ) : (
+                        <span className="text-muted">Unassigned</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="col-12">
+                  <div className="p-3 bg-light rounded">
                     <small className="text-muted d-block mb-1">Reason</small>
                     <div>{claim.claimReason}</div>
                   </div>
                 </div>
-                {claim.agentRemarks && (
-                  <div className="col-12">
-                    <div className="p-3 bg-light rounded">
-                      <small className="text-muted d-block mb-1">Agent Remarks</small>
-                      <div>{claim.agentRemarks}</div>
-                    </div>
-                  </div>
-                )}
-                {claim.adminRemarks && (
-                  <div className="col-12">
-                    <div className="p-3 bg-light rounded border border-warning">
-                      <small className="text-muted d-block mb-1">Admin Remarks</small>
-                      <div>{claim.adminRemarks}</div>
-                    </div>
-                  </div>
+                {/* Show remarks only if claim is finalized */}
+                {(claim.claimStatus === 'APPROVED' || claim.claimStatus === 'REJECTED') && (
+                  <>
+                    {claim.agentRemarks && (
+                      <div className="col-12">
+                        <div className="p-3 bg-light rounded">
+                          <small className="text-muted d-block mb-1">Agent Remarks</small>
+                          <div>{claim.agentRemarks}</div>
+                        </div>
+                      </div>
+                    )}
+                    {claim.adminRemarks && (
+                      <div className="col-12">
+                        <div className="p-3 bg-light rounded border border-warning">
+                          <small className="text-muted d-block mb-1">Admin Remarks</small>
+                          <div>{claim.adminRemarks}</div>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>

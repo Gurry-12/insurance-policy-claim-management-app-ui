@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import useAuth from "../../hooks/useAuth";
 import logoImg from "../../assets/logo/insurance-heart-vector.png";
 
@@ -8,6 +9,7 @@ const Sidebar = ({ navItems, isOpen, setIsOpen, title }) => {
 
   const handleLogout = () => {
     logout();
+    toast.success("Logged out successfully!");
     navigate("/login", { replace: true });
   };
 

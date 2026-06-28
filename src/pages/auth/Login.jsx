@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import toast from 'react-hot-toast';
 import useAuth from "../../hooks/useAuth";
 import { login as loginService } from "../../services/authService";
 import { ROLE_HOME } from "../../utils/roles";
@@ -12,43 +14,24 @@ const Login = () => {
   const location = useLocation();
   const { login } = useAuth();
 
-  const [formData, setFormData] = useState({ email: "", password: "" });
-  const [errors, setErrors] = useState({});
-  const [apiError, setApiError] = useState("");
+  const { register, handleSubmit, formState: { errors }, watch } = useForm({
+    defaultValues: { email: "", password: "" },
+    mode: "onTouched"
+  });
+
   const [loading, setLoading] = useState(false);
   const [showPw, setShowPw] = useState(false);
   const [showUnverifiedModal, setShowUnverifiedModal] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
-    setApiError("");
-  };
+  // Watch email for the OTP modal
+  const emailValue = watch("email");
 
-  const validate = () => {
-    const errs = {};
-    if (!formData.email.trim()) {
-      errs.email = "Email is required.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errs.email = "Enter a valid email.";
-    }
-    if (!formData.password.trim()) errs.password = "Password is required.";
-    return errs;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const errs = validate();
-    if (Object.keys(errs).length) {
-      setErrors(errs);
-      return;
-    }
-
+  const onSubmit = async (data) => {
     try {
       setLoading(true);
-      const { token, user } = await loginService(formData);
+      const { token, user } = await loginService(data);
       login(token, user);
+      toast.success("Logged in successfully!");
       const from = location.state?.from?.pathname;
       navigate(from || ROLE_HOME[user.role] || "/", { replace: true });
     } catch (err) {
@@ -57,11 +40,10 @@ const Login = () => {
         err.response?.data?.error ||
         "Invalid email or password. Please try again.";
       
-      // Show modal to trigger OTP resend if the account is unverified
       if (msg.toLowerCase().includes("verif")) {
         setShowUnverifiedModal(true);
       } else {
-        setApiError(msg);
+        toast.error(msg);
       }
     } finally {
       setLoading(false);
@@ -70,72 +52,57 @@ const Login = () => {
 
   return (
     <div className="login-viewport d-flex align-items-center justify-content-center p-3 p-md-4">
-      {/* Main Container Layer */}
       <div className="master-glass-card p-3 p-md-5">
         <div className="row g-0 align-items-center">
-          {/* Left Form View Container */}
           <div className="col-lg-6 d-flex justify-content-center justify-content-lg-start pe-lg-4">
             <div className="inner-form-card">
-              {/* Header Context Elements */}
               <div className="mb-2 text-start">
                 <h1 className="form-display-title">Login</h1>
               </div>
 
-              {/* API Communication Alert State */}
-              {apiError && (
-                <div
-                  className="custom-alert-box d-flex align-items-center gap-2 mb-3"
-                  role="alert"
-                >
-                  <i className="bi bi-exclamation-circle-fill text-danger" />
-                  <span>{apiError}</span>
-                </div>
-              )}
-
-              {/* Main Credentials Interface Form */}
-              <form onSubmit={handleSubmit} noValidate>
-                {/* Email Context Frame */}
+              <form onSubmit={handleSubmit(onSubmit)} noValidate>
                 <div className="mb-3 text-start">
                   <label htmlFor="login-email" className="custom-field-label">
-                    Email
+                    Email Address <span className="text-danger">*</span>
                   </label>
                   <input
                     id="login-email"
-                    name="email"
                     type="email"
                     autoComplete="email"
-                    className="form-control pristine-input"
+                    className={`form-control pristine-input ${errors.email ? 'is-invalid' : ''}`}
                     placeholder="username@gmail.com"
-                    value={formData.email}
-                    onChange={handleChange}
                     disabled={loading}
+                    {...register("email", {
+                      required: "Email is required.",
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: "Enter a valid email."
+                      }
+                    })}
                   />
                   {errors.email && (
-                    <div className="input-error-tip">
-                      <i className="bi bi-x-circle-fill" /> {errors.email}
+                    <div className="input-error-tip text-danger mt-1" aria-live="polite">
+                      <i className="bi bi-x-circle-fill" /> {errors.email.message}
                     </div>
                   )}
                 </div>
 
-                {/* Password Context Frame */}
                 <div className="mb-3 text-start">
                   <label
                     htmlFor="login-password"
                     className="custom-field-label"
                   >
-                    Password
+                    Password <span className="text-danger">*</span>
                   </label>
                   <div className="input-embedded-wrapper">
                     <input
                       id="login-password"
-                      name="password"
                       type={showPw ? "text" : "password"}
                       autoComplete="current-password"
-                      className="form-control pristine-input"
+                      className={`form-control pristine-input ${errors.password ? 'is-invalid' : ''}`}
                       placeholder="Password"
-                      value={formData.password}
-                      onChange={handleChange}
                       disabled={loading}
+                      {...register("password", { required: "Password is required." })}
                     />
                     <button
                       type="button"
@@ -148,21 +115,17 @@ const Login = () => {
                       />
                     </button>
                   </div>
-
                   {errors.password && (
-                    <div className="input-error-tip">
-                      <i className="bi bi-x-circle-fill" /> {errors.password}
+                    <div className="input-error-tip text-danger mt-1" aria-live="polite">
+                      <i className="bi bi-x-circle-fill" /> {errors.password.message}
                     </div>
                   )}
-
-
                 </div>
                 
                 <div className="text-end mt-1 mb-3">
                   <Link to="/forgot-password" className="login-footer-link" style={{ fontSize: "0.85rem", textDecoration: "none" }}>Forgot Password?</Link>
                 </div>
 
-                {/* Action Handling Execution trigger */}
                 <button
                   id="login-submit-btn"
                   type="submit"
@@ -184,7 +147,6 @@ const Login = () => {
                 </button>
               </form>
 
-              {/* Traversal Redirection Option */}
               <p className="text-center mb-0 login-footer-text">
                 Don't have an account yet?{" "}
                 <Link to="/register" className="login-footer-link">
@@ -194,7 +156,6 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Right Brand Graphic Presentation Frame */}
           <div className="col-lg-6 character-canvas-panel">
             <img
               src={logoSrc}
@@ -205,15 +166,14 @@ const Login = () => {
         </div>
       </div>
 
-      {/* Unverified Account OTP Modal */}
       <ResendOtp
-        email={formData.email}
+        email={emailValue}
         triggerButton={false}
         isOpenProp={showUnverifiedModal}
         onClose={() => setShowUnverifiedModal(false)}
         onSuccess={() => {
           setShowUnverifiedModal(false);
-          navigate("/verify-otp", { state: { email: formData.email } });
+          navigate("/verify-otp", { state: { email: emailValue } });
         }}
       />
     </div>

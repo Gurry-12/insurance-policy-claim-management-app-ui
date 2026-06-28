@@ -25,6 +25,8 @@ const CreatePlanPage = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  const [errors, setErrors] = useState({});
+
   useEffect(() => {
     getAllProducts()
       .then((data) => {
@@ -39,39 +41,50 @@ const CreatePlanPage = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
+    const errs = {};
 
     const nameRegex = /^[a-zA-Z\s]*$/;
     if (!nameRegex.test(formData.name)) {
-      toast.error('Only letters and spaces are allowed in the plan name.');
-      setSubmitting(false);
-      return;
+      errs.name = 'Only letters and spaces are allowed in the plan name.';
     }
 
     if (Number(formData.premium) <= 0) {
-      toast.error('Base premium must be greater than zero.');
-      setSubmitting(false);
-      return;
+      errs.premium = 'Base premium must be greater than zero.';
     }
 
     if (Number(formData.coverage) <= 0) {
-      toast.error('Coverage amount must be greater than zero.');
-      setSubmitting(false);
-      return;
+      errs.coverage = 'Coverage amount must be greater than zero.';
+    }
+
+    try {
+      const Big = (await import('big.js')).default;
+      if (new Big(formData.coverage).lte(new Big(formData.premium))) {
+        errs.coverage = 'Coverage amount must strictly exceed the premium amount.';
+      }
+    } catch (e) {
+      if (Number(formData.coverage) <= Number(formData.premium)) {
+         errs.coverage = 'Coverage amount must strictly exceed the premium amount.';
+      }
     }
 
     if (Number(formData.duration) <= 0 || !Number.isInteger(Number(formData.duration))) {
-      toast.error('Duration must be a positive integer.');
-      setSubmitting(false);
-      return;
+      errs.duration = 'Duration must be a positive integer.';
+    } else if (Number(formData.duration) > 40) {
+      errs.duration = 'Duration cannot exceed 40 years.';
     }
 
     if (!formData.termsAndConditions.trim()) {
-      toast.error('Terms and conditions are required.');
+      errs.termsAndConditions = 'Terms and conditions are required.';
+    }
+
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
       setSubmitting(false);
       return;
     }
@@ -121,6 +134,7 @@ const CreatePlanPage = () => {
                   onChange={handleChange} 
                   required 
                   placeholder="e.g. Individual Platinum"
+                  error={errors.name}
                 />
               </div>
               <div className="col-md-6">
@@ -145,6 +159,7 @@ const CreatePlanPage = () => {
                   onChange={handleChange} 
                   required 
                   placeholder="e.g. 15000"
+                  error={errors.premium}
                 />
               </div>
               <div className="col-md-6">
@@ -156,6 +171,7 @@ const CreatePlanPage = () => {
                   onChange={handleChange} 
                   required 
                   placeholder="e.g. 500000"
+                  error={errors.coverage}
                 />
               </div>
             </div>
@@ -183,6 +199,7 @@ const CreatePlanPage = () => {
                   onChange={handleChange} 
                   required 
                   placeholder="e.g. 1"
+                  error={errors.duration}
                 />
               </div>
             </div>
@@ -213,6 +230,7 @@ const CreatePlanPage = () => {
                   required 
                   placeholder="Describe coverage terms, rules, and conditions..."
                   rows={4}
+                  error={errors.termsAndConditions}
                 />
               </div>
             </div>

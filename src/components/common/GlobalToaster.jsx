@@ -4,6 +4,7 @@ const GlobalToaster = () => {
   return (
     <Toaster 
       position="top-center"
+      containerStyle={{ zIndex: 999999 }}
       toastOptions={{
         style: {
           background: 'rgba(255, 255, 255, 0.8)',

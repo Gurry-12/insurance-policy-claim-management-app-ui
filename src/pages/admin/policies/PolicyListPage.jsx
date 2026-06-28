@@ -9,6 +9,7 @@ import ErrorAlert from '../../../components/ui/ErrorAlert';
 import useTableState from '../../../hooks/useTableState';
 import SortableHeader from '../../../components/tables/SortableHeader';
 import useSearch from '../../../hooks/useSearch';
+import ExportButton from '../../../components/common/ExportButton';
 
 const PolicyListPage = () => {
   const navigate = useNavigate();
@@ -103,10 +104,26 @@ const PolicyListPage = () => {
         title="Policies Management" 
         subtitle="View all issued insurance policies across the system"
         action={
-          <Link to="/admin/policies/issue" className="btn btn-primary d-flex align-items-center gap-2" style={{ borderRadius: '8px' }}>
-            <i className="bi bi-file-earmark-plus"></i>
-            Issue New Policy
-          </Link>
+          <div className="d-flex gap-2">
+            <ExportButton
+              data={policies || []}
+              columns={[
+                { header: "Policy ID", accessor: "policyId" },
+                { header: "Policy Number", accessor: "policyNumber" },
+                { header: "Customer Name", accessor: "customerName" },
+                { header: "Plan Name", accessor: "planName" },
+                { header: "Premium Amount (₹)", accessor: "premiumAmount" },
+                { header: "Start Date", accessor: "startDate" },
+                { header: "End Date", accessor: "endDate" },
+                { header: "Status", accessor: "policyStatus" }
+              ]}
+              filename="policies_list.csv"
+            />
+            <Link to="/admin/policies/issue" className="btn btn-primary d-flex align-items-center gap-2" style={{ borderRadius: '8px' }}>
+              <i className="bi bi-file-earmark-plus"></i>
+              Issue New Policy
+            </Link>
+          </div>
         }
       />
       

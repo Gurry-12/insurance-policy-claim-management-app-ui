@@ -9,6 +9,7 @@ import { getAllProductsPaginated } from '../../../services/productService';
 import useTableState from '../../../hooks/useTableState';
 import SortableHeader from '../../../components/tables/SortableHeader';
 import useSearch from '../../../hooks/useSearch';
+import ExportButton from '../../../components/common/ExportButton';
 
 const ProductListPage = () => {
   const navigate = useNavigate();
@@ -73,7 +74,7 @@ const ProductListPage = () => {
 
   const columns = [
     { 
-      header: renderHeader("Sr. No.", "id"), 
+      header: "Sr. No.",
       cell: (row, index) => tableState.getSrNo(index), 
       minWidth: "85px" 
     },
@@ -119,14 +120,26 @@ const ProductListPage = () => {
         title="Insurance Products"
         subtitle="Manage product categories and offerings"
         action={
-          <Link
-            to="/admin/products/create"
-            className="btn btn-primary d-flex align-items-center gap-2"
-            style={{ borderRadius: "8px" }}
-          >
-            <i className="bi bi-plus-lg"></i>
-            Create Product
-          </Link>
+          <div className="d-flex gap-2">
+            <ExportButton
+              data={products || []}
+              columns={[
+                { header: "Product ID", accessor: "productId" },
+                { header: "Product Name", accessor: "productName" },
+                { header: "Product Type", accessor: "productType" },
+                { header: "Active Status", exportValue: (r) => r.isActive ? "Active" : "Inactive" }
+              ]}
+              filename="products_list.csv"
+            />
+            <Link
+              to="/admin/products/create"
+              className="btn btn-primary d-flex align-items-center gap-2"
+              style={{ borderRadius: "8px" }}
+            >
+              <i className="bi bi-plus-lg"></i>
+              Create Product
+            </Link>
+          </div>
         }
       />
 

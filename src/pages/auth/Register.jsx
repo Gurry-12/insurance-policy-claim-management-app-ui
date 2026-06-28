@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import toast from 'react-hot-toast';
 import { register as registerService } from "../../services/authService";
 import logoSrc from "../../assets/logo/insurance-heart-vector.png";
 import "../css/Login.css";
@@ -16,8 +17,6 @@ const Register = () => {
 
   const [formData, setFormData] = useState(INIT);
   const [errors, setErrors] = useState({});
-  const [apiError, setApiError] = useState("");
-  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPw, setShowPw] = useState(false);
 
@@ -25,7 +24,6 @@ const Register = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
-    setApiError("");
   };
 
   const validate = () => {
@@ -71,13 +69,13 @@ const Register = () => {
       };
 
       await registerService(payload);
-      setSuccess("Account created! Redirecting to verify email and phone...");
+      toast.success("Account created! Redirecting to verify email and phone...");
       setTimeout(
         () => navigate("/verify-otp", { state: { registered: true, email: payload.email } }),
         2200,
       );
     } catch (err) {
-      setApiError(
+      toast.error(
         err.response?.data?.message ||
           err.response?.data?.error ||
           "Registration failed. Please try again.",
@@ -116,33 +114,12 @@ const Register = () => {
                 <h1 className="form-display-title">Register</h1>
               </div>
 
-              {/* Alert Feedback Status Displays */}
-              {apiError && (
-                <div
-                  className="custom-alert-box d-flex align-items-center gap-2 mb-3"
-                  role="alert"
-                >
-                  <i className="bi bi-exclamation-circle-fill text-danger" />
-                  <span>{apiError}</span>
-                </div>
-              )}
-
-              {success && (
-                <div
-                  className="custom-success-box d-flex align-items-center gap-2 mb-3"
-                  role="alert"
-                >
-                  <i className="bi bi-check-circle-fill text-success" />
-                  <span>{success}</span>
-                </div>
-              )}
-
               {/* Clean Single-View 4-Field Form */}
               <form onSubmit={handleSubmit} noValidate>
                 {/* Full Name field */}
                 <div className="mb-3 text-start">
                   <label htmlFor="reg-fullName" className="custom-field-label">
-                    Full Name
+                    Full Name <span className="text-danger">*</span>
                   </label>
                   <input
                     id="reg-fullName"
@@ -165,7 +142,7 @@ const Register = () => {
                 {/* Mobile Number field */}
                 <div className="mb-3 text-start">
                   <label htmlFor="reg-mobile" className="custom-field-label">
-                    Mobile Number
+                    Mobile Number <span className="text-danger">*</span>
                   </label>
                   <input
                     id="reg-mobile"
@@ -189,7 +166,7 @@ const Register = () => {
                 {/* Email Address field */}
                 <div className="mb-3 text-start">
                   <label htmlFor="reg-email" className="custom-field-label">
-                    Email Address
+                    Email Address <span className="text-danger">*</span>
                   </label>
                   <input
                     id="reg-email"
@@ -212,7 +189,7 @@ const Register = () => {
                 {/* Password field */}
                 <div className="mb-4 text-start">
                   <label htmlFor="reg-password" className="custom-field-label">
-                    Password
+                    Password <span className="text-danger">*</span>
                   </label>
                   <div className="input-embedded-wrapper">
                     <input

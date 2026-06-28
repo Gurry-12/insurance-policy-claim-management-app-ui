@@ -4,22 +4,35 @@ import { Link } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import { Shield, CheckCircle, Clock, XCircle, AlertCircle, Eye } from "lucide-react";
+import useTableState from "../../../hooks/useTableState";
+import PaginationBar from "../../../components/tables/PaginationBar";
+import ExportButton from "../../../components/common/ExportButton";
 
 const CustomerPolicyListPage = () => {
   const [policies, setPolicies] = useState([]);
 
+  const tableState = useTableState({
+    initialSortBy: 'id'
+  });
+
   const fetchPolicies = async () => {
     try {
-      const response = await getMyPolicies();
+      tableState.setIsLoading(true);
+      const params = tableState.getQueryParams();
+      const response = await getMyPolicies(params);
       setPolicies(response.content || []);
+      tableState.setTotalPages(response.totalPages || 1);
+      tableState.setTotalElements(response.totalElements || response.totalRecords || 0);
     } catch (error) {
       console.error(error);
+    } finally {
+      tableState.setIsLoading(false);
     }
   };
 
   useEffect(() => {
     fetchPolicies();
-  }, []);
+  }, [tableState.currentPage, tableState.sortBy, tableState.sortDirection]);
 
   
 
@@ -39,6 +52,20 @@ const CustomerPolicyListPage = () => {
         title="My Policies"
         subtitle="Manage your purchased insurance policies"
         icon={Shield}
+        action={
+          <ExportButton
+            data={policies || []}
+            columns={[
+              { header: "Policy ID", accessor: "policyId" },
+              { header: "Policy Number", accessor: "policyNumber" },
+              { header: "Plan Name", accessor: "planName" },
+              { header: "Premium Amount (₹)", accessor: "premiumAmount" },
+              { header: "Coverage Amount (₹)", accessor: "coverageAmount" },
+              { header: "Status", accessor: "policyStatus" }
+            ]}
+            filename="my_policies.csv"
+          />
+        }
       />
 
       <div className="card border-0 shadow-sm mt-4">
@@ -97,6 +124,17 @@ const CustomerPolicyListPage = () => {
           </div>
         </div>
       </div>
+      {policies.length > 0 && (
+        <div className="mt-3">
+          <PaginationBar
+            currentPage={tableState.currentPage}
+            totalPages={tableState.totalPages}
+            totalElements={tableState.totalElements}
+            pageSize={tableState.pageSize}
+            onPageChange={tableState.setCurrentPage}
+          />
+        </div>
+      )}
     </div>
   );
 };

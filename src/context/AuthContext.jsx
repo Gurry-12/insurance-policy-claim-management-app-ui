@@ -1,4 +1,5 @@
 import { createContext, useState, useCallback } from "react";
+import toast from 'react-hot-toast';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext(null);
@@ -20,6 +21,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("ss_user", JSON.stringify(newUser));
     setToken(newToken);
     setUser(newUser);
+    toast.success("Login successful");
   }, []);
 
   const logout = useCallback(() => {
@@ -28,6 +30,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("ss_user");
     setToken(null);
     setUser(null);
+    toast.success("Logout successful");
   }, []);
 
   return (

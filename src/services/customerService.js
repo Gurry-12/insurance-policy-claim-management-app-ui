@@ -9,9 +9,9 @@ export const getProfile = async () => {
   return data;
 };
 
-export const createProfile = async (payload) => {
+export const createProfile = async (userId, payload) => {
   const { data } = await axiosInstance.post(
-    "/customers",
+    `/customers/${userId}`,
     payload
   );
 

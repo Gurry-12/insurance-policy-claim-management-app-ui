@@ -6,8 +6,10 @@ import {
   getProfile,
 } from "../../../services/customerService";
 import PageHeader from "../../../components/common/PageHeader";
+import useAuth from "../../../hooks/useAuth";
 
 const EditProfilePage = () => {
+  const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -52,21 +54,40 @@ const EditProfilePage = () => {
 
   
 
+  const [errors, setErrors] = useState({});
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+    if (errors[e.target.name]) {
+      setErrors(prev => ({ ...prev, [e.target.name]: '' }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const errs = {};
+
+    if (!formData.dateOfBirth) errs.dateOfBirth = "Date of Birth is required";
+    if (!formData.address) errs.address = "Address is required";
+    if (!formData.city) errs.city = "City is required";
+    if (!formData.state) errs.state = "State is required";
+    if (!formData.pinCode) errs.pinCode = "Pin Code is required";
+    if (!formData.nomineeName) errs.nomineeName = "Nominee Name is required";
+    if (!formData.nomineeRelation) errs.nomineeRelation = "Nominee Relation is required";
+
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      return;
+    }
 
     try {
       if (customerId) {
         await updateProfile(customerId, formData);
       } else {
-        await createProfile(formData);
+        await createProfile(user?.id, formData);
       }
 
       navigate("/customer/profile");
@@ -95,15 +116,16 @@ const EditProfilePage = () => {
                   </div>
 
                   <div className="col-md-6">
-                    <label className="form-label fw-medium">Date of Birth</label>
+                    <label className="form-label fw-medium">Date of Birth <span className="text-danger">*</span></label>
                     <input
                       type="date"
                       name="dateOfBirth"
-                      className="form-control"
+                      className={`form-control ${errors.dateOfBirth ? 'is-invalid' : ''}`}
                       value={formData.dateOfBirth}
                       onChange={handleChange}
                       required
                     />
+                    {errors.dateOfBirth && <div className="invalid-feedback">{errors.dateOfBirth}</div>}
                   </div>
 
                   <div className="col-12">
@@ -112,55 +134,59 @@ const EditProfilePage = () => {
                   </div>
 
                   <div className="col-12">
-                    <label className="form-label fw-medium">Address</label>
+                    <label className="form-label fw-medium">Address <span className="text-danger">*</span></label>
                     <input
                       type="text"
                       name="address"
-                      className="form-control"
+                      className={`form-control ${errors.address ? 'is-invalid' : ''}`}
                       value={formData.address}
                       onChange={handleChange}
                       placeholder="Street address, P.O. box, etc."
                       required
                     />
+                    {errors.address && <div className="invalid-feedback">{errors.address}</div>}
                   </div>
 
                   <div className="col-md-4">
-                    <label className="form-label fw-medium">City</label>
+                    <label className="form-label fw-medium">City <span className="text-danger">*</span></label>
                     <input
                       type="text"
                       name="city"
-                      className="form-control"
+                      className={`form-control ${errors.city ? 'is-invalid' : ''}`}
                       value={formData.city}
                       onChange={handleChange}
                       placeholder="City"
                       required
                     />
+                    {errors.city && <div className="invalid-feedback">{errors.city}</div>}
                   </div>
 
                   <div className="col-md-4">
-                    <label className="form-label fw-medium">State</label>
+                    <label className="form-label fw-medium">State <span className="text-danger">*</span></label>
                     <input
                       type="text"
                       name="state"
-                      className="form-control"
+                      className={`form-control ${errors.state ? 'is-invalid' : ''}`}
                       value={formData.state}
                       onChange={handleChange}
                       placeholder="State"
                       required
                     />
+                    {errors.state && <div className="invalid-feedback">{errors.state}</div>}
                   </div>
 
                   <div className="col-md-4">
-                    <label className="form-label fw-medium">Pin Code</label>
+                    <label className="form-label fw-medium">Pin Code <span className="text-danger">*</span></label>
                     <input
                       type="text"
                       name="pinCode"
-                      className="form-control"
+                      className={`form-control ${errors.pinCode ? 'is-invalid' : ''}`}
                       value={formData.pinCode}
                       onChange={handleChange}
                       placeholder="Postal code"
                       required
                     />
+                    {errors.pinCode && <div className="invalid-feedback">{errors.pinCode}</div>}
                   </div>
 
                   <div className="col-12">
@@ -169,29 +195,31 @@ const EditProfilePage = () => {
                   </div>
 
                   <div className="col-md-6">
-                    <label className="form-label fw-medium">Nominee Name</label>
+                    <label className="form-label fw-medium">Nominee Name <span className="text-danger">*</span></label>
                     <input
                       type="text"
                       name="nomineeName"
-                      className="form-control"
+                      className={`form-control ${errors.nomineeName ? 'is-invalid' : ''}`}
                       value={formData.nomineeName}
                       onChange={handleChange}
                       placeholder="Full name of nominee"
                       required
                     />
+                    {errors.nomineeName && <div className="invalid-feedback">{errors.nomineeName}</div>}
                   </div>
 
                   <div className="col-md-6">
-                    <label className="form-label fw-medium">Nominee Relation</label>
+                    <label className="form-label fw-medium">Nominee Relation <span className="text-danger">*</span></label>
                     <input
                       type="text"
                       name="nomineeRelation"
-                      className="form-control"
+                      className={`form-control ${errors.nomineeRelation ? 'is-invalid' : ''}`}
                       value={formData.nomineeRelation}
                       onChange={handleChange}
                       placeholder="e.g., Spouse, Child, Parent"
                       required
                     />
+                    {errors.nomineeRelation && <div className="invalid-feedback">{errors.nomineeRelation}</div>}
                   </div>
 
                   <div className="col-12 mt-5 d-flex gap-2 justify-content-end border-top pt-4">

@@ -3,7 +3,7 @@ import axiosInstance from "../api/axiosInstance";
 import { safeExtractPaginated } from "../utils/formatters";
 
 export const getAllPaymentsPaginated = async (params = {}) => {
-  const response = await axiosInstance.get("payments/page", { params });
+  const response = await axiosInstance.get("/payments/page", { params });
   return safeExtractPaginated(response);
 };
 
@@ -43,23 +43,19 @@ export const getPaymentsByPolicyId = async (policyId) => {
   return response.data?.data || [];
 };
 
-export const getAllPayments = async (userData, pageNumber = 0,
+export const getAllPayments = async (pageNumber = 0,
   pageSize = 10,
-  sortBy = "paymentId",
+  sortBy = "id",
   sortDirection = "asc") => {
 
-  
-  const { data } = await axiosInstance.get('/payments/page', userData,{
-
-   params: {
+  const { data } = await axiosInstance.get('/payments/page', {
+    params: {
       pageNumber,
       pageSize,
       sortBy,
       sortDirection,
-     },
-
-
-   });
+    },
+  });
 
   return data;
  };

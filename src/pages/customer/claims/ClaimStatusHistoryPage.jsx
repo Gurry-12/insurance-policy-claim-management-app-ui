@@ -25,6 +25,7 @@ const ClaimStatusHistoryPage = () => {
 
   useEffect(() => {
     fetchHistory();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   
@@ -68,7 +69,7 @@ const ClaimStatusHistoryPage = () => {
                 history.map((item, index) => (
                   <tr key={index}>
                     <td>
-                      <StatusBadge status={item.status} />
+                      <StatusBadge status={item.newStatus || item.status} />
                     </td>
                     <td>{item.updatedBy || "System"}</td>
                     <td>{new Date(item.updatedDate).toLocaleString()}</td>

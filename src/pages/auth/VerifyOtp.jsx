@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import toast from 'react-hot-toast';
 import "../css/Otp.css";
 import { verifyOtpApi } from "../../services/authService";
 import ResendOtp from "../../components/auth/ResendOtp";
@@ -18,8 +19,6 @@ const VerifyOtp = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const [apiError, setApiError] = useState("");
-  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(1);
 
@@ -43,7 +42,6 @@ const VerifyOtp = () => {
 
     setFormData((prev) => ({ ...prev, [name]: sanitizedValue }));
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
-    setApiError("");
   };
 
   const validate = () => {
@@ -72,8 +70,6 @@ const VerifyOtp = () => {
 
     try {
       setLoading(true);
-      setApiError("");
-      setSuccess("");
 
       const payload = {
         email: formData.email.trim(),
@@ -82,11 +78,11 @@ const VerifyOtp = () => {
       };
 
       if (await verifyOtpApi(payload)) {
-        setSuccess("Verification successful! Redirecting to login...");
+        toast.success("Verification successful! Redirecting to login...");
         setTimeout(() => navigate("/login"), 2000);
       }
     } catch (err) {
-      setApiError(
+      toast.error(
         err.response?.data?.message ||
           err.response?.data?.error ||
           "Verification failed.",
@@ -116,32 +112,11 @@ const VerifyOtp = () => {
             </h1>
           </div>
 
-          {/* Status Alert Windows */}
-          {apiError && (
-            <div
-              className="custom-alert-box d-flex align-items-center gap-2 mb-3"
-              role="alert"
-            >
-              <i className="bi bi-exclamation-circle-fill text-danger" />
-              <span>{apiError}</span>
-            </div>
-          )}
-
-          {success && (
-            <div
-              className="custom-success-box d-flex align-items-center gap-2 mb-3"
-              role="alert"
-            >
-              <i className="bi bi-check-circle-fill text-success" />
-              <span>{success}</span>
-            </div>
-          )}
-
           {/* Execution Form */}
           <form onSubmit={handleVerifySubmit} noValidate>
             <div className="mb-3 text-start">
               <label htmlFor="otp-email" className="custom-field-label">
-                Target Email Address
+                Target Email Address <span className="text-danger">*</span>
               </label>
               <input
                 id="otp-email"
@@ -150,8 +125,7 @@ const VerifyOtp = () => {
                 className="form-control pristine-input"
                 placeholder="username@gmail.com"
                 value={formData.email}
-                onChange={handleChange}
-                disabled={!!targetEmail || loading}
+                disabled={true}
               />
               {errors.email && (
                 <div className="input-error-tip">
@@ -162,7 +136,7 @@ const VerifyOtp = () => {
 
             <div className="mb-3 text-start">
               <label htmlFor="otp-emailOtp" className="custom-field-label">
-                Email OTP Code
+                Email OTP Code <span className="text-danger">*</span>
               </label>
               <input
                 id="otp-emailOtp"
@@ -184,7 +158,7 @@ const VerifyOtp = () => {
 
             <div className="mb-3 text-start">
               <label htmlFor="otp-phoneOtp" className="custom-field-label">
-                Phone OTP Code
+                Phone OTP Code <span className="text-danger">*</span>
               </label>
               <input
                 id="otp-phoneOtp"

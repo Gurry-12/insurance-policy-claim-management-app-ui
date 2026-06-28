@@ -6,9 +6,10 @@ export const login = async (credentials) => {
   const decoded = jwtDecode(data.token);
 
   const user = {
-    email: decoded.sub,
-    role: decoded.role ?? decoded.roles?.[0] ?? null,
-    name: decoded.fullName ?? decoded.name ?? decoded.sub,
+    id: data.userId,
+    email: data.email || decoded.sub,
+    role: data.role || (decoded.role ?? decoded.roles?.[0] ?? null),
+    name: data.fullName || (decoded.fullName ?? decoded.name ?? decoded.sub),
   };
 
   return { token: data.token, user };

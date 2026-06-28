@@ -10,6 +10,7 @@ import getAllUsers from '../../../services/userService';
 import useTableState from '../../../hooks/useTableState';
 import SortableHeader from '../../../components/tables/SortableHeader';
 import useSearch from '../../../hooks/useSearch';
+import ExportButton from '../../../components/common/ExportButton';
 
 const UserListPage = () => {
   const navigate = useNavigate();
@@ -81,7 +82,7 @@ const UserListPage = () => {
 
   const columns = [
     {
-      header: renderHeader("Sr. No.", "id"),
+      header: "Sr. No.",
       cell: (row, index) => tableState.getSrNo(index),
       minWidth: "85px",
     },
@@ -130,10 +131,24 @@ const UserListPage = () => {
         title="Users Management" 
         subtitle="Manage and view administrators, agents, and customer accounts"
         action={
-          <Link to="/admin/users/create" className="btn btn-primary d-flex align-items-center gap-2" style={{ borderRadius: '8px' }}>
-            <i className="bi bi-plus-lg"></i>
-            Add New Agent
-          </Link>
+          <div className="d-flex gap-2">
+            <ExportButton
+              data={users || []}
+              columns={[
+                { header: "User ID", accessor: "id" },
+                { header: "Full Name", accessor: "fullName" },
+                { header: "Email Address", accessor: "email" },
+                { header: "Mobile Number", accessor: "mobileNumber" },
+                { header: "Role", accessor: "role" },
+                { header: "Active Status", exportValue: (r) => r.isActive ? "Active" : "Inactive" }
+              ]}
+              filename="users_list.csv"
+            />
+            <Link to="/admin/users/create" className="btn btn-primary d-flex align-items-center gap-2" style={{ borderRadius: '8px' }}>
+              <i className="bi bi-plus-lg"></i>
+              Add New Agent
+            </Link>
+          </div>
         }
       />
       

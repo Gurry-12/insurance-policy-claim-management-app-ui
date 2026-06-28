@@ -20,17 +20,15 @@ const ForgotPassword = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showPw, setShowPw] = useState(false);
-  const [apiError, setApiError] = useState("");
 
   const handleForgotPasswordSubmit = async (e) => {
     e.preventDefault();
-    setApiError("");
     
     if (!email.trim()) {
-      setApiError("Email is required.");
+      toast.error("Email is required.");
       return;
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setApiError("Enter a valid email address.");
+      toast.error("Enter a valid email address.");
       return;
     }
 
@@ -40,7 +38,7 @@ const ForgotPassword = () => {
       toast.success("OTP sent to your registered email and phone number.");
       setStep(2);
     } catch (err) {
-      setApiError(err.response?.data?.message || "Failed to request password reset.");
+      toast.error(err.response?.data?.message || "Failed to request password reset.");
     } finally {
       setLoading(false);
     }
@@ -49,21 +47,19 @@ const ForgotPassword = () => {
   const handleResetChange = (e) => {
     const { name, value } = e.target;
     setResetData(prev => ({ ...prev, [name]: value }));
-    setApiError("");
   };
 
   const handleResetPasswordSubmit = async (e) => {
     e.preventDefault();
-    setApiError("");
 
     if (!resetData.emailOtp.trim() || !resetData.phoneOtp.trim()) {
-      setApiError("Both Email OTP and Phone OTP are required.");
+      toast.error("Both Email OTP and Phone OTP are required.");
       return;
     }
 
     const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{6,15}$/;
     if (!passRegex.test(resetData.newPassword)) {
-      setApiError("Password must be 6-15 characters and contain at least one uppercase letter, one lowercase letter, one digit, and one special character (@#$%^&+=!).");
+      toast.error("Password must be 6-15 characters and contain at least one uppercase letter, one lowercase letter, one digit, and one special character (@#$%^&+=!).");
       return;
     }
 
@@ -78,7 +74,7 @@ const ForgotPassword = () => {
       toast.success("Password has been reset successfully.");
       navigate("/login");
     } catch (err) {
-      setApiError(err.response?.data?.message || "Failed to reset password.");
+      toast.error(err.response?.data?.message || "Failed to reset password.");
     } finally {
       setLoading(false);
     }
@@ -101,17 +97,10 @@ const ForgotPassword = () => {
                 </p>
               </div>
 
-              {apiError && (
-                <div className="custom-alert-box d-flex align-items-center gap-2 mb-3" role="alert">
-                  <i className="bi bi-exclamation-circle-fill text-danger" />
-                  <span>{apiError}</span>
-                </div>
-              )}
-
               {step === 1 ? (
                 <form onSubmit={handleForgotPasswordSubmit} noValidate>
                   <div className="mb-3 text-start">
-                    <label htmlFor="fp-email" className="custom-field-label">Email</label>
+                    <label htmlFor="fp-email" className="custom-field-label">Email <span className="text-danger">*</span></label>
                     <input
                       id="fp-email"
                       type="email"
@@ -120,7 +109,6 @@ const ForgotPassword = () => {
                       value={email}
                       onChange={(e) => {
                         setEmail(e.target.value);
-                        setApiError("");
                       }}
                       disabled={loading}
                     />
@@ -134,7 +122,7 @@ const ForgotPassword = () => {
               ) : (
                 <form onSubmit={handleResetPasswordSubmit} noValidate>
                   <div className="mb-3 text-start">
-                    <label htmlFor="emailOtp" className="custom-field-label">Email OTP</label>
+                    <label htmlFor="emailOtp" className="custom-field-label">Email OTP <span className="text-danger">*</span></label>
                     <input
                       id="emailOtp"
                       name="emailOtp"
@@ -149,7 +137,7 @@ const ForgotPassword = () => {
                   </div>
 
                   <div className="mb-3 text-start">
-                    <label htmlFor="phoneOtp" className="custom-field-label">Phone OTP</label>
+                    <label htmlFor="phoneOtp" className="custom-field-label">Phone OTP <span className="text-danger">*</span></label>
                     <input
                       id="phoneOtp"
                       name="phoneOtp"
@@ -164,7 +152,7 @@ const ForgotPassword = () => {
                   </div>
 
                   <div className="mb-3 text-start">
-                    <label htmlFor="newPassword" className="custom-field-label">New Password</label>
+                    <label htmlFor="newPassword" className="custom-field-label">New Password <span className="text-danger">*</span></label>
                     <div className="input-embedded-wrapper">
                       <input
                         id="newPassword"

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import usePagination from './usePagination';
 
-const useTableState = ({ initialSortBy = 'id', initialSortDirection = 'asc', initialFilters = {} } = {}) => {
+const useTableState = ({ initialSortBy = 'id', initialSortDirection = 'desc', initialFilters = {} } = {}) => {
   const pagination = usePagination(1, 10);
   
   // Sorting
@@ -11,6 +11,9 @@ const useTableState = ({ initialSortBy = 'id', initialSortDirection = 'asc', ini
   // Search
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  
+  // Loading
+  const [isLoading, setIsLoading] = useState(false);
 
   // Generic Filters
   const [filters, setFilters] = useState(initialFilters);
@@ -56,9 +59,6 @@ const useTableState = ({ initialSortBy = 'id', initialSortDirection = 'asc', ini
   };
 
   const getSrNo = (index) => {
-    if (sortDirection === 'desc' && pagination.totalElements > 0) {
-      return pagination.totalElements - ((pagination.currentPage - 1) * pagination.pageSize + index);
-    }
     return (pagination.currentPage - 1) * pagination.pageSize + index + 1;
   };
 
@@ -73,7 +73,9 @@ const useTableState = ({ initialSortBy = 'id', initialSortDirection = 'asc', ini
     filters,
     handleFilterChange,
     getQueryParams,
-    getSrNo
+    getSrNo,
+    isLoading,
+    setIsLoading
   };
 };
 

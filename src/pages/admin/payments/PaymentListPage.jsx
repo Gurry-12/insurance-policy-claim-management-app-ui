@@ -9,6 +9,7 @@ import ErrorAlert from '../../../components/ui/ErrorAlert';
 import useTableState from '../../../hooks/useTableState';
 import SortableHeader from '../../../components/tables/SortableHeader';
 import useSearch from '../../../hooks/useSearch';
+import ExportButton from '../../../components/common/ExportButton';
 
 const PaymentListPage = () => {
   const [payments, setPayments] = useState([]);
@@ -83,7 +84,7 @@ const PaymentListPage = () => {
 
   const columns = [
     { 
-      header: renderHeader("Sr. No.", "id"), 
+      header: "Sr. No.",
       cell: (row, index) => tableState.getSrNo(index), 
       minWidth: "85px" 
     },
@@ -109,6 +110,22 @@ const PaymentListPage = () => {
       <PageHeader 
         title="Payments & Transactions" 
         subtitle="View all incoming payments and transaction history"
+        action={
+          <ExportButton
+            data={payments || []}
+            columns={[
+              { header: "Payment ID", accessor: "paymentId" },
+              { header: "Policy ID", accessor: "policyId" },
+              { header: "Policy Number", accessor: "policyNumber" },
+              { header: "Amount (₹)", accessor: "amount" },
+              { header: "Payment Mode", accessor: "paymentMode" },
+              { header: "Status", accessor: "paymentStatus" },
+              { header: "Date", accessor: "paymentDate" },
+              { header: "Reference", accessor: "transactionReference" }
+            ]}
+            filename="payments_list.csv"
+          />
+        }
       />
       
       <ErrorAlert message={error} />

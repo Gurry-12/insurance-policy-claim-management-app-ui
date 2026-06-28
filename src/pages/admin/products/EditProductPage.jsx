@@ -41,17 +41,25 @@ const EditProductPage = () => {
       .finally(() => setLoading(false));
   }, [id]);
 
+  const [errors, setErrors] = useState({});
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitting(true);
+    const errs = {};
 
     if (!/^[A-Za-z\s]+$/.test(formData.name)) {
-      toast.error('Only letters and spaces are allowed in the product name.');
+      errs.name = 'Only letters and spaces are allowed in the product name.';
+    }
+
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
       setSubmitting(false);
       return;
     }
@@ -101,6 +109,7 @@ const EditProductPage = () => {
                     value={formData.name}
                     onChange={handleChange}
                     required
+                    error={errors.name}
                   />
                 </div>
                 <div className="col-md-6">

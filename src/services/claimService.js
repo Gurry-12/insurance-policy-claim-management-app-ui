@@ -1,8 +1,8 @@
 import axiosInstance from "../api/axiosInstance";
 import { safeExtractPaginated } from "../utils/formatters";
 
-export const getAllClaimsPaginated= async (params = {}) => {
-  const response = await axiosInstance.get("/claims", { params });
+export const getAllClaimsPaginated = async (params = {}, config = {}) => {
+  const response = await axiosInstance.get("/claims", { params, ...config });
   return safeExtractPaginated(response);
 };
 
@@ -89,24 +89,21 @@ export const uploadDocuments = async (
 // TODO: Claim API service
 
 
-export const getAllClaims = async (userData, pageNumber = 0,
+export const getAllClaims = async (pageNumber = 0,
   pageSize = 10,
-  sortBy = "policyId",
+  sortBy = "id",
   sortDirection = "asc") => {
 
-  
-  const { data } = await axiosInstance.get('/claims', userData,{
-
-   params: {
+  const { data } = await axiosInstance.get('/claims', {
+    params: {
       pageNumber,
       pageSize,
       sortBy,
       sortDirection,
-     },
+    },
   });
 
   return data;
-   
 };
 
 // export const reviewClaim = async (claimId) => {
