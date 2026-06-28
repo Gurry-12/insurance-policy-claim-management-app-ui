@@ -8,7 +8,8 @@ export const usePagination = (initialPage = 1, initialSize = 10) => {
 
   const pageParams = {
     pageNumber: currentPage - 1,
-    pageSize: pageSize
+    pageSize: pageSize,
+    sortDirection: "desc"
   };
 
   return {

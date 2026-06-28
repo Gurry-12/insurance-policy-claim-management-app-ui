@@ -21,6 +21,8 @@ const IssuePolicyPage = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  const [errors, setErrors] = useState({});
+
   useEffect(() => {
     Promise.all([
       getAllCustomers().catch(() => []),
@@ -43,23 +45,27 @@ const IssuePolicyPage = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitting(true);
+    const errs = {};
 
     if (!formData.startDate) {
-      toast.error('Start date is required.');
-      setSubmitting(false);
-      return;
+      errs.startDate = 'Start date is required.';
+    } else {
+      const today = new Date();
+      today.setHours(24, 0, 0, 0);
+      const selectedDate = new Date(formData.startDate);
+      if (selectedDate > today) {
+        errs.startDate = 'Start date cannot be in the future.';
+      }
     }
 
-    const today = new Date();
-    today.setHours(24, 0, 0, 0);
-    const selectedDate = new Date(formData.startDate);
-    if (selectedDate > today) {
-      toast.error('Start date cannot be in the future.');
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
       setSubmitting(false);
       return;
     }
@@ -115,6 +121,8 @@ const IssuePolicyPage = () => {
                   onChange={handleChange} 
                   options={customerOptions}
                   placeholder="Choose a customer..."
+                  error={errors.customerId}
+                  required={true}
                 />
               </div>
               <div className="col-md-6">
@@ -125,6 +133,8 @@ const IssuePolicyPage = () => {
                   onChange={handleChange} 
                   options={planOptions}
                   placeholder="Choose an insurance plan..."
+                  error={errors.planId}
+                  required={true}
                 />
               </div>
             </div>
@@ -138,6 +148,7 @@ const IssuePolicyPage = () => {
                   value={formData.startDate} 
                   onChange={handleChange} 
                   required 
+                  error={errors.startDate}
                 />
               </div>
             </div>

@@ -7,6 +7,7 @@ import { getAllCustomersPaginated } from '../../../services/customerService';
 import useTableState from '../../../hooks/useTableState';
 import SortableHeader from '../../../components/tables/SortableHeader';
 import useSearch from '../../../hooks/useSearch';
+import ExportButton from '../../../components/common/ExportButton';
 
 const CustomerListPage = () => {
   const navigate = useNavigate();
@@ -67,7 +68,7 @@ const CustomerListPage = () => {
 
   const columns = [
     {
-      header: renderHeader("Sr. No.", "id"),
+      header: "Sr. No.",
       cell: (row, index) => tableState.getSrNo(index),
       minWidth: "85px",
     },
@@ -100,6 +101,21 @@ const CustomerListPage = () => {
       <PageHeader 
         title="Customers Management" 
         subtitle="View and manage all registered customers"
+        action={
+          <ExportButton
+            data={customers || []}
+            columns={[
+              { header: "Customer Name", accessor: "fullName" },
+              { header: "Email Address", accessor: "email" },
+              { header: "Mobile Number", accessor: "mobileNumber" },
+              { header: "City", accessor: "city" },
+              { header: "State", accessor: "state" },
+              { header: "Nominee Name", accessor: "nomineeName" },
+              { header: "Nominee Relation", accessor: "nomineeRelation" }
+            ]}
+            filename="customers_list.csv"
+          />
+        }
       />
       
       <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>

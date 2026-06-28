@@ -7,12 +7,14 @@ import ErrorAlert from '../../../components/ui/ErrorAlert';
 import { getPolicyById, cancelPolicy } from '../../../services/policyService';
 import toast from 'react-hot-toast';
 import { getAllPaymentsPaginated } from '../../../services/paymentService';
+import { getClaimsByPolicy } from '../../../services/policyService';
 
 const PolicyDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [policy, setPolicy] = useState(null);
   const [payments, setPayments] = useState([]);
+  const [claims, setClaims] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [cancelling, setCancelling] = useState(false);
@@ -20,11 +22,13 @@ const PolicyDetailPage = () => {
   useEffect(() => {
     Promise.all([
       getPolicyById(id),
-      getAllPaymentsPaginated({ policyId: id, pageSize: 50 }).then(res => res.content).catch(() => [])
+      getAllPaymentsPaginated({ policyId: id, pageSize: 50 }).then(res => res.content).catch(() => []),
+      getClaimsByPolicy(id).catch(() => [])
     ])
-      .then(([policyData, paymentsData]) => {
+      .then(([policyData, paymentsData, claimsData]) => {
         setPolicy(policyData);
         setPayments(paymentsData);
+        setClaims(claimsData);
       })
       .catch((err) => {
         console.error("Policy fetch error:", err);
@@ -43,7 +47,7 @@ const PolicyDetailPage = () => {
         // Refresh details
         return getPolicyById(id).then(setPolicy);
       })
-      .catch(() => toast.error('Failed to cancel the policy.'))
+      .catch((err) => toast.error(err.response?.data?.message || 'Failed to cancel the policy.'))
       .finally(() => setCancelling(false));
   };
 
@@ -79,6 +83,7 @@ const PolicyDetailPage = () => {
     ? policy.coverageDetails 
     : [
         { benefit: 'Coverage Amount', detail: `₹${coverageAmount.toLocaleString('en-IN')}` },
+        { benefit: 'Remaining Claim Amount', detail: `₹${Number(policy.remainingClaimAmount ?? coverageAmount).toLocaleString('en-IN')}` },
         { benefit: 'Premium Term', detail: premiumType },
         { benefit: 'Product Category', detail: productType }
       ];
@@ -144,6 +149,43 @@ const PolicyDetailPage = () => {
               )}
             </div>
           </div>
+
+          {/* Claims History Card */}
+          <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+            <div className="card-body p-4">
+              <h6 className="fw-bold mb-3 text-primary">
+                <i className="bi bi-file-earmark-medical me-2"></i>Claims History
+              </h6>
+              
+              {claims && claims.length > 0 ? (
+                <div style={{ maxHeight: '300px', overflowY: 'auto', overflowX: 'auto' }}>
+                  <table className="table table-hover align-middle mb-0" style={{ fontSize: '0.85rem' }}>
+                    <thead style={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 1 }}>
+                      <tr style={{ color: 'var(--ss-text-muted)', fontSize: '0.74rem', textTransform: 'uppercase' }}>
+                        <th className="border-0 bg-white">Claim Number</th>
+                        <th className="border-0 bg-white">Amount</th>
+                        <th className="border-0 bg-white">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {claims.map((claim, idx) => (
+                        <tr key={idx}>
+                          <td className="fw-bold text-dark">{claim.claimNumber || claim.claimId}</td>
+                          <td className="fw-bold">₹{Number(claim.claimAmount).toLocaleString('en-IN')}</td>
+                          <td><StatusBadge status={claim.claimStatus} /></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="text-center p-3 text-muted">
+                  <i className="bi bi-inbox fs-4 d-block mb-2"></i>
+                  No claims found.
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Right Side: Plan Coverage & Customer Details */}
@@ -199,15 +241,15 @@ const PolicyDetailPage = () => {
               </h6>
               
               {payments && payments.length > 0 ? (
-                <div className="table-responsive">
+                <div style={{ maxHeight: '300px', overflowY: 'auto', overflowX: 'auto' }}>
                   <table className="table table-hover align-middle mb-0" style={{ fontSize: '0.85rem' }}>
-                    <thead>
+                    <thead style={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 1 }}>
                       <tr style={{ color: 'var(--ss-text-muted)', fontSize: '0.74rem', textTransform: 'uppercase' }}>
-                        <th className="border-0">Transaction ID</th>
-                        <th className="border-0">Date</th>
-                        <th className="border-0">Amount</th>
-                        <th className="border-0">Method</th>
-                        <th className="border-0">Status</th>
+                        <th className="border-0 bg-white">Transaction Ref</th>
+                        <th className="border-0 bg-white">Date</th>
+                        <th className="border-0 bg-white">Amount</th>
+                        <th className="border-0 bg-white">Method</th>
+                        <th className="border-0 bg-white">Status</th>
                       </tr>
                     </thead>
                     <tbody>

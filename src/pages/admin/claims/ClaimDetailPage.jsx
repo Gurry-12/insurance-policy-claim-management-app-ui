@@ -16,7 +16,7 @@ const ClaimDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [remark, setRemark] = useState('');
-  const [actionModal, setActionModal] = useState({ isOpen: false, type: null });
+  const [actionModal, setActionModal] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
   const fetchClaimData = (id) => {
@@ -38,21 +38,21 @@ const ClaimDetailPage = () => {
     fetchClaimData(id);
   }, [id]);
 
-  const handleAction = () => {
+  const handleAction = (type) => {
     if (!remark.trim()) {
       toast.error('Remarks are required to process the claim.');
       return;
     }
 
     setActionLoading(true);
-    const apiCall = actionModal.type === 'approve'
+    const apiCall = type === 'approve'
       ? approveClaim(id, { remarks: remark })
       : rejectClaim(id, remark);
 
     apiCall
       .then(() => {
-        toast.success(`Claim ${actionModal.type === 'approve' ? 'approved' : 'rejected'} successfully!`);
-        setActionModal({ isOpen: false, type: null });
+        toast.success(`Claim ${type === 'approve' ? 'approved' : 'rejected'} successfully!`);
+        setActionModal(false);
         setRemark('');
         fetchClaimData(id);
       })
@@ -95,24 +95,24 @@ const ClaimDetailPage = () => {
         subtitle={`Reviewing Claim #${claim.claimNumber || claim.id}`}
         onBack={() => navigate('/admin/claims')}
         action={
-          status?.toUpperCase() !== 'APPROVED' && status?.toUpperCase() !== 'REJECTED' && (
-            <div className="d-flex gap-2">
+          <div className="d-flex gap-2">
+            <button
+              className="btn btn-outline-secondary d-flex align-items-center gap-1"
+              style={{ borderRadius: '8px' }}
+              onClick={() => navigate(`/admin/claims/${id}/history`)}
+            >
+              <i className="bi bi-clock-history"></i> History
+            </button>
+            {(status?.toUpperCase() === 'RECOMMENDED_FOR_APPROVAL' || status?.toUpperCase() === 'RECOMMENDED_FOR_REJECTION') && (
               <button 
-                className="btn btn-outline-danger" 
+                className="btn btn-primary fw-bold" 
                 style={{ borderRadius: '8px' }}
-                onClick={() => setActionModal({ isOpen: true, type: 'reject' })}
+                onClick={() => setActionModal(true)}
               >
-                Reject
+                Final Decision
               </button>
-              <button 
-                className="btn btn-success" 
-                style={{ borderRadius: '8px' }}
-                onClick={() => setActionModal({ isOpen: true, type: 'approve' })}
-              >
-                Approve
-              </button>
-            </div>
-          )
+            )}
+          </div>
         }
       />
 
@@ -142,11 +142,21 @@ const ClaimDetailPage = () => {
                 {claim.incidentDate && (
                   <div className="col-md-6 mt-3">
                     <small className="text-muted d-block fw-bold mb-1">Incident Date</small>
-                    <span>{claim.incidentDate}</span>
+                    <span>{new Date(claim.incidentDate).toLocaleDateString()}</span>
+                  </div>
+                )}
+                <div className="col-md-6 mt-3">
+                  <small className="text-muted d-block fw-bold mb-1">Assigned Agent</small>
+                  <span>{claim.assignedAgentName || <span className="text-muted">Unassigned</span>}</span>
+                </div>
+                {claim.agentRemarks && (
+                  <div className="col-12 mt-3 p-3 bg-light rounded-3 border-start border-4 border-primary">
+                    <small className="text-muted d-block fw-bold mb-1">Agent's Recommendation Remarks</small>
+                    <p className="mb-0 text-dark">{claim.agentRemarks}</p>
                   </div>
                 )}
                 {claim.adminRemarks && (
-                  <div className="col-12 mt-3 p-3 bg-light rounded-3">
+                  <div className="col-12 mt-3 p-3 bg-light rounded-3 border-start border-4 border-warning">
                     <small className="text-muted d-block fw-bold mb-1">Admin Remarks</small>
                     <p className="mb-0 text-dark">{claim.adminRemarks}</p>
                   </div>
@@ -209,31 +219,49 @@ const ClaimDetailPage = () => {
         </div>
       </div>
 
-      <ConfirmModal 
-        isOpen={actionModal.isOpen}
-        title={actionModal.type === 'approve' ? "Approve Claim" : "Reject Claim"}
-        message={
-          <div>
-            <p>Are you sure you want to {actionModal.type} this claim of <strong>₹{amount.toLocaleString('en-IN')}</strong>?</p>
-            <FormTextarea 
-              label="Admin Remarks (Required)" 
-              name="remark" 
-              value={remark} 
-              onChange={(e) => setRemark(e.target.value)} 
-              placeholder="Add your comments here..."
-              rows={3}
-              required
-            />
+      {actionModal && (
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content border-0 shadow" style={{ borderRadius: '12px' }}>
+              <div className="modal-header border-0 pb-0">
+                <h5 className="modal-title fw-bold">Final Decision</h5>
+                <button type="button" className="btn-close" onClick={() => setActionModal(false)}></button>
+              </div>
+              <div className="modal-body">
+                <p>Please review the Agent's remarks and provide your final decision.</p>
+                
+                <div className="bg-light p-3 rounded mb-3 border-start border-4 border-primary">
+                  <small className="fw-bold text-muted d-block mb-1">Agent's Remarks</small>
+                  <p className="mb-0">{claim.agentRemarks || 'No remarks provided.'}</p>
+                </div>
+
+                <FormTextarea 
+                  label="Admin Remarks (Required)" 
+                  name="remark" 
+                  value={remark} 
+                  onChange={(e) => setRemark(e.target.value)} 
+                  placeholder="Add your justification for this decision here..."
+                  rows={3}
+                  required
+                />
+              </div>
+              <div className="modal-footer border-0 pt-0 justify-content-between">
+                <button className="btn btn-outline-secondary" onClick={() => setActionModal(false)} disabled={actionLoading}>
+                  Cancel
+                </button>
+                <div className="d-flex gap-2">
+                  <button className="btn btn-danger" onClick={() => handleAction('reject')} disabled={actionLoading}>
+                    {actionLoading ? 'Processing...' : 'Reject Claim'}
+                  </button>
+                  <button className="btn btn-success" onClick={() => handleAction('approve')} disabled={actionLoading}>
+                    {actionLoading ? 'Processing...' : 'Approve Claim'}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-        }
-        isDanger={actionModal.type === 'reject'}
-        confirmText={actionLoading ? "Processing..." : (actionModal.type === 'approve' ? "Confirm Approval" : "Confirm Rejection")}
-        onCancel={() => {
-          setActionModal({ isOpen: false, type: null });
-          setRemark('');
-        }}
-        onConfirm={handleAction}
-      />
+        </div>
+      )}
     </div>
   );
 };

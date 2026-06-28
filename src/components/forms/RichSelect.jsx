@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const RichSelect = ({ label, name, value, onChange, options, placeholder = "Select an option" }) => {
+const RichSelect = ({ label, name, value, onChange, options, placeholder = "Select an option", error, required }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -20,7 +20,7 @@ const RichSelect = ({ label, name, value, onChange, options, placeholder = "Sele
   return (
     <div className="mb-3 position-relative" ref={dropdownRef}>
       <label className="form-label" style={{ fontSize: "0.85rem", fontWeight: 600 }}>
-        {label} <span className="text-danger">*</span>
+        {label} {required && <span className="text-danger">*</span>}
       </label>
       <div
         className="form-control d-flex align-items-center justify-content-between"
@@ -29,7 +29,7 @@ const RichSelect = ({ label, name, value, onChange, options, placeholder = "Sele
           borderRadius: "8px",
           padding: "0.6rem 1rem",
           backgroundColor: "#fff",
-          border: isOpen ? "1px solid var(--ss-primary)" : "1px solid rgba(0,0,0,0.1)",
+          border: error ? "1px solid #dc3545" : (isOpen ? "1px solid var(--ss-primary)" : "1px solid rgba(0,0,0,0.1)"),
           boxShadow: isOpen ? "0 0 0 4px rgba(29, 78, 216, 0.12)" : "none",
         }}
         onClick={() => setIsOpen(!isOpen)}
@@ -86,6 +86,7 @@ const RichSelect = ({ label, name, value, onChange, options, placeholder = "Sele
           )}
         </div>
       )}
+      {error && <div className="text-danger mt-1" style={{ fontSize: '0.875em' }}>{error}</div>}
     </div>
   );
 };

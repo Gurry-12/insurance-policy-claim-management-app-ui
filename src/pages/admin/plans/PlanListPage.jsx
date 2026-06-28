@@ -5,10 +5,11 @@ import DataTable from '../../../components/tables/DataTable';
 import PaginationBar from '../../../components/tables/PaginationBar';
 import StatusBadge from '../../../components/ui/StatusBadge';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
-import { getAllPlansPainated } from '../../../services/planService';
+import { getAllPlansPaginated } from '../../../services/planService';
 import useTableState from '../../../hooks/useTableState';
 import SortableHeader from '../../../components/tables/SortableHeader';
 import useSearch from '../../../hooks/useSearch';
+import ExportButton from '../../../components/common/ExportButton';
 
 const PlanListPage = () => {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ const PlanListPage = () => {
     }
     delete params.statusFilter;
 
-    getAllPlansPainated(params)
+    getAllPlansPaginated(params)
       .then((res) => {
         setPlans(res.content);
         tableState.setTotalPages(res.totalPages);
@@ -68,7 +69,7 @@ const PlanListPage = () => {
 
   const columns = [
     { 
-      header: renderHeader("Sr. No.", "id"), 
+      header: "Sr. No.",
       cell: (row, index) => tableState.getSrNo(index), 
       minWidth: "85px" 
     },
@@ -123,14 +124,29 @@ const PlanListPage = () => {
         title="Insurance Plans"
         subtitle="Manage specific plans and coverages under products"
         action={
-          <Link
-            to="/admin/plans/create"
-            className="btn btn-primary d-flex align-items-center gap-2"
-            style={{ borderRadius: "8px" }}
-          >
-            <i className="bi bi-plus-lg"></i>
-            Create Plan
-          </Link>
+          <div className="d-flex gap-2">
+            <ExportButton
+              data={plans || []}
+              columns={[
+                { header: "Plan Name", accessor: "planName" },
+                { header: "Product Name", accessor: "productName" },
+                { header: "Coverage Amount (₹)", accessor: "coverageAmount" },
+                { header: "Premium Amount (₹)", accessor: "premiumAmount" },
+                { header: "Premium Type", accessor: "premiumType" },
+                { header: "Duration (Years)", accessor: "duration" },
+                { header: "Active Status", exportValue: (r) => r.isActive ? "Active" : "Inactive" }
+              ]}
+              filename="plans_list.csv"
+            />
+            <Link
+              to="/admin/plans/create"
+              className="btn btn-primary d-flex align-items-center gap-2"
+              style={{ borderRadius: "8px" }}
+            >
+              <i className="bi bi-plus-lg"></i>
+              Create Plan
+            </Link>
+          </div>
         }
       />
 

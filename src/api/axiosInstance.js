@@ -23,9 +23,11 @@ axiosInstance.interceptors.response.use(
     if (status === 401) {
       localStorage.removeItem('ss_token');
       localStorage.removeItem('ss_user');
-      window.location.href = '/login';
+      window.dispatchEvent(new CustomEvent('auth:unauthorized'));
     } else if (status === 403) {
-      window.location.href = '/unauthorized';
+      window.dispatchEvent(new CustomEvent('auth:forbidden'));
+    } else if (status >= 500 || !error.response) {
+      window.dispatchEvent(new CustomEvent('api:error', { detail: error.message }));
     }
     return Promise.reject(error);
   }

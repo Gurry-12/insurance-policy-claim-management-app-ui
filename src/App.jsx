@@ -104,10 +104,12 @@ const DashboardRedirect = () => {
 /* ── App  */
 
 import GlobalToaster from "./components/common/GlobalToaster";
+import GlobalApiHandler from "./components/common/GlobalApiHandler";
 import AgentCustomerDetailPage from "./pages/agent/customers/AgentCustomerDetailPage";
 
 const App = () => (
   <>
+    <GlobalApiHandler />
     <GlobalToaster />
     <Routes>
       {/* Public */}

@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
-import { getAllCustomers } from "../../../services/customerService";
+import { getAllCustomersPaginated } from "../../../services/customerService";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
 import useSearch from "../../../hooks/useSearch";
 import useCustomerPdf from "../../../hooks/PdfDownload/useCustomerPdf";
+import ExportButton from "../../../components/common/ExportButton";
+import useTableState from "../../../hooks/useTableState";
+import PaginationBar from "../../../components/tables/PaginationBar";
 
 const AgentCustomerListPage = () => {
   const [customers, setCustomers] = useState([]);
@@ -11,11 +14,19 @@ const AgentCustomerListPage = () => {
   const navigate = useNavigate();
   const { downloadCustomer } = useCustomerPdf();
 
+  const tableState = useTableState({
+    initialSortBy: 'id'
+  });
+
   useEffect(() => {
     const loadCustomers = async () => {
       try {
-        const data = await getAllCustomers();
-        setCustomers(data);
+        setLoading(true);
+        const params = tableState.getQueryParams();
+        const res = await getAllCustomersPaginated(params);
+        setCustomers(res.content || []);
+        tableState.setTotalPages(res.totalPages || 1);
+        tableState.setTotalElements(res.totalElements || res.totalRecords || 0);
       } catch (error) {
         console.error("Error loading customers:", error);
       } finally {
@@ -24,7 +35,7 @@ const AgentCustomerListPage = () => {
     };
 
     loadCustomers();
-  }, []);
+  }, [tableState.currentPage, tableState.sortBy, tableState.sortDirection]);
 
   const {
   searchTerm,
@@ -50,12 +61,28 @@ const AgentCustomerListPage = () => {
         title="Customer Management"
         subtitle="Manage and view your registered clients"
         action={
-          <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate("/agent/dashboard")}>
-            <i className="bi bi-arrow-left"></i> Back
-          </button>
+          <div className="d-flex gap-2">
+            <ExportButton
+              data={customers || []}
+              columns={[
+                { header: "Customer Name", accessor: "fullName" },
+                { header: "Email Address", accessor: "email" },
+                { header: "Mobile Number", accessor: "mobileNumber" },
+                { header: "City", accessor: "city" },
+                { header: "State", accessor: "state" },
+                { header: "Nominee Name", accessor: "nomineeName" },
+                { header: "Nominee Relation", accessor: "nomineeRelation" }
+              ]}
+              filename="agent_customers_list.csv"
+            />
+            <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate("/agent/dashboard")}>
+              <i className="bi bi-arrow-left"></i> Back
+            </button>
+          </div>
         }
       />
 
+      <div className="mb-3">
         <input
           type="text"
           className="form-control"
@@ -63,12 +90,13 @@ const AgentCustomerListPage = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
+      </div>
 
       <div className="table-responsive">
         <table className="table table-hover align-middle mb-0">
           <thead>
             <tr>
-              <th>ID</th>
+              <th>Sr. No.</th>
               <th>Full Name</th>
               <th>Email</th>
               <th>Mobile</th>
@@ -83,7 +111,7 @@ const AgentCustomerListPage = () => {
   {filteredCustomers.length > 0 ? (
     filteredCustomers.map((customer,index) => (
       <tr key={customer.customerId}>
-          <td>{index + 1}</td>
+          <td>{tableState.getSrNo(index)}</td>
          <td style={{ fontWeight: 600 }}>
           {customer.fullName}
         </td>
@@ -117,6 +145,17 @@ const AgentCustomerListPage = () => {
 </tbody>
         </table>
       </div>
+      {customers.length > 0 && (
+        <div className="mt-3">
+          <PaginationBar
+            currentPage={tableState.currentPage}
+            totalPages={tableState.totalPages}
+            totalElements={tableState.totalElements}
+            pageSize={tableState.pageSize}
+            onPageChange={tableState.setCurrentPage}
+          />
+        </div>
+      )}
     </div>
   );
 };

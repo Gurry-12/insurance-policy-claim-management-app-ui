@@ -14,54 +14,57 @@ const CreateAgentPage = () => {
     email: '',
     phone: '',
     password: '',
+    productSpeciality: 'HEALTH',
   });
   const [showSuccess, setShowSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  const [errors, setErrors] = useState({});
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+    if (name === 'firstName' || name === 'lastName') {
+      if (errors.fullName) setErrors(prev => ({ ...prev, fullName: '' }));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitting(true);
+    const errs = {};
 
     const fullName = `${formData.firstName} ${formData.lastName}`.trim();
 
     // 1. Full Name Validation: letters and spaces only, min 2 max 100
     const nameRegex = /^[a-zA-Z\s]+$/;
     if (!nameRegex.test(fullName)) {
-      toast.error('Only letters and spaces are allowed in name.');
-      setSubmitting(false);
-      return;
-    }
-    if (fullName.length < 2 || fullName.length > 100) {
-      toast.error('Name should be between 2 and 100 characters.');
-      setSubmitting(false);
-      return;
+      errs.fullName = 'Only letters and spaces are allowed in name.';
+    } else if (fullName.length < 2 || fullName.length > 100) {
+      errs.fullName = 'Name should be between 2 and 100 characters.';
     }
 
     // 2. Email Validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      toast.error('Enter a valid email address.');
-      setSubmitting(false);
-      return;
+      errs.email = 'Enter a valid email address.';
     }
 
     // 3. Password Validation: uppercase, lowercase, digit, special char, length 6-15
     const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{6,15}$/;
     if (!passRegex.test(formData.password)) {
-      toast.error('Password must be 6-15 characters and contain at least one uppercase letter, one lowercase letter, one digit, and one special character (@#$%^&+=!).');
-      setSubmitting(false);
-      return;
+      errs.password = 'Password must be 6-15 chars with uppercase, lowercase, digit, and special char (@#$%^&+=!).';
     }
 
     // 4. Mobile Number Validation: international format +919876543210
     const mobileRegex = /^\+?[1-9]\d{9,14}$/;
     if (!mobileRegex.test(formData.phone)) {
-      toast.error('Use international format for mobile number, example: +919876543210');
+      errs.phone = 'Use international format for mobile number, example: +919876543210';
+    }
+
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
       setSubmitting(false);
       return;
     }
@@ -70,7 +73,8 @@ const CreateAgentPage = () => {
       fullName: fullName,
       email: formData.email,
       password: formData.password,
-      mobileNumber: formData.phone
+      mobileNumber: formData.phone,
+      productSpeciality: formData.productSpeciality
     };
 
     createAgent(payload)
@@ -104,6 +108,7 @@ const CreateAgentPage = () => {
                   onChange={handleChange} 
                   required 
                   placeholder="e.g. John"
+                  error={errors.fullName}
                 />
               </div>
               <div className="col-md-6">
@@ -114,6 +119,7 @@ const CreateAgentPage = () => {
                   onChange={handleChange} 
                   required 
                   placeholder="e.g. Doe"
+                  error={errors.fullName}
                 />
               </div>
             </div>
@@ -128,6 +134,7 @@ const CreateAgentPage = () => {
                   onChange={handleChange} 
                   required 
                   placeholder="john.doe@example.com"
+                  error={errors.email}
                 />
               </div>
               <div className="col-md-6">
@@ -138,6 +145,7 @@ const CreateAgentPage = () => {
                   onChange={handleChange} 
                   required 
                   placeholder="+919876543210"
+                  error={errors.phone}
                 />
               </div>
             </div>
@@ -152,7 +160,25 @@ const CreateAgentPage = () => {
                   onChange={handleChange} 
                   required 
                   placeholder="••••••••"
+                  error={errors.password}
                 />
+              </div>
+              <div className="col-md-6">
+                <div className="form-group mb-3">
+                  <label className="fw-bold mb-1" style={{ fontSize: '0.85rem' }}>Product Speciality <span className="text-danger">*</span></label>
+                  <select
+                    className="form-select"
+                    name="productSpeciality"
+                    value={formData.productSpeciality}
+                    onChange={handleChange}
+                    required
+                    style={{ borderRadius: '8px', padding: '0.6rem 1rem' }}
+                  >
+                    <option value="HEALTH">Health Insurance</option>
+                    <option value="LIFE">Life Insurance</option>
+                    <option value="MOTOR">Motor Insurance</option>
+                  </select>
+                </div>
               </div>
             </div>
 

@@ -5,6 +5,7 @@ import PageHeader from "../../../components/common/PageHeader";
 import LoadingSpinner from "../../../components/common/LoadingSpinner";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import { FileText, Eye, History, Upload } from "lucide-react";
+import ExportButton from "../../../components/common/ExportButton";
 
 const CustomerClaimListPage = () => {
   const [claims, setClaims] = useState([]);
@@ -39,9 +40,22 @@ const CustomerClaimListPage = () => {
         subtitle="Manage and track your insurance claims"
         icon={FileText}
         action={
-          <Link to="/customer/claims/raise" className="btn btn-primary">
-            Raise Claim
-          </Link>
+          <div className="d-flex gap-2">
+            <ExportButton
+              data={claims || []}
+              columns={[
+                { header: "Claim ID", accessor: "claimNumber" },
+                { header: "Policy Number", accessor: "policyNumber" },
+                { header: "Claim Amount (₹)", accessor: "claimAmount" },
+                { header: "Incident Date", accessor: "incidentDate" },
+                { header: "Status", accessor: "claimStatus" }
+              ]}
+              filename="my_claims.csv"
+            />
+            <Link to="/customer/claims/raise" className="btn btn-primary">
+              Raise Claim
+            </Link>
+          </div>
         }
       />
 
@@ -53,6 +67,7 @@ const CustomerClaimListPage = () => {
                 <th>Claim No</th>
                 <th>Policy No</th>
                 <th>Amount</th>
+                <th>Incident Date</th>
                 <th>Status</th>
                 <th className="text-end">Actions</th>
               </tr>
@@ -70,6 +85,7 @@ const CustomerClaimListPage = () => {
                     <td><span className="fw-medium">{claim.claimNumber}</span></td>
                     <td>{claim.policyNumber}</td>
                     <td>₹{claim.claimAmount?.toLocaleString()}</td>
+                    <td>{claim.incidentDate ? new Date(claim.incidentDate).toLocaleDateString() : 'N/A'}</td>
                     <td><StatusBadge status={claim.claimStatus} /></td>
                     <td>
                       <div className="d-flex gap-2 justify-content-end">

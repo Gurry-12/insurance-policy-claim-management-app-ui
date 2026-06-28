@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import toast from 'react-hot-toast';
 import { recordPayment } from "../../../services/paymentService";
 import { getMyPolicies } from "../../../services/policyService";
 import PageHeader from "../../../components/common/PageHeader";
@@ -17,7 +18,6 @@ const RecordPaymentPage = () => {
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState(null);
   const [policies, setPolicies] = useState([]);
   const [isLoadingPolicies, setIsLoadingPolicies] = useState(true);
 
@@ -47,6 +47,8 @@ const RecordPaymentPage = () => {
     fetchPolicies();
   }, [policyId]);
 
+  const [errors, setErrors] = useState({});
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "policyId") {
@@ -62,12 +64,28 @@ const RecordPaymentPage = () => {
         [name]: value,
       }));
     }
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const errs = {};
+
+    if (!formData.policyId) {
+      errs.policyId = "Policy is required";
+    }
+    if (!formData.amount || Number(formData.amount) <= 0) {
+      errs.amount = "Amount must be greater than zero";
+    }
+
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      return;
+    }
+
     setIsSubmitting(true);
-    setError(null);
 
     try {
       await recordPayment({
@@ -75,11 +93,11 @@ const RecordPaymentPage = () => {
         amount: Number(formData.amount),
       });
 
-      alert("Payment Recorded Successfully");
+      toast.success("Payment Recorded Successfully");
       navigate("/customer/payments");
     } catch (error) {
       console.error(error);
-      setError(error?.response?.data?.message || "Payment Failed");
+      toast.error(error?.response?.data?.message || "Payment Failed");
     } finally {
       setIsSubmitting(false);
     }
@@ -111,22 +129,15 @@ const RecordPaymentPage = () => {
                 </div>
               </div>
 
-              {error && (
-                <div className="alert alert-danger d-flex align-items-center" role="alert">
-                  <AlertCircle size={18} className="me-2" />
-                  <div>{error}</div>
-                </div>
-              )}
-
               <form onSubmit={handleSubmit}>
                 <div className="mb-4">
-                  <label className="form-label fw-medium">Select Policy</label>
+                  <label className="form-label fw-medium">Select Policy <span className="text-danger">*</span></label>
                   {isLoadingPolicies ? (
                     <div className="form-control form-control-lg bg-light text-muted">Loading policies...</div>
                   ) : (
                     <select
                       name="policyId"
-                      className="form-select form-select-lg"
+                      className={`form-select form-select-lg ${errors.policyId ? 'is-invalid' : ''}`}
                       value={formData.policyId}
                       onChange={handleChange}
                       required
@@ -140,20 +151,22 @@ const RecordPaymentPage = () => {
                       ))}
                     </select>
                   )}
+                  {errors.policyId && <div className="invalid-feedback d-block">{errors.policyId}</div>}
                 </div>
 
                 <div className="mb-4">
-                  <label className="form-label fw-medium">Amount (₹)</label>
+                  <label className="form-label fw-medium">Amount (₹) <span className="text-danger">*</span></label>
                   <input
                     type="number"
                     name="amount"
-                    className="form-control form-control-lg"
+                    className={`form-control form-control-lg ${errors.amount ? 'is-invalid' : ''}`}
                     value={formData.amount}
                     onChange={handleChange}
                     required
                     min="1"
                     placeholder="Enter amount"
                   />
+                  {errors.amount && <div className="invalid-feedback">{errors.amount}</div>}
                 </div>
 
                 <div className="mb-4">

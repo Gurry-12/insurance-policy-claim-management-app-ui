@@ -3,6 +3,7 @@ import { getMyPayments } from "../../../services/paymentService";
 import PageHeader from "../../../components/common/PageHeader";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import { FileText, CheckCircle, Clock, XCircle } from "lucide-react";
+import ExportButton from "../../../components/common/ExportButton";
 
 const CustomerPaymentHistoryPage = () => {
   const [payments, setPayments] = useState([]);
@@ -37,6 +38,21 @@ const CustomerPaymentHistoryPage = () => {
         title="My Payment History"
         subtitle="View all your past and recent premium payments"
         icon={FileText}
+        action={
+          <ExportButton
+            data={payments || []}
+            columns={[
+              { header: "Payment ID", accessor: "paymentId" },
+              { header: "Policy Number", accessor: "policyNumber" },
+              { header: "Amount (₹)", accessor: "amount" },
+              { header: "Payment Mode", accessor: "paymentMode" },
+              { header: "Status", accessor: "paymentStatus" },
+              { header: "Reference", accessor: "transactionReference" },
+              { header: "Payment Date", accessor: "paymentDate" }
+            ]}
+            filename="my_payments.csv"
+          />
+        }
       />
 
       <div className="card border-0 shadow-sm mt-4">
@@ -45,7 +61,7 @@ const CustomerPaymentHistoryPage = () => {
             <table className="table table-hover align-middle mb-0">
               <thead className="table-light">
                 <tr>
-                  <th className="px-4 py-3">ID</th>
+                  <th className="px-4 py-3">Sr. No.</th>
                   <th className="px-4 py-3">Policy Number</th>
                   <th className="px-4 py-3">Amount</th>
                   <th className="px-4 py-3">Mode</th>
@@ -57,9 +73,9 @@ const CustomerPaymentHistoryPage = () => {
 
               <tbody>
                 {payments.length > 0 ? (
-                  payments.map((payment) => (
+                  payments.map((payment, index) => (
                     <tr key={payment.paymentId}>
-                      <td className="px-4 py-3">#{payment.paymentId}</td>
+                      <td className="px-4 py-3">{index + 1}</td>
                       <td className="px-4 py-3 fw-medium">{payment.policyNumber}</td>
                       <td className="px-4 py-3">₹ {payment.amount?.toLocaleString()}</td>
                       <td className="px-4 py-3">{payment.paymentMode}</td>

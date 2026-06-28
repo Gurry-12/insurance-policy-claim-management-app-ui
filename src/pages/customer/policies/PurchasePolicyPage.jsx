@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import toast from 'react-hot-toast';
 import { purchasePolicy } from "../../../services/policyService";
 import PageHeader from "../../../components/common/PageHeader";
 import { ShoppingCart, Calendar, AlertCircle } from "lucide-react";
@@ -10,12 +11,23 @@ const PurchasePolicyPage = () => {
 
   const [startDate, setStartDate] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState(null);
+
+  const [errors, setErrors] = useState({});
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const errs = {};
+
+    if (!startDate) {
+      errs.startDate = "Coverage start date is required";
+    }
+
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      return;
+    }
+
     setIsSubmitting(true);
-    setError(null);
 
     try {
       await purchasePolicy({
@@ -23,11 +35,11 @@ const PurchasePolicyPage = () => {
         startDate,
       });
 
-      alert("Policy Purchased Successfully");
+      toast.success("Policy Purchased Successfully");
       navigate("/customer/policies");
     } catch (error) {
       console.error(error);
-      setError(error?.response?.data?.message || "Failed to purchase policy");
+      toast.error(error?.response?.data?.message || "Failed to purchase policy");
     } finally {
       setIsSubmitting(false);
     }
@@ -56,24 +68,21 @@ const PurchasePolicyPage = () => {
                 </div>
               </div>
 
-              {error && (
-                <div className="alert alert-danger d-flex align-items-center" role="alert">
-                  <AlertCircle size={18} className="me-2" />
-                  <div>{error}</div>
-                </div>
-              )}
-
               <form onSubmit={handleSubmit}>
                 <div className="mb-4">
-                  <label className="form-label fw-medium">Coverage Start Date</label>
+                  <label className="form-label fw-medium">Coverage Start Date <span className="text-danger">*</span></label>
                   <input
                     type="date"
-                    className="form-control form-control-lg"
+                    className={`form-control form-control-lg ${errors.startDate ? 'is-invalid' : ''}`}
                     value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
+                    onChange={(e) => {
+                      setStartDate(e.target.value);
+                      if (errors.startDate) setErrors(prev => ({ ...prev, startDate: '' }));
+                    }}
                     required
                     min={new Date().toISOString().split('T')[0]}
                   />
+                  {errors.startDate && <div className="invalid-feedback">{errors.startDate}</div>}
                   <div className="form-text mt-2 text-muted">
                     Your policy coverage will begin on this date.
                   </div>

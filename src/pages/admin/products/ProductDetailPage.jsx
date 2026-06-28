@@ -205,7 +205,7 @@ const ProductDetailPage = () => {
                             {plan.planName}
                           </Link>
                         </h6>
-                        <span className="text-muted small">Duration: {plan.duration} months</span>
+                        <span className="text-muted small">Duration: {plan.duration} years</span>
                       </div>
                       <div className="text-end">
                         <div className="fw-bold text-primary">₹{plan.premiumAmount?.toLocaleString('en-IN')}</div>

@@ -88,8 +88,9 @@
 
 
   
-   import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from 'react-hot-toast';
 import PageHeader from "../../../components/common/PageHeader";
 
 import { getAllCustomers } from "../../../services/customerService";
@@ -142,21 +143,26 @@ const AgentIssuePolicyPage = () => {
       customer.mobileNumber?.includes(searchTerm)
   );
 
+  const [errors, setErrors] = useState({});
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const errs = {};
 
     if (!formData.customerId) {
-      alert("Please select a customer");
-      return;
+      errs.customerId = "Please select a customer";
     }
 
     if (!formData.planId) {
-      alert("Please select a plan");
-      return;
+      errs.planId = "Please select a plan";
     }
 
     if (!formData.startDate) {
-      alert("Please select a start date");
+      errs.startDate = "Please select a start date";
+    }
+
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
       return;
     }
 
@@ -171,13 +177,13 @@ const AgentIssuePolicyPage = () => {
 
       await issuePolicy(payload);
 
-      alert("Policy Issued Successfully");
+      toast.success("Policy Issued Successfully");
 
       navigate("/agent/policies");
     } catch (error) {
       console.error(error);
 
-      alert(
+      toast.error(
         error.response?.data?.message ||
           "Failed to issue policy"
       );
@@ -213,18 +219,20 @@ const AgentIssuePolicyPage = () => {
             {/* Search Customer */}
             <div className="mb-3">
               <label className="form-label fw-semibold">
-                Search Customer
+                Search Customer <span className="text-danger">*</span>
               </label>
 
               <input
                 type="text"
-                className="form-control"
+                className={`form-control ${errors.customerId ? 'is-invalid' : ''}`}
                 placeholder="Search by Name, Email or Mobile"
                 value={searchTerm}
-                onChange={(e) =>
-                  setSearchTerm(e.target.value)
-                }
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  if (errors.customerId) setErrors(prev => ({ ...prev, customerId: '' }));
+                }}
               />
+              {errors.customerId && <div className="invalid-feedback">{errors.customerId}</div>}
             </div>
 
             {/* Customer List */}
@@ -317,18 +325,19 @@ const AgentIssuePolicyPage = () => {
             {/* Plan */}
             <div className="mb-3">
               <label className="form-label fw-semibold">
-                Select Plan
+                Select Plan <span className="text-danger">*</span>
               </label>
 
               <select
-                className="form-select"
+                className={`form-select ${errors.planId ? 'is-invalid' : ''}`}
                 value={formData.planId}
-                onChange={(e) =>
+                onChange={(e) => {
                   setFormData({
                     ...formData,
                     planId: e.target.value,
-                  })
-                }
+                  });
+                  if (errors.planId) setErrors(prev => ({ ...prev, planId: '' }));
+                }}
                 required
               >
                 <option value="">
@@ -344,26 +353,29 @@ const AgentIssuePolicyPage = () => {
                   </option>
                 ))}
               </select>
+              {errors.planId && <div className="invalid-feedback">{errors.planId}</div>}
             </div>
 
             {/* Start Date */}
             <div className="mb-4">
               <label className="form-label fw-semibold">
-                Start Date
+                Start Date <span className="text-danger">*</span>
               </label>
 
               <input
                 type="date"
-                className="form-control"
+                className={`form-control ${errors.startDate ? 'is-invalid' : ''}`}
                 value={formData.startDate}
-                onChange={(e) =>
+                onChange={(e) => {
                   setFormData({
                     ...formData,
                     startDate: e.target.value,
-                  })
-                }
+                  });
+                  if (errors.startDate) setErrors(prev => ({ ...prev, startDate: '' }));
+                }}
                 required
               />
+              {errors.startDate && <div className="invalid-feedback">{errors.startDate}</div>}
             </div>
 
             <div className="d-flex justify-content-end gap-2">

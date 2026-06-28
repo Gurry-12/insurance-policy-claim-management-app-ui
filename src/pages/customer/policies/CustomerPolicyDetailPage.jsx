@@ -180,6 +180,10 @@ const showPayButton =
                   <div className="fw-semibold">₹{policy.coverageAmount?.toLocaleString()}</div>
                 </div>
                 <div className="col-sm-6">
+                  <div className="text-muted small mb-1">Remaining Claim Amount</div>
+                  <div className="fw-semibold text-success">₹{policy.remainingClaimAmount?.toLocaleString() ?? policy.coverageAmount?.toLocaleString()}</div>
+                </div>
+                <div className="col-sm-6">
                   <div className="text-muted small mb-1">Total Premium Paid</div>
                   <div className="fw-semibold">₹{policy.totalPremiumPaid?.toLocaleString()}</div>
                 </div>

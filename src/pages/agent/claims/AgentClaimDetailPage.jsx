@@ -5,14 +5,22 @@ import StatusBadge from '../../../components/ui/StatusBadge';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import { getClaimById, markUnderReview, reviewClaim } from '../../../services/claimService';
+import useAuth from '../../../hooks/useAuth';
+import toast from 'react-hot-toast';
+import ConfirmModal from '../../../components/modals/ConfirmModal';
+import FormTextarea from '../../../components/forms/FormTextarea';
 
 const AgentClaimDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [claim, setClaim] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [showReviewOptions, setShowReviewOptions] = useState(false);
+  
+  const [actionModal, setActionModal] = useState({ isOpen: false, type: null });
+  const [remark, setRemark] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
 
   const fetchClaimData = (id) => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -35,60 +43,45 @@ const AgentClaimDetailPage = () => {
     fetchClaimData(id);
   }, [id]);
 
-  const handleReview = async () => {
-      setShowReviewOptions(true);
+  const handleRecommendation = async () => {
+    if (!remark.trim()) {
+      toast.error('Remarks are required to submit a recommendation.');
+      return;
+    }
+
+    setActionLoading(true);
+    const recommendedStatus = actionModal.type === 'approve' ? "RECOMMENDED_FOR_APPROVAL" : "RECOMMENDED_FOR_REJECTION";
+
     try {
-      
-      alert("Claim reviewed successfully");
+      const response = await reviewClaim(id, {
+        recommendedStatus: recommendedStatus,
+        remarks: remark
+      });
+
+      setClaim(response.data || response);
+      toast.success(`Claim recommended for ${actionModal.type === 'approve' ? 'approval' : 'rejection'}`);
+      setActionModal({ isOpen: false, type: null });
+      setRemark('');
     } catch (error) {
-      console.error("Review Error:", error);
-      alert("Failed to review claim");
+      console.error(error);
+      toast.error("Failed to submit recommendation");
+    } finally {
+      setActionLoading(false);
     }
   };
-
-  
-const handleRecommendApproval = async () => {
-  try {
-    const response = await reviewClaim(id, {
-      recommendedStatus: "RECOMMENDED_FOR_APPROVAL",
-      remarks: "Documents verified"
-    });
-
-    setClaim(response.data || response);
-
-    setShowReviewOptions(false);
-
-    alert("Claim recommended for approval");
-  } catch (error) {
-    console.error(error);
-    alert("Failed to recommend approval");
-  }
-};
-const handleRecommendRejection = async () => {
-  try {
-    const response = await reviewClaim(id, {
-      recommendedStatus: "RECOMMENDED_FOR_REJECTION",
-      remarks: "Documents incomplete"
-    });
-
-    setClaim(response.data || response);
-
-    setShowReviewOptions(false);
-
-    alert("Claim recommended for rejection");
-  } catch (error) {
-    console.error(error);
-    alert("Failed to recommend rejection");
-  }
-};
   const handleUnderReview = async () => {
     try {
       await markUnderReview(id);
-      setClaim({ ...claim, claimStatus: "UNDER_REVIEW" });
-      alert("Claim moved to Under Review");
+      setClaim({ ...claim, claimStatus: "UNDER_REVIEW", assignedAgentName: user?.name });
+      toast.success("Claim moved to Under Review");
     } catch (error) {
       console.error("Under Review Error:", error);
-      alert("Failed to update claim");
+      if (error.response?.status === 400 && error.response?.data?.message?.includes("already under review")) {
+        toast.error("Sorry, another agent just claimed this ticket!");
+        fetchClaimData(id);
+      } else {
+        toast.error("Failed to update claim");
+      }
     }
   };
 
@@ -126,65 +119,44 @@ const handleRecommendRejection = async () => {
 
 
           
-          <div className="d-flex gap-2">
-            <button
-              className="btn btn-warning d-flex align-items-center gap-1"
-              onClick={handleUnderReview}
-              disabled={
-                claim.claimStatus === "UNDER_REVIEW" ||
-                claim.claimStatus === "APPROVED" ||
-                claim.claimStatus === "REJECTED"
-              }
-            >
-              Under Review
-            </button>
-
-            <button
-                className="btn btn-success d-flex align-items-center gap-1"
-                onClick={handleReview}
-                disabled={claim.claimStatus !== "UNDER_REVIEW"}
-              >
-                Review
-              </button>
-                          {/* <button
-              className="btn btn-success d-flex align-items-center gap-1"
-              onClick={handleReview}
-
-              disabled={
-                claim.claimStatus === "REVIEWED" ||
-                claim.claimStatus === "UNDER_REVIEW" ||
-                claim.claimStatus === "APPROVED" ||
-                claim.claimStatus === "REJECTED"
-              }
-            >
-              Review
-            </button> */}
-          
-
-                    {showReviewOptions && claim.claimStatus === "UNDER_REVIEW" && (
-            <div className="card border-0 mb-4">
-              <div className="card-body">
-                <h6 className="fw-bold mb-3">Agent Recommendation</h6>
-
-                <div className="d-flex gap-2">
-                  <button
-                    className="btn btn-success"
-                    onClick={handleRecommendApproval}
-                  >
-                    Recommend Approval
-                  </button>
-
-                  <button
-                    className="btn btn-danger"
-                    onClick={handleRecommendRejection}
-                  >
-                    Recommend Rejection
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+          <div className="d-flex gap-2 align-items-center">
+            {!claim.assignedAgentName && (
               <button
+                className="btn btn-warning d-flex align-items-center gap-1"
+                onClick={handleUnderReview}
+                disabled={
+                  claim.claimStatus === "UNDER_REVIEW" ||
+                  claim.claimStatus === "APPROVED" ||
+                  claim.claimStatus === "REJECTED"
+                }
+              >
+                Start Review
+              </button>
+            )}
+
+            {claim.assignedAgentName === user?.name && claim.claimStatus === "UNDER_REVIEW" && (
+              <>
+                <button
+                  className="btn btn-danger d-flex align-items-center gap-1"
+                  onClick={() => setActionModal({ isOpen: true, type: 'reject' })}
+                >
+                  Recommend Rejection
+                </button>
+                <button
+                  className="btn btn-success d-flex align-items-center gap-1"
+                  onClick={() => setActionModal({ isOpen: true, type: 'approve' })}
+                >
+                  Recommend Approval
+                </button>
+              </>
+            )}
+
+            {claim.assignedAgentName && claim.assignedAgentName !== user?.name && (
+              <span className="badge bg-secondary d-flex align-items-center px-3 py-2" style={{ fontSize: '0.9rem' }}>
+                🔒 Locked by {claim.assignedAgentName}
+              </span>
+            )}
+            <button
               className="btn btn-primary d-flex align-items-center gap-1"
               onClick={() => navigate(`/agent/claims/${id}/history`)}
             >
@@ -293,6 +265,32 @@ const handleRecommendRejection = async () => {
           </div>
         </div>
       </div>
+
+      <ConfirmModal 
+        isOpen={actionModal.isOpen}
+        title={actionModal.type === 'approve' ? "Recommend Approval" : "Recommend Rejection"}
+        message={
+          <div>
+            <p>Are you sure you want to recommend to {actionModal.type} this claim of <strong>₹{amount.toLocaleString('en-IN')}</strong>?</p>
+            <FormTextarea 
+              label="Agent Remarks (Required)" 
+              name="remark" 
+              value={remark} 
+              onChange={(e) => setRemark(e.target.value)} 
+              placeholder="Add your justification here..."
+              rows={3}
+              required
+            />
+          </div>
+        }
+        isDanger={actionModal.type === 'reject'}
+        confirmText={actionLoading ? "Processing..." : (actionModal.type === 'approve' ? "Confirm Recommendation" : "Confirm Rejection")}
+        onCancel={() => {
+          setActionModal({ isOpen: false, type: null });
+          setRemark('');
+        }}
+        onConfirm={handleRecommendation}
+      />
     </div>
   );
 };

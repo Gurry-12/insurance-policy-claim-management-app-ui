@@ -58,7 +58,7 @@ const AgentClaimHistory = () => {
           <table className="table table-hover align-middle mb-0">
             <thead>
               <tr>
-                <th>History ID</th>
+                <th>Sr. No.</th>
                 <th>Previous Status</th>
                 <th>New Status</th>
                 <th>Remarks</th>
@@ -68,9 +68,9 @@ const AgentClaimHistory = () => {
             </thead>
 
             <tbody>
-              {historyList.map((history) => (
+              {historyList.map((history, index) => (
                 <tr key={history.historyId}>
-                  <td style={{ fontWeight: 600 }}>#{history.historyId}</td>
+                  <td style={{ fontWeight: 600 }}>{index + 1}</td>
                   <td>
                     <StatusBadge status={history.previousStatus} />
                   </td>

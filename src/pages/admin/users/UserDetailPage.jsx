@@ -165,6 +165,12 @@ const UserDetailPage = () => {
                 <div className="col-md-4 text-muted">System Role:</div>
                 <div className="col-md-8 fw-semibold">{role}</div>
               </div>
+              {user.productSpeciality && (
+                <div className="row mb-3">
+                  <div className="col-md-4 text-muted">Agent Speciality:</div>
+                  <div className="col-md-8 fw-semibold">{user.productSpeciality}</div>
+                </div>
+              )}
               <div className="row mb-3">
                 <div className="col-md-4 text-muted">Account Status:</div>
                 <div className="col-md-8">

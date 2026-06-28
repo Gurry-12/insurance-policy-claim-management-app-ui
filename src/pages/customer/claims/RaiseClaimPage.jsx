@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import toast from 'react-hot-toast';
 import { raiseClaim } from "../../../services/claimService";
 import { getMyPolicies } from "../../../services/policyService";
 import PageHeader from "../../../components/common/PageHeader";
@@ -34,23 +35,37 @@ const RaiseClaimPage = () => {
     fetchPolicies();
   }, []);
 
+  const [errors, setErrors] = useState({});
+
   const handleChange = (e) => {
     setClaim({
       ...claim,
       [e.target.name]: e.target.value,
     });
+    if (errors[e.target.name]) {
+      setErrors(prev => ({ ...prev, [e.target.name]: '' }));
+    }
+  };
+
+  const handleFileChange = (e) => {
+    setFiles([...e.target.files]);
+    if (errors.files) {
+      setErrors(prev => ({ ...prev, files: '' }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const errs = {};
 
-    if (!claim.policyId || !claim.claimAmount || !claim.claimReason || !claim.incidentDate) {
-      alert("All fields are required");
-      return;
-    }
+    if (!claim.policyId) errs.policyId = 'Policy is required';
+    if (!claim.claimAmount) errs.claimAmount = 'Claim amount is required';
+    if (!claim.incidentDate) errs.incidentDate = 'Incident date is required';
+    if (!claim.claimReason) errs.claimReason = 'Claim reason is required';
+    if (files.length === 0) errs.files = 'Upload at least one document';
 
-    if (files.length === 0) {
-      alert("Upload at least one document");
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
       return;
     }
 
@@ -69,11 +84,11 @@ const RaiseClaimPage = () => {
       });
 
       await raiseClaim(formData);
-      alert("Claim Raised Successfully");
+      toast.success("Claim Raised Successfully");
       navigate("/customer/claims");
     } catch (error) {
       console.error(error);
-      alert(error?.response?.data?.message || "Unable to raise claim");
+      toast.error(error?.response?.data?.message || "Unable to raise claim");
     } finally {
       setIsSubmitting(false);
     }
@@ -99,12 +114,12 @@ const RaiseClaimPage = () => {
             <div className="card-body p-4">
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">
-                  <label className="form-label fw-medium">Select Policy</label>
+                  <label className="form-label fw-medium">Select Policy <span className="text-danger">*</span></label>
                   {isLoadingPolicies ? (
                     <div className="form-control text-muted bg-light">Loading policies...</div>
                   ) : (
                     <select
-                      className="form-select"
+                      className={`form-select ${errors.policyId ? 'is-invalid' : ''}`}
                       name="policyId"
                       value={claim.policyId}
                       onChange={handleChange}
@@ -118,37 +133,40 @@ const RaiseClaimPage = () => {
                       ))}
                     </select>
                   )}
+                  {errors.policyId && <div className="invalid-feedback d-block">{errors.policyId}</div>}
                 </div>
 
                 <div className="mb-3">
-                  <label className="form-label fw-medium">Claim Amount (₹)</label>
+                  <label className="form-label fw-medium">Claim Amount (₹) <span className="text-danger">*</span></label>
                   <input
                     type="number"
-                    className="form-control"
+                    className={`form-control ${errors.claimAmount ? 'is-invalid' : ''}`}
                     name="claimAmount"
                     value={claim.claimAmount}
                     onChange={handleChange}
                     placeholder="Enter amount"
                     required
                   />
+                  {errors.claimAmount && <div className="invalid-feedback">{errors.claimAmount}</div>}
                 </div>
 
                 <div className="mb-3">
-                  <label className="form-label fw-medium">Incident Date</label>
+                  <label className="form-label fw-medium">Incident Date <span className="text-danger">*</span></label>
                   <input
                     type="date"
-                    className="form-control"
+                    className={`form-control ${errors.incidentDate ? 'is-invalid' : ''}`}
                     name="incidentDate"
                     value={claim.incidentDate}
                     onChange={handleChange}
                     required
                   />
+                  {errors.incidentDate && <div className="invalid-feedback">{errors.incidentDate}</div>}
                 </div>
 
                 <div className="mb-3">
-                  <label className="form-label fw-medium">Claim Reason</label>
+                  <label className="form-label fw-medium">Claim Reason <span className="text-danger">*</span></label>
                   <textarea
-                    className="form-control"
+                    className={`form-control ${errors.claimReason ? 'is-invalid' : ''}`}
                     rows="4"
                     name="claimReason"
                     value={claim.claimReason}
@@ -156,18 +174,23 @@ const RaiseClaimPage = () => {
                     placeholder="Describe the reason for the claim"
                     required
                   />
+                  {errors.claimReason && <div className="invalid-feedback">{errors.claimReason}</div>}
                 </div>
 
                 <div className="mb-4">
-                  <label className="form-label fw-medium">Supporting Documents</label>
+                  <label className="form-label fw-medium">Supporting Documents <span className="text-danger">*</span></label>
                   <input
                     type="file"
                     multiple
-                    className="form-control"
-                    onChange={(e) => setFiles([...e.target.files])}
+                    className={`form-control ${errors.files ? 'is-invalid' : ''}`}
+                    onChange={handleFileChange}
                     required
                   />
-                  <div className="form-text">Upload at least one document to support your claim.</div>
+                  {errors.files ? (
+                    <div className="invalid-feedback">{errors.files}</div>
+                  ) : (
+                    <div className="form-text">Upload at least one document to support your claim.</div>
+                  )}
                 </div>
 
                 <div className="d-grid">

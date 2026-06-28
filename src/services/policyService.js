@@ -1,8 +1,8 @@
 import axiosInstance from "../api/axiosInstance";
 import { safeExtractArray, safeExtractPaginated } from "../utils/formatters";
 
-export const getMyPolicies = async () => {
-  const { data } = await axiosInstance.get("/policies/my-policies");
+export const getMyPolicies = async (params = {}) => {
+  const { data } = await axiosInstance.get("/policies/my-policies", { params });
   return data;
 };
 
@@ -24,6 +24,11 @@ export const getPolicyById = async (policyId) => {
 export const getPoliciesByCustomerId = async (customerId) => {
   const response = await axiosInstance.get(`/policies/customer/${customerId}`);
   return safeExtractArray(response);
+};
+
+export const getClaimsByPolicy = async (policyId) => {
+  const response = await axiosInstance.get(`/policies/${policyId}/claims`);
+  return response.data?.data || response.data?.content || response.data || [];
 };
 
 export const issuePolicy = async (payload) => {
@@ -49,13 +54,12 @@ export const purchasePolicy = async (payload) => {
 // };
 
 export const getAllPolicies = async (
-  userData,
   pageNumber = 0,
   pageSize = 10,
-  sortBy = "policyId",
+  sortBy = "id",
   sortDirection = "asc",
 ) => {
-  const { data } = await axiosInstance.get("/policies", userData, {
+  const { data } = await axiosInstance.get("/policies", {
     params: {
       pageNumber,
       pageSize,

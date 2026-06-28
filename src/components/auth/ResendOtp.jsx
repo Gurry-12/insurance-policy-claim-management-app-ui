@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
+import toast from 'react-hot-toast';
 import { resendOtpApi } from "../../services/authService";
 import "../../pages/css/Otp.css";
 
@@ -7,8 +8,6 @@ const ResendOtp = ({ email = '', triggerButton = true, isOpenProp, onClose, onSu
   const [isInternalOpen, setIsInternalOpen] = useState(false);
   const [formData, setFormData] = useState({ email, phone: '' });
   const [errors, setErrors] = useState({});
-  const [apiError, setApiError] = useState('');
-  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
   const isOpen = isOpenProp !== undefined ? isOpenProp : isInternalOpen;
@@ -17,14 +16,12 @@ const ResendOtp = ({ email = '', triggerButton = true, isOpenProp, onClose, onSu
     if (onClose) onClose();
     setIsInternalOpen(false);
     setErrors({});
-    setApiError("");
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
-    setApiError("");
   };
 
   const validate = () => {
@@ -50,8 +47,6 @@ const ResendOtp = ({ email = '', triggerButton = true, isOpenProp, onClose, onSu
 
     try {
       setLoading(true);
-      setApiError("");
-      setSuccess("");
 
       const payload = {
         email: formData.email.trim(),
@@ -59,16 +54,15 @@ const ResendOtp = ({ email = '', triggerButton = true, isOpenProp, onClose, onSu
       };
 
       if (await resendOtpApi(payload)) {
-        setSuccess("New verification codes sent!");
+        toast.success("New verification codes sent!");
         setTimeout(() => {
           handleClose();
-          setSuccess("");
           setFormData({ email: "", phone: "" });
           if (onSuccess) onSuccess();
         }, 1800);
       }
     } catch (err) {
-      setApiError(
+      toast.error(
         err.response?.data?.message ||
           err.response?.data?.error ||
           "Failed to resend OTP.",
@@ -111,21 +105,6 @@ const ResendOtp = ({ email = '', triggerButton = true, isOpenProp, onClose, onSu
                 disabled={loading}
               />
             </div>
-
-            {/* Status Notifications */}
-            {apiError && (
-              <div className="custom-alert-box p-2 mb-3 d-flex align-items-center gap-2">
-                <i className="bi bi-exclamation-circle-fill text-danger" />
-                <span style={{ fontSize: "0.75rem" }}>{apiError}</span>
-              </div>
-            )}
-
-            {success && (
-              <div className="custom-success-box p-2 mb-3 d-flex align-items-center gap-2">
-                <i className="bi bi-check-circle-fill text-success" />
-                <span style={{ fontSize: "0.75rem" }}>{success}</span>
-              </div>
-            )}
 
             {/* Form Fields */}
             <form onSubmit={handleResendSubmit} noValidate>
