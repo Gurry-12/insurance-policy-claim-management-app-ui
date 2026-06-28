@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import { Eye } from "lucide-react";
+import usePolicyPdf from "../../../hooks/PdfDownload/usePolicyPdf";
 
 
 const AgentPolicyListPage = () => {
@@ -12,6 +13,8 @@ const AgentPolicyListPage = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+
+  const { downloadPolicy } = usePolicyPdf();
   
   useEffect(() => {
     const loadPolicies = async () => {
@@ -103,6 +106,7 @@ const AgentPolicyListPage = () => {
               <th>Premium Amount</th>
               <th>Status</th>
               <th>Actions</th>
+              <th>Download</th>
             </tr>
           </thead>
 
@@ -132,15 +136,38 @@ const AgentPolicyListPage = () => {
         </td>
 
         <td>
-          <Link
-            to={`/agent/policies/${policy.policyId}`}
-            className="btn btn-light btn-sm text-primary"
-            title="View Details"
-          >
-            <Eye size={16} />
-            <span className="ms-1">View Details</span>
-          </Link>
-        </td>
+  <div className="d-flex flex-column gap-2">
+
+    <Link
+      to={`/agent/policies/${policy.policyId}`}
+      className="btn btn-light btn-sm text-primary"
+      title="View Details"
+    >
+      <Eye size={16} />
+      <span className="ms-1">View</span>
+    </Link>
+
+    {policy.policyStatus?.toUpperCase() === "PAYMENT_PENDING" && (
+      <Link
+        to={`/agent/payments/create/${policy.policyId}`}
+        className="btn btn-success btn-sm"
+      >
+        Make Payment
+      </Link>
+    )}
+
+  </div>
+</td>
+<td>
+    <button
+        className="btn btn-danger btn-sm"
+        onClick={() => downloadPolicy(policy)}
+    >
+        <i className="bi bi-download me-1"></i>
+        PDF
+    </button>
+</td>
+    
       </tr>
     ))
   ) : (

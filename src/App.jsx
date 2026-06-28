@@ -57,6 +57,7 @@ import PaymentListPage from "./pages/admin/payments/PaymentListPage";
 
 import ClaimDetailsPage from './pages/customer/claims/ClaimDetailsPage';
 import UnifiedLayout from './components/layouts/UnifiedLayout';
+import AgentRecordPaymentPage from "./pages/agent/payments/AgentRecordPaymentPage";
 /* Admin */
 
 /* Agent */
@@ -103,6 +104,7 @@ const DashboardRedirect = () => {
 /* ── App  */
 
 import GlobalToaster from "./components/common/GlobalToaster";
+import AgentCustomerDetailPage from "./pages/agent/customers/AgentCustomerDetailPage";
 
 const App = () => (
   <>
@@ -147,20 +149,25 @@ const App = () => (
             <Route path="/admin/payments" element={<PaymentListPage />} />
           </Route>
 
-          {/* ── Agent Routes ── */}
-          <Route element={<RoleProtectedRoute allowedRole={ROLES.AGENT} />}>
-            <Route path="/agent/dashboard" element={<AgentDashboard />} />
-            <Route path="/agent/customers" element={<AgentCustomerListPage />} />
-            <Route path="/agent/profile" element={<ProfilePage />} />
-            <Route path="/agent/profile/edit" element={<EditProfilePage />} />
-            <Route path="/agent/policies" element={<AgentPolicyListPage />} />
-            <Route path="/agent/policies/:policyId" element={<AgentPolicyDetailPage />} />
-            <Route path="/agent/claims" element={<AgentClaimListPage />} />
-            <Route path="/agent/claims/:id" element={<AgentClaimDetailPage />} />
-            <Route path="/agent/issue-policy" element={<AgentIssuePolicyPage />} />
-            <Route path="/agent/claims/:id/history" element={<AgentClaimHistory />} />
-            <Route path="/agent/payments/page" element={<AgentPaymentListPage />} />
-          </Route>
+        {/* ── Agent Routes ── */}
+        <Route element={<RoleProtectedRoute allowedRole={ROLES.AGENT} />}>
+          <Route path="/agent/dashboard" element={<AgentDashboard />} />
+          <Route path="/agent/customers" element={<AgentCustomerListPage />} />
+          <Route path="/agent/customers" element={<AgentCustomerDetailPage />} />
+
+          <Route path="/agent/profile" element={<ProfilePage />} />
+          <Route path="/agent/profile/edit" element={<EditProfilePage />} />
+          <Route path="/agent/policies" element={<AgentPolicyListPage />} />
+          <Route path="/agent/policies/:policyId" element={<AgentPolicyDetailPage />} />
+          <Route path="/agent/claims" element={<AgentClaimListPage />} />
+          <Route path="/agent/claims/:id" element={<AgentClaimDetailPage />} />
+          <Route path="/agent/issue-policy" element={<AgentIssuePolicyPage />} />
+          <Route path="/agent/claims/:id/history" element={<AgentClaimHistory />} />
+          <Route path="/agent/payments/page" element={<AgentPaymentListPage />} />
+          <Route path="/agent/payments/pay/:policyId" element={<AgentRecordPaymentPage />}
+          
+/>
+        </Route>
 
           {/* ── Customer Routes ── */}
           <Route element={<RoleProtectedRoute allowedRole={ROLES.CUSTOMER} />}>
