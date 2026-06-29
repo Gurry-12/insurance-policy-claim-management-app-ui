@@ -80,14 +80,14 @@
   --ss-secondary:       #94a3b8;
 }
 
-.theme-agent {
+.theme-Staff {
   --ss-primary:         #0d9488; /* Teal */
   --ss-primary-hover:   #0f766e;
   --ss-primary-light:   rgba(13, 148, 136, 0.1);
   --ss-secondary:       #059669; /* Emerald */
 }
-[data-theme='dark'] .theme-agent,
-[data-bs-theme='dark'] .theme-agent {
+[data-theme='dark'] .theme-Staff,
+[data-bs-theme='dark'] .theme-Staff {
   --ss-primary:         #2dd4bf; /* Mint Teal */
   --ss-primary-hover:   #14b8a6;
   --ss-primary-light:   rgba(45, 212, 191, 0.15);
@@ -475,6 +475,7 @@ hr {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
 
 
 

@@ -125,7 +125,8 @@ const VerifyOtp = () => {
                 className="form-control pristine-input"
                 placeholder="username@gmail.com"
                 value={formData.email}
-                disabled={true}
+                onChange={handleChange}
+                disabled={!!targetEmail}
               />
               {errors.email && (
                 <div className="input-error-tip">

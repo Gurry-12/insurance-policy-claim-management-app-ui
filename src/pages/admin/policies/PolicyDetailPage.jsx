@@ -8,10 +8,12 @@ import { getPolicyById, cancelPolicy } from '../../../services/policyService';
 import toast from 'react-hot-toast';
 import { getAllPaymentsPaginated } from '../../../services/paymentService';
 import { getClaimsByPolicy } from '../../../services/policyService';
+import usePolicyPdf from '../../../hooks/PdfDownload/usePolicyPdf';
 
 const PolicyDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { downloadPolicy } = usePolicyPdf();
   const [policy, setPolicy] = useState(null);
   const [payments, setPayments] = useState([]);
   const [claims, setClaims] = useState([]);
@@ -94,9 +96,18 @@ const PolicyDetailPage = () => {
         title="Policy Details" 
         subtitle={`Viewing details for Policy #${policy.policyNumber || policy.policyId}`}
         action={
-          <button onClick={() => navigate('/admin/policies')} className="btn btn-outline-secondary d-flex align-items-center gap-1" style={{ borderRadius: '8px' }}>
-            <i className="bi bi-arrow-left"></i> Back to Policies
-          </button>
+          <div className="d-flex gap-2">
+            <button
+              className="btn btn-outline-danger d-flex align-items-center gap-1"
+              style={{ borderRadius: '8px' }}
+              onClick={() => downloadPolicy(policy)}
+            >
+              <i className="bi bi-file-earmark-pdf"></i> PDF
+            </button>
+            <button onClick={() => navigate('/admin/policies')} className="btn btn-outline-secondary d-flex align-items-center gap-1" style={{ borderRadius: '8px' }}>
+              <i className="bi bi-arrow-left"></i> Back to Policies
+            </button>
+          </div>
         }
       />
 

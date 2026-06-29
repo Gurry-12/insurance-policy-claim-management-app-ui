@@ -89,11 +89,11 @@ const ClaimDetailsPage = () => {
                 </div>
                 <div className="col-12">
                   <div className="p-3 bg-light rounded">
-                    <small className="text-muted d-block mb-1">Assigned Agent</small>
+                    <small className="text-muted d-block mb-1">Assigned Staff</small>
                     <div className="fw-semibold">
-                      {claim.assignedAgentName ? (
+                      {claim.assignedStaffName ? (
                         <span className="badge bg-white text-dark border px-2 py-1">
-                          {claim.assignedAgentName}
+                          {claim.assignedStaffName}
                         </span>
                       ) : (
                         <span className="text-muted">Unassigned</span>
@@ -110,11 +110,11 @@ const ClaimDetailsPage = () => {
                 {/* Show remarks only if claim is finalized */}
                 {(claim.claimStatus === 'APPROVED' || claim.claimStatus === 'REJECTED') && (
                   <>
-                    {claim.agentRemarks && (
+                    {claim.staffRemarks && (
                       <div className="col-12">
                         <div className="p-3 bg-light rounded">
-                          <small className="text-muted d-block mb-1">Agent Remarks</small>
-                          <div>{claim.agentRemarks}</div>
+                          <small className="text-muted d-block mb-1">Staff Remarks</small>
+                          <div>{claim.staffRemarks}</div>
                         </div>
                       </div>
                     )}

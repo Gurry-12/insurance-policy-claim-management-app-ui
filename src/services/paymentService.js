@@ -43,19 +43,4 @@ export const getPaymentsByPolicyId = async (policyId) => {
   return response.data?.data || [];
 };
 
-export const getAllPayments = async (pageNumber = 0,
-  pageSize = 10,
-  sortBy = "id",
-  sortDirection = "asc") => {
-
-  const { data } = await axiosInstance.get('/payments/page', {
-    params: {
-      pageNumber,
-      pageSize,
-      sortBy,
-      sortDirection,
-    },
-  });
-
-  return data;
- };
+// removed duplicated pagination API

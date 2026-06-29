@@ -46,7 +46,7 @@ const UserListPage = () => {
         tableState.setTotalPages(res.totalPages);
         tableState.setTotalElements(res.totalElements || res.totalRecords || 0);
       })
-      .catch(() => setError('Could not load agents list. Check your API connection.'))
+      .catch(() => setError('Could not load Staffs list. Check your API connection.'))
       .finally(() => setLoading(false));
   };
 
@@ -129,7 +129,7 @@ const UserListPage = () => {
     <div>
       <PageHeader 
         title="Users Management" 
-        subtitle="Manage and view administrators, agents, and customer accounts"
+        subtitle="Manage and view administrators, Staffs, and customer accounts"
         action={
           <div className="d-flex gap-2">
             <ExportButton
@@ -146,7 +146,7 @@ const UserListPage = () => {
             />
             <Link to="/admin/users/create" className="btn btn-primary d-flex align-items-center gap-2" style={{ borderRadius: '8px' }}>
               <i className="bi bi-plus-lg"></i>
-              Add New Agent
+              Add New Staff
             </Link>
           </div>
         }
@@ -177,7 +177,7 @@ const UserListPage = () => {
               >
                 <option value="ALL">All Roles</option>
                 <option value="ROLE_ADMIN">Admin</option>
-                <option value="ROLE_AGENT">Agent</option>
+                <option value="ROLE_Staff">Staff</option>
                 <option value="ROLE_CUSTOMER">Customer</option>
               </select>
               <div className="input-group input-group-sm" style={{ width: '200px' }}>
@@ -197,7 +197,7 @@ const UserListPage = () => {
           </div>
           <div className="p-4">
             {loading ? (
-              <LoadingSpinner text="Fetching agents..." />
+              <LoadingSpinner text="Fetching Staffs..." />
             ) : (
               <>
                 <DataTable 
@@ -220,3 +220,4 @@ const UserListPage = () => {
 };
 
 export default UserListPage;
+

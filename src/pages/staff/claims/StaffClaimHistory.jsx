@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
 import StatusBadge from "../../../components/ui/StatusBadge";
 
-const AgentClaimHistory = () => {
+const StaffClaimHistory = () => {
   const [historyList, setHistoryList] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -43,7 +43,7 @@ const AgentClaimHistory = () => {
         title="Claim Status History"
         subtitle="Historical logs of claim adjustments and statuses"
         action={
-          <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate(`/agent/claims/${id}`)}>
+          <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate(`/Staff/claims/${id}`)}>
             <i className="bi bi-arrow-left"></i> Back
           </button>
         }
@@ -92,4 +92,4 @@ const AgentClaimHistory = () => {
   );
 };
 
-export default AgentClaimHistory;
+export default StaffClaimHistory;

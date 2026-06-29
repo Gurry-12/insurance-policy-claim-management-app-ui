@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import FormInput from '../../../components/forms/FormInput';
 import AlertModal from '../../../components/modals/AlertModal';
-import { createAgent } from '../../../services/userService';
+import { createStaff } from '../../../services/userService';
 import toast from 'react-hot-toast';
 
-const CreateAgentPage = () => {
+const CreateStaffPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: '',
@@ -77,27 +77,27 @@ const CreateAgentPage = () => {
       productSpeciality: formData.productSpeciality
     };
 
-    createAgent(payload)
+    createStaff(payload)
       .then(() => {
-        toast.success('Agent registered successfully!');
+        toast.success('Staff registered successfully!');
         navigate('/admin/users');
       })
-      .catch((err) => toast.error(err.response?.data?.message || 'Failed to register new agent. Please check your connection.'))
+      .catch((err) => toast.error(err.response?.data?.message || 'Failed to register new Staff. Please check your connection.'))
       .finally(() => setSubmitting(false));
   };
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto' }}>
       <PageHeader 
-        title="Create New Agent" 
-        subtitle="Register a new insurance agent into the system"
+        title="Create New Staff" 
+        subtitle="Register a new insurance Staff into the system"
         onBack={() => navigate('/admin/users')}
       />
 
       <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
         <div className="card-body p-4 p-md-5">
           <form onSubmit={handleSubmit}>
-            <h5 className="mb-4 fw-bold" style={{ color: 'var(--ss-text-primary)' }}>Agent Information</h5>
+            <h5 className="mb-4 fw-bold" style={{ color: 'var(--ss-text-primary)' }}>Staff Information</h5>
             
             <div className="row">
               <div className="col-md-6">
@@ -198,7 +198,7 @@ const CreateAgentPage = () => {
                 style={{ borderRadius: '8px' }}
                 disabled={submitting}
               >
-                {submitting ? 'Creating...' : 'Create Agent'}
+                {submitting ? 'Creating...' : 'Create Staff'}
               </button>
             </div>
           </form>
@@ -208,8 +208,8 @@ const CreateAgentPage = () => {
       <AlertModal 
         isOpen={showSuccess}
         type="success"
-        title="Agent Created!"
-        message="The new agent has been successfully registered in the system."
+        title="Staff Created!"
+        message="The new Staff has been successfully registered in the system."
         onClose={() => {
           setShowSuccess(false);
           navigate('/admin/users');
@@ -219,4 +219,5 @@ const CreateAgentPage = () => {
   );
 };
 
-export default CreateAgentPage;
+export default CreateStaffPage;
+

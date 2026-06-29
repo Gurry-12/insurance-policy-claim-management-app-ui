@@ -89,22 +89,7 @@ export const uploadDocuments = async (
 // TODO: Claim API service
 
 
-export const getAllClaims = async (pageNumber = 0,
-  pageSize = 10,
-  sortBy = "id",
-  sortDirection = "asc") => {
-
-  const { data } = await axiosInstance.get('/claims', {
-    params: {
-      pageNumber,
-      pageSize,
-      sortBy,
-      sortDirection,
-    },
-  });
-
-  return data;
-};
+// removed duplicated pagination API
 
 // export const reviewClaim = async (claimId) => {
 //   const {data} = await axiosInstance.patch(`/claims/${claimId}/review`);

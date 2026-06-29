@@ -7,7 +7,7 @@ import FormSelect from '../../../components/forms/FormSelect';
 import { recordPayment } from '../../../services/paymentService';
 import { useParams } from 'react-router-dom';
 
-const AgentRecordPaymentPage = () => {
+const StaffRecordPaymentPage = () => {
   const navigate = useNavigate();
   const { policyId } = useParams();
 
@@ -49,7 +49,7 @@ const AgentRecordPaymentPage = () => {
     try {
       await recordPayment(formData);
       toast.success('Payment recorded successfully!');
-      setTimeout(() => navigate('/agent/payments'), 2000);
+      setTimeout(() => navigate('/Staff/payments'), 2000);
     } catch (err) {
       toast.error(err.response?.data?.message || err.message || 'Failed to record payment');
     } finally {
@@ -67,7 +67,7 @@ const AgentRecordPaymentPage = () => {
       <PageHeader
         title="Record Premium Payment"
         subtitle="Record payment for the selected policy"
-        onBack={() => navigate("/agent/policies")}
+        onBack={() => navigate("/Staff/policies")}
       />
 
       <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
@@ -138,4 +138,4 @@ const AgentRecordPaymentPage = () => {
 };
 
 
-export default AgentRecordPaymentPage;
+export default StaffRecordPaymentPage;

@@ -2,7 +2,7 @@
 // import { useNavigate } from "react-router-dom";
 // import PageHeader from "../../../components/common/PageHeader";
 
-// const AgentIssuePolicyPage = () => {
+// const StaffIssuePolicyPage = () => {
 //   const navigate = useNavigate();
 //   const [formData, setFormData] = useState({
 //     customerId: "",
@@ -27,7 +27,7 @@
 //         title="Issue Policy"
 //         subtitle="Issue a new policy directly to a registered customer"
 //         action={
-//           <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate("/agent/dashboard")}>
+//           <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate("/Staff/dashboard")}>
 //             <i className="bi bi-arrow-left"></i> Back
 //           </button>
 //         }
@@ -69,7 +69,7 @@
 //             </div>
 
 //             <div className="d-flex justify-content-end gap-2">
-//               <button type="button" className="btn btn-secondary" onClick={() => navigate("/agent/dashboard")}>
+//               <button type="button" className="btn btn-secondary" onClick={() => navigate("/Staff/dashboard")}>
 //                 Cancel
 //               </button>
 //               <button type="submit" className="btn btn-primary px-4">
@@ -83,7 +83,7 @@
 //   );
 // };
 
-// export default AgentIssuePolicyPage;
+// export default StaffIssuePolicyPage;
 
 
 
@@ -97,7 +97,7 @@ import { getAllCustomers } from "../../../services/customerService";
 import { getAllPlans } from "../../../services/planService";
 import { issuePolicy } from "../../../services/policyService";
 
-const AgentIssuePolicyPage = () => {
+const StaffIssuePolicyPage = () => {
   const navigate = useNavigate();
 
   const [customers, setCustomers] = useState([]);
@@ -179,7 +179,7 @@ const AgentIssuePolicyPage = () => {
 
       toast.success("Policy Issued Successfully");
 
-      navigate("/agent/policies");
+      navigate("/Staff/policies");
     } catch (error) {
       console.error(error);
 
@@ -203,7 +203,7 @@ const AgentIssuePolicyPage = () => {
         action={
           <button
             className="btn btn-secondary d-flex align-items-center gap-1"
-            onClick={() => navigate("/agent/policies")}
+            onClick={() => navigate("/Staff/policies")}
           >
             <i className="bi bi-arrow-left"></i>
             Back
@@ -383,7 +383,7 @@ const AgentIssuePolicyPage = () => {
                 type="button"
                 className="btn btn-secondary"
                 onClick={() =>
-                  navigate("/agent/policies")
+                  navigate("/Staff/policies")
                 }
               >
                 Cancel
@@ -408,5 +408,6 @@ const AgentIssuePolicyPage = () => {
   );
 };
 
-export default AgentIssuePolicyPage;
+export default StaffIssuePolicyPage;
+
 

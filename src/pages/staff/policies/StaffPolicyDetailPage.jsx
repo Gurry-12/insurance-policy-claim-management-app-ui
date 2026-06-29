@@ -8,7 +8,7 @@ import LoadingSpinner from "../../../components/common/LoadingSpinner";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import { Shield, ArrowLeft, CreditCard } from "lucide-react";
 
-const AgentPolicyDetailPage = () => {
+const StaffPolicyDetailPage = () => {
   const { policyId } = useParams();
 
   const [policy, setPolicy] = useState(null);
@@ -66,7 +66,7 @@ const showPayButton =
         icon={Shield}
         action={
           <Link
-            to="/agent/policies"
+            to="/Staff/policies"
             className="btn btn-outline-secondary d-flex align-items-center"
           >
             <ArrowLeft size={18} className="me-2" />
@@ -154,7 +154,7 @@ const showPayButton =
 
                   {showPayButton && (
               <Link
-                to={`/agent/payments/pay/${policy.policyId}`}
+                to={`/Staff/payments/pay/${policy.policyId}`}
                 className="btn btn-success w-100 py-2 d-flex align-items-center justify-content-center gap-2 mt-3"
                 style={{ borderRadius: "8px" }}
               >
@@ -302,4 +302,4 @@ const showPayButton =
   );
 };
 
-export default AgentPolicyDetailPage;
+export default StaffPolicyDetailPage;

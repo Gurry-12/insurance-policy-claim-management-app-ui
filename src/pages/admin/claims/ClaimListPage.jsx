@@ -88,7 +88,7 @@ const ClaimListPage = () => {
       header: renderHeader("Status", "claimStatus"),
       cell: (row) => <StatusBadge status={row.claimStatus} />,
     },
-    { header: "Agent", accessor: "assignedAgentName", cell: (row) => row.assignedAgentName || <span className="text-muted">Unassigned</span> },
+    { header: "Staff", accessor: "assignedStaffName", cell: (row) => row.assignedStaffName || <span className="text-muted">Unassigned</span> },
     {
       header: "Actions",
       cell: (row) => (
@@ -131,7 +131,7 @@ const ClaimListPage = () => {
               { header: "Customer Name", accessor: "customerName" },
               { header: "Claim Amount (₹)", accessor: "claimAmount" },
               { header: "Status", accessor: "claimStatus" },
-              { header: "Assigned Agent", accessor: "assignedAgentName" }
+              { header: "Assigned Staff", accessor: "assignedStaffName" }
             ]}
             filename="claims_list.csv"
           />
@@ -198,3 +198,4 @@ const ClaimListPage = () => {
 };
 
 export default ClaimListPage;
+
