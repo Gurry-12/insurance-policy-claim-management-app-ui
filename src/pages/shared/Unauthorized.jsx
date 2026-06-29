@@ -4,7 +4,7 @@ import { ROLE_HOME } from '../../utils/roles';
 
 const Unauthorized = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   return (
     <div
@@ -16,10 +16,10 @@ const Unauthorized = () => {
       <p className="text-muted mb-4">You don&apos;t have permission to view this page.</p>
       <button
         className="btn btn-primary px-4 rounded-pill"
-        onClick={() => navigate(user ? (ROLE_HOME[user.role] ?? '/') : '/login')}
+        onClick={() => navigate(isAuthenticated && user ? (ROLE_HOME[user.role] ?? '/') : '/login')}
       >
         <i className="bi bi-arrow-left me-2" />
-        Go to Dashboard
+        {isAuthenticated ? 'Go to Dashboard' : 'Go to Login'}
       </button>
     </div>
   );

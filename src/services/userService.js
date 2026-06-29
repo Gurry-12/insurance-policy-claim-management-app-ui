@@ -11,8 +11,8 @@ export const getUserById = async (userId) => {
   return response.data?.data;
 };
 
-export const createAgent = async (payload) => {
-  const response = await axiosInstance.post("/users/agent", payload);
+export const createStaff = async (payload) => {
+  const response = await axiosInstance.post("/users/staff", payload);
   return response.data;
 };
 

@@ -7,7 +7,7 @@ import ErrorAlert from "../../../components/ui/ErrorAlert";
 import { getCustomerById } from "../../../services/customerService";
 import { getPoliciesByCustomerId } from "../../../services/policyService";
 
-const AgentCustomerDetailPage = () => {
+const StaffCustomerDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [customer, setCustomer] = useState(null);
@@ -52,7 +52,7 @@ const AgentCustomerDetailPage = () => {
         <PageHeader
           title="Customer Details"
           subtitle="Customer profile details view"
-          onBack={() => navigate("/agent/customers")}
+          onBack={() => navigate("/Staff/customers")}
         />
         <ErrorAlert message={error || "Customer not found."} />
       </div>
@@ -71,7 +71,7 @@ const AgentCustomerDetailPage = () => {
       <PageHeader
         title="Customer Details"
         subtitle={`Viewing profile for ${name}`}
-        onBack={() => navigate("/agent/customers")}
+        onBack={() => navigate("/Staff/customers")}
       />
 
       <div className="row g-4">
@@ -204,7 +204,7 @@ const AgentCustomerDetailPage = () => {
   );
 };
 
-export default AgentCustomerDetailPage;
+export default StaffCustomerDetailPage;
 
 // import { useState, useEffect } from "react";
 // import { useNavigate, useParams } from "react-router-dom";
@@ -215,7 +215,7 @@ export default AgentCustomerDetailPage;
 // import { getCustomerById } from "../../../services/customerService";
 // import { getPoliciesByCustomerId } from "../../../services/policyService";
 
-// const AgentCustomerDetailPage = () => {
+// const StaffCustomerDetailPage = () => {
 //   const { id } = useParams();
 //   const navigate = useNavigate();
 //   const [customer, setCustomer] = useState(null);
@@ -260,7 +260,7 @@ export default AgentCustomerDetailPage;
 //         <PageHeader
 //           title="Customer Details"
 //           subtitle="Customer profile details view"
-//           onBack={() => navigate("/agent/customers")}
+//           onBack={() => navigate("/Staff/customers")}
 //         />
 //         <ErrorAlert message={error || "Customer not found."} />
 //       </div>
@@ -279,7 +279,7 @@ export default AgentCustomerDetailPage;
 //       <PageHeader
 //         title="Customer Details"
 //         subtitle={`Viewing profile for ${name}`}
-//         onBack={() => navigate("/agent/customers")}
+//         onBack={() => navigate("/Staff/customers")}
 //       />
 
 //       <div className="row g-4">
@@ -413,5 +413,6 @@ export default AgentCustomerDetailPage;
 //   );
 // };
 
-// export default AgentCustomerDetailPage;
+// export default StaffCustomerDetailPage;
+
 

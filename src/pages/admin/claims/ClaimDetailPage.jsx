@@ -8,10 +8,12 @@ import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import { getClaimById, approveClaim, rejectClaim } from '../../../services/claimService';
 import toast from 'react-hot-toast';
+import useClaimPdf from '../../../hooks/PdfDownload/useClaimPdf';
 
 const ClaimDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { downloadClaim } = useClaimPdf();
   const [claim, setClaim] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -97,6 +99,13 @@ const ClaimDetailPage = () => {
         action={
           <div className="d-flex gap-2">
             <button
+              className="btn btn-outline-danger d-flex align-items-center gap-1"
+              style={{ borderRadius: '8px' }}
+              onClick={() => downloadClaim(claim)}
+            >
+              <i className="bi bi-file-earmark-pdf"></i> PDF
+            </button>
+            <button
               className="btn btn-outline-secondary d-flex align-items-center gap-1"
               style={{ borderRadius: '8px' }}
               onClick={() => navigate(`/admin/claims/${id}/history`)}
@@ -146,13 +155,13 @@ const ClaimDetailPage = () => {
                   </div>
                 )}
                 <div className="col-md-6 mt-3">
-                  <small className="text-muted d-block fw-bold mb-1">Assigned Agent</small>
-                  <span>{claim.assignedAgentName || <span className="text-muted">Unassigned</span>}</span>
+                  <small className="text-muted d-block fw-bold mb-1">Assigned Staff</small>
+                  <span>{claim.assignedStaffName || <span className="text-muted">Unassigned</span>}</span>
                 </div>
-                {claim.agentRemarks && (
+                {claim.staffRemarks && (
                   <div className="col-12 mt-3 p-3 bg-light rounded-3 border-start border-4 border-primary">
-                    <small className="text-muted d-block fw-bold mb-1">Agent's Recommendation Remarks</small>
-                    <p className="mb-0 text-dark">{claim.agentRemarks}</p>
+                    <small className="text-muted d-block fw-bold mb-1">Staff's Recommendation Remarks</small>
+                    <p className="mb-0 text-dark">{claim.staffRemarks}</p>
                   </div>
                 )}
                 {claim.adminRemarks && (
@@ -228,11 +237,11 @@ const ClaimDetailPage = () => {
                 <button type="button" className="btn-close" onClick={() => setActionModal(false)}></button>
               </div>
               <div className="modal-body">
-                <p>Please review the Agent's remarks and provide your final decision.</p>
+                <p>Please review the Staff's remarks and provide your final decision.</p>
                 
                 <div className="bg-light p-3 rounded mb-3 border-start border-4 border-primary">
-                  <small className="fw-bold text-muted d-block mb-1">Agent's Remarks</small>
-                  <p className="mb-0">{claim.agentRemarks || 'No remarks provided.'}</p>
+                  <small className="fw-bold text-muted d-block mb-1">Staff's Remarks</small>
+                  <p className="mb-0">{claim.staffRemarks || 'No remarks provided.'}</p>
                 </div>
 
                 <FormTextarea 
@@ -267,3 +276,4 @@ const ClaimDetailPage = () => {
 };
 
 export default ClaimDetailPage;
+

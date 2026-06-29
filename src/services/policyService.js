@@ -53,20 +53,4 @@ export const purchasePolicy = async (payload) => {
 //   return data;
 // };
 
-export const getAllPolicies = async (
-  pageNumber = 0,
-  pageSize = 10,
-  sortBy = "id",
-  sortDirection = "asc",
-) => {
-  const { data } = await axiosInstance.get("/policies", {
-    params: {
-      pageNumber,
-      pageSize,
-      sortBy,
-      sortDirection,
-    },
-  });
-
-  return data;
-};
+// removed duplicated pagination API

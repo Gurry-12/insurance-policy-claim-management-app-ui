@@ -10,7 +10,7 @@ import toast from 'react-hot-toast';
 import ConfirmModal from '../../../components/modals/ConfirmModal';
 import FormTextarea from '../../../components/forms/FormTextarea';
 
-const AgentClaimDetailPage = () => {
+const StaffClaimDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -72,12 +72,12 @@ const AgentClaimDetailPage = () => {
   const handleUnderReview = async () => {
     try {
       await markUnderReview(id);
-      setClaim({ ...claim, claimStatus: "UNDER_REVIEW", assignedAgentName: user?.name });
+      setClaim({ ...claim, claimStatus: "UNDER_REVIEW", assignedStaffName: user?.name });
       toast.success("Claim moved to Under Review");
     } catch (error) {
       console.error("Under Review Error:", error);
       if (error.response?.status === 400 && error.response?.data?.message?.includes("already under review")) {
-        toast.error("Sorry, another agent just claimed this ticket!");
+        toast.error("Sorry, another Staff just claimed this ticket!");
         fetchClaimData(id);
       } else {
         toast.error("Failed to update claim");
@@ -95,7 +95,7 @@ const AgentClaimDetailPage = () => {
         <PageHeader 
           title="Claim Details" 
           subtitle="Reviewing claim"
-          onBack={() => navigate('/agent/claims')}
+          onBack={() => navigate('/Staff/claims')}
         />
         <ErrorAlert message={error || 'Claim not found.'} />
       </div>
@@ -120,7 +120,7 @@ const AgentClaimDetailPage = () => {
 
           
           <div className="d-flex gap-2 align-items-center">
-            {!claim.assignedAgentName && (
+            {!claim.assignedStaffName && (
               <button
                 className="btn btn-warning d-flex align-items-center gap-1"
                 onClick={handleUnderReview}
@@ -134,7 +134,7 @@ const AgentClaimDetailPage = () => {
               </button>
             )}
 
-            {claim.assignedAgentName === user?.name && claim.claimStatus === "UNDER_REVIEW" && (
+            {claim.assignedStaffName === user?.name && claim.claimStatus === "UNDER_REVIEW" && (
               <>
                 <button
                   className="btn btn-danger d-flex align-items-center gap-1"
@@ -151,18 +151,18 @@ const AgentClaimDetailPage = () => {
               </>
             )}
 
-            {claim.assignedAgentName && claim.assignedAgentName !== user?.name && (
+            {claim.assignedStaffName && claim.assignedStaffName !== user?.name && (
               <span className="badge bg-secondary d-flex align-items-center px-3 py-2" style={{ fontSize: '0.9rem' }}>
-                🔒 Locked by {claim.assignedAgentName}
+                🔒 Locked by {claim.assignedStaffName}
               </span>
             )}
             <button
               className="btn btn-primary d-flex align-items-center gap-1"
-              onClick={() => navigate(`/agent/claims/${id}/history`)}
+              onClick={() => navigate(`/Staff/claims/${id}/history`)}
             >
               <i className="bi bi-clock-history"></i> History
             </button>
-            <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate('/agent/claims')}>
+            <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate('/Staff/claims')}>
               <i className="bi bi-arrow-left"></i> Back
             </button>
           </div>
@@ -273,7 +273,7 @@ const AgentClaimDetailPage = () => {
           <div>
             <p>Are you sure you want to recommend to {actionModal.type} this claim of <strong>₹{amount.toLocaleString('en-IN')}</strong>?</p>
             <FormTextarea 
-              label="Agent Remarks (Required)" 
+              label="Staff Remarks (Required)" 
               name="remark" 
               value={remark} 
               onChange={(e) => setRemark(e.target.value)} 
@@ -295,4 +295,5 @@ const AgentClaimDetailPage = () => {
   );
 };
 
-export default AgentClaimDetailPage;
+export default StaffClaimDetailPage;
+

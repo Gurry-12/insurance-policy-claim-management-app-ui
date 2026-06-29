@@ -9,7 +9,7 @@ import ExportButton from "../../../components/common/ExportButton";
 import useTableState from "../../../hooks/useTableState";
 import PaginationBar from "../../../components/tables/PaginationBar";
 
-const AgentPolicyListPage = () => {
+const StaffPolicyListPage = () => {
   const [policies, setPolicies] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -86,13 +86,13 @@ const AgentPolicyListPage = () => {
         { header: "Premium Amount (₹)", accessor: "premiumAmount" },
         { header: "Status", accessor: "policyStatus" }
       ]}
-      filename="agent_policies_list.csv"
+      filename="Staff_policies_list.csv"
     />
 
 
     <button
       className="btn btn-secondary d-flex align-items-center gap-1"
-      onClick={() => navigate("/agent/dashboard")}
+      onClick={() => navigate("/Staff/dashboard")}
     >
       <i className="bi bi-arrow-left"></i>
       Back
@@ -169,7 +169,7 @@ const AgentPolicyListPage = () => {
   <div className="d-flex flex-column gap-2">
 
     <Link
-      to={`/agent/policies/${policy.policyId}`}
+      to={`/Staff/policies/${policy.policyId}`}
       className="btn btn-light btn-sm text-primary"
       title="View Details"
     >
@@ -179,7 +179,7 @@ const AgentPolicyListPage = () => {
 
     {policy.policyStatus?.toUpperCase() === "PAYMENT_PENDING" && (
       <Link
-        to={`/agent/payments/create/${policy.policyId}`}
+        to={`/Staff/payments/create/${policy.policyId}`}
         className="btn btn-success btn-sm"
       >
         Make Payment
@@ -225,4 +225,5 @@ const AgentPolicyListPage = () => {
   );
 };
 
-export default AgentPolicyListPage;
+export default StaffPolicyListPage;
+

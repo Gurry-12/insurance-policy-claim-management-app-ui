@@ -6,19 +6,19 @@ import Register from "./pages/auth/Register";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import VerifyOtp from "./pages/auth/VerifyOtp";
 import NotFound from "./pages/shared/NotFound";
-import AgentDashboard from "./pages/agent/AgentDashboard";
+import StaffDashboard from "./pages/Staff/StaffDashboard";
 
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
-import AgentClaimHistory from './pages/agent/claims/AgentClaimHistory';
-import AgentPolicyListPage from "./pages/agent/policies/AgentPolicyListPage";
-import AgentCustomerListPage from './pages/agent/customers/AgentCustomerListPage';
-import AgentPolicyDetailPage from "./pages/agent/policies/AgentPolicyDetailPage";
-import AgentIssuePolicyPage from "./pages/agent/policies/AgentIssuePolicyPage";
-import AgentClaimListPage from './pages/agent/claims/AgentClaimListPage';
-import AgentClaimDetailPage from './pages/agent/claims/AgentClaimDetailPage';
-import AgentPaymentListPage from './pages/agent/payments/AgentPaymentListPage';
+import StaffClaimHistory from './pages/Staff/claims/StaffClaimHistory';
+import StaffPolicyListPage from "./pages/Staff/policies/StaffPolicyListPage";
+import StaffCustomerListPage from './pages/Staff/customers/StaffCustomerListPage';
+import StaffPolicyDetailPage from "./pages/Staff/policies/StaffPolicyDetailPage";
+import StaffIssuePolicyPage from "./pages/Staff/policies/StaffIssuePolicyPage";
+import StaffClaimListPage from './pages/Staff/claims/StaffClaimListPage';
+import StaffClaimDetailPage from './pages/Staff/claims/StaffClaimDetailPage';
+import StaffPaymentListPage from './pages/Staff/payments/StaffPaymentListPage';
 import ProfilePage from "./pages/customer/profile/ProfilePage";
 import EditProfilePage from "./pages/customer/profile/EditProfilePage";
 import CustomerProductListPage from "./pages/customer/products/CustomerProductListPage";
@@ -33,7 +33,7 @@ import RaiseClaimPage from "./pages/customer/claims/RaiseClaimPage";
 import ClaimStatusHistoryPage from "./pages/customer/claims/ClaimStatusHistoryPage";
 import UploadDocumentsPage from "./pages/customer/claims/UploadDocumentsPage";
 import UserListPage from "./pages/admin/users/UserListPage";
-import CreateAgentPage from "./pages/admin/users/CreateAgentPage";
+import CreateStaffPage from "./pages/admin/users/CreateStaffPage";
 import UserDetailPage from "./pages/admin/users/UserDetailPage";
 import CustomerListPage from "./pages/admin/customers/CustomerListPage";
 import CustomerDetailPage from "./pages/admin/customers/CustomerDetailPage";
@@ -53,14 +53,14 @@ import ClaimDetailPage from "./pages/admin/claims/ClaimDetailPage";
 import AdminClaimHistoryPage from "./pages/admin/claims/AdminClaimHistoryPage";
 import PaymentListPage from "./pages/admin/payments/PaymentListPage";
 
-/* Agent */
+/* Staff */
 
 import ClaimDetailsPage from './pages/customer/claims/ClaimDetailsPage';
 import UnifiedLayout from './components/layouts/UnifiedLayout';
-import AgentRecordPaymentPage from "./pages/agent/payments/AgentRecordPaymentPage";
+import StaffRecordPaymentPage from "./pages/Staff/payments/StaffRecordPaymentPage";
 /* Admin */
 
-/* Agent */
+/* Staff */
 
 /* Customer */
 
@@ -86,7 +86,7 @@ const RoleProtectedRoute = ({ allowedRole }) => {
     // If logged in but accessing a different role's page (e.g. from a cached logout redirect)
     // smoothly send them to their own role's dashboard instead of a dead-end unauthorized page.
     if (user?.role === 'ADMIN') return <Navigate to="/admin/dashboard" replace />;
-    if (user?.role === 'AGENT') return <Navigate to="/agent/dashboard" replace />;
+    if (user?.role === 'Staff') return <Navigate to="/Staff/dashboard" replace />;
     if (user?.role === 'CUSTOMER') return <Navigate to="/customer/dashboard" replace />;
     return <Navigate to="/unauthorized" replace />;
   }
@@ -96,7 +96,7 @@ const RoleProtectedRoute = ({ allowedRole }) => {
 const DashboardRedirect = () => {
   const { user } = useAuth();
   if (user?.role === ROLES.ADMIN) return <Navigate to="/admin/dashboard" replace />;
-  if (user?.role === ROLES.AGENT) return <Navigate to="/agent/dashboard" replace />;
+  if (user?.role === ROLES.INTERNAL_STAFF) return <Navigate to="/Staff/dashboard" replace />;
   return <Navigate to="/customer/dashboard" replace />;
 };
 
@@ -105,7 +105,7 @@ const DashboardRedirect = () => {
 
 import GlobalToaster from "./components/common/GlobalToaster";
 import GlobalApiHandler from "./components/common/GlobalApiHandler";
-import AgentCustomerDetailPage from "./pages/agent/customers/AgentCustomerDetailPage";
+import StaffCustomerDetailPage from "./pages/Staff/customers/StaffCustomerDetailPage";
 
 const App = () => (
   <>
@@ -130,7 +130,7 @@ const App = () => (
           <Route element={<RoleProtectedRoute allowedRole={ROLES.ADMIN} />}>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<UserListPage />} />
-            <Route path="/admin/users/create" element={<CreateAgentPage />} />
+            <Route path="/admin/users/create" element={<CreateStaffPage />} />
             <Route path="/admin/users/:id" element={<UserDetailPage />} />
             <Route path="/admin/customers" element={<CustomerListPage />} />
             <Route path="/admin/customers/:id" element={<CustomerDetailPage />} />
@@ -151,22 +151,22 @@ const App = () => (
             <Route path="/admin/payments" element={<PaymentListPage />} />
           </Route>
 
-        {/* ── Agent Routes ── */}
-        <Route element={<RoleProtectedRoute allowedRole={ROLES.AGENT} />}>
-          <Route path="/agent/dashboard" element={<AgentDashboard />} />
-          <Route path="/agent/customers" element={<AgentCustomerListPage />} />
-          <Route path="/agent/customers" element={<AgentCustomerDetailPage />} />
+        {/* ── Staff Routes ── */}
+        <Route element={<RoleProtectedRoute allowedRole={ROLES.INTERNAL_STAFF} />}>
+          <Route path="/Staff/dashboard" element={<StaffDashboard />} />
+          <Route path="/Staff/customers" element={<StaffCustomerListPage />} />
+          <Route path="/Staff/customers" element={<StaffCustomerDetailPage />} />
 
-          <Route path="/agent/profile" element={<ProfilePage />} />
-          <Route path="/agent/profile/edit" element={<EditProfilePage />} />
-          <Route path="/agent/policies" element={<AgentPolicyListPage />} />
-          <Route path="/agent/policies/:policyId" element={<AgentPolicyDetailPage />} />
-          <Route path="/agent/claims" element={<AgentClaimListPage />} />
-          <Route path="/agent/claims/:id" element={<AgentClaimDetailPage />} />
-          <Route path="/agent/issue-policy" element={<AgentIssuePolicyPage />} />
-          <Route path="/agent/claims/:id/history" element={<AgentClaimHistory />} />
-          <Route path="/agent/payments/page" element={<AgentPaymentListPage />} />
-          <Route path="/agent/payments/pay/:policyId" element={<AgentRecordPaymentPage />}
+          <Route path="/Staff/profile" element={<ProfilePage />} />
+          <Route path="/Staff/profile/edit" element={<EditProfilePage />} />
+          <Route path="/Staff/policies" element={<StaffPolicyListPage />} />
+          <Route path="/Staff/policies/:policyId" element={<StaffPolicyDetailPage />} />
+          <Route path="/Staff/claims" element={<StaffClaimListPage />} />
+          <Route path="/Staff/claims/:id" element={<StaffClaimDetailPage />} />
+          <Route path="/Staff/issue-policy" element={<StaffIssuePolicyPage />} />
+          <Route path="/Staff/claims/:id/history" element={<StaffClaimHistory />} />
+          <Route path="/Staff/payments/page" element={<StaffPaymentListPage />} />
+          <Route path="/Staff/payments/pay/:policyId" element={<StaffRecordPaymentPage />}
           
 />
         </Route>
@@ -201,4 +201,5 @@ const App = () => (
 export default App;
 
     
+
 

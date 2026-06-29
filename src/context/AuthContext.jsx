@@ -21,7 +21,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("ss_user", JSON.stringify(newUser));
     setToken(newToken);
     setUser(newUser);
-    toast.success("Login successful");
   }, []);
 
   const logout = useCallback(() => {
@@ -30,7 +29,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("ss_user");
     setToken(null);
     setUser(null);
-    toast.success("Logout successful");
   }, []);
 
   return (

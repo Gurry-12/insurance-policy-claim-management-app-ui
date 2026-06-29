@@ -6,10 +6,12 @@ import LoadingSpinner from "../../../components/common/LoadingSpinner";
 import ErrorAlert from "../../../components/ui/ErrorAlert";
 import { getCustomerById } from "../../../services/customerService";
 import { getPoliciesByCustomerId } from "../../../services/policyService";
+import useCustomerPdf from "../../../hooks/PdfDownload/useCustomerPdf";
 
 const CustomerDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { downloadCustomer } = useCustomerPdf();
   const [customer, setCustomer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -71,7 +73,20 @@ const CustomerDetailPage = () => {
       <PageHeader
         title="Customer Details"
         subtitle={`Viewing profile for ${name}`}
-        onBack={() => navigate("/admin/customers")}
+        action={
+          <div className="d-flex gap-2">
+            <button
+              className="btn btn-outline-danger d-flex align-items-center gap-1"
+              style={{ borderRadius: '8px' }}
+              onClick={() => downloadCustomer(customer)}
+            >
+              <i className="bi bi-file-earmark-pdf"></i> PDF
+            </button>
+            <button onClick={() => navigate('/admin/customers')} className="btn btn-outline-secondary d-flex align-items-center gap-1" style={{ borderRadius: '8px' }}>
+              <i className="bi bi-arrow-left"></i> Back
+            </button>
+          </div>
+        }
       />
 
       <div className="row g-4">

@@ -167,7 +167,7 @@ const UserDetailPage = () => {
               </div>
               {user.productSpeciality && (
                 <div className="row mb-3">
-                  <div className="col-md-4 text-muted">Agent Speciality:</div>
+                  <div className="col-md-4 text-muted">Staff Speciality:</div>
                   <div className="col-md-8 fw-semibold">{user.productSpeciality}</div>
                 </div>
               )}
@@ -218,3 +218,4 @@ const UserDetailPage = () => {
 };
 
 export default UserDetailPage;
+

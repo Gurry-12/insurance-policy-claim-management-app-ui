@@ -8,42 +8,73 @@ import { ROLES } from '../../utils/roles';
 // Define navigation items dynamically per role
 const NAV_ITEMS_BY_ROLE = {
   [ROLES.ADMIN]: [
-    { to: '/admin/dashboard',       icon: 'bi-speedometer2',      label: 'Dashboard', end: true },
-    { to: '/admin/users',             icon: 'bi-people',             label: 'Users' },
-    { to: '/admin/customers',         icon: 'bi-person-badge',       label: 'Customers' },
-    { to: '/admin/products',          icon: 'bi-box-seam',           label: 'Products' },
-    { to: '/admin/plans',             icon: 'bi-layers',             label: 'Plans' },
-    { to: '/admin/policies',          icon: 'bi-file-earmark-text',  label: 'Policies' },
-    { to: '/admin/claims',            icon: 'bi-shield-exclamation', label: 'Claims' },
-    { to: '/admin/payments',          icon: 'bi-credit-card',        label: 'Payments' },
+    {
+      to: "/admin/dashboard",
+      icon: "bi-speedometer2",
+      label: "Dashboard",
+      end: true,
+    },
+    { to: "/admin/users", icon: "bi-people", label: "Users" },
+    { to: "/admin/customers", icon: "bi-person-badge", label: "Customers" },
+    { to: "/admin/products", icon: "bi-box-seam", label: "Products" },
+    { to: "/admin/plans", icon: "bi-layers", label: "Plans" },
+    { to: "/admin/policies", icon: "bi-file-earmark-text", label: "Policies" },
+    { to: "/admin/claims", icon: "bi-shield-exclamation", label: "Claims" },
+    { to: "/admin/payments", icon: "bi-credit-card", label: "Payments" },
   ],
-  [ROLES.AGENT]: [
-    { to: '/agent/dashboard',       icon: 'bi-speedometer2',      label: 'Dashboard', end: true },
-    { to: '/agent/customers',         icon: 'bi-people',             label: 'Customers' },
-    { to: '/agent/policies',          icon: 'bi-file-earmark-text',  label: 'Policies' },
-    { to: '/agent/claims',            icon: 'bi-shield-exclamation', label: 'Claims' },
-    { to: '/agent/payments/page',     icon: 'bi-credit-card',        label: 'Payments' },
+  [ROLES.INTERNAL_STAFF]: [
+    {
+      to: "/Staff/dashboard",
+      icon: "bi-speedometer2",
+      label: "Dashboard",
+      end: true,
+    },
+    { to: "/Staff/customers", icon: "bi-people", label: "Customers" },
+    { to: "/Staff/policies", icon: "bi-file-earmark-text", label: "Policies" },
+    { to: "/Staff/claims", icon: "bi-shield-exclamation", label: "Claims" },
+    { to: "/Staff/payments/page", icon: "bi-credit-card", label: "Payments" },
   ],
   [ROLES.CUSTOMER]: [
-    { to: '/customer/dashboard',    icon: 'bi-speedometer2',      label: 'Dashboard', end: true },
-    { to: '/customer/profile',        icon: 'bi-person-circle',      label: 'My Profile' },
-    { to: '/customer/products',       icon: 'bi-box-seam',           label: 'Insurance Products' },
-    { to: '/customer/policies',        icon: 'bi-file-earmark-text',  label: 'My Policies' },
-    { to: '/customer/payments',        icon: 'bi-credit-card',        label: 'Payment History' },
-    { to: '/customer/claims',          icon: 'bi-shield-exclamation', label: 'My Claims' },
+    {
+      to: "/customer/dashboard",
+      icon: "bi-speedometer2",
+      label: "Dashboard",
+      end: true,
+    },
+    { to: "/customer/profile", icon: "bi-person-circle", label: "My Profile" },
+    {
+      to: "/customer/products",
+      icon: "bi-box-seam",
+      label: "Insurance Products",
+    },
+    {
+      to: "/customer/policies",
+      icon: "bi-file-earmark-text",
+      label: "My Policies",
+    },
+    {
+      to: "/customer/payments",
+      icon: "bi-credit-card",
+      label: "Payment History",
+    },
+    {
+      to: "/customer/claims",
+      icon: "bi-shield-exclamation",
+      label: "My Claims",
+    },
   ],
 };
 
 const THEME_CLASS_BY_ROLE = {
-  [ROLES.ADMIN]: 'theme-admin',
-  [ROLES.AGENT]: 'theme-agent',
-  [ROLES.CUSTOMER]: 'theme-customer',
+  [ROLES.ADMIN]: "theme-admin",
+  [ROLES.INTERNAL_STAFF]: "theme-Staff",
+  [ROLES.CUSTOMER]: "theme-customer",
 };
 
 const PORTAL_TITLE_BY_ROLE = {
-  [ROLES.ADMIN]: 'Admin Panel',
-  [ROLES.AGENT]: 'Agent Console',
-  [ROLES.CUSTOMER]: 'Customer Portal',
+  [ROLES.ADMIN]: "Admin Panel",
+  [ROLES.INTERNAL_STAFF]: "Staff Console",
+  [ROLES.CUSTOMER]: "Customer Portal",
 };
 
 const UnifiedLayout = () => {
@@ -87,3 +118,4 @@ const UnifiedLayout = () => {
 };
 
 export default UnifiedLayout;
+

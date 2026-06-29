@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
-import { getAllPayments } from "../../services/paymentService";
-import { getAllClaims } from "../../services/claimService";
-import { getAllPolicies } from "../../services/policyService";
+import { getAllPaymentsPaginated as getAllPayments } from "../../services/paymentService";
+import { getAllClaimsPaginated as getAllClaims } from "../../services/claimService";
+import { getAllPoliciesPaginated as getAllPolicies } from "../../services/policyService";
 import { getAllCustomers } from "../../services/customerService";
 import DashboardCard from "../../components/cards/DashboardCard";
 import StatusBadge from "../../components/ui/StatusBadge";
@@ -49,7 +49,7 @@ const QuickAction = ({ icon, label, to, color }) => (
   </Link>
 );
 
-const AgentDashboard = () => {
+const StaffDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -109,26 +109,26 @@ const AgentDashboard = () => {
   }, []);
 
   const STAT_CARDS = [
-    { icon: 'bi-people-fill',        label: 'My Clients',       value: stats.customersCount,      color: '#0d9488', to: '/agent/customers' },
-    { icon: 'bi-shield-fill-check',  label: 'Active Policies',   value: stats.policiesCount,       color: '#059669', to: '/agent/policies' },
-    { icon: 'bi-shield-exclamation', label: 'Pending Claims',    value: stats.pendingClaimsCount,  color: '#d97706', to: '/agent/claims' },
-    { icon: 'bi-shield-fill-x',      label: 'Reviewed Claims',   value: stats.reviewedClaimsCount, color: '#6b7280', to: '/agent/claims-history' },
-    { icon: 'bi-credit-card-fill',   label: 'Premium Payments',  value: stats.paymentsCount,       color: '#2563eb', to: '/agent/payments/page' },
-    { icon: 'bi-file-earmark-plus',  label: 'Issued Policies',   value: stats.issuedPoliciesCount, color: '#7c3aed', to: '/agent/policies' },
+    { icon: 'bi-people-fill',        label: 'My Clients',       value: stats.customersCount,      color: '#0d9488', to: '/Staff/customers' },
+    { icon: 'bi-shield-fill-check',  label: 'Active Policies',   value: stats.policiesCount,       color: '#059669', to: '/Staff/policies' },
+    { icon: 'bi-shield-exclamation', label: 'Pending Claims',    value: stats.pendingClaimsCount,  color: '#d97706', to: '/Staff/claims' },
+    { icon: 'bi-shield-fill-x',      label: 'Reviewed Claims',   value: stats.reviewedClaimsCount, color: '#6b7280', to: '/Staff/claims-history' },
+    { icon: 'bi-credit-card-fill',   label: 'Premium Payments',  value: stats.paymentsCount,       color: '#2563eb', to: '/Staff/payments/page' },
+    { icon: 'bi-file-earmark-plus',  label: 'Issued Policies',   value: stats.issuedPoliciesCount, color: '#7c3aed', to: '/Staff/policies' },
   ];
 
   const QUICK_ACTIONS = [
-    { icon: 'bi-file-earmark-plus', label: 'Issue Policy',   to: '/agent/issue-policy',  color: '#0d9488' },
-    // { icon: 'bi-clock-history',     label: 'Claim History',  to: '/agent/claims-history', color: '#6b7280' },
-    { icon: 'bi-people',            label: 'View Clients',   to: '/agent/customers',     color: '#0ea5e9' },
-    { icon: 'bi-shield-check',      label: 'View Policies',  to: '/agent/policies',      color: '#059669' },
+    { icon: 'bi-file-earmark-plus', label: 'Issue Policy',   to: '/Staff/issue-policy',  color: '#0d9488' },
+    // { icon: 'bi-clock-history',     label: 'Claim History',  to: '/Staff/claims-history', color: '#6b7280' },
+    { icon: 'bi-people',            label: 'View Clients',   to: '/Staff/customers',     color: '#0ea5e9' },
+    { icon: 'bi-shield-check',      label: 'View Policies',  to: '/Staff/policies',      color: '#059669' },
   ];
 
   return (
     <div>
       <PageHeader
         title="Dashboard"
-        subtitle={`Welcome back, ${user?.name ?? 'Agent'} 👋`}
+        subtitle={`Welcome back, ${user?.name ?? 'Staff'} 👋`}
         action={
           <span style={{ fontSize: '0.8rem', color: 'var(--ss-text-muted)' }}>
             <i className="bi bi-calendar3 me-1" />
@@ -151,7 +151,7 @@ const AgentDashboard = () => {
       <div className="row g-3">
         {/* Quick Actions */}
         <div className="col-12 col-lg-4">
-          <SectionCard title="Agent Actions" icon="bi-lightning-charge-fill" iconColor="#f59e0b">
+          <SectionCard title="Staff Actions" icon="bi-lightning-charge-fill" iconColor="#f59e0b">
             <div className="row g-2">
               {QUICK_ACTIONS.map(a => (
                 <div key={a.label} className="col-6">
@@ -164,7 +164,7 @@ const AgentDashboard = () => {
 
         {/* Recent Claims */}
         <div className="col-12 col-lg-8">
-          <SectionCard title="Recent Claims" icon="bi-shield-exclamation" iconColor="#d97706" linkTo="/agent/claims" linkLabel="View all">
+          <SectionCard title="Recent Claims" icon="bi-shield-exclamation" iconColor="#d97706" linkTo="/Staff/claims" linkLabel="View all">
             {loading ? (
               <div className="d-flex flex-column gap-2">
                 {[1, 2, 3].map(i => (
@@ -184,7 +184,7 @@ const AgentDashboard = () => {
                     key={claim.claimId ?? i}
                     className="d-flex align-items-center gap-3 py-2 animate-fade-in"
                     style={{ borderBottom: i < recentClaims.length - 1 ? '1px solid var(--ss-border-light)' : 'none', cursor: 'pointer' }}
-                    onClick={() => navigate(`/agent/claims/${claim.claimId}`)}
+                    onClick={() => navigate(`/Staff/claims/${claim.claimId}`)}
                   >
                     <div style={{
                       width: 36, height: 36, borderRadius: 10, flexShrink: 0,
@@ -212,7 +212,7 @@ const AgentDashboard = () => {
 
         {/* Recent Clients */}
         <div className="col-12 col-lg-4">
-          <SectionCard title="Recent Clients" icon="bi-people-fill" iconColor="#0d9488" linkTo="/agent/customers" linkLabel="View all">
+          <SectionCard title="Recent Clients" icon="bi-people-fill" iconColor="#0d9488" linkTo="/Staff/customers" linkLabel="View all">
             {loading ? (
               <div className="d-flex flex-column gap-2">
                 {[1, 2, 3, 4].map(i => (
@@ -232,7 +232,7 @@ const AgentDashboard = () => {
                     key={c.customerId ?? i}
                     className="d-flex align-items-center gap-3 py-2 animate-fade-in"
                     style={{ borderBottom: i < recentCustomers.length - 1 ? '1px solid var(--ss-border-light)' : 'none', cursor: 'pointer' }}
-                    onClick={() => navigate(`/agent/customers`)}
+                    onClick={() => navigate(`/Staff/customers`)}
                   >
                     <div style={{
                       width: 36, height: 36, borderRadius: 10, flexShrink: 0,
@@ -259,7 +259,7 @@ const AgentDashboard = () => {
 
         {/* Recent Policies */}
         <div className="col-12 col-lg-8">
-          <SectionCard title="Recent Policies" icon="bi-file-earmark-text" iconColor="#3b82f6" linkTo="/agent/policies" linkLabel="View all">
+          <SectionCard title="Recent Policies" icon="bi-file-earmark-text" iconColor="#3b82f6" linkTo="/Staff/policies" linkLabel="View all">
             {loading ? (
               <div className="placeholder-glow">
                 {[1, 2, 3, 4].map(i => (
@@ -281,7 +281,7 @@ const AgentDashboard = () => {
                   </thead>
                   <tbody>
                     {recentPolicies.map((p, i) => (
-                      <tr key={p.policyId || p.id || i} onClick={() => navigate(`/agent/policies/${p.policyId || p.id}`)} style={{ cursor: 'pointer' }}>
+                      <tr key={p.policyId || p.id || i} onClick={() => navigate(`/Staff/policies/${p.policyId || p.id}`)} style={{ cursor: 'pointer' }}>
                         <td style={{ fontWeight: 600 }}>#{p.policyId || p.id}</td>
                         <td>{p.customerName || 'Customer'}</td>
                         <td style={{ color: 'var(--ss-text-muted)' }}>{p.productName || 'Standard Plan'}</td>
@@ -304,4 +304,5 @@ const AgentDashboard = () => {
   );
 };
 
-export default AgentDashboard;
+export default StaffDashboard;
+

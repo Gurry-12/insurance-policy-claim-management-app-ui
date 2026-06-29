@@ -1,7 +1,7 @@
 import useAuth from '../../hooks/useAuth';
 
 /**
- * Temporary placeholder shown for admin/agent/customer dashboards
+ * Temporary placeholder shown for admin/Staff/customer dashboards
  * until those sections are built out.
  */
 const PlaceholderPage = ({ role }) => {
@@ -35,3 +35,4 @@ const PlaceholderPage = ({ role }) => {
 };
 
 export default PlaceholderPage;
+

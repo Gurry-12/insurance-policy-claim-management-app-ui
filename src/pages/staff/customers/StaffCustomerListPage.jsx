@@ -8,7 +8,7 @@ import ExportButton from "../../../components/common/ExportButton";
 import useTableState from "../../../hooks/useTableState";
 import PaginationBar from "../../../components/tables/PaginationBar";
 
-const AgentCustomerListPage = () => {
+const StaffCustomerListPage = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -73,9 +73,9 @@ const AgentCustomerListPage = () => {
                 { header: "Nominee Name", accessor: "nomineeName" },
                 { header: "Nominee Relation", accessor: "nomineeRelation" }
               ]}
-              filename="agent_customers_list.csv"
+              filename="Staff_customers_list.csv"
             />
-            <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate("/agent/dashboard")}>
+            <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate("/Staff/dashboard")}>
               <i className="bi bi-arrow-left"></i> Back
             </button>
           </div>
@@ -160,4 +160,5 @@ const AgentCustomerListPage = () => {
   );
 };
 
-export default AgentCustomerListPage;
+export default StaffCustomerListPage;
+

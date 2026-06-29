@@ -69,12 +69,12 @@ const AdminDashboard = () => {
     { icon: 'bi-shield-fill-check',  label: 'Active Policy Plans', value: s.activePolicies, color: '#22c55e', to: '/admin/plans',  delta: s.policiesDelta  },
     { icon: 'bi-shield-exclamation', label: 'Submitted Claims',     value: s.claims?.pendingClaims,     color: '#f59e0b', to: '/admin/claims',    delta: s.claimsDelta    },
      { icon: 'bi-shield-fill-x',      label: 'Reviewed Claims',   value: s.claims?.reviewedClaims, color: '#6b7280', to: '/admin/claims', delta: s.claimsDelta },
-    { icon: 'bi-person-badge-fill',  label: 'Active Users',   value: s.activeUsers,   color: '#06b6d4', to: '/admin/users',     delta: s.agentsDelta    },
+    { icon: 'bi-person-badge-fill',  label: 'Active Users',   value: s.activeUsers,   color: '#06b6d4', to: '/admin/users',     delta: s.StaffsDelta    },
     { icon: 'bi-box-seam-fill',      label: 'Products',        value: s.totalProducts,  color: '#f05a28', to: '/admin/products'                           },
   ];
 
   const QUICK_ACTIONS = [
-    { icon: 'bi-person-plus',       label: 'New Agent',    to: '/admin/users/create',    color: '#3b82f6' },
+    { icon: 'bi-person-plus',       label: 'New Staff',    to: '/admin/users/create',    color: '#3b82f6' },
     { icon: 'bi-box-seam',          label: 'New Product',  to: '/admin/products/create', color: '#f05a28' },
     { icon: 'bi-layers',            label: 'New Plan',     to: '/admin/plans/create',    color: '#22c55e' },
     { icon: 'bi-file-earmark-plus', label: 'Issue Policy', to: '/admin/policies/issue',  color: '#a855f7' },
@@ -212,3 +212,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+

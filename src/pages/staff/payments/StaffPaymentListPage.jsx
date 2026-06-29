@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAllPayments } from "../../../services/paymentService";
+import { getAllPaymentsPaginated } from "../../../services/paymentService";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
 import StatusBadge from "../../../components/ui/StatusBadge";
@@ -7,7 +7,7 @@ import ExportButton from "../../../components/common/ExportButton";
 import useTableState from "../../../hooks/useTableState";
 import PaginationBar from "../../../components/tables/PaginationBar";
 
-const AgentPaymentListPage = () => {
+const StaffPaymentListPage = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ const AgentPaymentListPage = () => {
       try {
         setLoading(true);
         const params = tableState.getQueryParams();
-        const data = await getAllPayments(params.pageNumber, params.pageSize, params.sortBy, params.sortDirection);
+        const data = await getAllPaymentsPaginated(params);
         setPayments(data.content || []);
         tableState.setTotalPages(data.totalPages || 1);
         tableState.setTotalElements(data.totalRecords || data.totalElements || 0);
@@ -74,9 +74,9 @@ const AgentPaymentListPage = () => {
                 { header: "Date", accessor: "paymentDate" },
                 { header: "Reference", accessor: "transactionReference" }
               ]}
-              filename="agent_payments_list.csv"
+              filename="Staff_payments_list.csv"
             />
-            <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate("/agent/dashboard")}>
+            <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate("/Staff/dashboard")}>
               <i className="bi bi-arrow-left"></i> Back
             </button>
           </div>
@@ -192,4 +192,5 @@ const AgentPaymentListPage = () => {
   );
 };
 
-export default AgentPaymentListPage;
+export default StaffPaymentListPage;
+

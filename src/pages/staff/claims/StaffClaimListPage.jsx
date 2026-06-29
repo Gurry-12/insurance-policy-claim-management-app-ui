@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAllClaims } from "../../../services/claimService";
+import { getAllClaimsPaginated } from "../../../services/claimService";
 import { useNavigate, Link } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
 import StatusBadge from "../../../components/ui/StatusBadge";
@@ -9,7 +9,7 @@ import useClaimPdf from "../../../hooks/PdfDownload/useClaimPdf";
 import useTableState from "../../../hooks/useTableState";
 import PaginationBar from "../../../components/tables/PaginationBar";
 
-const AgentClaimListPage = () => {
+const StaffClaimListPage = () => {
   const [claims, setClaims] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -27,7 +27,7 @@ const AgentClaimListPage = () => {
       try {
         setLoading(true);
         const params = tableState.getQueryParams();
-        const data = await getAllClaims(params.pageNumber, params.pageSize, params.sortBy, params.sortDirection);
+        const data = await getAllClaimsPaginated(params);
         setClaims(data.content || []);
         tableState.setTotalPages(data.totalPages || 1);
         tableState.setTotalElements(data.totalRecords || data.totalElements || 0);
@@ -79,9 +79,9 @@ const AgentClaimListPage = () => {
                 { header: "Claim Amount (₹)", accessor: "claimAmount" },
                 { header: "Status", accessor: "claimStatus" }
               ]}
-              filename="agent_claims_list.csv"
+              filename="Staff_claims_list.csv"
             />
-            <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate("/agent/dashboard")}>
+            <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate("/Staff/dashboard")}>
               <i className="bi bi-arrow-left"></i> Back
             </button>
           </div>
@@ -158,7 +158,7 @@ const AgentClaimListPage = () => {
 
            <td>
             <Link
-              to={`/agent/claims/${claim.claimId}`}
+              to={`/Staff/claims/${claim.claimId}`}
               className="btn btn-light btn-sm text-primary"
                title="View Details"
         >
@@ -196,4 +196,4 @@ const AgentClaimListPage = () => {
   );
 };
 
-export default AgentClaimListPage;
+export default StaffClaimListPage;
