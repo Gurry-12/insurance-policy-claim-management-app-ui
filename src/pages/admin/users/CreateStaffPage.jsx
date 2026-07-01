@@ -87,37 +87,45 @@ const CreateStaffPage = () => {
   };
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <PageHeader 
-        title="Create New Staff" 
+    <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+      <PageHeader
+        title="Create New Staff"
         subtitle="Register a new insurance Staff into the system"
-        onBack={() => navigate('/admin/users')}
+        onBack={() => navigate("/admin/users")}
       />
 
-      <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+      <div
+        className="card border-0"
+        style={{ borderRadius: 16, boxShadow: "var(--ip-shadow-md)" }}
+      >
         <div className="card-body p-4 p-md-5">
           <form onSubmit={handleSubmit}>
-            <h5 className="mb-4 fw-bold" style={{ color: 'var(--ss-text-primary)' }}>Staff Information</h5>
-            
+            <h5
+              className="mb-4 fw-bold"
+              style={{ color: "var(--ip-text-primary)" }}
+            >
+              Staff Information
+            </h5>
+
             <div className="row">
               <div className="col-md-6">
-                <FormInput 
-                  label="First Name" 
-                  name="firstName" 
-                  value={formData.firstName} 
-                  onChange={handleChange} 
-                  required 
+                <FormInput
+                  label="First Name"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  required
                   placeholder="e.g. John"
                   error={errors.fullName}
                 />
               </div>
               <div className="col-md-6">
-                <FormInput 
-                  label="Last Name" 
-                  name="lastName" 
-                  value={formData.lastName} 
-                  onChange={handleChange} 
-                  required 
+                <FormInput
+                  label="Last Name"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  required
                   placeholder="e.g. Doe"
                   error={errors.fullName}
                 />
@@ -126,24 +134,24 @@ const CreateStaffPage = () => {
 
             <div className="row mt-2">
               <div className="col-md-6">
-                <FormInput 
-                  label="Email Address" 
-                  name="email" 
+                <FormInput
+                  label="Email Address"
+                  name="email"
                   type="email"
-                  value={formData.email} 
-                  onChange={handleChange} 
-                  required 
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
                   placeholder="john.doe@example.com"
                   error={errors.email}
                 />
               </div>
               <div className="col-md-6">
-                <FormInput 
-                  label="Phone Number" 
-                  name="phone" 
-                  value={formData.phone} 
-                  onChange={handleChange} 
-                  required 
+                <FormInput
+                  label="Phone Number"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  required
                   placeholder="+919876543210"
                   error={errors.phone}
                 />
@@ -152,67 +160,74 @@ const CreateStaffPage = () => {
 
             <div className="row mt-2">
               <div className="col-md-6">
-                <FormInput 
-                  label="Temporary Password" 
-                  name="password" 
+                <FormInput
+                  label="Temporary Password"
+                  name="password"
                   type="password"
-                  value={formData.password} 
-                  onChange={handleChange} 
-                  required 
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
                   placeholder="••••••••"
                   error={errors.password}
                 />
               </div>
               <div className="col-md-6">
                 <div className="form-group mb-3">
-                  <label className="fw-bold mb-1" style={{ fontSize: '0.85rem' }}>Product Speciality <span className="text-danger">*</span></label>
+                  <label
+                    className="fw-bold mb-1"
+                    style={{ fontSize: "0.85rem" }}
+                  >
+                    Product Speciality <span className="text-danger">*</span>
+                  </label>
                   <select
                     className="form-select"
                     name="productSpeciality"
                     value={formData.productSpeciality}
                     onChange={handleChange}
                     required
-                    style={{ borderRadius: '8px', padding: '0.6rem 1rem' }}
+                    style={{ borderRadius: "8px", padding: "0.6rem 1rem" }}
                   >
-                    <option value="HEALTH">Health Insurance</option>
-                    <option value="LIFE">Life Insurance</option>
-                    <option value="MOTOR">Motor Insurance</option>
+                    <option value="HEALTH">Health </option>
+                    <option value="LIFE">Life </option>
+                    <option value="MOTOR">Motor </option>
+                    <option value="TRAVEL">Travel </option>
+                    <option value="INSURANCE">Insurance </option>
                   </select>
                 </div>
               </div>
             </div>
 
             <div className="d-flex justify-content-end gap-3 mt-5">
-              <button 
-                type="button" 
-                className="btn btn-light px-4" 
-                style={{ borderRadius: '8px' }}
-                onClick={() => navigate('/admin/users')}
+              <button
+                type="button"
+                className="btn btn-light px-4"
+                style={{ borderRadius: "8px" }}
+                onClick={() => navigate("/admin/users")}
                 disabled={submitting}
               >
                 Cancel
               </button>
-              <button 
-                type="submit" 
-                className="btn btn-primary px-4" 
-                style={{ borderRadius: '8px' }}
+              <button
+                type="submit"
+                className="btn btn-primary px-4"
+                style={{ borderRadius: "8px" }}
                 disabled={submitting}
               >
-                {submitting ? 'Creating...' : 'Create Staff'}
+                {submitting ? "Creating..." : "Create Staff"}
               </button>
             </div>
           </form>
         </div>
       </div>
 
-      <AlertModal 
+      <AlertModal
         isOpen={showSuccess}
         type="success"
         title="Staff Created!"
         message="The new Staff has been successfully registered in the system."
         onClose={() => {
           setShowSuccess(false);
-          navigate('/admin/users');
+          navigate("/admin/users");
         }}
       />
     </div>

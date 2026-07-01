@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import toast from 'react-hot-toast';
 import { purchasePolicy } from "../../../services/policyService";
 import PageHeader from "../../../components/common/PageHeader";
-import { ShoppingCart, Calendar, AlertCircle } from "lucide-react";
+import { Calendar } from "lucide-react";
 
 const PurchasePolicyPage = () => {
   const { planId } = useParams();
@@ -50,8 +50,6 @@ const PurchasePolicyPage = () => {
       <PageHeader
         title="Purchase Policy"
         subtitle="Select a start date to purchase this insurance plan"
-        icon={ShoppingCart}
-        backButton={true}
       />
 
       <div className="row justify-content-center mt-4">

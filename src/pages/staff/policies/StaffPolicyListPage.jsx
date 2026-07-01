@@ -79,7 +79,6 @@ const StaffPolicyListPage = () => {
     <ExportButton
       data={policies || []}
       columns={[
-        { header: "Policy ID", accessor: "policyId" },
         { header: "Policy Number", accessor: "policyNumber" },
         { header: "Customer Name", accessor: "customerName" },
         { header: "Plan Name", accessor: "planName" },

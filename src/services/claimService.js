@@ -109,3 +109,8 @@ export const markUnderReview = async (claimId) => {
   const {data} = await axiosInstance.patch(`/claims/${claimId}/under-review`);
   return data;
 };
+
+export const assignClaim = async (claimId) => {
+  const { data } = await axiosInstance.patch(`/claims/${claimId}/assign`);
+  return data;
+};

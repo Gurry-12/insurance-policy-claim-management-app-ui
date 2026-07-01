@@ -88,7 +88,7 @@ const EditPlanPage = () => {
       if (new Big(formData.coverage).lte(new Big(formData.premium))) {
         errs.coverage = 'Coverage amount must strictly exceed the premium amount.';
       }
-    } catch (e) {
+    } catch {
       if (Number(formData.coverage) <= Number(formData.premium)) {
          errs.coverage = 'Coverage amount must strictly exceed the premium amount.';
       }
@@ -152,7 +152,7 @@ const EditPlanPage = () => {
       {!error && (
         <div
           className="card border-0"
-          style={{ borderRadius: 16, boxShadow: "var(--ss-shadow)" }}
+          style={{ borderRadius: 16, boxShadow: "var(--ip-shadow-md)" }}
         >
           <div className="card-body p-4 p-md-5">
             <form onSubmit={handleSubmit}>

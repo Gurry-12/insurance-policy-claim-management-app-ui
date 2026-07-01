@@ -75,7 +75,7 @@ const StaffCustomerListPage = () => {
               ]}
               filename="Staff_customers_list.csv"
             />
-            <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate("/Staff/dashboard")}>
+            <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate("/staff/dashboard")}>
               <i className="bi bi-arrow-left"></i> Back
             </button>
           </div>
@@ -150,8 +150,6 @@ const StaffCustomerListPage = () => {
           <PaginationBar
             currentPage={tableState.currentPage}
             totalPages={tableState.totalPages}
-            totalElements={tableState.totalElements}
-            pageSize={tableState.pageSize}
             onPageChange={tableState.setCurrentPage}
           />
         </div>

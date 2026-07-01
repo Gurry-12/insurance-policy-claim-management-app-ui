@@ -1,25 +1,37 @@
-/**
- * PageHeader — standard page title + subtitle row used at the top of every page.
- *
- * Props:
- *  title    — main heading string
- *  subtitle — secondary line (optional)
- *  action   — right-side node, e.g. a button (optional)
- */
-const PageHeader = ({ title, subtitle, action }) => (
-  <div className="d-flex align-items-start justify-content-between mb-4 gap-3">
-    <div>
-      <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--ss-text-primary)', margin: 0 }}>
-        {title}
-      </h1>
-      {subtitle && (
-        <p style={{ fontSize: '0.85rem', color: 'var(--ss-text-muted)', margin: '2px 0 0' }}>
-          {subtitle}
-        </p>
-      )}
+import { useNavigate } from 'react-router-dom';
+
+const PageHeader = ({ title, subtitle, action, onBack }) => {
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      navigate(-1);
+    }
+  };
+
+  return (
+    <div className="ip-page-header">
+      <div className="d-flex align-items-start gap-3">
+        {onBack !== false && (
+          <button
+            onClick={handleBack}
+            className="btn btn-icon border-0 mt-1"
+            style={{ color: 'var(--ip-text-muted)', flexShrink: 0 }}
+            title="Go back"
+          >
+            <i className="bi bi-arrow-left"></i>
+          </button>
+        )}
+        <div>
+          <h1 className="ip-page-title">{title}</h1>
+          {subtitle && <p className="ip-page-subtitle">{subtitle}</p>}
+        </div>
+      </div>
+      {action && <div className="flex-shrink-0">{action}</div>}
     </div>
-    {action && <div className="flex-shrink-0">{action}</div>}
-  </div>
-);
+  );
+};
 
 export default PageHeader;

@@ -7,6 +7,7 @@ import { login as loginService } from "../../services/authService";
 import { ROLE_HOME } from "../../utils/roles";
 import logoSrc from "../../assets/logo/insurance-heart-vector.png";
 import ResendOtp from "../../components/auth/ResendOtp";
+import LoadingButton from "../../components/ui/LoadingButton";
 import "../css/Login.css";
 
 const Login = () => {
@@ -126,25 +127,15 @@ const Login = () => {
                   <Link to="/forgot-password" className="login-footer-link" style={{ fontSize: "0.85rem", textDecoration: "none" }}>Forgot Password?</Link>
                 </div>
 
-                <button
+                <LoadingButton
                   id="login-submit-btn"
                   type="submit"
-                  className="btn login-submit-btn w-100 mt-2 mb-3"
-                  disabled={loading}
+                  className="login-submit-btn w-100 mt-2 mb-3"
+                  isLoading={loading}
+                  loadingText="Signing in..."
                 >
-                  {loading ? (
-                    <>
-                      <span
-                        className="spinner-border spinner-border-sm me-2"
-                        role="status"
-                        aria-hidden="true"
-                      />
-                      Signing in...
-                    </>
-                  ) : (
-                    "Sign In"
-                  )}
-                </button>
+                  Sign In
+                </LoadingButton>
               </form>
 
               <p className="text-center mb-0 login-footer-text">

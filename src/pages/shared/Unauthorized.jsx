@@ -9,7 +9,7 @@ const Unauthorized = () => {
   return (
     <div
       className="d-flex flex-column align-items-center justify-content-center"
-      style={{ minHeight: '100vh', background: 'var(--ss-bg)', color: 'var(--ss-text-primary)' }}
+      style={{ minHeight: '100vh', background: 'var(--ip-bg)', color: 'var(--ip-text-primary)' }}
     >
       <i className="bi bi-shield-x" style={{ fontSize: '4rem', color: '#ef4444' }} />
       <h1 className="fw-bold mt-3">Access Denied</h1>

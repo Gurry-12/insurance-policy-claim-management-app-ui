@@ -155,6 +155,7 @@ const showPayButton =
                   {showPayButton && (
               <Link
                 to={`/Staff/payments/pay/${policy.policyId}`}
+                state={{ amount: policy.premiumAmount }}
                 className="btn btn-success w-100 py-2 d-flex align-items-center justify-content-center gap-2 mt-3"
                 style={{ borderRadius: "8px" }}
               >

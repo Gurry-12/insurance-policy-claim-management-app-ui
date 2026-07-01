@@ -118,20 +118,20 @@ const CustomerListPage = () => {
         }
       />
       
-      <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+      <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
         <div className="card-body p-0">
           <div className="p-4 border-bottom border-light d-flex justify-content-between align-items-center flex-wrap gap-3">
             <h6 className="m-0 fw-bold">All Customers</h6>
             <div className="d-flex gap-2 flex-wrap">
               <div className="input-group input-group-sm" style={{ width: '180px' }}>
-                <span className="input-group-text bg-white border-end-0" style={{ border: '1px solid var(--ss-border)' }}>
+                <span className="input-group-text bg-white border-end-0" style={{ border: '1px solid var(--ip-border)' }}>
                   <i className="bi bi-geo-alt text-muted"></i>
                 </span>
                 <input 
                   type="text" 
                   className="form-control border-start-0 ps-0" 
                   placeholder="City..." 
-                  style={{ border: '1px solid var(--ss-border)', borderRadius: '0 8px 8px 0' }}
+                  style={{ border: '1px solid var(--ip-border)', borderRadius: '0 8px 8px 0' }}
                   value={cityQuery}
                   onChange={(e) => {
                     setCityQuery(e.target.value);
@@ -140,14 +140,14 @@ const CustomerListPage = () => {
                 />
               </div>
               <div className="input-group input-group-sm" style={{ width: '220px' }}>
-                <span className="input-group-text bg-white border-end-0" style={{ border: '1px solid var(--ss-border)' }}>
+                <span className="input-group-text bg-white border-end-0" style={{ border: '1px solid var(--ip-border)' }}>
                   <i className="bi bi-search text-muted"></i>
                 </span>
                 <input 
                   type="text" 
                   className="form-control border-start-0 ps-0" 
                   placeholder="Search customers on this page..." 
-                  style={{ border: '1px solid var(--ss-border)', borderRadius: '0 8px 8px 0' }}
+                  style={{ border: '1px solid var(--ip-border)', borderRadius: '0 8px 8px 0' }}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />

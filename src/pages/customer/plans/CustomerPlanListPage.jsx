@@ -73,7 +73,7 @@ const CustomerPlanListPage = () => {
                   <div className="d-flex justify-content-between align-items-center mt-2">
                     <span className="text-muted fw-medium">
                       <i className="bi bi-clock me-2 text-secondary"></i>
-                      {plan.duration} Months
+                      {plan.duration} Years
                     </span>
                     <Link
                       className="btn btn-primary px-4 rounded-pill"

@@ -1,5 +1,5 @@
 import { createContext, useState, useCallback } from "react";
-import toast from 'react-hot-toast';
+
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext(null);

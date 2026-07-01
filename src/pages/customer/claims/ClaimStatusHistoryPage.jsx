@@ -4,7 +4,7 @@ import { getClaimHistory } from "../../../services/claimService";
 import PageHeader from "../../../components/common/PageHeader";
 import LoadingSpinner from "../../../components/common/LoadingSpinner";
 import StatusBadge from "../../../components/ui/StatusBadge";
-import { History, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 const ClaimStatusHistoryPage = () => {
   const { claimId } = useParams();
@@ -39,7 +39,6 @@ const ClaimStatusHistoryPage = () => {
       <PageHeader
         title="Claim History"
         subtitle="Track the status updates of your claim"
-        icon={History}
         action={
           <Link to="/customer/claims" className="btn btn-outline-secondary">
             <ArrowLeft size={18} className="me-2" />

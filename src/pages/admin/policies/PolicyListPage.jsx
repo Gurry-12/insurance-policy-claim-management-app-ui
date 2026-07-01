@@ -106,9 +106,9 @@ const PolicyListPage = () => {
         action={
           <div className="d-flex gap-2">
             <ExportButton
-              data={policies || []}
+              data={policies}
+              filename="Policies_Export"
               columns={[
-                { header: "Policy ID", accessor: "policyId" },
                 { header: "Policy Number", accessor: "policyNumber" },
                 { header: "Customer Name", accessor: "customerName" },
                 { header: "Plan Name", accessor: "planName" },
@@ -129,14 +129,14 @@ const PolicyListPage = () => {
       
       <ErrorAlert message={error} />
 
-      <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+      <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
         <div className="card-body p-0">
           <div className="p-4 border-bottom border-light d-flex flex-wrap gap-3 justify-content-between align-items-center">
             <h6 className="m-0 fw-bold">All Policies</h6>
             <div className="d-flex gap-2">
               <select 
                 className="form-select form-select-sm" 
-                style={{ width: '160px', borderRadius: '8px', border: '1px solid var(--ss-border)' }}
+                style={{ width: '160px', borderRadius: '8px', border: '1px solid var(--ip-border)' }}
                 value={tableState.filters.statusFilter}
                 onChange={(e) => tableState.handleFilterChange({ statusFilter: e.target.value })}
               >
@@ -147,14 +147,14 @@ const PolicyListPage = () => {
                 <option value="CANCELLED">Cancelled</option>
               </select>
               <div className="input-group input-group-sm" style={{ width: '220px' }}>
-                <span className="input-group-text bg-white border-end-0" style={{ border: '1px solid var(--ss-border)' }}>
+                <span className="input-group-text bg-white border-end-0" style={{ border: '1px solid var(--ip-border)' }}>
                   <i className="bi bi-search text-muted"></i>
                 </span>
                 <input 
                   type="text" 
                   className="form-control border-start-0 ps-0" 
                   placeholder="Search policies on this page..." 
-                  style={{ border: '1px solid var(--ss-border)', borderRadius: '0 8px 8px 0' }}
+                  style={{ border: '1px solid var(--ip-border)', borderRadius: '0 8px 8px 0' }}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />

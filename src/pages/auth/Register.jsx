@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import toast from 'react-hot-toast';
 import { register as registerService } from "../../services/authService";
 import logoSrc from "../../assets/logo/insurance-heart-vector.png";
+import LoadingButton from "../../components/ui/LoadingButton";
 import "../css/Login.css";
 
 const INIT = {
@@ -225,25 +226,15 @@ const Register = () => {
                 </div>
 
                 {/* Execution CTA Switch */}
-                <button
+                <LoadingButton
                   id="reg-submit-btn"
                   type="submit"
-                  className="btn login-submit-btn w-100 mt-2 mb-3"
-                  disabled={loading}
+                  className="login-submit-btn w-100 mt-2 mb-3"
+                  isLoading={loading}
+                  loadingText="Creating account…"
                 >
-                  {loading ? (
-                    <>
-                      <span
-                        className="spinner-border spinner-border-sm me-2"
-                        role="status"
-                        aria-hidden="true"
-                      />
-                      Creating account…
-                    </>
-                  ) : (
-                    "Register for free"
-                  )}
-                </button>
+                  Register for free
+                </LoadingButton>
               </form>
 
               {/* Traversal Redirection Option */}

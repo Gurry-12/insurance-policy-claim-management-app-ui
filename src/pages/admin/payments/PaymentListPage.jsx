@@ -89,7 +89,7 @@ const PaymentListPage = () => {
       minWidth: "85px" 
     },
     {
-      header: "Transaction ID",
+      header: "Reference No.",
       accessor: "transactionReference",
     },
     { header: "Policy #", accessor: "policyNumber" },
@@ -114,8 +114,6 @@ const PaymentListPage = () => {
           <ExportButton
             data={payments || []}
             columns={[
-              { header: "Payment ID", accessor: "paymentId" },
-              { header: "Policy ID", accessor: "policyId" },
               { header: "Policy Number", accessor: "policyNumber" },
               { header: "Amount (₹)", accessor: "amount" },
               { header: "Payment Mode", accessor: "paymentMode" },
@@ -130,14 +128,14 @@ const PaymentListPage = () => {
       
       <ErrorAlert message={error} />
       
-      <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+      <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
         <div className="card-body p-0">
           <div className="p-4 border-bottom border-light d-flex justify-content-between align-items-center flex-wrap gap-3">
             <h6 className="m-0 fw-bold">Recent Transactions</h6>
             <div className="d-flex gap-2 flex-wrap">
               <select 
                 className="form-select form-select-sm" 
-                style={{ width: '180px', borderRadius: '8px', border: '1px solid var(--ss-border)' }}
+                style={{ width: '180px', borderRadius: '8px', border: '1px solid var(--ip-border)' }}
                 value={tableState.filters.policyIdFilter}
                 onChange={(e) => tableState.handleFilterChange({ policyIdFilter: e.target.value })}
               >
@@ -150,7 +148,7 @@ const PaymentListPage = () => {
               </select>
               <select 
                 className="form-select form-select-sm" 
-                style={{ width: '160px', borderRadius: '8px', border: '1px solid var(--ss-border)' }}
+                style={{ width: '160px', borderRadius: '8px', border: '1px solid var(--ip-border)' }}
                 value={tableState.filters.statusFilter}
                 onChange={(e) => tableState.handleFilterChange({ statusFilter: e.target.value })}
               >
@@ -160,14 +158,14 @@ const PaymentListPage = () => {
                 <option value="FAILED">Failed</option>
               </select>
               <div className="input-group input-group-sm" style={{ width: '250px' }}>
-                <span className="input-group-text bg-white border-end-0" style={{ border: '1px solid var(--ss-border)' }}>
+                <span className="input-group-text bg-white border-end-0" style={{ border: '1px solid var(--ip-border)' }}>
                 <i className="bi bi-search text-muted"></i>
               </span>
                 <input 
                   type="text" 
                   className="form-control border-start-0 ps-0" 
                   placeholder="Search transactions on this page..." 
-                  style={{ border: '1px solid var(--ss-border)', borderRadius: '0 8px 8px 0' }}
+                  style={{ border: '1px solid var(--ip-border)', borderRadius: '0 8px 8px 0' }}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />

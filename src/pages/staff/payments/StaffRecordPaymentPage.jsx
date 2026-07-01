@@ -1,20 +1,20 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import PageHeader from '../../../components/common/PageHeader';
 import FormInput from '../../../components/forms/FormInput';
 import FormSelect from '../../../components/forms/FormSelect';
 import { recordPayment } from '../../../services/paymentService';
-import { useParams } from 'react-router-dom';
 
 const StaffRecordPaymentPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { policyId } = useParams();
 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     policyId: policyId || '',
-    amount: '',
+    amount: location.state?.amount || '',
     paymentMode: 'CARD'
   });
 
@@ -34,7 +34,7 @@ const StaffRecordPaymentPage = () => {
     
     const errs = {};
     if (!formData.policyId) {
-      errs.policyId = 'Policy ID is required.';
+      errs.policyId = 'Policy is required.';
     }
     if (!formData.amount || Number(formData.amount) <= 0) {
       errs.amount = 'Amount must be greater than zero.';
@@ -49,7 +49,7 @@ const StaffRecordPaymentPage = () => {
     try {
       await recordPayment(formData);
       toast.success('Payment recorded successfully!');
-      setTimeout(() => navigate('/Staff/payments'), 2000);
+      setTimeout(() => navigate('/staff/payments'), 2000);
     } catch (err) {
       toast.error(err.response?.data?.message || err.message || 'Failed to record payment');
     } finally {
@@ -67,10 +67,10 @@ const StaffRecordPaymentPage = () => {
       <PageHeader
         title="Record Premium Payment"
         subtitle="Record payment for the selected policy"
-        onBack={() => navigate("/Staff/policies")}
+        onBack={() => navigate("/staff/policies")}
       />
 
-      <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+      <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
         <div className="card-body p-4 p-md-5">
           <form onSubmit={handleSubmit}>
 

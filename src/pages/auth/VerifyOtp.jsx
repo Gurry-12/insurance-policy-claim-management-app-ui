@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import toast from 'react-hot-toast';
-import "../css/Otp.css";
+import "../css/Login.css";
 import { verifyOtpApi } from "../../services/authService";
 import ResendOtp from "../../components/auth/ResendOtp";
 import logoSrc from "../../assets/logo/insurance-heart-vector.png";

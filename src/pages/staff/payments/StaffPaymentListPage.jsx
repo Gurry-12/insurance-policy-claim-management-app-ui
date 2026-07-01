@@ -35,7 +35,8 @@ const StaffPaymentListPage = () => {
       }
     };
     loadPayments();
-  }, [tableState.currentPage, tableState.sortBy, tableState.sortDirection]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const filteredPayments = payments.filter((payment) => {
     const matchesSearch = payment.policyNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -65,8 +66,6 @@ const StaffPaymentListPage = () => {
             <ExportButton
               data={payments || []}
               columns={[
-                { header: "Payment ID", accessor: "paymentId" },
-                { header: "Policy ID", accessor: "policyId" },
                 { header: "Policy Number", accessor: "policyNumber" },
                 { header: "Amount (₹)", accessor: "amount" },
                 { header: "Payment Mode", accessor: "paymentMode" },
@@ -76,7 +75,7 @@ const StaffPaymentListPage = () => {
               ]}
               filename="Staff_payments_list.csv"
             />
-            <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate("/Staff/dashboard")}>
+            <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate("/staff/dashboard")}>
               <i className="bi bi-arrow-left"></i> Back
             </button>
           </div>
@@ -132,7 +131,7 @@ const StaffPaymentListPage = () => {
                   <td>
                     <StatusBadge status={payment.paymentStatus} />
                   </td>
-                  <td style={{ color: 'var(--ss-text-muted)' }}>
+                  <td style={{ color: 'var(--ip-text-muted)' }}>
                     {payment.paymentDate
                       ? new Date(payment.paymentDate).toLocaleString()
                       : "-"}
@@ -160,7 +159,7 @@ const StaffPaymentListPage = () => {
                       <td>{payment.transactionReference}</td>
                       <td><StatusBadge status={payment.paymentStatus} /> </td>
 
-                      <td style={{ color: 'var(--ss-text-muted)' }}>
+                      <td style={{ color: 'var(--ip-text-muted)' }}>
                         {payment.paymentDate
                           ? new Date(payment.paymentDate).toLocaleString()
                           : "-"}
@@ -182,8 +181,6 @@ const StaffPaymentListPage = () => {
           <PaginationBar
             currentPage={tableState.currentPage}
             totalPages={tableState.totalPages}
-            totalElements={tableState.totalElements}
-            pageSize={tableState.pageSize}
             onPageChange={tableState.setCurrentPage}
           />
         </div>

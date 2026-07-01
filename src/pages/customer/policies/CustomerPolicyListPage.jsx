@@ -3,7 +3,7 @@ import { getMyPolicies } from "../../../services/policyService";
 import { Link } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
 import StatusBadge from "../../../components/ui/StatusBadge";
-import { Shield, CheckCircle, Clock, XCircle, AlertCircle, Eye } from "lucide-react";
+import { Shield, CheckCircle, Clock, XCircle, AlertCircle, Eye, ArrowRight, IndianRupee, Calendar } from "lucide-react";
 import useTableState from "../../../hooks/useTableState";
 import PaginationBar from "../../../components/tables/PaginationBar";
 import ExportButton from "../../../components/common/ExportButton";
@@ -34,8 +34,6 @@ const CustomerPolicyListPage = () => {
     fetchPolicies();
   }, [tableState.currentPage, tableState.sortBy, tableState.sortDirection]);
 
-  
-
   const getStatusIcon = (status) => {
     switch (status) {
       case "ACTIVE": return <CheckCircle size={16} className="me-1" />;
@@ -46,17 +44,36 @@ const CustomerPolicyListPage = () => {
     }
   };
 
+  const getCardGradient = (status) => {
+    switch (status) {
+      case "ACTIVE": return "linear-gradient(135deg, var(--ip-policy-active-bg) 0%, var(--ip-surface) 100%)";
+      case "PENDING_PAYMENT": return "linear-gradient(135deg, var(--ip-policy-pending-bg) 0%, var(--ip-surface) 100%)";
+      case "EXPIRED": return "linear-gradient(135deg, var(--ip-policy-expired-bg) 0%, var(--ip-surface) 100%)";
+      case "CANCELLED": return "linear-gradient(135deg, var(--ip-policy-cancelled-bg) 0%, var(--ip-surface) 100%)";
+      default: return "linear-gradient(135deg, var(--ip-bg) 0%, var(--ip-surface) 100%)";
+    }
+  };
+
+  const getCardBorder = (status) => {
+    switch (status) {
+      case "ACTIVE": return "var(--ip-success-subtle)";
+      case "PENDING_PAYMENT": return "var(--ip-warning-subtle)";
+      case "EXPIRED": return "var(--ip-secondary-subtle)";
+      case "CANCELLED": return "var(--ip-danger-subtle)";
+      default: return "var(--ip-border)";
+    }
+  };
+
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in pb-5">
       <PageHeader
         title="My Policies"
-        subtitle="Manage your purchased insurance policies"
+        subtitle="Manage and track your active insurance plans"
         icon={Shield}
         action={
           <ExportButton
             data={policies || []}
             columns={[
-              { header: "Policy ID", accessor: "policyId" },
               { header: "Policy Number", accessor: "policyNumber" },
               { header: "Plan Name", accessor: "planName" },
               { header: "Premium Amount (₹)", accessor: "premiumAmount" },
@@ -68,70 +85,102 @@ const CustomerPolicyListPage = () => {
         }
       />
 
-      <div className="card border-0 shadow-sm mt-4">
-        <div className="card-body p-0">
-          <div className="table-responsive">
-            <table className="table table-hover align-middle mb-0">
-              <thead className="table-light">
-                <tr>
-                  <th className="px-4 py-3">Policy No</th>
-                  <th className="px-4 py-3">Plan Name</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Premium</th>
-                  <th className="px-4 py-3">Coverage</th>
-                  <th className="px-4 py-3 text-end">Action</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {policies.length > 0 ? (
-                  policies.map((policy) => (
-                    <tr key={policy.policyId}>
-                      <td className="px-4 py-3 fw-medium text-primary">#{policy.policyNumber}</td>
-                      <td className="px-4 py-3 fw-semibold">{policy.planName}</td>
-                      <td className="px-4 py-3">
-                        <StatusBadge status={policy.policyStatus} icon={getStatusIcon(policy.policyStatus)} />
-                      </td>
-                      <td className="px-4 py-3">₹{policy.premiumAmount?.toLocaleString()}</td>
-                      <td className="px-4 py-3">₹{policy.coverageAmount?.toLocaleString()}</td>
-
-                      <td className="px-4 py-3 text-end">
-                        <Link
-                          to={`/customer/policies/${policy.policyId}`}
-                          className="btn btn-light btn-sm text-primary"
-                          title="View Details"
-                        >
-                          <Eye size={16} /> <span className="ms-1">View Details</span>
-                        </Link>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="6" className="text-center py-5 text-muted">
-                      <div className="d-flex flex-column align-items-center">
-                        <Shield size={48} className="mb-3 text-secondary opacity-50" />
-                        <p className="mb-0">No Policies Found</p>
-                        <Link to="/customer/products" className="btn btn-primary mt-3">
-                          Browse Products
-                        </Link>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+      <div className="mt-4">
+        {tableState.isLoading ? (
+          <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '300px' }}>
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
           </div>
-        </div>
+        ) : policies.length > 0 ? (
+          <div className="row g-4">
+            {policies.map((policy) => (
+              <div key={policy.policyId} className="col-md-6 col-xl-4">
+                <div 
+                  className="card border h-100 shadow-sm" 
+                  style={{ 
+                    borderRadius: '16px', 
+                    background: getCardGradient(policy.policyStatus),
+                    borderColor: getCardBorder(policy.policyStatus),
+                    transition: 'transform 0.2s, box-shadow 0.2s',
+                    overflow: 'hidden'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-4px)';
+                    e.currentTarget.style.boxShadow = '0 10px 20px rgba(0,0,0,0.08)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 0.125rem 0.25rem rgba(0,0,0,0.075)';
+                  }}
+                >
+                  <div className="card-body p-4">
+                    <div className="d-flex justify-content-between align-items-start mb-3">
+                      <div>
+                        <span className="badge bg-white text-dark border shadow-sm rounded-pill px-3 py-2 fw-medium mb-2 d-inline-flex align-items-center">
+                          <Shield size={14} className="me-2 text-primary" />
+                          #{policy.policyNumber}
+                        </span>
+                        <h5 className="fw-bold text-dark mb-0 mt-1">{policy.planName}</h5>
+                      </div>
+                      <StatusBadge status={policy.policyStatus} icon={getStatusIcon(policy.policyStatus)} />
+                    </div>
+
+                    <div className="bg-white rounded-3 p-3 shadow-sm border mt-4 mb-4">
+                      <div className="row g-3">
+                        <div className="col-6">
+                          <div className="text-muted small mb-1 d-flex align-items-center">
+                            <IndianRupee size={14} className="me-1" /> Premium
+                          </div>
+                          <div className="fw-bold text-dark fs-5">₹{policy.premiumAmount?.toLocaleString()}</div>
+                        </div>
+                        <div className="col-6 border-start">
+                          <div className="text-muted small mb-1 ps-2 d-flex align-items-center">
+                            <Shield size={14} className="me-1" /> Coverage
+                          </div>
+                          <div className="fw-bold text-dark fs-5 ps-2">₹{policy.coverageAmount?.toLocaleString()}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="card-footer bg-white border-top-0 p-3 pt-0 d-flex justify-content-between align-items-center">
+                    <div className="text-muted small d-flex align-items-center">
+                      <Calendar size={14} className="me-1" /> 
+                      {policy.endDate ? `Ends: ${new Date(policy.endDate).toLocaleDateString()}` : 'Active Plan'}
+                    </div>
+                    <Link
+                      to={`/customer/policies/${policy.policyId}`}
+                      className="btn btn-primary rounded-pill px-4 d-flex align-items-center"
+                      style={{ fontSize: '0.9rem' }}
+                    >
+                      View Details <ArrowRight size={16} className="ms-2" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-5 bg-white rounded-3 shadow-sm border">
+            <Shield size={48} className="text-muted mb-3 opacity-50" />
+            <h5 className="fw-bold text-secondary">No Policies Found</h5>
+            <p className="text-muted mb-4">You haven't purchased any insurance policies yet.</p>
+            <Link to="/customer/plans" className="btn btn-primary rounded-pill px-4">
+              Browse Plans
+            </Link>
+          </div>
+        )}
       </div>
+
       {policies.length > 0 && (
-        <div className="mt-3">
+        <div className="mt-5">
           <PaginationBar
             currentPage={tableState.currentPage}
             totalPages={tableState.totalPages}
             totalElements={tableState.totalElements}
             pageSize={tableState.pageSize}
-            onPageChange={tableState.setCurrentPage}
+            onPageChange={tableState.setPage}
+            onPageSizeChange={tableState.setPageSize}
           />
         </div>
       )}

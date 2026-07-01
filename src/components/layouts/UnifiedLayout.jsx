@@ -32,7 +32,7 @@ const NAV_ITEMS_BY_ROLE = {
     { to: "/Staff/customers", icon: "bi-people", label: "Customers" },
     { to: "/Staff/policies", icon: "bi-file-earmark-text", label: "Policies" },
     { to: "/Staff/claims", icon: "bi-shield-exclamation", label: "Claims" },
-    { to: "/Staff/payments/page", icon: "bi-credit-card", label: "Payments" },
+    { to: "/Staff/payments", icon: "bi-credit-card", label: "Payments" },
   ],
   [ROLES.CUSTOMER]: [
     {
@@ -77,9 +77,10 @@ const PORTAL_TITLE_BY_ROLE = {
   [ROLES.CUSTOMER]: "Customer Portal",
 };
 
-const UnifiedLayout = () => {
+const MainLayout = () => {
   const { user } = useAuth();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // For mobile overlay
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false); // For desktop
 
   const userRole = user?.role || ROLES.CUSTOMER;
   const navItems = NAV_ITEMS_BY_ROLE[userRole] || [];
@@ -91,17 +92,19 @@ const UnifiedLayout = () => {
   const breadcrumb = `${formattedRole.charAt(0) + formattedRole.slice(1).toLowerCase()} Portal`;
 
   return (
-    <div className={themeClass} style={{ minHeight: '100vh', backgroundColor: 'var(--ss-bg)' }}>
+    <div className={themeClass} style={{ minHeight: '100vh', backgroundColor: 'var(--ip-bg)' }}>
       {/* ── Sidebar ───────────────────────────────── */}
       <Sidebar 
         navItems={navItems} 
         isOpen={sidebarOpen} 
         setIsOpen={setSidebarOpen} 
+        isCollapsed={sidebarCollapsed}
+        setIsCollapsed={setSidebarCollapsed}
         title={portalTitle} 
       />
 
       {/* ── Main area ─────────────────────────────── */}
-      <div className="dashboard-main" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div className={`ip-main-wrapper ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         {/* Top Navbar */}
         <TopNavbar 
           onMenuClick={() => setSidebarOpen(v => !v)} 
@@ -109,7 +112,7 @@ const UnifiedLayout = () => {
         />
 
         {/* Page content */}
-        <main style={{ flex: 1, padding: '1.75rem 1.5rem' }}>
+        <main className="ip-content" style={{ padding: '1.75rem 1.5rem' }}>
           <Outlet />
         </main>
       </div>
@@ -117,5 +120,4 @@ const UnifiedLayout = () => {
   );
 };
 
-export default UnifiedLayout;
-
+export default MainLayout;

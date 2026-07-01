@@ -2,9 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getMyClaims } from "../../../services/claimService";
 import PageHeader from "../../../components/common/PageHeader";
-import LoadingSpinner from "../../../components/common/LoadingSpinner";
 import StatusBadge from "../../../components/ui/StatusBadge";
-import { FileText, Eye, History, Upload } from "lucide-react";
+import { Eye, FileText, Calendar, IndianRupee, Clock, CheckCircle, XCircle, AlertTriangle, ArrowRight, FilePlus } from "lucide-react";
 import ExportButton from "../../../components/common/ExportButton";
 
 const CustomerClaimListPage = () => {
@@ -15,7 +14,7 @@ const CustomerClaimListPage = () => {
     try {
       setIsLoading(true);
       const response = await getMyClaims();
-      setClaims(response.data || []);
+      setClaims(response.data || response.content || []);
     } catch (error) {
       console.error(error);
     } finally {
@@ -27,14 +26,28 @@ const CustomerClaimListPage = () => {
     loadClaims();
   }, []);
 
-  
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case "APPROVED": return <CheckCircle size={16} className="me-1" />;
+      case "PENDING": return <Clock size={16} className="me-1" />;
+      case "UNDER_REVIEW": return <AlertTriangle size={16} className="me-1" />;
+      case "REJECTED": return <XCircle size={16} className="me-1" />;
+      default: return null;
+    }
+  };
 
-  if (isLoading) {
-    return <LoadingSpinner text="Loading claims..." />;
-  }
+  const getCardStyle = (status) => {
+    switch (status) {
+      case "APPROVED": return { border: "var(--ip-success-subtle)", bg: "linear-gradient(135deg, var(--ip-claim-approved-bg) 0%, var(--ip-surface) 100%)" };
+      case "PENDING": return { border: "var(--ip-warning-subtle)", bg: "linear-gradient(135deg, var(--ip-claim-under-review-bg) 0%, var(--ip-surface) 100%)" };
+      case "UNDER_REVIEW": return { border: "var(--ip-info-subtle)", bg: "linear-gradient(135deg, var(--ip-info-bg) 0%, var(--ip-surface) 100%)" };
+      case "REJECTED": return { border: "var(--ip-danger-subtle)", bg: "linear-gradient(135deg, var(--ip-claim-rejected-bg) 0%, var(--ip-surface) 100%)" };
+      default: return { border: "var(--ip-border)", bg: "linear-gradient(135deg, var(--ip-bg) 0%, var(--ip-surface) 100%)" };
+    }
+  };
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in pb-5">
       <PageHeader
         title="My Claims"
         subtitle="Manage and track your insurance claims"
@@ -44,7 +57,7 @@ const CustomerClaimListPage = () => {
             <ExportButton
               data={claims || []}
               columns={[
-                { header: "Claim ID", accessor: "claimNumber" },
+                { header: "Claim Number", accessor: "claimNumber" },
                 { header: "Policy Number", accessor: "policyNumber" },
                 { header: "Claim Amount (₹)", accessor: "claimAmount" },
                 { header: "Incident Date", accessor: "incidentDate" },
@@ -52,58 +65,101 @@ const CustomerClaimListPage = () => {
               ]}
               filename="my_claims.csv"
             />
-            <Link to="/customer/claims/raise" className="btn btn-primary">
-              Raise Claim
+            <Link to="/customer/claims/raise" className="btn btn-primary rounded-pill px-4 d-flex align-items-center shadow-sm">
+              <FilePlus size={18} className="me-2" /> Raise Claim
             </Link>
           </div>
         }
       />
 
-      <div className="card border-0 shadow-sm">
-        <div className="table-responsive">
-          <table className="table table-hover align-middle mb-0">
-            <thead className="table-light">
-              <tr>
-                <th>Claim No</th>
-                <th>Policy No</th>
-                <th>Amount</th>
-                <th>Incident Date</th>
-                <th>Status</th>
-                <th className="text-end">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {claims.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="text-center py-4 text-muted">
-                    No claims found
-                  </td>
-                </tr>
-              ) : (
-                claims.map((claim) => (
-                  <tr key={claim.claimId}>
-                    <td><span className="fw-medium">{claim.claimNumber}</span></td>
-                    <td>{claim.policyNumber}</td>
-                    <td>₹{claim.claimAmount?.toLocaleString()}</td>
-                    <td>{claim.incidentDate ? new Date(claim.incidentDate).toLocaleDateString() : 'N/A'}</td>
-                    <td><StatusBadge status={claim.claimStatus} /></td>
-                    <td>
-                      <div className="d-flex gap-2 justify-content-end">
-                        <Link
-                          to={`/customer/claims/${claim.claimId}`}
-                          className="btn btn-sm btn-light"
-                          title="View Details"
-                        >
-                          <Eye size={16} /> <span className="ms-1">View Details</span>
-                        </Link>
+      <div className="mt-4">
+        {isLoading ? (
+          <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '300px' }}>
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        ) : claims.length > 0 ? (
+          <div className="row g-4">
+            {claims.map((claim) => {
+              const cardStyle = getCardStyle(claim.claimStatus);
+              return (
+                <div key={claim.claimId} className="col-md-6 col-xl-4">
+                  <div 
+                    className="card border h-100 shadow-sm" 
+                    style={{ 
+                      borderRadius: '16px', 
+                      background: cardStyle.bg,
+                      borderColor: cardStyle.border,
+                      transition: 'transform 0.2s, box-shadow 0.2s',
+                      overflow: 'hidden'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-4px)';
+                      e.currentTarget.style.boxShadow = '0 10px 20px rgba(0,0,0,0.08)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = '0 0.125rem 0.25rem rgba(0,0,0,0.075)';
+                    }}
+                  >
+                    <div className="card-body p-4">
+                      <div className="d-flex justify-content-between align-items-start mb-3">
+                        <span className="badge bg-white text-dark border shadow-sm rounded-pill px-3 py-2 fw-medium d-inline-flex align-items-center">
+                          <FileText size={14} className="me-2 text-primary" />
+                          #{claim.claimNumber}
+                        </span>
+                        <StatusBadge status={claim.claimStatus} icon={getStatusIcon(claim.claimStatus)} />
                       </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+
+                      <div className="mb-4">
+                        <div className="text-muted small mb-1">Linked Policy</div>
+                        <h6 className="fw-bold text-dark">{claim.policyNumber}</h6>
+                      </div>
+
+                      <div className="bg-white rounded-3 p-3 shadow-sm border mb-4">
+                        <div className="row g-3">
+                          <div className="col-6">
+                            <div className="text-muted small mb-1 d-flex align-items-center">
+                              <IndianRupee size={14} className="me-1" /> Claim Amount
+                            </div>
+                            <div className="fw-bold text-dark fs-5">₹{claim.claimAmount?.toLocaleString()}</div>
+                          </div>
+                          <div className="col-6 border-start">
+                            <div className="text-muted small mb-1 ps-2 d-flex align-items-center">
+                              <Calendar size={14} className="me-1" /> Incident Date
+                            </div>
+                            <div className="fw-bold text-dark fs-6 ps-2 mt-1">
+                              {claim.incidentDate ? new Date(claim.incidentDate).toLocaleDateString() : 'N/A'}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="card-footer bg-white border-top-0 p-3 pt-0 d-flex justify-content-end">
+                      <Link
+                        to={`/customer/claims/${claim.claimId}`}
+                        className="btn btn-outline-primary rounded-pill px-4 d-flex align-items-center w-100 justify-content-center"
+                        style={{ fontSize: '0.9rem' }}
+                      >
+                        <Eye size={16} className="me-2" /> View Full Details <ArrowRight size={16} className="ms-2" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="text-center py-5 bg-white rounded-3 shadow-sm border">
+            <FileText size={48} className="text-muted mb-3 opacity-50" />
+            <h5 className="fw-bold text-secondary">No Claims Found</h5>
+            <p className="text-muted mb-4">You haven't filed any insurance claims yet.</p>
+            <Link to="/customer/claims/raise" className="btn btn-primary rounded-pill px-4 shadow-sm">
+              <FilePlus size={18} className="me-2 d-inline" /> Raise a Claim
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );

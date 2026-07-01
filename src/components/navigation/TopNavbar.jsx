@@ -2,6 +2,7 @@ import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ThemeContext } from '../../context/ThemeContext';
 import useAuth from '../../hooks/useAuth';
+import { Search, Bell } from 'lucide-react';
 
 const TopNavbar = ({ onMenuClick, breadcrumb }) => {
   const { theme, toggleTheme } = useContext(ThemeContext);
@@ -9,156 +10,87 @@ const TopNavbar = ({ onMenuClick, breadcrumb }) => {
   const navigate = useNavigate();
 
   return (
-    <header
-      className="top-navbar"
-      style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 1030,
-        backgroundColor: 'var(--ss-navbar-bg)',
-        borderBottom: '1px solid var(--ss-border)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        padding: '0.75rem 1.75rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        transition: 'background-color 0.25s, border-color 0.25s',
-      }}
-    >
-      {/* Left Section: Mobile menu button + Navigation controls + Breadcrumb */}
+    <header className="ip-topbar px-4 align-items-center justify-content-between">
+      {/* Left Section: Mobile menu button + Breadcrumb/Navigation */}
       <div className="d-flex align-items-center gap-3">
         <button
-          className="btn d-lg-none p-1"
+          className="btn d-md-none p-1 text-secondary border-0"
           onClick={onMenuClick}
-          style={{ color: 'var(--ss-text-secondary)', border: 'none', background: 'none', fontSize: '1.25rem' }}
+          aria-label="Toggle navigation"
         >
-          <i className="bi bi-list" />
+          <i className="bi bi-list fs-4" />
         </button>
 
-        {/* Chevron Navigation Controls */}
-        <div className="d-flex align-items-center gap-2">
+        <div className="d-none d-md-flex align-items-center gap-2">
           <button
             onClick={() => navigate(-1)}
-            className="btn p-0 d-flex align-items-center justify-content-center"
-            style={{ 
-              width: 34, 
-              height: 34, 
-              borderRadius: '50%', 
-              border: '1px solid var(--ss-border)',
-              backgroundColor: 'transparent',
-              color: 'var(--ss-text-secondary)',
-              transition: 'all 0.25s ease',
-              boxShadow: 'var(--ss-shadow-sm)'
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.borderColor = 'var(--ss-primary)';
-              e.currentTarget.style.backgroundColor = 'var(--ss-primary-light)';
-              e.currentTarget.style.color = 'var(--ss-primary)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.borderColor = 'var(--ss-border)';
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.color = 'var(--ss-text-secondary)';
-            }}
+            className="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center"
+            style={{ width: 32, height: 32 }}
             title="Go Back"
           >
-            <i className="bi bi-chevron-left" style={{ fontSize: '0.85rem' }} />
+            <i className="bi bi-chevron-left small" />
           </button>
           <button
             onClick={() => navigate(1)}
-            className="btn p-0 d-flex align-items-center justify-content-center"
-            style={{ 
-              width: 34, 
-              height: 34, 
-              borderRadius: '50%', 
-              border: '1px solid var(--ss-border)',
-              backgroundColor: 'transparent',
-              color: 'var(--ss-text-secondary)',
-              transition: 'all 0.25s ease',
-              boxShadow: 'var(--ss-shadow-sm)'
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.borderColor = 'var(--ss-primary)';
-              e.currentTarget.style.backgroundColor = 'var(--ss-primary-light)';
-              e.currentTarget.style.color = 'var(--ss-primary)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.borderColor = 'var(--ss-border)';
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.color = 'var(--ss-text-secondary)';
-            }}
+            className="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center"
+            style={{ width: 32, height: 32 }}
             title="Go Forward"
           >
-            <i className="bi bi-chevron-right" style={{ fontSize: '0.85rem' }} />
+            <i className="bi bi-chevron-right small" />
           </button>
         </div>
 
-        {/* Breadcrumb Info */}
-        <span style={{ fontSize: '0.82rem', fontWeight: 500, color: 'var(--ss-text-muted)', letterSpacing: '0.02em', textTransform: 'capitalize' }}>
+        <span className="fw-medium text-muted small ms-2 d-none d-sm-block text-capitalize">
           {breadcrumb ?? (user?.role ? `${user.role.charAt(0) + user.role.slice(1).toLowerCase()} Portal` : 'Portal')}
         </span>
       </div>
 
-      {/* Right Section: Theme Toggle + Profile Info */}
-      <div className="d-flex align-items-center gap-3">
+
+      {/* Right Section: Actions + Profile */}
+      <div className="d-flex align-items-center gap-3 ms-auto">
+        
+
         {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
-          className="btn btn-sm d-flex align-items-center justify-content-center"
+          className="btn btn-sm text-secondary p-1 border-0"
           title="Toggle Light/Dark Theme"
-          style={{ 
-            border: '1px solid var(--ss-border)', 
-            borderRadius: 10, 
-            color: 'var(--ss-text-secondary)', 
-            background: 'transparent', 
-            width: 36, 
-            height: 36,
-            transition: 'all 0.2s ease',
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.borderColor = 'var(--ss-primary)';
-            e.currentTarget.style.color = 'var(--ss-primary)';
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.borderColor = 'var(--ss-border)';
-            e.currentTarget.style.color = 'var(--ss-text-secondary)';
-          }}
         >
-          <i className={`bi ${theme === 'dark' ? 'bi-sun-fill' : 'bi-moon-fill'}`} style={{ fontSize: '0.95rem' }} />
+          <i className={`bi ${theme === 'dark' ? 'bi-sun-fill' : 'bi-moon-fill'} fs-6`} />
         </button>
 
-        {/* Divider */}
-        <div style={{ width: 1, height: 24, backgroundColor: 'var(--ss-border)' }} />
+        <div className="vr bg-secondary opacity-25 mx-1" style={{ width: '1px', height: '24px' }}></div>
 
-        {/* User Profile */}
-        <div className="d-flex align-items-center gap-2">
-          <div
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, var(--ss-primary), var(--ss-secondary, #1e3a8a))',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '0.85rem',
-              color: '#fff',
-              fontWeight: 700,
-              boxShadow: 'var(--ss-shadow-sm)',
-            }}
+        {/* User Profile Dropdown (Mock) */}
+        <div className="dropdown">
+          <div 
+            className="d-flex align-items-center gap-2" 
+            role="button" 
+            data-bs-toggle="dropdown" 
+            aria-expanded="false"
           >
-            {user?.name?.[0]?.toUpperCase() ?? 'U'}
-          </div>
-          <div className="d-none d-sm-block">
-            <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--ss-text-primary)', lineHeight: 1.2 }}>
-              {user?.name ?? 'User'}
+            <div
+              className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm"
+              style={{
+                width: 34,
+                height: 34,
+                background: 'linear-gradient(135deg, var(--ip-brand), var(--ip-secondary, #1e3a8a))',
+                fontSize: '0.85rem'
+              }}
+            >
+              {user?.name?.[0]?.toUpperCase() ?? 'U'}
             </div>
-            <div style={{ fontSize: '0.7rem', color: 'var(--ss-text-muted)', fontWeight: 500, textTransform: 'capitalize' }}>
-              {user?.role ? user.role.toLowerCase() : 'User'}
+            <div className="d-none d-sm-block text-start" style={{ lineHeight: 1.2 }}>
+              <div className="fw-semibold text-dark" style={{ fontSize: '0.85rem' }}>
+                {user?.name ?? 'User'}
+              </div>
+              <div className="text-muted text-capitalize" style={{ fontSize: '0.7rem' }}>
+                {user?.role ? user.role.toLowerCase() : 'User'}
+              </div>
             </div>
           </div>
         </div>
+
       </div>
     </header>
   );

@@ -1,9 +1,8 @@
-
 const FormTextarea = ({ label, name, value, onChange, placeholder, error, required = false, rows = 3, ...props }) => {
   return (
     <div className="mb-3">
       {label && (
-        <label htmlFor={name} className="form-label" style={{ fontSize: '0.85rem', fontWeight: 600 }}>
+        <label htmlFor={name} className="form-label">
           {label} {required && <span className="text-danger">*</span>}
         </label>
       )}
@@ -16,7 +15,6 @@ const FormTextarea = ({ label, name, value, onChange, placeholder, error, requir
         placeholder={placeholder}
         required={required}
         rows={rows}
-        style={{ borderRadius: '8px', padding: '0.6rem 1rem' }}
         {...props}
       />
       {error && <div className="invalid-feedback">{error}</div>}

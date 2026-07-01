@@ -107,10 +107,10 @@ const IssuePolicyPage = () => {
         onBack={() => navigate('/admin/policies')}
       />
 
-      <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+      <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
         <div className="card-body p-4 p-md-5">
           <form onSubmit={handleSubmit}>
-            <h5 className="mb-4 fw-bold" style={{ color: 'var(--ss-text-primary)' }}>Policy Information</h5>
+            <h5 className="mb-4 fw-bold" style={{ color: 'var(--ip-text-primary)' }}>Policy Information</h5>
             
             <div className="row">
               <div className="col-md-6">

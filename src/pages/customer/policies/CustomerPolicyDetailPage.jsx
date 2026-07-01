@@ -87,7 +87,6 @@ const showPayButton =
       <PageHeader
         title={`Policy ${policy.policyNumber}`}
         subtitle="Detailed view of your insurance policy"
-        icon={Shield}
         action={
           <div className="d-flex gap-2">
             <Link
