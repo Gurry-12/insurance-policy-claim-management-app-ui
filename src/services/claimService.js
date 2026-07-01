@@ -36,12 +36,7 @@ export const rejectClaim = async (claimId, remarks) => {
 export const raiseClaim = async (formData) => {
   const { data } = await axiosInstance.post(
     "/claims/raise",
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
+    formData
   );
 
   return data;

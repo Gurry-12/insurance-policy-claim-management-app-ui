@@ -9,6 +9,11 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
+    // Let the browser set Content-Type with boundary for FormData
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+    
     const token = localStorage.getItem('ss_token');
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
