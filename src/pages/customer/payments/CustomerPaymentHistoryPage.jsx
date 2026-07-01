@@ -42,7 +42,6 @@ const CustomerPaymentHistoryPage = () => {
           <ExportButton
             data={payments || []}
             columns={[
-              { header: "Payment ID", accessor: "paymentId" },
               { header: "Policy Number", accessor: "policyNumber" },
               { header: "Amount (₹)", accessor: "amount" },
               { header: "Payment Mode", accessor: "paymentMode" },

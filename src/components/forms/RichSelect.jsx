@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const RichSelect = ({ label, name, value, onChange, options, placeholder = "Select an option", error, required }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,24 +19,21 @@ const RichSelect = ({ label, name, value, onChange, options, placeholder = "Sele
 
   return (
     <div className="mb-3 position-relative" ref={dropdownRef}>
-      <label className="form-label" style={{ fontSize: "0.85rem", fontWeight: 600 }}>
+      <label className="form-label">
         {label} {required && <span className="text-danger">*</span>}
       </label>
       <div
         className="form-control d-flex align-items-center justify-content-between"
         style={{
           cursor: "pointer",
-          borderRadius: "8px",
-          padding: "0.6rem 1rem",
-          backgroundColor: "#fff",
-          border: error ? "1px solid #dc3545" : (isOpen ? "1px solid var(--ss-primary)" : "1px solid rgba(0,0,0,0.1)"),
-          boxShadow: isOpen ? "0 0 0 4px rgba(29, 78, 216, 0.12)" : "none",
+          border: error ? "1.5px solid var(--bs-danger)" : undefined,
+          boxShadow: isOpen ? "0 0 0 3px var(--ip-brand-light)" : "none",
         }}
         onClick={() => setIsOpen(!isOpen)}
       >
         {selectedOption ? (
           <div className="text-truncate">
-            <span className="fw-bold" style={{ color: "var(--ss-text-primary)" }}>{selectedOption.mainText}</span>
+            <span className="fw-bold" style={{ color: "var(--ip-text-primary)" }}>{selectedOption.mainText}</span>
             <span className="text-muted ms-2" style={{ fontSize: "0.8rem" }}>{selectedOption.subText}</span>
           </div>
         ) : (
@@ -61,11 +58,11 @@ const RichSelect = ({ label, name, value, onChange, options, placeholder = "Sele
                 className="p-3 border-bottom d-flex flex-column"
                 style={{
                   cursor: "pointer",
-                  backgroundColor: String(value) === String(opt.value) ? "var(--ss-primary-light)" : "transparent",
+                  backgroundColor: String(value) === String(opt.value) ? "var(--ip-brand-light)" : "transparent",
                   transition: "background-color 0.2s",
                 }}
                 onMouseEnter={(e) => {
-                  if (String(value) !== String(opt.value)) e.currentTarget.style.backgroundColor = "#f8fafc";
+                  if (String(value) !== String(opt.value)) e.currentTarget.style.backgroundColor = "var(--ip-surface-raised)";
                 }}
                 onMouseLeave={(e) => {
                   if (String(value) !== String(opt.value)) e.currentTarget.style.backgroundColor = "transparent";
@@ -75,7 +72,7 @@ const RichSelect = ({ label, name, value, onChange, options, placeholder = "Sele
                   setIsOpen(false);
                 }}
               >
-                <span className="fw-bold" style={{ fontSize: "0.9rem", color: "var(--ss-text-primary)" }}>
+                <span className="fw-bold" style={{ fontSize: "0.9rem", color: "var(--ip-text-primary)" }}>
                   {opt.mainText}
                 </span>
                 <span className="text-muted" style={{ fontSize: "0.75rem", marginTop: "2px" }}>

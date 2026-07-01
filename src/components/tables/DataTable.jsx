@@ -1,19 +1,36 @@
-
 import EmptyState from '../ui/EmptyState';
-import LoadingSpinner from '../common/LoadingSpinner';
 
-const DataTable = ({ 
-  columns, 
-  data, 
-  loading = false, 
-  onRowClick, 
-  emptyIcon = "bi-table", 
-  emptyMessage = "No data available" 
+const DataTable = ({
+  columns,
+  data,
+  loading = false,
+  onRowClick,
+  emptyIcon = "bi-table",
+  emptyMessage = "No data available"
 }) => {
   if (loading) {
     return (
-      <div className="d-flex justify-content-center p-5">
-        <LoadingSpinner />
+      <div className="table-responsive">
+        <table className="table align-middle mb-0">
+          <thead>
+            <tr>
+              {columns.map((col, idx) => (
+                <th key={idx} className="border-0"><span className="placeholder col-6"></span></th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {[1, 2, 3, 4, 5].map((_, rowIndex) => (
+              <tr key={rowIndex}>
+                {columns.map((_, colIndex) => (
+                  <td key={colIndex}>
+                    <span className="placeholder col-8 placeholder-glow"></span>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     );
   }
@@ -24,9 +41,9 @@ const DataTable = ({
 
   return (
     <div className="table-responsive">
-      <table className="table table-hover align-middle mb-0" style={{ fontSize: '0.875rem' }}>
+      <table className="table table-hover align-middle mb-0">
         <thead>
-          <tr style={{ color: 'var(--ss-text-muted)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          <tr>
             {columns.map((col, idx) => (
               <th key={idx} className="border-0" style={{ minWidth: col.minWidth }}>
                 {col.header}
@@ -34,10 +51,10 @@ const DataTable = ({
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="animate-slide-up">
           {data.map((row, rowIndex) => (
-            <tr 
-              key={row.id || rowIndex} 
+            <tr
+              key={row.id || rowIndex}
               onClick={() => onRowClick && onRowClick(row)}
               style={{ cursor: onRowClick ? 'pointer' : 'default' }}
             >

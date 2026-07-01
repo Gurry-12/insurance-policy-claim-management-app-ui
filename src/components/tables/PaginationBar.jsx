@@ -1,5 +1,3 @@
-
-
 const PaginationBar = ({ currentPage, totalPages, onPageChange }) => {
   if (totalPages <= 1) return null;
 
@@ -10,7 +8,7 @@ const PaginationBar = ({ currentPage, totalPages, onPageChange }) => {
 
   return (
     <nav className="d-flex justify-content-between align-items-center mt-4">
-      <span style={{ fontSize: '0.8rem', color: 'var(--ss-text-muted)' }}>
+      <span style={{ fontSize: '0.8rem', color: 'var(--ip-text-muted)' }}>
         Page {currentPage} of {totalPages}
       </span>
       <ul className="pagination pagination-sm mb-0">

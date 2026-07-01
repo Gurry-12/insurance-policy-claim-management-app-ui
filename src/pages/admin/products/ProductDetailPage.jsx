@@ -138,7 +138,7 @@ const ProductDetailPage = () => {
       <div className="row g-4">
         {/* Left Side: Summary Card */}
         <div className="col-lg-4">
-          <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+          <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
             <div className="card-body p-4 text-center">
               <div className="mb-3 d-flex justify-content-center">
                 <div style={{
@@ -157,7 +157,7 @@ const ProductDetailPage = () => {
             </div>
           </div>
 
-          <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+          <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
             <div className="card-body p-4">
               <h6 className="fw-bold mb-3">Product Summary</h6>
               <div className="d-flex justify-content-between mb-2">
@@ -174,16 +174,16 @@ const ProductDetailPage = () => {
 
         {/* Right Side: Description and Plans List */}
         <div className="col-lg-8">
-          <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+          <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
             <div className="card-body p-4">
               <h6 className="fw-bold mb-3">Description</h6>
-              <p className="mb-0" style={{ color: 'var(--ss-text-secondary)', lineHeight: '1.6' }}>
+              <p className="mb-0" style={{ color: 'var(--ip-text-secondary)', lineHeight: '1.6' }}>
                 {description}
               </p>
             </div>
           </div>
 
-          <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+          <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
             <div className="card-body p-4">
               <h6 className="fw-bold mb-3">Active Coverage Plans</h6>
               {plans.length === 0 ? (
@@ -197,7 +197,7 @@ const ProductDetailPage = () => {
                     <div 
                       key={plan.planId || index} 
                       className="list-group-item px-0 py-3 d-flex justify-content-between align-items-center"
-                      style={{ borderBottom: '1px solid var(--ss-border-light)' }}
+                      style={{ borderBottom: '1px solid var(--ip-border-light)' }}
                     >
                       <div>
                         <h6 className="fw-bold mb-1">

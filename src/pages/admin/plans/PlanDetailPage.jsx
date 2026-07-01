@@ -130,7 +130,7 @@ const PlanDetailPage = () => {
       <div className="row g-4">
         {/* Left Card: Fast Stats */}
         <div className="col-lg-4">
-          <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+          <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
             <div className="card-body p-4 text-center">
               <div className="mb-3 d-flex justify-content-center">
                 <div style={{
@@ -150,7 +150,7 @@ const PlanDetailPage = () => {
             </div>
           </div>
 
-          <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+          <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
             <div className="card-body p-4">
               <h6 className="fw-bold mb-3">Coverage & Details</h6>
               <div className="d-flex justify-content-between mb-2">
@@ -167,7 +167,7 @@ const PlanDetailPage = () => {
 
         {/* Right Card: Financials & Terms */}
         <div className="col-lg-8">
-          <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+          <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
             <div className="card-body p-4">
               <h6 className="fw-bold mb-3">Financial Structure</h6>
               <div className="row">
@@ -189,10 +189,10 @@ const PlanDetailPage = () => {
             </div>
           </div>
 
-          <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+          <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
             <div className="card-body p-4">
               <h6 className="fw-bold mb-3">Terms & Conditions</h6>
-              <div className="p-3 rounded-3" style={{ backgroundColor: 'rgba(249, 250, 251, 1)', borderLeft: '4px solid var(--ss-primary)' }}>
+              <div className="p-3 rounded-3" style={{ backgroundColor: 'rgba(249, 250, 251, 1)', borderLeft: '4px solid var(--ip-brand)' }}>
                 <p className="mb-0 text-secondary" style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
                   {terms}
                 </p>

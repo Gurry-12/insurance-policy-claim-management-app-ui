@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { recordPayment } from "../../../services/paymentService";
 import { getMyPolicies } from "../../../services/policyService";
 import PageHeader from "../../../components/common/PageHeader";
-import { Wallet, AlertCircle } from "lucide-react";
+import { Wallet } from "lucide-react";
 
 const RecordPaymentPage = () => {
   const navigate = useNavigate();
@@ -146,7 +146,7 @@ const RecordPaymentPage = () => {
                       <option value="">-- Select a Policy --</option>
                       {policies.map((policy) => (
                         <option key={policy.id || policy.policyId} value={policy.id || policy.policyId}>
-                          {policy.planName ? `${policy.planName} (ID: ${policy.id || policy.policyId})` : `Policy ID: ${policy.id || policy.policyId}`}
+                          {policy.planName ? `${policy.planName} (No: ${policy.policyNumber})` : `Policy No: ${policy.policyNumber}`}
                         </option>
                       ))}
                     </select>

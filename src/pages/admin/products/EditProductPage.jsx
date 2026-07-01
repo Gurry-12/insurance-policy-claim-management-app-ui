@@ -97,7 +97,7 @@ const EditProductPage = () => {
       {!error && (
         <div
           className="card border-0"
-          style={{ borderRadius: 16, boxShadow: "var(--ss-shadow)" }}
+          style={{ borderRadius: 16, boxShadow: "var(--ip-shadow-md)" }}
         >
           <div className="card-body p-4 p-md-5">
             <form onSubmit={handleSubmit}>

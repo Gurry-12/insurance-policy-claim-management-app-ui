@@ -114,7 +114,7 @@ const PolicyDetailPage = () => {
       <div className="row g-4">
         {/* Left Side: Summary and Actions */}
         <div className="col-lg-4">
-          <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+          <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
             <div className="card-body p-4 text-center">
               <div className="mb-3 d-flex justify-content-center">
                 <div style={{
@@ -130,7 +130,7 @@ const PolicyDetailPage = () => {
                 <StatusBadge status={status} />
               </div>
 
-              <hr className="my-4" style={{ borderColor: 'var(--ss-border-light)' }} />
+              <hr className="my-4" style={{ borderColor: 'var(--ip-border-light)' }} />
 
               <div className="text-start mb-4">
                 <div className="mb-3">
@@ -162,7 +162,7 @@ const PolicyDetailPage = () => {
           </div>
 
           {/* Claims History Card */}
-          <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+          <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
             <div className="card-body p-4">
               <h6 className="fw-bold mb-3 text-primary">
                 <i className="bi bi-file-earmark-medical me-2"></i>Claims History
@@ -172,7 +172,7 @@ const PolicyDetailPage = () => {
                 <div style={{ maxHeight: '300px', overflowY: 'auto', overflowX: 'auto' }}>
                   <table className="table table-hover align-middle mb-0" style={{ fontSize: '0.85rem' }}>
                     <thead style={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 1 }}>
-                      <tr style={{ color: 'var(--ss-text-muted)', fontSize: '0.74rem', textTransform: 'uppercase' }}>
+                      <tr style={{ color: 'var(--ip-text-muted)', fontSize: '0.74rem', textTransform: 'uppercase' }}>
                         <th className="border-0 bg-white">Claim Number</th>
                         <th className="border-0 bg-white">Amount</th>
                         <th className="border-0 bg-white">Status</th>
@@ -202,7 +202,7 @@ const PolicyDetailPage = () => {
         {/* Right Side: Plan Coverage & Customer Details */}
         <div className="col-lg-8">
           {/* Customer Card */}
-          <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+          <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
             <div className="card-body p-4">
               <h6 className="fw-bold mb-3 text-primary">
                 <i className="bi bi-person-fill me-2"></i>Customer Information
@@ -217,7 +217,7 @@ const PolicyDetailPage = () => {
           </div>
 
           {/* Coverage Details Card */}
-          <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+          <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
             <div className="card-body p-4">
               <h6 className="fw-bold mb-3 text-primary">
                 <i className="bi bi-shield-check me-2"></i>Coverage & Benefits
@@ -226,7 +226,7 @@ const PolicyDetailPage = () => {
               <div className="table-responsive">
                 <table className="table table-hover align-middle mb-0" style={{ fontSize: '0.85rem' }}>
                   <thead>
-                    <tr style={{ color: 'var(--ss-text-muted)', fontSize: '0.74rem', textTransform: 'uppercase' }}>
+                    <tr style={{ color: 'var(--ip-text-muted)', fontSize: '0.74rem', textTransform: 'uppercase' }}>
                       <th className="border-0 px-0">Benefit / Clause</th>
                       <th className="border-0 px-0">Detail</th>
                     </tr>
@@ -245,7 +245,7 @@ const PolicyDetailPage = () => {
           </div>
 
           {/* Payment History Card */}
-          <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+          <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
             <div className="card-body p-4">
               <h6 className="fw-bold mb-3 text-primary">
                 <i className="bi bi-receipt me-2"></i>Payment History
@@ -255,7 +255,7 @@ const PolicyDetailPage = () => {
                 <div style={{ maxHeight: '300px', overflowY: 'auto', overflowX: 'auto' }}>
                   <table className="table table-hover align-middle mb-0" style={{ fontSize: '0.85rem' }}>
                     <thead style={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 1 }}>
-                      <tr style={{ color: 'var(--ss-text-muted)', fontSize: '0.74rem', textTransform: 'uppercase' }}>
+                      <tr style={{ color: 'var(--ip-text-muted)', fontSize: '0.74rem', textTransform: 'uppercase' }}>
                         <th className="border-0 bg-white">Transaction Ref</th>
                         <th className="border-0 bg-white">Date</th>
                         <th className="border-0 bg-white">Amount</th>

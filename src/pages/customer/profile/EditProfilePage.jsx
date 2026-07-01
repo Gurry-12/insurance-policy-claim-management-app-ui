@@ -1,19 +1,15 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   createProfile,
   updateProfile,
   getProfile,
 } from "../../../services/customerService";
 import PageHeader from "../../../components/common/PageHeader";
-import useAuth from "../../../hooks/useAuth";
+
 
 const EditProfilePage = () => {
-  const { user } = useAuth();
-  const location = useLocation();
   const navigate = useNavigate();
-
-  const profile = location.state?.profile;
 
   const [customerId, setCustomerId] = useState(null);
 
@@ -43,7 +39,7 @@ const EditProfilePage = () => {
         nomineeName: data.nomineeName || "",
         nomineeRelation: data.nomineeRelation || "",
       });
-    } catch (error) {
+    } catch {
       // Ignore if no profile exists yet
     }
   };
@@ -87,7 +83,7 @@ const EditProfilePage = () => {
       if (customerId) {
         await updateProfile(customerId, formData);
       } else {
-        await createProfile(user?.id, formData);
+        await createProfile(formData);
       }
 
       navigate("/customer/profile");
@@ -210,15 +206,20 @@ const EditProfilePage = () => {
 
                   <div className="col-md-6">
                     <label className="form-label fw-medium">Nominee Relation <span className="text-danger">*</span></label>
-                    <input
-                      type="text"
+                    <select
                       name="nomineeRelation"
-                      className={`form-control ${errors.nomineeRelation ? 'is-invalid' : ''}`}
+                      className={`form-select ${errors.nomineeRelation ? 'is-invalid' : ''}`}
                       value={formData.nomineeRelation}
                       onChange={handleChange}
-                      placeholder="e.g., Spouse, Child, Parent"
                       required
-                    />
+                    >
+                      <option value="" disabled>Select Relation</option>
+                      <option value="Spouse">Spouse</option>
+                      <option value="Child">Child</option>
+                      <option value="Parent">Parent</option>
+                      <option value="Sibling">Sibling</option>
+                      <option value="Other">Other</option>
+                    </select>
                     {errors.nomineeRelation && <div className="invalid-feedback">{errors.nomineeRelation}</div>}
                   </div>
 

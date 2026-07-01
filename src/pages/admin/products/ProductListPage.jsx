@@ -124,7 +124,6 @@ const ProductListPage = () => {
             <ExportButton
               data={products || []}
               columns={[
-                { header: "Product ID", accessor: "productId" },
                 { header: "Product Name", accessor: "productName" },
                 { header: "Product Type", accessor: "productType" },
                 { header: "Active Status", exportValue: (r) => r.isActive ? "Active" : "Inactive" }
@@ -147,7 +146,7 @@ const ProductListPage = () => {
 
       <div
         className="card border-0"
-        style={{ borderRadius: 16, boxShadow: "var(--ss-shadow)" }}
+        style={{ borderRadius: 16, boxShadow: "var(--ip-shadow-md)" }}
       >
         <div className="card-body p-0">
           <div className="p-4 border-bottom border-light d-flex justify-content-between align-items-center flex-wrap gap-3">
@@ -158,7 +157,7 @@ const ProductListPage = () => {
                 style={{
                   width: "160px",
                   borderRadius: "8px",
-                  border: "1px solid var(--ss-border)",
+                  border: "1px solid var(--ip-border)",
                 }}
                 value={tableState.filters.statusFilter}
                 onChange={(e) =>
@@ -176,7 +175,7 @@ const ProductListPage = () => {
                 style={{
                   width: "160px",
                   borderRadius: "8px",
-                  border: "1px solid var(--ss-border)",
+                  border: "1px solid var(--ip-border)",
                 }}
                 value={tableState.filters.productTypeFilter}
                 onChange={(e) =>
@@ -198,7 +197,7 @@ const ProductListPage = () => {
               >
                 <span
                   className="input-group-text bg-white border-end-0"
-                  style={{ border: "1px solid var(--ss-border)" }}
+                  style={{ border: "1px solid var(--ip-border)" }}
                 >
                   <i className="bi bi-search text-muted"></i>
                 </span>
@@ -207,7 +206,7 @@ const ProductListPage = () => {
                   className="form-control border-start-0 ps-0"
                   placeholder="Search products on this page..."
                   style={{
-                    border: "1px solid var(--ss-border)",
+                    border: "1px solid var(--ip-border)",
                     borderRadius: "0 8px 8px 0",
                   }}
                   value={searchTerm}

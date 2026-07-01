@@ -43,7 +43,7 @@ const StaffClaimHistory = () => {
         title="Claim Status History"
         subtitle="Historical logs of claim adjustments and statuses"
         action={
-          <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate(`/Staff/claims/${id}`)}>
+          <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate(`/staff/claims/${id}`)}>
             <i className="bi bi-arrow-left"></i> Back
           </button>
         }
@@ -79,7 +79,7 @@ const StaffClaimHistory = () => {
                   </td>
                   <td>{history.remarks || "-"}</td>
                   <td style={{ fontWeight: 500 }}>{history.updatedBy}</td>
-                  <td style={{ color: 'var(--ss-text-muted)' }}>
+                  <td style={{ color: 'var(--ip-text-muted)' }}>
                     {new Date(history.updatedDate).toLocaleString()}
                   </td>
                 </tr>

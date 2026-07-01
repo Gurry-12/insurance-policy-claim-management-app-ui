@@ -4,12 +4,14 @@ import { getClaimById } from "../../../services/claimService";
 import PageHeader from "../../../components/common/PageHeader";
 import LoadingSpinner from "../../../components/common/LoadingSpinner";
 import StatusBadge from "../../../components/ui/StatusBadge";
-import { FileText, ArrowLeft, ExternalLink, History, Upload } from "lucide-react";
+import DocumentPreviewModal from '../../../components/modals/DocumentPreviewModal';
+import { ArrowLeft, ExternalLink, History, Upload, Eye } from "lucide-react";
 
 const ClaimDetailsPage = () => {
   const { claimId } = useParams();
   const [claim, setClaim] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [previewDoc, setPreviewDoc] = useState(null);
 
   const loadClaim = async () => {
     try {
@@ -42,7 +44,6 @@ const ClaimDetailsPage = () => {
       <PageHeader
         title={`Claim ${claim.claimNumber}`}
         subtitle="Detailed view of your claim"
-        icon={FileText}
         action={
           <div className="d-flex gap-2">
             <Link
@@ -146,15 +147,13 @@ const ClaimDetailsPage = () => {
                       <div className="text-truncate me-3" style={{ maxWidth: "200px" }} title={doc.documentName}>
                         <span className="fw-medium small">{doc.documentName}</span>
                       </div>
-                      <a
-                        href={doc.documentReference}
-                        target="_blank"
-                        rel="noreferrer"
+                      <button
+                        onClick={() => setPreviewDoc(doc)}
                         className="btn btn-sm btn-primary"
                       >
-                        <ExternalLink size={14} className="me-1" />
-                        Open
-                      </a>
+                        <Eye size={14} className="me-1" />
+                        Preview
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -167,6 +166,13 @@ const ClaimDetailsPage = () => {
           </div>
         </div>
       </div>
+
+      <DocumentPreviewModal
+        isOpen={!!previewDoc}
+        onClose={() => setPreviewDoc(null)}
+        documentUrl={previewDoc?.documentReference}
+        documentName={previewDoc?.documentName}
+      />
     </div>
   );
 };

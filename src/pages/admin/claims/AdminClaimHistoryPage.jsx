@@ -61,7 +61,7 @@ const AdminClaimHistoryPage = () => {
         onBack={() => navigate(`/admin/claims/${id}`)}
       />
 
-      <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+      <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
         <div className="card-body p-4">
           <h6 className="fw-bold mb-4">Transition Timeline</h6>
 
@@ -83,7 +83,7 @@ const AdminClaimHistoryPage = () => {
                       <i className="bi bi-clock"></i>
                     </div>
                     {idx < history.length - 1 && (
-                      <div style={{ width: 2, height: 50, backgroundColor: 'var(--ss-border-light)', margin: '4px 0' }}></div>
+                      <div style={{ width: 2, height: 50, backgroundColor: 'var(--ip-border-light)', margin: '4px 0' }}></div>
                     )}
                   </div>
                   <div className="card border-0 p-3 bg-light w-100" style={{ borderRadius: 12 }}>

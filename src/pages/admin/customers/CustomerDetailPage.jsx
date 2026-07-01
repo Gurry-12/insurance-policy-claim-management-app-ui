@@ -94,7 +94,7 @@ const CustomerDetailPage = () => {
         <div className="col-lg-4">
           <div
             className="card border-0 h-100"
-            style={{ borderRadius: 16, boxShadow: "var(--ss-shadow)" }}
+            style={{ borderRadius: 16, boxShadow: "var(--ip-shadow-md)" }}
           >
             <div className="card-body p-4 text-center">
               <div className="mb-3 d-flex justify-content-center">
@@ -103,7 +103,7 @@ const CustomerDetailPage = () => {
                     width: 80,
                     height: 80,
                     borderRadius: "50%",
-                    backgroundColor: "var(--ss-primary)",
+                    backgroundColor: "var(--ip-brand)",
                     color: "white",
                     display: "flex",
                     alignItems: "center",
@@ -119,7 +119,7 @@ const CustomerDetailPage = () => {
 
               <hr
                 className="my-4"
-                style={{ borderColor: "var(--ss-border-light)" }}
+                style={{ borderColor: "var(--ip-border-light)" }}
               />
 
               <div className="text-start">
@@ -165,7 +165,7 @@ const CustomerDetailPage = () => {
         <div className="col-lg-8">
           <div
             className="card border-0 mb-4"
-            style={{ borderRadius: 16, boxShadow: "var(--ss-shadow)" }}
+            style={{ borderRadius: 16, boxShadow: "var(--ip-shadow-md)" }}
           >
             <div className="card-body p-4">
               <h6 className="fw-bold mb-4">Active & Past Policies</h6>

@@ -15,7 +15,7 @@ const ProfilePage = () => {
 
       setProfile(response.data);
       setProfileExists(true);
-    } catch (error) {
+    } catch {
       setProfileExists(false);
     } finally {
       setLoading(false);

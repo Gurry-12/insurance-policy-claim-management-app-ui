@@ -1,14 +1,23 @@
-/**
- * EmptyState — centred empty placeholder for lists and tables.
- *
- * Props:
- *  icon    — bootstrap-icons class (default: 'bi-inbox')
- *  message — text to display (default: 'No data found')
- */
-const EmptyState = ({ icon = 'bi-inbox', message = 'No data found' }) => (
-  <div className="text-center py-5" style={{ color: 'var(--ss-text-muted)', fontSize: '0.875rem' }}>
-    <i className={`bi ${icon} d-block mb-2`} style={{ fontSize: '2.25rem', opacity: 0.4 }} />
-    {message}
+
+
+const EmptyState = ({ icon = 'bi-inbox', title = 'No data found', message = 'There are no records to display here at the moment.' }) => (
+  <div className="d-flex flex-column align-items-center justify-content-center py-5 px-3 text-center animate-slide-up w-100">
+    <div 
+      className="d-flex align-items-center justify-content-center rounded-circle mb-3"
+      style={{
+        width: 80,
+        height: 80,
+        backgroundColor: 'var(--ip-surface-raised)',
+        color: 'var(--ip-text-muted)',
+        border: '1px solid var(--ip-border)'
+      }}
+    >
+      <i className={`bi ${icon}`} style={{ fontSize: '2.5rem' }} />
+    </div>
+    <h5 className="fw-semibold mb-2" style={{ color: 'var(--ip-text-primary)' }}>{title}</h5>
+    <p style={{ color: 'var(--ip-text-muted)', fontSize: '0.9rem', maxWidth: 320 }}>
+      {message}
+    </p>
   </div>
 );
 

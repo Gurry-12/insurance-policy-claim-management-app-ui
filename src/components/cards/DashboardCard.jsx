@@ -1,25 +1,14 @@
 import { Link } from 'react-router-dom';
 
-/**
- * DashboardCard — stat metric card used on dashboard overview pages.
- *
- * Props:
- *  icon    — bootstrap-icons class e.g. 'bi-people-fill'
- *  label   — metric label string
- *  value   — the number/string to display (undefined = skeleton)
- *  color   — hex accent colour
- *  to      — react-router link target (optional)
- *  delta   — number: % change this month (optional, + green / - red)
- */
 const DashboardCard = ({ icon, label, value, color, to, delta }) => {
   const content = (
     <div
-      className="dashboard-metric-card card border-0 h-100"
+      className="card border-0 h-100 hover-lift animate-slide-up"
       style={{
         borderRadius: 16,
         cursor: to ? 'pointer' : 'default',
-        transition: 'transform 0.2s, box-shadow 0.2s',
-        boxShadow: 'var(--ss-shadow)',
+        boxShadow: 'var(--ip-shadow-md)',
+        overflow: 'hidden',
       }}
     >
       <div className="card-body d-flex align-items-center gap-3 p-4">
@@ -36,19 +25,19 @@ const DashboardCard = ({ icon, label, value, color, to, delta }) => {
           <div
             style={{
               fontSize: '1.7rem', fontWeight: 700,
-              color: 'var(--ss-text-primary)', lineHeight: 1.1,
+              color: 'var(--ip-text-primary)', lineHeight: 1.1,
             }}
           >
             {value ?? <span className="placeholder col-6" />}
           </div>
-          <div style={{ fontSize: '0.78rem', color: 'var(--ss-text-muted)', marginTop: 2 }}>
+          <div style={{ fontSize: '0.78rem', color: 'var(--ip-text-muted)', marginTop: 2 }}>
             {label}
           </div>
           {delta !== undefined && (
             <div
               style={{
                 fontSize: '0.72rem', marginTop: 4, fontWeight: 600,
-                color: delta >= 0 ? '#22c55e' : '#ef4444',
+                color: delta >= 0 ? 'var(--ip-success)' : 'var(--ip-danger)',
               }}
             >
               <i className={`bi bi-arrow-${delta >= 0 ? 'up' : 'down'}-short`} />
@@ -61,7 +50,7 @@ const DashboardCard = ({ icon, label, value, color, to, delta }) => {
   );
 
   return to ? (
-    <Link to={to} className="text-decoration-none">{content}</Link>
+    <Link to={to} className="text-decoration-none d-block">{content}</Link>
   ) : (
     content
   );

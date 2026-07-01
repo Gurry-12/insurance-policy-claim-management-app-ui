@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { getAllClaimsPaginated } from "../../../services/claimService";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Outlet } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import ExportButton from "../../../components/common/ExportButton";
-import { Eye } from "lucide-react";
 import useClaimPdf from "../../../hooks/PdfDownload/useClaimPdf";
 import useTableState from "../../../hooks/useTableState";
 import PaginationBar from "../../../components/tables/PaginationBar";
@@ -73,7 +72,7 @@ const StaffClaimListPage = () => {
             <ExportButton
               data={claims || []}
               columns={[
-                { header: "Claim ID", accessor: "claimNumber" },
+                { header: "Claim Number", accessor: "claimNumber" },
                 { header: "Customer Name", accessor: "customerName" },
                 { header: "Policy Number", accessor: "policyNumber" },
                 { header: "Claim Amount (₹)", accessor: "claimAmount" },
@@ -81,7 +80,7 @@ const StaffClaimListPage = () => {
               ]}
               filename="Staff_claims_list.csv"
             />
-            <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate("/Staff/dashboard")}>
+            <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate("/staff/dashboard")}>
               <i className="bi bi-arrow-left"></i> Back
             </button>
           </div>
@@ -108,7 +107,7 @@ const StaffClaimListPage = () => {
         <input
           type="text"
           className="form-control"
-          placeholder="Search by Claim ID, Customer Name, Amount or Policy Number"
+          placeholder="Search by Claim Number, Customer Name, Amount or Policy Number"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -130,7 +129,6 @@ const StaffClaimListPage = () => {
                 <th>Amount</th>
                 <th>Status</th>
                 <th>Actions</th>
-                <th>Download</th>
               </tr>
             </thead>
 
@@ -157,24 +155,24 @@ const StaffClaimListPage = () => {
             <td><StatusBadge status={claim.claimStatus} /></td>
 
            <td>
-            <Link
-              to={`/Staff/claims/${claim.claimId}`}
-              className="btn btn-light btn-sm text-primary"
-               title="View Details"
-        >
-          <Eye size={16} />
-          <span className="ms-1">View Details</span>
-        </Link>
-      </td>
-      <td>
-    <button
-        className="btn btn-danger btn-sm"
-        onClick={() => downloadClaim(claim)}
-    >
-        <i className="bi bi-download me-1"></i>
-        PDF
-    </button>
-</td>
+            <div className="d-flex align-items-center gap-2" onClick={(e) => e.stopPropagation()}>
+              <button 
+                className="btn btn-sm btn-light text-primary d-flex align-items-center gap-1" 
+                onClick={() => navigate(`/staff/claims/${claim.claimId}`)}
+                style={{ borderRadius: '6px' }}
+              >
+                <i className="bi bi-eye"></i> View
+              </button>
+              <button 
+                className="btn btn-sm btn-light text-danger d-flex align-items-center gap-1" 
+                onClick={() => downloadClaim(claim)}
+                title="Download PDF"
+                style={{ borderRadius: '6px' }}
+              >
+                <i className="bi bi-file-earmark-pdf"></i>
+              </button>
+            </div>
+          </td>
     </tr>
   ))}
 </tbody>
@@ -186,12 +184,11 @@ const StaffClaimListPage = () => {
           <PaginationBar
             currentPage={tableState.currentPage}
             totalPages={tableState.totalPages}
-            totalElements={tableState.totalElements}
-            pageSize={tableState.pageSize}
             onPageChange={tableState.setCurrentPage}
           />
         </div>
       )}
+      <Outlet />
     </div>
   );
 };

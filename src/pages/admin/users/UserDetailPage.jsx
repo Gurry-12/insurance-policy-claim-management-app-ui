@@ -124,11 +124,11 @@ const UserDetailPage = () => {
       <div className="row g-4">
         {/* Left Side: Avatar Card */}
         <div className="col-lg-4">
-          <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+          <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
             <div className="card-body p-4 text-center">
               <div className="mb-3 d-flex justify-content-center">
                 <div style={{
-                  width: 80, height: 80, borderRadius: '50%', backgroundColor: 'var(--ss-primary)',
+                  width: 80, height: 80, borderRadius: '50%', backgroundColor: 'var(--ip-brand)',
                   color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', fontWeight: 600
                 }}>
                   {name.charAt(0).toUpperCase()}
@@ -146,7 +146,7 @@ const UserDetailPage = () => {
 
         {/* Right Side: Contact Info */}
         <div className="col-lg-8">
-          <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ss-shadow)' }}>
+          <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
             <div className="card-body p-4">
               <h6 className="fw-bold mb-4">Contact Information</h6>
               <div className="row mb-3">

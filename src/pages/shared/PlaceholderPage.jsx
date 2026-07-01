@@ -10,16 +10,16 @@ const PlaceholderPage = ({ role }) => {
   return (
     <div
       className="d-flex flex-column align-items-center justify-content-center gap-3"
-      style={{ minHeight: '100vh', background: 'var(--ss-bg)', color: 'var(--ss-text-primary)' }}
+      style={{ minHeight: '100vh', background: 'var(--ip-bg)', color: 'var(--ip-text-primary)' }}
     >
-      <i className="bi bi-stars" style={{ fontSize: '3.5rem', color: 'var(--ss-primary)' }} />
+      <i className="bi bi-stars" style={{ fontSize: '3.5rem', color: 'var(--ip-brand)' }} />
       <h2 className="fw-bold mb-0">{role} Dashboard</h2>
       <p className="text-muted mb-1">
         Logged in as <strong>{user?.name || user?.email}</strong>
       </p>
       <span
         className="badge rounded-pill px-3 py-2"
-        style={{ background: 'var(--ss-primary-light)', color: 'var(--ss-primary)', fontSize: '0.85rem' }}
+        style={{ background: 'var(--ip-brand-light)', color: 'var(--ip-brand)', fontSize: '0.85rem' }}
       >
         <i className="bi bi-person-fill me-1" />
         {user?.role}

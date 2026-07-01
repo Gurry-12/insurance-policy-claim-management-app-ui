@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Outlet } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import DataTable from '../../../components/tables/DataTable';
 import PaginationBar from '../../../components/tables/PaginationBar';
@@ -78,7 +78,7 @@ const ClaimListPage = () => {
       cell: (row, index) => tableState.getSrNo(index), 
       minWidth: "85px" 
     },
-    { header: renderHeader("Claim ID", "claimNumber"), accessor: "claimNumber", minWidth: "100px" },
+    { header: renderHeader("Claim Number", "claimNumber"), accessor: "claimNumber", minWidth: "100px" },
     { header: "Customer", accessor: "customerName" },
     {
       header: renderHeader("Amount (₹)", "claimAmount"),
@@ -92,26 +92,22 @@ const ClaimListPage = () => {
     {
       header: "Actions",
       cell: (row) => (
-        <div className="d-flex gap-2">
-          <button
-            className="btn btn-sm btn-light text-primary border-0"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`/admin/claims/${row.claimId}`);
-            }}
+        <div className="d-flex align-items-center gap-2" onClick={(e) => e.stopPropagation()}>
+          <button 
+            className="btn btn-sm btn-light text-primary d-flex align-items-center gap-1" 
+            onClick={() => navigate(`/admin/claims/${row.claimId}`)}
+            style={{ borderRadius: '6px' }}
             title="Review Claim"
           >
             <i className="bi bi-eye"></i> Review
           </button>
-          <button
-            className="btn btn-sm btn-light text-secondary border-0"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`/admin/claims/${row.claimId}/history`);
-            }}
-            title="Claim History"
+          <button 
+            className="btn btn-sm btn-light text-secondary d-flex align-items-center gap-1" 
+            onClick={() => navigate(`/admin/claims/${row.claimId}/history`)}
+            title="View History"
+            style={{ borderRadius: '6px' }}
           >
-            <i className="bi bi-clock-history"></i> History
+            <i className="bi bi-clock-history"></i>
           </button>
         </div>
       ),
@@ -127,7 +123,7 @@ const ClaimListPage = () => {
           <ExportButton
             data={claims || []}
             columns={[
-              { header: "Claim ID", accessor: "claimNumber" },
+              { header: "Claim Number", accessor: "claimNumber" },
               { header: "Customer Name", accessor: "customerName" },
               { header: "Claim Amount (₹)", accessor: "claimAmount" },
               { header: "Status", accessor: "claimStatus" },
@@ -140,7 +136,7 @@ const ClaimListPage = () => {
 
       <div
         className="card border-0"
-        style={{ borderRadius: 16, boxShadow: "var(--ss-shadow)" }}
+        style={{ borderRadius: 16, boxShadow: "var(--ip-shadow-md)" }}
       >
         <div className="card-body p-0">
           <div className="p-4 border-bottom border-light d-flex flex-wrap gap-3 justify-content-between align-items-center">
@@ -164,14 +160,14 @@ const ClaimListPage = () => {
             </div>
             <div className="d-flex gap-2">
               <div className="input-group input-group-sm" style={{ width: "250px" }}>
-                <span className="input-group-text bg-white border-end-0" style={{ border: '1px solid var(--ss-border)' }}>
+                <span className="input-group-text bg-white border-end-0" style={{ border: '1px solid var(--ip-border)' }}>
                   <i className="bi bi-search text-muted"></i>
                 </span>
               <input
                 type="text"
                 className="form-control border-start-0 ps-0"
                 placeholder="Search all claims..."
-                style={{ border: '1px solid var(--ss-border)', borderRadius: '0 8px 8px 0' }}
+                style={{ border: '1px solid var(--ip-border)', borderRadius: '0 8px 8px 0' }}
                 value={tableState.searchQuery}
                 onChange={(e) => tableState.handleSearchChange(e.target.value)}
               />
@@ -193,6 +189,7 @@ const ClaimListPage = () => {
           </div>
         </div>
       </div>
+      <Outlet />
     </div>
   );
 };

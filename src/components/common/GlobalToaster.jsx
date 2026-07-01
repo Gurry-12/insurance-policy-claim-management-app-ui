@@ -7,12 +7,12 @@ const GlobalToaster = () => {
       containerStyle={{ zIndex: 999999 }}
       toastOptions={{
         style: {
-          background: 'rgba(255, 255, 255, 0.8)',
+          background: 'rgba(255, 255, 255, 0.95)',
           backdropFilter: 'blur(10px)',
           WebkitBackdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255,255,255,0.4)',
-          boxShadow: 'var(--ss-shadow)',
-          color: 'var(--ss-text-primary)',
+          border: '1px solid rgba(200, 200, 200, 0.3)',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          color: '#1e293b', // Hardcoded to stay dark text on light bg in both themes
           borderRadius: '12px',
         },
         success: {
