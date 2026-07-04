@@ -63,10 +63,12 @@ const StaffDashboard = () => {
         setLoading(true);
         setError("");
 
-        const customers = await getAllCustomers();
-        const policyResponse = await getAllPolicies();
-        const claimResponse = await getAllClaims();
-        const paymentResponse = await getAllPayments();
+        const [customers, policyResponse, claimResponse, paymentResponse] = await Promise.all([
+          getAllCustomers(),
+          getAllPolicies(),
+          getAllClaims(),
+          getAllPayments()
+        ]);
 
         const claims = claimResponse?.content || [];
         const policies = policyResponse?.content || [];
@@ -219,7 +221,7 @@ const StaffDashboard = () => {
                     key={c.customerId ?? i}
                     className="d-flex align-items-center gap-3 py-2 animate-fade-in"
                     style={{ borderBottom: i < recentCustomers.length - 1 ? '1px solid var(--ip-border)' : 'none', cursor: 'pointer' }}
-                    onClick={() => navigate(`/staff/customers`)}
+                    onClick={() => navigate(`/staff/customers/${c.customerId}`)}
                   >
                     <div className="ip-bento-stat-icon" style={{ background: '#0d948818', width: 36, height: 36, borderRadius: 10 }}>
                       <i className="bi bi-person-fill" style={{ color: '#0d9488', fontSize: '0.9rem' }} />

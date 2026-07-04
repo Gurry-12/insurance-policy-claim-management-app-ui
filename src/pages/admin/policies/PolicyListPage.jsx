@@ -4,12 +4,25 @@ import PageHeader from '../../../components/common/PageHeader';
 import DataTable from '../../../components/tables/DataTable';
 import PaginationBar from '../../../components/tables/PaginationBar';
 import StatusBadge from '../../../components/ui/StatusBadge';
+import FilterPanel from '../../../components/ui/FilterPanel';
+import FilterChips from '../../../components/ui/FilterChips';
 import { getAllPoliciesPaginated } from '../../../services/policyService';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import useTableState from '../../../hooks/useTableState';
 import SortableHeader from '../../../components/tables/SortableHeader';
-import useSearch from '../../../hooks/useSearch';
+import useDebounceFilters from '../../../hooks/useDebounceFilters';
 import ExportButton from '../../../components/common/ExportButton';
+
+const FILTER_FIELDS = [
+  { type: 'select', name: 'status', label: 'Policy Status',
+    options: [
+      { value: 'ACTIVE',          label: 'Active' },
+      { value: 'PENDING_PAYMENT', label: 'Pending Payment' },
+      { value: 'EXPIRED',         label: 'Expired' },
+      { value: 'CANCELLED',       label: 'Cancelled' },
+    ],
+  },
+];
 
 const PolicyListPage = () => {
   const navigate = useNavigate();
@@ -19,18 +32,17 @@ const PolicyListPage = () => {
   
   const tableState = useTableState({
     initialSortBy: 'id',
-    initialFilters: { statusFilter: 'ALL' }
+    initialFilters: { status: '', startDate: '', endDate: '' }
   });
+
+  const { localFilters, handleFilterChange, clearFilters } = useDebounceFilters(
+    tableState.filters,
+    tableState.handleFilterChange
+  );
 
   const fetchPolicies = () => {
     setLoading(true);
     const params = tableState.getQueryParams();
-    
-    if (tableState.filters.statusFilter !== 'ALL') {
-      params.status = tableState.filters.statusFilter;
-      params.policyStatus = tableState.filters.statusFilter;
-    }
-    delete params.statusFilter;
 
     getAllPoliciesPaginated(params)
       .then((res) => {
@@ -42,18 +54,12 @@ const PolicyListPage = () => {
       .finally(() => setLoading(false));
   };
 
-  const { searchTerm, setSearchTerm, filteredData: filteredPolicies } = useSearch(policies || [], [
-    "policyNumber",
-    "customerName",
-    "planName"
-  ]);
-
   useEffect(() => {
     fetchPolicies();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     tableState.currentPage, 
-    tableState.filters.statusFilter, 
+    JSON.stringify(tableState.filters),
     tableState.sortBy, 
     tableState.sortDirection
   ]);
@@ -92,7 +98,7 @@ const PolicyListPage = () => {
             navigate(`/admin/policies/${row.policyId}`);
           }}
         >
-          <i className="bi bi-file-earmark-text"></i> View
+          <i className="bi bi-file-earmark-text" /> View
         </button>
       ),
     },
@@ -117,10 +123,9 @@ const PolicyListPage = () => {
                 { header: "End Date", accessor: "endDate" },
                 { header: "Status", accessor: "policyStatus" }
               ]}
-              filename="policies_list.csv"
             />
             <Link to="/admin/policies/issue" className="btn btn-primary d-flex align-items-center gap-2" style={{ borderRadius: '8px' }}>
-              <i className="bi bi-file-earmark-plus"></i>
+              <i className="bi bi-file-earmark-plus" />
               Issue New Policy
             </Link>
           </div>
@@ -131,40 +136,32 @@ const PolicyListPage = () => {
 
       <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
         <div className="card-body p-0">
-          <div className="p-4 border-bottom border-light d-flex flex-wrap gap-3 justify-content-between align-items-center">
-            <h6 className="m-0 fw-bold">All Policies</h6>
-            <div className="d-flex gap-2">
-              <select 
-                className="form-select form-select-sm" 
-                style={{ width: '160px', borderRadius: '8px', border: '1px solid var(--ip-border)' }}
-                value={tableState.filters.statusFilter}
-                onChange={(e) => tableState.handleFilterChange({ statusFilter: e.target.value })}
-              >
-                <option value="ALL">All Statuses</option>
-                <option value="ACTIVE">Active</option>
-                <option value="PENDING_PAYMENT">Pending Payment</option>
-                <option value="EXPIRED">Expired</option>
-                <option value="CANCELLED">Cancelled</option>
-              </select>
-              <div className="input-group input-group-sm" style={{ width: '220px' }}>
-                <span className="input-group-text bg-white border-end-0" style={{ border: '1px solid var(--ip-border)' }}>
-                  <i className="bi bi-search text-muted"></i>
-                </span>
-                <input 
-                  type="text" 
-                  className="form-control border-start-0 ps-0" 
-                  placeholder="Search policies on this page..." 
-                  style={{ border: '1px solid var(--ip-border)', borderRadius: '0 8px 8px 0' }}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+          <div className="p-4 border-bottom border-light">
+            <div className="ip-table-toolbar">
+              <div className="ip-table-toolbar-left">
+                <h6 className="ip-table-title">All Policies</h6>
+                {tableState.totalElements > 0 && (
+                  <span className="ip-total-badge">{tableState.totalElements} total</span>
+                )}
               </div>
+              <FilterPanel
+                fields={FILTER_FIELDS}
+                localFilters={localFilters}
+                onApply={(draft) => tableState.handleFilterChange(draft)}
+                onClear={clearFilters}
+              />
             </div>
+            <FilterChips
+              fields={FILTER_FIELDS}
+              localFilters={localFilters}
+              onRemove={(updates) => tableState.handleFilterChange(updates)}
+              onClearAll={clearFilters}
+            />
           </div>
           <div className="p-4">
             <DataTable 
               columns={columns} 
-              data={filteredPolicies} 
+              data={policies} 
               loading={loading}
             />
             <PaginationBar 

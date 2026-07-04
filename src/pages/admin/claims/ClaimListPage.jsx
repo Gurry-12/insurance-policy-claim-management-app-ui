@@ -4,11 +4,27 @@ import PageHeader from '../../../components/common/PageHeader';
 import DataTable from '../../../components/tables/DataTable';
 import PaginationBar from '../../../components/tables/PaginationBar';
 import StatusBadge from '../../../components/ui/StatusBadge';
+import FilterPanel from '../../../components/ui/FilterPanel';
+import FilterChips from '../../../components/ui/FilterChips';
 import { getAllClaimsPaginated } from '../../../services/claimService';
 import useTableState from '../../../hooks/useTableState';
 import SortableHeader from '../../../components/tables/SortableHeader';
 import useDocumentTitle from '../../../hooks/useDocumentTitle';
 import ExportButton from '../../../components/common/ExportButton';
+import useDebounceFilters from '../../../hooks/useDebounceFilters';
+
+const FILTER_FIELDS = [
+  { type: 'select', name: 'status', label: 'Claim Status',
+    options: [
+      { value: 'SUBMITTED',                 label: 'Submitted' },
+      { value: 'UNDER_REVIEW',              label: 'Under Review' },
+      { value: 'RECOMMENDED_FOR_APPROVAL',  label: 'Reviewed' },
+      { value: 'APPROVED',                  label: 'Approved' },
+      { value: 'REJECTED',                  label: 'Rejected' },
+    ],
+  },
+  { type: 'amount-range', minName: 'minClaimAmount', maxName: 'maxClaimAmount', label: 'Claim Amount' },
+];
 
 const ClaimListPage = () => {
   useDocumentTitle('Claims Management');
@@ -17,8 +33,13 @@ const ClaimListPage = () => {
   
   const tableState = useTableState({
     initialSortBy: 'createdDate',
-    initialFilters: { statusFilter: 'ALL' }
+    initialFilters: { status: '', minClaimAmount: '', maxClaimAmount: '', startDate: '', endDate: '' }
   });
+
+  const { localFilters, handleFilterChange, clearFilters } = useDebounceFilters(
+    tableState.filters,
+    tableState.handleFilterChange
+  );
 
   useEffect(() => {
     const controller = new AbortController();
@@ -26,11 +47,6 @@ const ClaimListPage = () => {
     const fetchClaims = () => {
       tableState.setIsLoading(true);
       const params = tableState.getQueryParams();
-      
-      if (params.statusFilter && params.statusFilter !== 'ALL') {
-        params.status = params.statusFilter;
-      }
-      delete params.statusFilter;
   
       getAllClaimsPaginated(params, { signal: controller.signal })
         .then((res) => {
@@ -56,10 +72,9 @@ const ClaimListPage = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     tableState.currentPage, 
-    tableState.filters.statusFilter, 
+    JSON.stringify(tableState.filters), 
     tableState.sortBy, 
-    tableState.sortDirection,
-    tableState.debouncedSearch
+    tableState.sortDirection
   ]);
 
   const renderHeader = (label, field) => (
@@ -88,7 +103,7 @@ const ClaimListPage = () => {
       header: renderHeader("Status", "claimStatus"),
       cell: (row) => <StatusBadge status={row.claimStatus} />,
     },
-    { header: "Staff", accessor: "assignedStaffName", cell: (row) => row.assignedStaffName || <span className="text-muted">Unassigned</span> },
+    { header: renderHeader("Policy Number", "policyNumber"), accessor: "policyNumber" },
     {
       header: "Actions",
       cell: (row) => (
@@ -99,7 +114,7 @@ const ClaimListPage = () => {
             style={{ borderRadius: '6px' }}
             title="Review Claim"
           >
-            <i className="bi bi-eye"></i> Review
+            <i className="bi bi-eye" /> Review
           </button>
           <button 
             className="btn btn-sm btn-light text-secondary d-flex align-items-center gap-1" 
@@ -107,7 +122,7 @@ const ClaimListPage = () => {
             title="View History"
             style={{ borderRadius: '6px' }}
           >
-            <i className="bi bi-clock-history"></i>
+            <i className="bi bi-clock-history" />
           </button>
         </div>
       ),
@@ -127,7 +142,7 @@ const ClaimListPage = () => {
               { header: "Customer Name", accessor: "customerName" },
               { header: "Claim Amount (₹)", accessor: "claimAmount" },
               { header: "Status", accessor: "claimStatus" },
-              { header: "Assigned Staff", accessor: "assignedStaffName" }
+              { header: "Policy Number", accessor: "policyNumber" }
             ]}
             filename="claims_list.csv"
           />
@@ -139,40 +154,27 @@ const ClaimListPage = () => {
         style={{ borderRadius: 16, boxShadow: "var(--ip-shadow-md)" }}
       >
         <div className="card-body p-0">
-          <div className="p-4 border-bottom border-light d-flex flex-wrap gap-3 justify-content-between align-items-center">
-            <div className="d-flex gap-2 flex-wrap">
-              {[
-                { label: "All Claims", val: "ALL" },
-                { label: "Submitted", val: "SUBMITTED" },
-                { label: "Under Review", val: "UNDER_REVIEW" },
-                { label: "Reviewed", val: "RECOMMENDED_FOR_APPROVAL" },
-                { label: "Approved", val: "APPROVED" },
-                { label: "Rejected", val: "REJECTED" },
-              ].map((pill) => (
-                <button
-                  key={pill.val}
-                  onClick={() => tableState.handleFilterChange({ statusFilter: pill.val })}
-                  className={`btn btn-sm px-3 rounded-pill ${tableState.filters.statusFilter === pill.val ? "btn-primary" : "btn-light text-muted"}`}
-                >
-                  {pill.label}
-                </button>
-              ))}
-            </div>
-            <div className="d-flex gap-2">
-              <div className="input-group input-group-sm" style={{ width: "250px" }}>
-                <span className="input-group-text bg-white border-end-0" style={{ border: '1px solid var(--ip-border)' }}>
-                  <i className="bi bi-search text-muted"></i>
-                </span>
-              <input
-                type="text"
-                className="form-control border-start-0 ps-0"
-                placeholder="Search all claims..."
-                style={{ border: '1px solid var(--ip-border)', borderRadius: '0 8px 8px 0' }}
-                value={tableState.searchQuery}
-                onChange={(e) => tableState.handleSearchChange(e.target.value)}
+          <div className="p-4 border-bottom border-light">
+            <div className="ip-table-toolbar">
+              <div className="ip-table-toolbar-left">
+                <h6 className="ip-table-title">All Claims</h6>
+                {tableState.totalElements > 0 && (
+                  <span className="ip-total-badge">{tableState.totalElements} total</span>
+                )}
+              </div>
+              <FilterPanel
+                fields={FILTER_FIELDS}
+                localFilters={localFilters}
+                onApply={(draft) => tableState.handleFilterChange(draft)}
+                onClear={clearFilters}
               />
             </div>
-            </div>
+            <FilterChips
+              fields={FILTER_FIELDS}
+              localFilters={localFilters}
+              onRemove={(updates) => tableState.handleFilterChange(updates)}
+              onClearAll={clearFilters}
+            />
           </div>
           <div className="p-4">
             <DataTable
@@ -195,4 +197,3 @@ const ClaimListPage = () => {
 };
 
 export default ClaimListPage;
-

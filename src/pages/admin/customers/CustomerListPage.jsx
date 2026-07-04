@@ -3,33 +3,35 @@ import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import DataTable from '../../../components/tables/DataTable';
 import PaginationBar from '../../../components/tables/PaginationBar';
+import FilterPanel from '../../../components/ui/FilterPanel';
+import FilterChips from '../../../components/ui/FilterChips';
 import { getAllCustomersPaginated } from '../../../services/customerService';
 import useTableState from '../../../hooks/useTableState';
 import SortableHeader from '../../../components/tables/SortableHeader';
-import useSearch from '../../../hooks/useSearch';
+import useDebounceFilters from '../../../hooks/useDebounceFilters';
 import ExportButton from '../../../components/common/ExportButton';
+
+const FILTER_FIELDS = [
+  { type: 'text', name: 'city',    label: 'City',     placeholder: 'Search by city...' },
+  { type: 'text', name: 'state',   label: 'State',    placeholder: 'Search by state...' },
+  { type: 'text', name: 'pinCode', label: 'PIN Code', placeholder: 'Search by PIN...' },
+];
 
 const CustomerListPage = () => {
   const navigate = useNavigate();
   const [customers, setCustomers] = useState(null);
-  const tableState = useTableState({ initialSortBy: 'id' });
+  const tableState = useTableState({ 
+    initialSortBy: 'id',
+    initialFilters: { city: '', state: '', pinCode: '' }
+  });
 
-  // Custom debounced filter for City
-  const [cityQuery, setCityQuery] = useState('');
-  const [debouncedCity, setDebouncedCity] = useState('');
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedCity(cityQuery);
-    }, 400);
-    return () => clearTimeout(handler);
-  }, [cityQuery]);
+  const { localFilters, handleFilterChange, clearFilters } = useDebounceFilters(
+    tableState.filters,
+    tableState.handleFilterChange
+  );
 
   const fetchCustomers = () => {
     const params = tableState.getQueryParams();
-    if (debouncedCity) {
-      params.city = debouncedCity;
-    }
 
     getAllCustomersPaginated(params)
       .then((res) => {
@@ -40,20 +42,14 @@ const CustomerListPage = () => {
       .catch((error) => console.log(error));
   };
 
-  const { searchTerm, setSearchTerm, filteredData: filteredCustomers } = useSearch(customers || [], [
-    "fullName",
-    "email",
-    "mobileNumber"
-  ]);
-
   useEffect(() => {
     fetchCustomers();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     tableState.currentPage, 
+    JSON.stringify(tableState.filters),
     tableState.sortBy, 
-    tableState.sortDirection, 
-    debouncedCity
+    tableState.sortDirection
   ]);
 
   const renderHeader = (label, field) => (
@@ -90,7 +86,7 @@ const CustomerListPage = () => {
             navigate(`/admin/customers/${row.customerId}`);
           }}
         >
-          <i className="bi bi-eye"></i> View
+          <i className="bi bi-eye" /> View
         </button>
       ),
     },
@@ -120,44 +116,32 @@ const CustomerListPage = () => {
       
       <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
         <div className="card-body p-0">
-          <div className="p-4 border-bottom border-light d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <h6 className="m-0 fw-bold">All Customers</h6>
-            <div className="d-flex gap-2 flex-wrap">
-              <div className="input-group input-group-sm" style={{ width: '180px' }}>
-                <span className="input-group-text bg-white border-end-0" style={{ border: '1px solid var(--ip-border)' }}>
-                  <i className="bi bi-geo-alt text-muted"></i>
-                </span>
-                <input 
-                  type="text" 
-                  className="form-control border-start-0 ps-0" 
-                  placeholder="City..." 
-                  style={{ border: '1px solid var(--ip-border)', borderRadius: '0 8px 8px 0' }}
-                  value={cityQuery}
-                  onChange={(e) => {
-                    setCityQuery(e.target.value);
-                    tableState.setCurrentPage(1);
-                  }}
-                />
+          <div className="p-4 border-bottom border-light">
+            <div className="ip-table-toolbar">
+              <div className="ip-table-toolbar-left">
+                <h6 className="ip-table-title">All Customers</h6>
+                {tableState.totalElements > 0 && (
+                  <span className="ip-total-badge">{tableState.totalElements} total</span>
+                )}
               </div>
-              <div className="input-group input-group-sm" style={{ width: '220px' }}>
-                <span className="input-group-text bg-white border-end-0" style={{ border: '1px solid var(--ip-border)' }}>
-                  <i className="bi bi-search text-muted"></i>
-                </span>
-                <input 
-                  type="text" 
-                  className="form-control border-start-0 ps-0" 
-                  placeholder="Search customers on this page..." 
-                  style={{ border: '1px solid var(--ip-border)', borderRadius: '0 8px 8px 0' }}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
+              <FilterPanel
+                fields={FILTER_FIELDS}
+                localFilters={localFilters}
+                onApply={(draft) => tableState.handleFilterChange(draft)}
+                onClear={clearFilters}
+              />
             </div>
+            <FilterChips
+              fields={FILTER_FIELDS}
+              localFilters={localFilters}
+              onRemove={(updates) => tableState.handleFilterChange(updates)}
+              onClearAll={clearFilters}
+            />
           </div>
           <div className="p-4">
             <DataTable 
               columns={columns} 
-              data={filteredCustomers} 
+              data={customers} 
             />
             <PaginationBar 
               currentPage={tableState.currentPage} 

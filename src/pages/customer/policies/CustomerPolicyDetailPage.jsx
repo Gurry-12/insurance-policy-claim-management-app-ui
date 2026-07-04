@@ -41,28 +41,6 @@ const CustomerPolicyDetailPage = () => {
   if (isLoading) return <LoadingSpinner text="Loading policy details..." />;
   if (!policy) return <div className="alert alert-warning">Policy not found</div>;
 
-  // const premiumType = policy.premiumType || 'ONE_TIME';
-  
-  // let hasPendingPayments;
-  // const paymentsCount = Array.isArray(payments) ? payments.length : 0;
-  // let hasPendingPayments = false;
-  // const paymentsCount = Array.isArray(payments) ? payments.length : 0;
-
-  // if (premiumType === 'ONE_TIME') {
-  //   hasPendingPayments = paymentsCount < 1;
-  // } else {
-  //   // For ANNUAL plans, display the button until the end date
-  //   const endDate = policy.endDate ? new Date(policy.endDate) : null;
-  //   if (endDate && !isNaN(endDate.getTime())) {
-  //     hasPendingPayments = new Date() <= endDate;
-  //   } else {
-  //     const durationInYears = policy.duration || 1;
-  //     hasPendingPayments = paymentsCount < Math.max(1, durationInYears);
-  //   }
-  // }
-
-  // const showPayButton = policy.policyStatus === 'PENDING_PAYMENT' || 
-  //                       (hasPendingPayments && policy.policyStatus !== 'CANCELLED' && policy.policyStatus !== 'EXPIRED');
 
   const premiumType = policy.premiumType || "ONE_TIME";
 

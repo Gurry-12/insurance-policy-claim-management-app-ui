@@ -74,6 +74,16 @@ const ProtectedRoute = () => {
   return <Outlet />;
 };
 
+const GuestRoute = () => {
+  const { isAuthenticated, user } = useAuth();
+  if (isAuthenticated && user) {
+    if (user.role === ROLES.ADMIN) return <Navigate to="/admin/dashboard" replace />;
+    if (user.role === ROLES.INTERNAL_STAFF) return <Navigate to="/staff/dashboard" replace />;
+    if (user.role === ROLES.CUSTOMER) return <Navigate to="/customer/dashboard" replace />;
+  }
+  return <Outlet />;
+};
+
 const RoleProtectedRoute = ({ allowedRole }) => {
   const { isAuthenticated, user } = useAuth();
   if (!isAuthenticated) return <Navigate to="/login" replace />;
@@ -98,10 +108,12 @@ const App = () => (
     <GlobalApiHandler />
     <GlobalToaster />
     <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/verify-otp" element={<VerifyOtp />} />
+      <Route element={<GuestRoute />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-otp" element={<VerifyOtp />} />
+      </Route>
       <Route path="/" element={<Navigate to="/login" replace />} />
 
       <Route element={<ProtectedRoute />}>
@@ -126,9 +138,8 @@ const App = () => (
             <Route path="/admin/policies" element={<PolicyListPage />} />
             <Route path="/admin/policies/:id" element={<PolicyDetailPage />} />
             <Route path="/admin/policies/issue" element={<IssuePolicyPage />} />
-            <Route path="/admin/claims" element={<ClaimListPage />}>
-              <Route path=":id" element={<ClaimDetailPage />} />
-            </Route>
+            <Route path="/admin/claims" element={<ClaimListPage />} />
+            <Route path="/admin/claims/:id" element={<ClaimDetailPage />} />
             <Route path="/admin/claims/:id/history" element={<AdminClaimHistoryPage />} />
             <Route path="/admin/payments" element={<PaymentListPage />} />
           </Route>
@@ -141,9 +152,8 @@ const App = () => (
             <Route path="/staff/profile/edit" element={<EditProfilePage />} />
             <Route path="/staff/policies" element={<StaffPolicyListPage />} />
             <Route path="/staff/policies/:policyId" element={<StaffPolicyDetailPage />} />
-            <Route path="/staff/claims" element={<StaffClaimListPage />}>
-              <Route path=":id" element={<StaffClaimDetailPage />} />
-            </Route>
+            <Route path="/staff/claims" element={<StaffClaimListPage />} />
+            <Route path="/staff/claims/:id" element={<StaffClaimDetailPage />} />
             <Route path="/staff/issue-policy" element={<StaffIssuePolicyPage />} />
             <Route path="/staff/claims/:id/history" element={<StaffClaimHistory />} />
             <Route path="/staff/payments" element={<StaffPaymentListPage />} />

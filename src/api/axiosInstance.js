@@ -1,4 +1,7 @@
 import axios from 'axios';
+import NProgress from 'nprogress';
+
+NProgress.configure({ showSpinner: false, speed: 400, minimum: 0.1 });
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -9,6 +12,7 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
+    NProgress.start();
     // Let the browser set Content-Type with boundary for FormData
     if (config.data instanceof FormData) {
       delete config.headers['Content-Type'];
@@ -18,12 +22,19 @@ axiosInstance.interceptors.request.use(
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    NProgress.done();
+    return Promise.reject(error);
+  }
 );
 
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    NProgress.done();
+    return response;
+  },
   (error) => {
+    NProgress.done();
     const status = error.response?.status;
     if (status === 401) {
       localStorage.removeItem('ss_token');

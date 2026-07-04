@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import useAuth from "../../hooks/useAuth";
 import logoImg from "../../assets/logo/insurance-heart-vector.png";
-import { PanelLeftClose, PanelLeftOpen, LogOut } from "lucide-react";
+import { ChevronLeft, ChevronRight, LogOut } from "lucide-react";
 
 const Sidebar = ({ navItems, isOpen, setIsOpen, isCollapsed, setIsCollapsed, title }) => {
   const { user, logout } = useAuth();
@@ -19,40 +19,73 @@ const Sidebar = ({ navItems, isOpen, setIsOpen, isCollapsed, setIsCollapsed, tit
       <aside className={`ip-sidebar ${isCollapsed ? 'collapsed' : ''} ${isOpen ? 'mobile-open' : ''}`}>
         {/* Brand */}
         <div className="ip-sidebar-header">
-          <div className="ip-sidebar-brand">
-            <img 
-              src={logoImg} 
-              alt="InsureFlow Logo" 
-              className="ip-sidebar-logo"
-            />
-            {!isCollapsed && <div className="ip-sidebar-portal-name">{title}</div>}
-          </div>
-          {/* Desktop Toggle */}
+          {!isCollapsed ? (
+            <>
+              <div className="ip-sidebar-brand">
+                <img 
+                  src={logoImg} 
+                  alt="InsureFlow Logo" 
+                  className="ip-sidebar-logo"
+                />
+                <div className="ip-sidebar-portal-name">{title}</div>
+              </div>
+              {/* Desktop Toggle (Collapse) */}
+              <button 
+                className="ip-sidebar-toggle d-none d-md-flex" 
+                onClick={() => setIsCollapsed(true)}
+                title="Collapse sidebar"
+              >
+                <ChevronLeft size={16} />
+              </button>
+            </>
+          ) : (
+            <div className="d-flex justify-content-center w-100">
+              {/* Desktop Toggle (Expand) */}
+              <button 
+                className="ip-sidebar-toggle d-none d-md-flex" 
+                onClick={() => setIsCollapsed(false)}
+                title="Expand sidebar"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          )}
+          
+          {/* Mobile Toggle / Close (Back Icon) */}
           <button 
-            className="ip-sidebar-toggle d-none d-md-flex" 
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className="ip-sidebar-toggle d-md-none ms-auto" 
+            onClick={() => setIsOpen(false)}
+            title="Close sidebar"
+            aria-label="Close sidebar"
           >
-            {isCollapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
+            <i className="bi bi-arrow-left" style={{ fontSize: "1.15rem" }} />
           </button>
         </div>
 
         {/* Nav */}
         <nav className="ip-sidebar-nav">
-          {!isCollapsed && <div className="ip-nav-section">Main Menu</div>}
-          {navItems.map(({ to, icon, label, end }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={end}
-              onClick={() => setIsOpen(false)}
-              className={({ isActive }) => `ip-nav-item ${isActive ? "active" : ""}`}
-              title={isCollapsed ? label : ""}
-            >
-              <i className={`bi ${icon}`} style={{ fontSize: "1.1rem", width: 22, textAlign: "center" }} />
-              {!isCollapsed && <span>{label}</span>}
-            </NavLink>
-          ))}
+          {navItems.map(({ to, icon, label, end, section }, idx) => {
+            const prevSection = idx > 0 ? navItems[idx - 1].section : undefined;
+            const showSection = !isCollapsed && section && section !== prevSection;
+            return (
+              <span key={to}>
+                {showSection && (
+                  <div className="ip-nav-section">{section}</div>
+                )}
+                <NavLink
+                  to={to}
+                  end={end}
+                  onClick={() => setIsOpen(false)}
+                  className={({ isActive }) => `ip-nav-item ${isActive ? "active" : ""}`}
+                  title={label}
+                  aria-label={label}
+                >
+                  <i className={`bi ${icon}`} style={{ fontSize: "1.1rem", width: 22, textAlign: "center" }} />
+                  {!isCollapsed && <span>{label}</span>}
+                </NavLink>
+              </span>
+            );
+          })}
         </nav>
 
         {/* User footer */}

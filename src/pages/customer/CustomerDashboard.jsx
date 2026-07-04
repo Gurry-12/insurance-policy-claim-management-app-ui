@@ -93,7 +93,7 @@ const CustomerDashboard = () => {
     { icon: 'bi-search',            label: 'Browse Products', to: '/customer/products',     color: '#0284c7' },
     { icon: 'bi-layers',            label: 'Browse Plans',    to: '/customer/plans',        color: '#10b981' },
     { icon: 'bi-shield-exclamation',label: 'Raise Claim',     to: '/customer/claims/raise', color: '#ef4444' },
-    { icon: 'bi-credit-card',       label: 'Make Payment',    to: '/customer/payments',     color: '#f59e0b' },
+    { icon: 'bi-credit-card',       label: 'Make Payment',    to: '/customer/policies',     color: '#f59e0b' },
   ];
 
   return (

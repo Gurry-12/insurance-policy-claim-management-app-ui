@@ -50,12 +50,30 @@ const RaiseClaimPage = () => {
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
       const newFiles = [];
+      const invalidFiles = [];
+      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+      const maxSize = 5 * 1024 * 1024; // 5MB
+
       for (let i = 0; i < e.target.files.length; i++) {
-        newFiles.push(e.target.files[i]);
+        const file = e.target.files[i];
+        if (!allowedTypes.includes(file.type)) {
+          invalidFiles.push(`${file.name} (invalid format)`);
+        } else if (file.size > maxSize) {
+          invalidFiles.push(`${file.name} (exceeds 5MB)`);
+        } else {
+          newFiles.push(file);
+        }
       }
-      setFiles((prev) => [...prev, ...newFiles]);
-      if (errors.files) {
-        setErrors((prev) => ({ ...prev, files: '' }));
+
+      if (invalidFiles.length > 0) {
+        toast.error(`Some files could not be added: \n${invalidFiles.join('\n')}`);
+      }
+
+      if (newFiles.length > 0) {
+        setFiles((prev) => [...prev, ...newFiles]);
+        if (errors.files) {
+          setErrors((prev) => ({ ...prev, files: '' }));
+        }
       }
     }
   };
@@ -69,7 +87,11 @@ const RaiseClaimPage = () => {
     const errs = {};
 
     if (!claim.policyId) errs.policyId = 'Policy is required';
-    if (!claim.claimAmount) errs.claimAmount = 'Claim amount is required';
+    if (!claim.claimAmount) {
+      errs.claimAmount = 'Claim amount is required';
+    } else if (Number(claim.claimAmount) <= 0) {
+      errs.claimAmount = 'Claim amount must be greater than 0';
+    }
     if (!claim.incidentDate) errs.incidentDate = 'Incident date is required';
     if (!claim.claimReason) errs.claimReason = 'Claim reason is required';
     if (files.length === 0) errs.files = 'Upload at least one document';
@@ -204,11 +226,13 @@ const RaiseClaimPage = () => {
                           onChange={handleChange}
                         >
                           <option value="">-- Choose an active policy --</option>
-                          {policies.map((policy) => (
-                            <option key={policy.id || policy.policyId} value={policy.id || policy.policyId}>
-                              {policy.planName ? `${policy.planName} (No: ${policy.policyNumber})` : `Policy No: ${policy.policyNumber}`}
-                            </option>
-                          ))}
+                          {policies
+                            .filter(policy => policy.policyStatus === 'ACTIVE')
+                            .map((policy) => (
+                              <option key={policy.id || policy.policyId} value={policy.id || policy.policyId}>
+                                {policy.planName ? `${policy.planName} (No: ${policy.policyNumber})` : `Policy No: ${policy.policyNumber}`}
+                              </option>
+                            ))}
                         </select>
                       )}
                       {errors.policyId && <div className="invalid-feedback">{errors.policyId}</div>}
@@ -225,6 +249,7 @@ const RaiseClaimPage = () => {
                       </span>
                       <input
                         type="number"
+                        min="1"
                         className={`form-control border-start-0 ps-0 bg-light ${errors.claimAmount ? 'is-invalid' : ''}`}
                         name="claimAmount"
                         value={claim.claimAmount}
@@ -286,6 +311,7 @@ const RaiseClaimPage = () => {
                     <input
                       type="file"
                       multiple
+                      accept=".pdf,.jpg,.jpeg,.png"
                       className="form-control position-absolute top-0 start-0 w-100 h-100 opacity-0"
                       onChange={handleFileChange}
                       style={{ cursor: 'pointer', zIndex: 10 }}

@@ -161,10 +161,10 @@ const RecordPaymentPage = () => {
                     name="amount"
                     className={`form-control form-control-lg ${errors.amount ? 'is-invalid' : ''}`}
                     value={formData.amount}
-                    onChange={handleChange}
                     required
                     min="1"
-                    placeholder="Enter amount"
+                    placeholder="Amount auto-filled"
+                    readOnly
                   />
                   {errors.amount && <div className="invalid-feedback">{errors.amount}</div>}
                 </div>
