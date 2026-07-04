@@ -5,39 +5,18 @@ import StatusBadge from '../../../components/ui/StatusBadge';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import { getClaimById, approveClaim, rejectClaim } from '../../../services/claimService';
+import { getPolicyById } from '../../../services/policyService';
 import toast from 'react-hot-toast';
 import useClaimPdf from '../../../hooks/PdfDownload/useClaimPdf';
 import DocumentPreviewModal from '../../../components/modals/DocumentPreviewModal';
 import Drawer from '../../../components/ui/Drawer';
-
-const ClaimStepper = ({ currentStatus }) => {
-  const statusUpper = (currentStatus || '').toUpperCase();
-  const steps = [
-    { key: 'SUBMITTED', label: 'Submitted', active: true },
-    { key: 'UNDER_REVIEW', label: 'Under Review', active: ['UNDER_REVIEW', 'RECOMMENDED_FOR_APPROVAL', 'RECOMMENDED_FOR_REJECTION', 'APPROVED', 'REJECTED', 'REVIEWED'].includes(statusUpper) },
-    { key: 'RECOMMENDED', label: 'Recommended', active: ['RECOMMENDED_FOR_APPROVAL', 'RECOMMENDED_FOR_REJECTION', 'APPROVED', 'REJECTED'].includes(statusUpper) },
-    { key: 'DECISION', label: 'Decision', active: ['APPROVED', 'REJECTED'].includes(statusUpper) },
-  ];
-  return (
-    <div className="d-flex align-items-center justify-content-between mb-5 position-relative px-2">
-      <div className="position-absolute top-50 start-0 w-100 bg-light" style={{ height: 4, zIndex: 0, transform: 'translateY(-50%)' }}></div>
-      {steps.map((step, idx) => (
-        <div key={idx} className="d-flex flex-column align-items-center position-relative" style={{ zIndex: 1, width: 80 }}>
-          <div className={`rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm mb-2 ${step.active ? 'bg-primary text-white' : 'bg-white text-muted border'}`} style={{ width: 36, height: 36, transition: 'all 0.3s', border: step.active ? 'none' : '2px solid var(--ip-border)' }}>
-            {step.active ? <i className="bi bi-check fs-5" /> : idx + 1}
-          </div>
-          <span className="text-center" style={{ fontSize: '0.75rem', fontWeight: step.active ? 700 : 500, color: step.active ? 'var(--ip-text-primary)' : 'var(--ip-text-muted)' }}>{step.label}</span>
-        </div>
-      ))}
-    </div>
-  );
-};
 
 const ClaimDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { downloadClaim } = useClaimPdf();
   const [claim, setClaim] = useState(null);
+  const [policy, setPolicy] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [remark, setRemark] = useState('');
@@ -47,11 +26,17 @@ const ClaimDetailPage = () => {
 
   const fetchClaimData = (id) => {
     setLoading(true);
-    Promise.all([
-      getClaimById(id),
-    ])
-      .then(([claimData]) => {
+    getClaimById(id)
+      .then(async (claimData) => {
         setClaim(claimData);
+        if (claimData?.policyId) {
+          try {
+            const policyData = await getPolicyById(claimData.policyId);
+            setPolicy(policyData);
+          } catch (e) {
+            console.error("Policy fetch error:", e);
+          }
+        }
       })
       .catch((err) => {
         console.error("Claim fetch error:", err);
@@ -91,13 +76,19 @@ const ClaimDetailPage = () => {
   };
 
   const {
-    claimAmount: amount = 0,
-    claimStatus: status = '',
-    dateFiled = claim?.createdAt?.split('T')[0] || 'N/A',
-    reason = 'No reason provided',
+    claimAmount = 0,
+    claimStatus = '',
+    createdDate,
+    claimReason = 'No reason provided',
+    incidentDate,
     documents = [],
     customerName = 'Unknown'
   } = claim || {};
+
+  const dateFiled = createdDate?.split('T')[0] || 'N/A';
+  const reason = claimReason;
+  const amount = claimAmount;
+  const status = claimStatus;
 
   return (
     <Drawer 
@@ -148,33 +139,47 @@ const ClaimDetailPage = () => {
                       <StatusBadge status={status} />
                     </div>
 
-                    <ClaimStepper currentStatus={status} />
-
                     <div className="row mb-4">
-                      <div className="col-md-6 mb-3">
+                      <div className="col-md-4 mb-3">
                         <small className="text-muted d-block fw-bold mb-1">Claim Amount</small>
                         <h4 className="fw-bold m-0 text-primary">₹{amount.toLocaleString('en-IN')}</h4>
                       </div>
-                      <div className="col-md-6 mb-3">
+                      <div className="col-md-4 mb-3">
                         <small className="text-muted d-block fw-bold mb-1">Date Filed</small>
                         <span>{dateFiled}</span>
                       </div>
-                      <div className="col-12 mt-2">
+                      {incidentDate && (
+                        <div className="col-md-4 mb-3">
+                          <small className="text-muted d-block fw-bold mb-1">Incident Date</small>
+                          <span>{new Date(incidentDate).toLocaleDateString()}</span>
+                        </div>
+                      )}
+                      
+                      <div className="col-12 mt-2 mb-3">
                         <small className="text-muted d-block fw-bold mb-1">Reason / Description</small>
                         <p className="mb-0" style={{ color: 'var(--ip-text-secondary)' }}>{reason}</p>
                       </div>
-                      {claim.incidentDate && (
-                        <div className="col-md-6 mt-3">
-                          <small className="text-muted d-block fw-bold mb-1">Incident Date</small>
-                          <span>{new Date(claim.incidentDate).toLocaleDateString()}</span>
-                        </div>
+
+                      {policy && (
+                        <>
+                          <div className="col-md-4 mt-3">
+                            <small className="text-muted d-block fw-bold mb-1">Total Coverage</small>
+                            <span className="fw-bold">₹{Number(policy.coverageAmount || 0).toLocaleString('en-IN')}</span>
+                          </div>
+                          <div className="col-md-4 mt-3">
+                            <small className="text-muted d-block fw-bold mb-1">Remaining Coverage</small>
+                            <span className="fw-bold text-success">₹{Number(policy.remainingClaimAmount ?? policy.coverageAmount ?? 0).toLocaleString('en-IN')}</span>
+                          </div>
+                        </>
                       )}
-                      <div className="col-md-6 mt-3">
+
+                      <div className="col-md-4 mt-3">
                         <small className="text-muted d-block fw-bold mb-1">Assigned Staff</small>
                         <span>{claim.assignedStaffName || <span className="text-muted">Unassigned</span>}</span>
                       </div>
+
                       {claim.staffRemarks && (
-                        <div className="col-12 mt-3 p-3 bg-light rounded-3 border-start border-4 border-primary">
+                        <div className="col-12 mt-4 p-3 bg-light rounded-3 border-start border-4 border-primary">
                           <small className="text-muted d-block fw-bold mb-1">Staff's Recommendation Remarks</small>
                           <p className="mb-0 text-dark">{claim.staffRemarks}</p>
                         </div>
@@ -235,7 +240,7 @@ const ClaimDetailPage = () => {
                       </div>
                       <div>
                         <small className="text-muted d-block fw-bold mb-1">Policy Number</small>
-                        <span className="text-primary fw-bold" style={{ cursor: 'pointer' }}>{claim.policyNumber || 'N/A'}</span>
+                        <span className="text-primary fw-bold" style={{ cursor: 'pointer' }} onClick={() => navigate(`/admin/policies/${claim.policyId}`)}>{claim.policyNumber || 'N/A'}</span>
                       </div>
                     </div>
                   </div>
@@ -301,4 +306,3 @@ const ClaimDetailPage = () => {
 };
 
 export default ClaimDetailPage;
-

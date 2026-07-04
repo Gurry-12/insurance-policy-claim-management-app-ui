@@ -93,10 +93,10 @@ const StaffRecordPaymentPage = () => {
                   label="Premium Amount (₹)"
                   name="amount"
                   value={formData.amount}
-                  onChange={handleChange}
-                  placeholder="0.00"
+                  placeholder="Amount auto-filled"
                   required
                   error={errors.amount}
+                  readOnly
                 />
               </div>
 

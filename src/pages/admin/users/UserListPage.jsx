@@ -4,13 +4,33 @@ import PageHeader from '../../../components/common/PageHeader';
 import DataTable from '../../../components/tables/DataTable';
 import PaginationBar from '../../../components/tables/PaginationBar';
 import StatusBadge from '../../../components/ui/StatusBadge';
+import FilterPanel from '../../../components/ui/FilterPanel';
+import FilterChips from '../../../components/ui/FilterChips';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import getAllUsers from '../../../services/userService';
 import useTableState from '../../../hooks/useTableState';
 import SortableHeader from '../../../components/tables/SortableHeader';
-import useSearch from '../../../hooks/useSearch';
+import useDebounceFilters from '../../../hooks/useDebounceFilters';
 import ExportButton from '../../../components/common/ExportButton';
+
+const FILTER_FIELDS = [
+  { type: 'text',   name: 'fullName', label: 'Full Name',  placeholder: 'Search by name...' },
+  { type: 'text',   name: 'email',    label: 'Email',       placeholder: 'Search by email...' },
+  { type: 'select', name: 'role',     label: 'Role',
+    options: [
+      { value: 'ROLE_ADMIN',           label: 'Admin' },
+      { value: 'ROLE_INTERNAL_STAFF',  label: 'Staff' },
+      { value: 'ROLE_CUSTOMER',        label: 'Customer' },
+    ],
+  },
+  { type: 'select', name: 'isActive', label: 'Status',
+    options: [
+      { value: 'true',  label: 'Active' },
+      { value: 'false', label: 'Inactive' },
+    ],
+  },
+];
 
 const UserListPage = () => {
   const navigate = useNavigate();
@@ -20,25 +40,17 @@ const UserListPage = () => {
 
   const tableState = useTableState({
     initialSortBy: 'id',
-    initialFilters: { statusFilter: 'ALL', roleFilter: 'ALL' }
+    initialFilters: { fullName: '', email: '', role: '', isActive: '' }
   });
+
+  const { localFilters, handleFilterChange, clearFilters } = useDebounceFilters(
+    tableState.filters,
+    tableState.handleFilterChange
+  );
 
   const fetchUsers = () => { 
     setLoading(true);
     const params = tableState.getQueryParams();
-    
-    // Custom mapping for this page's specific filters
-    if (tableState.filters.statusFilter === 'ACTIVE') {
-      params.isActive = 1;
-    } else if (tableState.filters.statusFilter === 'INACTIVE') {
-      params.isActive = 0;
-    }
-    delete params.statusFilter; // Cleanup generic filter key
-    
-    if (tableState.filters.roleFilter !== 'ALL') {
-      params.role = tableState.filters.roleFilter;
-    }
-    delete params.roleFilter;
 
     getAllUsers(params)
       .then((res) => {
@@ -50,22 +62,12 @@ const UserListPage = () => {
       .finally(() => setLoading(false));
   };
 
-  const { searchTerm, setSearchTerm, filteredData: filteredUsers } = useSearch(users, [
-    "fullName",
-    "firstName",
-    "lastName",
-    "email",
-    "mobileNumber",
-    "role"
-  ]);
-
   useEffect(() => {
     fetchUsers();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     tableState.currentPage, 
-    tableState.filters.statusFilter, 
-    tableState.filters.roleFilter, 
+    JSON.stringify(tableState.filters), 
     tableState.sortBy, 
     tableState.sortDirection
   ]);
@@ -119,11 +121,19 @@ const UserListPage = () => {
             navigate(`/admin/users/${row.id}`);
           }}
         >
-          <i className="bi bi-eye"></i> View
+          <i className="bi bi-eye" /> View
         </button>
       ),
     },
   ];
+
+  const handleApplyFilters = (updates) => {
+    handleFilterChange({ name: '__batch__', value: updates }, updates);
+  };
+
+  const handleRemoveFilter = (updates) => {
+    tableState.handleFilterChange(updates);
+  };
 
   return (
     <div>
@@ -142,10 +152,9 @@ const UserListPage = () => {
                 { header: "Role", accessor: "role" },
                 { header: "Active Status", exportValue: (r) => r.isActive ? "Active" : "Inactive" }
               ]}
-              filename="users_list.csv"
             />
             <Link to="/admin/users/create" className="btn btn-primary d-flex align-items-center gap-2" style={{ borderRadius: '8px' }}>
-              <i className="bi bi-plus-lg"></i>
+              <i className="bi bi-plus-lg" />
               Add New Staff
             </Link>
           </div>
@@ -156,44 +165,27 @@ const UserListPage = () => {
       
       <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
         <div className="card-body p-0">
-          <div className="p-4 border-bottom border-light d-flex flex-wrap gap-3 justify-content-between align-items-center">
-            <h6 className="m-0 fw-bold">All Users</h6>
-            <div className="d-flex gap-2 flex-wrap">
-              <select 
-                className="form-select form-select-sm" 
-                style={{ width: '130px', borderRadius: '8px', border: '1px solid var(--ip-border)' }}
-                value={tableState.filters.statusFilter}
-                onChange={(e) => tableState.handleFilterChange({ statusFilter: e.target.value })}
-              >
-                <option value="ALL">All Statuses</option>
-                <option value="ACTIVE">Active</option>
-                <option value="INACTIVE">Inactive</option>
-              </select>
-              <select 
-                className="form-select form-select-sm" 
-                style={{ width: '140px', borderRadius: '8px', border: '1px solid var(--ip-border)' }}
-                value={tableState.filters.roleFilter}
-                onChange={(e) => tableState.handleFilterChange({ roleFilter: e.target.value })}
-              >
-                <option value="ALL">All Roles</option>
-                <option value="ROLE_ADMIN">Admin</option>
-                <option value="ROLE_INTERNAL_STAFF">Staff</option>
-                <option value="ROLE_CUSTOMER">Customer</option>
-              </select>
-              <div className="input-group input-group-sm" style={{ width: '200px' }}>
-                <span className="input-group-text bg-white border-end-0" style={{ border: '1px solid var(--ip-border)' }}>
-                  <i className="bi bi-search text-muted"></i>
-                </span>
-                <input 
-                  type="text" 
-                  className="form-control border-start-0 ps-0" 
-                  placeholder="Search users on this page..." 
-                  style={{ border: '1px solid var(--ip-border)', borderRadius: '0 8px 8px 0' }} 
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+          <div className="p-4 border-bottom border-light">
+            <div className="ip-table-toolbar">
+              <div className="ip-table-toolbar-left">
+                <h6 className="ip-table-title">All Users</h6>
+                {tableState.totalElements > 0 && (
+                  <span className="ip-total-badge">{tableState.totalElements} total</span>
+                )}
               </div>
+              <FilterPanel
+                fields={FILTER_FIELDS}
+                localFilters={localFilters}
+                onApply={(draft) => tableState.handleFilterChange(draft)}
+                onClear={clearFilters}
+              />
             </div>
+            <FilterChips
+              fields={FILTER_FIELDS}
+              localFilters={localFilters}
+              onRemove={handleRemoveFilter}
+              onClearAll={clearFilters}
+            />
           </div>
           <div className="p-4">
             {loading ? (
@@ -202,7 +194,7 @@ const UserListPage = () => {
               <>
                 <DataTable 
                   columns={columns} 
-                  data={filteredUsers} 
+                  data={users} 
                   onRowClick={(row) => navigate(`/admin/users/${row.id}`)}
                 />
                 <PaginationBar 
@@ -220,4 +212,3 @@ const UserListPage = () => {
 };
 
 export default UserListPage;
-

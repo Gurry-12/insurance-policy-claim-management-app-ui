@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { getAdminStats } from '../../services/dashboardService';
 import useAuth from '../../hooks/useAuth';
 import StatusBadge from '../../components/ui/StatusBadge';
@@ -37,6 +37,7 @@ const QuickAction = ({ icon, label, to, color }) => (
 
 const AdminDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats]     = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState('');
@@ -121,7 +122,12 @@ const AdminDashboard = () => {
             ) : s.recentClaims?.length ? (
               <div className="d-flex flex-column gap-1">
                 {s.recentClaims.map((claim, i) => (
-                  <div key={claim.id ?? i} className="d-flex align-items-center gap-3 py-2" style={{ borderBottom: i < s.recentClaims.length - 1 ? '1px solid var(--ip-border)' : 'none' }}>
+                  <div 
+                    key={claim.id ?? i} 
+                    className="d-flex align-items-center gap-3 py-2" 
+                    style={{ borderBottom: i < s.recentClaims.length - 1 ? '1px solid var(--ip-border)' : 'none', cursor: 'pointer' }}
+                    onClick={() => navigate(`/admin/claims/${claim.id}`)}
+                  >
                     <div className="ip-bento-stat-icon" style={{ background: '#f59e0b18', width: 36, height: 36, borderRadius: 10 }}>
                       <i className="bi bi-shield-exclamation" style={{ color: '#f59e0b', fontSize: '0.9rem' }} />
                     </div>

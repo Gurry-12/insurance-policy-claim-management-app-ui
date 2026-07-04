@@ -4,12 +4,33 @@ import PageHeader from '../../../components/common/PageHeader';
 import DataTable from '../../../components/tables/DataTable';
 import PaginationBar from '../../../components/tables/PaginationBar';
 import StatusBadge from '../../../components/ui/StatusBadge';
+import FilterPanel from '../../../components/ui/FilterPanel';
+import FilterChips from '../../../components/ui/FilterChips';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import { getAllProductsPaginated } from '../../../services/productService';
 import useTableState from '../../../hooks/useTableState';
 import SortableHeader from '../../../components/tables/SortableHeader';
-import useSearch from '../../../hooks/useSearch';
+import useDebounceFilters from '../../../hooks/useDebounceFilters';
 import ExportButton from '../../../components/common/ExportButton';
+
+const FILTER_FIELDS = [
+  { type: 'text',   name: 'productName', label: 'Product Name', placeholder: 'Search by name...' },
+  { type: 'select', name: 'productType', label: 'Category',
+    options: [
+      { value: 'HEALTH',    label: 'Health' },
+      { value: 'MOTOR',     label: 'Motor' },
+      { value: 'LIFE',      label: 'Life' },
+      { value: 'TRAVEL',    label: 'Travel' },
+      { value: 'INSURANCE', label: 'Insurance' },
+    ],
+  },
+  { type: 'select', name: 'isActive', label: 'Status',
+    options: [
+      { value: 'true',  label: 'Active' },
+      { value: 'false', label: 'Inactive' },
+    ],
+  },
+];
 
 const ProductListPage = () => {
   const navigate = useNavigate();
@@ -19,22 +40,17 @@ const ProductListPage = () => {
   
   const tableState = useTableState({
     initialSortBy: 'id',
-    initialFilters: { statusFilter: 'ALL', productTypeFilter: 'ALL' }
+    initialFilters: { productName: '', productType: '', isActive: '' }
   });
+
+  const { localFilters, handleFilterChange, clearFilters } = useDebounceFilters(
+    tableState.filters,
+    tableState.handleFilterChange
+  );
 
   const fetchProducts = () => {
     setLoading(true);
     const params = tableState.getQueryParams();
-    
-    if (tableState.filters.statusFilter !== 'ALL') {
-      params.isActive = tableState.filters.statusFilter === 'ACTIVE';
-    }
-    delete params.statusFilter;
-
-    if (tableState.filters.productTypeFilter !== 'ALL') {
-      params.productType = tableState.filters.productTypeFilter;
-    }
-    delete params.productTypeFilter;
 
     getAllProductsPaginated(params)
       .then((res) => {
@@ -46,18 +62,12 @@ const ProductListPage = () => {
       .finally(() => setLoading(false));
   };
 
-  const { searchTerm, setSearchTerm, filteredData: filteredProducts } = useSearch(products || [], [
-    "productName",
-    "productType"
-  ]);
-
   useEffect(() => {
     fetchProducts();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     tableState.currentPage, 
-    tableState.filters.statusFilter, 
-    tableState.filters.productTypeFilter,
+    JSON.stringify(tableState.filters),
     tableState.sortBy, 
     tableState.sortDirection
   ]);
@@ -97,7 +107,7 @@ const ProductListPage = () => {
             }}
             title="View Details"
           >
-            <i className="bi bi-eye"></i>
+            <i className="bi bi-eye" />
           </button>
           <button
             className="btn btn-sm btn-light text-primary border-0"
@@ -107,7 +117,7 @@ const ProductListPage = () => {
             }}
             title="Edit Product"
           >
-            <i className="bi bi-pencil-square"></i>
+            <i className="bi bi-pencil-square" />
           </button>
         </div>
       ),
@@ -135,7 +145,7 @@ const ProductListPage = () => {
               className="btn btn-primary d-flex align-items-center gap-2"
               style={{ borderRadius: "8px" }}
             >
-              <i className="bi bi-plus-lg"></i>
+              <i className="bi bi-plus-lg" />
               Create Product
             </Link>
           </div>
@@ -144,81 +154,34 @@ const ProductListPage = () => {
 
       <ErrorAlert message={error} />
 
-      <div
-        className="card border-0"
-        style={{ borderRadius: 16, boxShadow: "var(--ip-shadow-md)" }}
-      >
+      <div className="card border-0" style={{ borderRadius: 16, boxShadow: "var(--ip-shadow-md)" }}>
         <div className="card-body p-0">
-          <div className="p-4 border-bottom border-light d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <h6 className="m-0 fw-bold">All Products</h6>
-            <div className="d-flex gap-2 flex-wrap">
-              <select
-                className="form-select form-select-sm"
-                style={{
-                  width: "160px",
-                  borderRadius: "8px",
-                  border: "1px solid var(--ip-border)",
-                }}
-                value={tableState.filters.statusFilter}
-                onChange={(e) =>
-                  tableState.handleFilterChange({
-                    statusFilter: e.target.value,
-                  })
-                }
-              >
-                <option value="ALL">All Statuses</option>
-                <option value="ACTIVE">Active</option>
-                <option value="INACTIVE">Inactive</option>
-              </select>
-              <select
-                className="form-select form-select-sm"
-                style={{
-                  width: "160px",
-                  borderRadius: "8px",
-                  border: "1px solid var(--ip-border)",
-                }}
-                value={tableState.filters.productTypeFilter}
-                onChange={(e) =>
-                  tableState.handleFilterChange({
-                    productTypeFilter: e.target.value,
-                  })
-                }
-              >
-                <option value="ALL">All Categories</option>
-                <option value="HEALTH">Health</option>
-                <option value="MOTOR">Motor</option>
-                <option value="LIFE">Life</option>
-                <option value="TRAVEL">Travel</option>
-                <option value="INSURANCE">Insurance</option>
-              </select>
-              <div
-                className="input-group input-group-sm"
-                style={{ width: "220px" }}
-              >
-                <span
-                  className="input-group-text bg-white border-end-0"
-                  style={{ border: "1px solid var(--ip-border)" }}
-                >
-                  <i className="bi bi-search text-muted"></i>
-                </span>
-                <input
-                  type="text"
-                  className="form-control border-start-0 ps-0"
-                  placeholder="Search products on this page..."
-                  style={{
-                    border: "1px solid var(--ip-border)",
-                    borderRadius: "0 8px 8px 0",
-                  }}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+          <div className="p-4 border-bottom border-light">
+            <div className="ip-table-toolbar">
+              <div className="ip-table-toolbar-left">
+                <h6 className="ip-table-title">All Products</h6>
+                {tableState.totalElements > 0 && (
+                  <span className="ip-total-badge">{tableState.totalElements} total</span>
+                )}
               </div>
+              <FilterPanel
+                fields={FILTER_FIELDS}
+                localFilters={localFilters}
+                onApply={(draft) => tableState.handleFilterChange(draft)}
+                onClear={clearFilters}
+              />
             </div>
+            <FilterChips
+              fields={FILTER_FIELDS}
+              localFilters={localFilters}
+              onRemove={(updates) => tableState.handleFilterChange(updates)}
+              onClearAll={clearFilters}
+            />
           </div>
           <div className="p-4">
             <DataTable
               columns={columns}
-              data={filteredProducts}
+              data={products}
               loading={loading}
               onRowClick={(row) => navigate(`/admin/products/${row.productId}`)}
             />

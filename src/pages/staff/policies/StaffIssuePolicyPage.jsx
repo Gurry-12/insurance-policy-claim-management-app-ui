@@ -1,5 +1,3 @@
-
-  
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from 'react-hot-toast';
@@ -21,7 +19,6 @@ const StaffIssuePolicyPage = () => {
   const [formData, setFormData] = useState({
     customerId: "",
     planId: "",
-    startDate: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -69,10 +66,6 @@ const StaffIssuePolicyPage = () => {
       errs.planId = "Please select a plan";
     }
 
-    if (!formData.startDate) {
-      errs.startDate = "Please select a start date";
-    }
-
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
       return;
@@ -84,7 +77,7 @@ const StaffIssuePolicyPage = () => {
       const payload = {
         customerId: Number(formData.customerId),
         planId: Number(formData.planId),
-        startDate: formData.startDate,
+        startDate: new Date().toISOString().split('T')[0],
       };
 
       await issuePolicy(payload);
@@ -262,26 +255,14 @@ const StaffIssuePolicyPage = () => {
               {errors.planId && <div className="invalid-feedback">{errors.planId}</div>}
             </div>
 
-            {/* Start Date */}
+            {/* Start Date Removed */}
             <div className="mb-4">
-              <label className="form-label fw-semibold">
-                Start Date <span className="text-danger">*</span>
-              </label>
-
-              <input
-                type="date"
-                className={`form-control ${errors.startDate ? 'is-invalid' : ''}`}
-                value={formData.startDate}
-                onChange={(e) => {
-                  setFormData({
-                    ...formData,
-                    startDate: e.target.value,
-                  });
-                  if (errors.startDate) setErrors(prev => ({ ...prev, startDate: '' }));
-                }}
-                required
-              />
-              {errors.startDate && <div className="invalid-feedback">{errors.startDate}</div>}
+              <p className="fw-medium text-dark">
+                Date of Issue: {new Date().toLocaleDateString()}
+              </p>
+              <div className="form-text mt-2 text-muted">
+                The policy coverage will begin starting today.
+              </div>
             </div>
 
             <div className="d-flex justify-content-end gap-2">
@@ -315,5 +296,3 @@ const StaffIssuePolicyPage = () => {
 };
 
 export default StaffIssuePolicyPage;
-
-

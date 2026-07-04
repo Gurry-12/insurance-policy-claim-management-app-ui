@@ -10,7 +10,7 @@ const DataTable = ({
 }) => {
   if (loading) {
     return (
-      <div className="table-responsive">
+      <div className="table-responsive" style={{ minHeight: '440px' }}>
         <table className="table align-middle mb-0">
           <thead>
             <tr>
@@ -36,11 +36,15 @@ const DataTable = ({
   }
 
   if (!data || data.length === 0) {
-    return <EmptyState icon={emptyIcon} message={emptyMessage} />;
+    return (
+      <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '440px', width: '100%' }}>
+        <EmptyState icon={emptyIcon} message={emptyMessage} />
+      </div>
+    );
   }
 
   return (
-    <div className="table-responsive">
+    <div className="table-responsive" style={{ minHeight: '440px' }}>
       <table className="table table-hover align-middle mb-0">
         <thead>
           <tr>

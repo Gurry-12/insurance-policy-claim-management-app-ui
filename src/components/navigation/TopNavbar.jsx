@@ -55,38 +55,32 @@ const TopNavbar = ({ onMenuClick, breadcrumb }) => {
           onClick={toggleTheme}
           className="btn btn-sm text-secondary p-1 border-0"
           title="Toggle Light/Dark Theme"
+          aria-label="Toggle Light/Dark Theme"
         >
           <i className={`bi ${theme === 'dark' ? 'bi-sun-fill' : 'bi-moon-fill'} fs-6`} />
         </button>
-
+ 
         <div className="vr bg-secondary opacity-25 mx-1" style={{ width: '1px', height: '24px' }}></div>
-
-        {/* User Profile Dropdown (Mock) */}
-        <div className="dropdown">
-          <div 
-            className="d-flex align-items-center gap-2" 
-            role="button" 
-            data-bs-toggle="dropdown" 
-            aria-expanded="false"
+ 
+        {/* User Profile Info (Static/Restored) */}
+        <div className="d-flex align-items-center gap-2">
+          <div
+            className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm"
+            style={{
+              width: 34,
+              height: 34,
+              background: 'linear-gradient(135deg, var(--ip-brand), var(--ip-secondary, #1e3a8a))',
+              fontSize: '0.85rem'
+            }}
           >
-            <div
-              className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm"
-              style={{
-                width: 34,
-                height: 34,
-                background: 'linear-gradient(135deg, var(--ip-brand), var(--ip-secondary, #1e3a8a))',
-                fontSize: '0.85rem'
-              }}
-            >
-              {user?.name?.[0]?.toUpperCase() ?? 'U'}
+            {user?.name?.[0]?.toUpperCase() ?? 'U'}
+          </div>
+          <div className="d-none d-sm-block text-start" style={{ lineHeight: 1.2 }}>
+            <div className="fw-semibold text-dark" style={{ fontSize: '0.85rem' }}>
+              {user?.name ?? 'User'}
             </div>
-            <div className="d-none d-sm-block text-start" style={{ lineHeight: 1.2 }}>
-              <div className="fw-semibold text-dark" style={{ fontSize: '0.85rem' }}>
-                {user?.name ?? 'User'}
-              </div>
-              <div className="text-muted text-capitalize" style={{ fontSize: '0.7rem' }}>
-                {user?.role ? user.role.toLowerCase() : 'User'}
-              </div>
+            <div className="text-muted text-capitalize" style={{ fontSize: '0.7rem' }}>
+              {user?.role ? user.role.toLowerCase() : 'User'}
             </div>
           </div>
         </div>

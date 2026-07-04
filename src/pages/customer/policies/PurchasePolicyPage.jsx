@@ -9,30 +9,16 @@ const PurchasePolicyPage = () => {
   const { planId } = useParams();
   const navigate = useNavigate();
 
-  const [startDate, setStartDate] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const [errors, setErrors] = useState({});
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const errs = {};
-
-    if (!startDate) {
-      errs.startDate = "Coverage start date is required";
-    }
-
-    if (Object.keys(errs).length > 0) {
-      setErrors(errs);
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
       await purchasePolicy({
         planId: Number(planId),
-        startDate,
+        startDate: new Date().toISOString().split('T')[0],
       });
 
       toast.success("Policy Purchased Successfully");
@@ -49,7 +35,7 @@ const PurchasePolicyPage = () => {
     <div className="animate-fade-in">
       <PageHeader
         title="Purchase Policy"
-        subtitle="Select a start date to purchase this insurance plan"
+        subtitle="Confirm your purchase for this insurance plan"
       />
 
       <div className="row justify-content-center mt-4">
@@ -62,34 +48,24 @@ const PurchasePolicyPage = () => {
                 </div>
                 <div>
                   <h5 className="card-title mb-1">Policy Details</h5>
-                  <p className="card-text text-muted small mb-0">Choose when your coverage begins</p>
+                  <p className="card-text text-muted small mb-0">Your coverage will begin today</p>
                 </div>
               </div>
 
               <form onSubmit={handleSubmit}>
                 <div className="mb-4">
-                  <label className="form-label fw-medium">Coverage Start Date <span className="text-danger">*</span></label>
-                  <input
-                    type="date"
-                    className={`form-control form-control-lg ${errors.startDate ? 'is-invalid' : ''}`}
-                    value={startDate}
-                    onChange={(e) => {
-                      setStartDate(e.target.value);
-                      if (errors.startDate) setErrors(prev => ({ ...prev, startDate: '' }));
-                    }}
-                    required
-                    min={new Date().toISOString().split('T')[0]}
-                  />
-                  {errors.startDate && <div className="invalid-feedback">{errors.startDate}</div>}
+                  <p className="fw-medium text-dark">
+                    Date of Purchase: {new Date().toLocaleDateString()}
+                  </p>
                   <div className="form-text mt-2 text-muted">
-                    Your policy coverage will begin on this date.
+                    Your policy coverage will begin starting today.
                   </div>
                 </div>
 
                 <button
                   className="btn btn-primary btn-lg w-100 mt-2"
                   type="submit"
-                  disabled={isSubmitting || !startDate}
+                  disabled={isSubmitting}
                 >
                   {isSubmitting ? (
                     <span className="d-flex align-items-center justify-content-center">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import usePagination from './usePagination';
 
 const useTableState = ({ initialSortBy = 'id', initialSortDirection = 'desc', initialFilters = {} } = {}) => {
@@ -8,22 +8,11 @@ const useTableState = ({ initialSortBy = 'id', initialSortDirection = 'desc', in
   const [sortBy, setSortBy] = useState(initialSortBy);
   const [sortDirection, setSortDirection] = useState(initialSortDirection);
   
-  // Search
-  const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  
   // Loading
   const [isLoading, setIsLoading] = useState(false);
 
   // Generic Filters
   const [filters, setFilters] = useState(initialFilters);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearch(searchQuery);
-    }, 400);
-    return () => clearTimeout(handler);
-  }, [searchQuery]);
 
   const handleSort = (field) => {
     if (sortBy === field) {
@@ -34,27 +23,26 @@ const useTableState = ({ initialSortBy = 'id', initialSortDirection = 'desc', in
     }
   };
 
-  const handleFilterChange = (updates) => {
+  const setCurrentPage = pagination.setCurrentPage;
+
+  const handleFilterChange = useCallback((updates) => {
     setFilters(prev => ({ ...prev, ...updates }));
-    pagination.setCurrentPage(1);
-  };
-  
-  const handleSearchChange = (value) => {
-    setSearchQuery(value);
-    pagination.setCurrentPage(1);
-  };
+    setCurrentPage(1);
+  }, [setCurrentPage]);
 
   const getQueryParams = () => {
     const params = {
       ...pagination.pageParams,
       sortBy,
-      sortDirection,
-      ...filters
+      sortDirection
     };
-    if (debouncedSearch) {
-      params.search = debouncedSearch;
-      params.keyword = debouncedSearch;
-    }
+
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== '') {
+        params[key] = value;
+      }
+    });
+    
     return params;
   };
 
@@ -67,9 +55,6 @@ const useTableState = ({ initialSortBy = 'id', initialSortDirection = 'desc', in
     sortBy,
     sortDirection,
     handleSort,
-    searchQuery,
-    debouncedSearch,
-    handleSearchChange,
     filters,
     handleFilterChange,
     getQueryParams,

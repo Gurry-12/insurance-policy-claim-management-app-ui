@@ -4,7 +4,9 @@ import StatusBadge from '../../../components/ui/StatusBadge';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import { getClaimById, markUnderReview, reviewClaim, assignClaim } from '../../../services/claimService';
+import { getPolicyById } from '../../../services/policyService';
 import useAuth from '../../../hooks/useAuth';
+import useClaimPdf from '../../../hooks/PdfDownload/useClaimPdf';
 import toast from 'react-hot-toast';
 import ConfirmModal from '../../../components/modals/ConfirmModal';
 import DocumentPreviewModal from '../../../components/modals/DocumentPreviewModal';
@@ -15,23 +17,30 @@ const StaffClaimDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { downloadClaim } = useClaimPdf();
   const [claim, setClaim] = useState(null);
+  const [policy, setPolicy] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   const [actionModal, setActionModal] = useState({ isOpen: false, type: null });
   const [remark, setRemark] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
   const [previewDoc, setPreviewDoc] = useState(null);
 
   const fetchClaimData = (id) => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
-    Promise.all([
-      getClaimById(id),
-    ])
-      .then(([claimData]) => {
+    getClaimById(id)
+      .then(async (claimData) => {
         setClaim(claimData);
+        if (claimData?.policyId) {
+          try {
+            const policyData = await getPolicyById(claimData.policyId);
+            setPolicy(policyData);
+          } catch (e) {
+            console.error("Policy fetch error:", e);
+          }
+        }
       })
       .catch((err) => {
         console.error("Claim fetch error:", err);
@@ -41,7 +50,6 @@ const StaffClaimDetailPage = () => {
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchClaimData(id);
   }, [id]);
 
@@ -71,6 +79,7 @@ const StaffClaimDetailPage = () => {
       setActionLoading(false);
     }
   };
+
   const handleUnderReview = async () => {
     try {
       await markUnderReview(id);
@@ -89,27 +98,34 @@ const StaffClaimDetailPage = () => {
   };
 
   const {
-    claimAmount: amount = 0,
-    dateFiled = claim?.createdDate?.split("T")[0] || "N/A",
-    reason = "No reason provided",
+    claimAmount = 0,
+    claimStatus = '',
+    createdDate,
+    claimReason = 'No reason provided',
+    incidentDate,
     documents = [],
-    customerName = "Unknown",
+    customerName = 'Unknown'
   } = claim || {};
 
+  const dateFiled = createdDate?.split('T')[0] || 'N/A';
+  const reason = claimReason;
+  const amount = claimAmount;
+  const status = claimStatus;
+
   return (
-    <Drawer 
-      isOpen={true} 
-      onClose={() => navigate('/staff/claims')} 
+    <Drawer
+      isOpen={true}
+      onClose={() => navigate('/staff/claims')}
       title={claim ? `Viewing Claim #${claim.claimNumber || claim.id}` : 'Claim Details'}
       width="900px"
     >
       <div className="p-4">
         {loading && <LoadingSpinner text="Loading claim details..." />}
         {error && !claim && <ErrorAlert message={error || 'Claim not found.'} />}
-        
+
         {!loading && claim && (
           <>
-            <div className="d-flex gap-2 align-items-center justify-content-end mb-4">
+            <div className="d-flex justify-content-end gap-2 mb-4">
               {!claim.assignedStaffName && (
                 <button
                   className="btn btn-warning d-flex align-items-center gap-1"
@@ -146,6 +162,14 @@ const StaffClaimDetailPage = () => {
                   🔒 Locked by {claim.assignedStaffName}
                 </span>
               )}
+
+              <button
+                className="btn btn-outline-danger d-flex align-items-center gap-1"
+                style={{ borderRadius: '8px' }}
+                onClick={() => downloadClaim(claim)}
+              >
+                <i className="bi bi-file-earmark-pdf"></i> PDF
+              </button>
               <button
                 className="btn btn-outline-secondary d-flex align-items-center gap-1"
                 style={{ borderRadius: '8px' }}
@@ -156,32 +180,57 @@ const StaffClaimDetailPage = () => {
             </div>
 
             <div className="row g-4">
-              {/* Main Details */}
               <div className="col-12">
                 <div className="card border-0 mb-4 bg-white" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-sm)' }}>
                   <div className="card-body p-4">
                     <div className="d-flex justify-content-between align-items-center mb-4">
                       <h6 className="fw-bold m-0">Claim Information</h6>
-                      <StatusBadge status={claim.claimStatus} />
+                      <StatusBadge status={status} />
                     </div>
 
                     <div className="row mb-4">
-                      <div className="col-md-6 mb-3">
+                      <div className="col-md-4 mb-3">
                         <small className="text-muted d-block fw-bold mb-1">Claim Amount</small>
                         <h4 className="fw-bold m-0 text-primary">₹{amount.toLocaleString('en-IN')}</h4>
                       </div>
-                      <div className="col-md-6 mb-3">
+                      <div className="col-md-4 mb-3">
                         <small className="text-muted d-block fw-bold mb-1">Date Filed</small>
                         <span>{dateFiled}</span>
                       </div>
-                      <div className="col-12 mt-2">
+                      {incidentDate && (
+                        <div className="col-md-4 mb-3">
+                          <small className="text-muted d-block fw-bold mb-1">Incident Date</small>
+                          <span>{new Date(incidentDate).toLocaleDateString()}</span>
+                        </div>
+                      )}
+
+                      <div className="col-12 mt-2 mb-3">
                         <small className="text-muted d-block fw-bold mb-1">Reason / Description</small>
                         <p className="mb-0" style={{ color: 'var(--ip-text-secondary)' }}>{reason}</p>
                       </div>
-                      {claim.incidentDate && (
-                        <div className="col-md-6 mt-3">
-                          <small className="text-muted d-block fw-bold mb-1">Incident Date</small>
-                          <span>{claim.incidentDate}</span>
+
+                      {policy && (
+                        <>
+                          <div className="col-md-4 mt-3">
+                            <small className="text-muted d-block fw-bold mb-1">Total Coverage</small>
+                            <span className="fw-bold">₹{Number(policy.coverageAmount || 0).toLocaleString('en-IN')}</span>
+                          </div>
+                          <div className="col-md-4 mt-3">
+                            <small className="text-muted d-block fw-bold mb-1">Remaining Coverage</small>
+                            <span className="fw-bold text-success">₹{Number(policy.remainingClaimAmount ?? policy.coverageAmount ?? 0).toLocaleString('en-IN')}</span>
+                          </div>
+                        </>
+                      )}
+
+                      <div className="col-md-4 mt-3">
+                        <small className="text-muted d-block fw-bold mb-1">Assigned Staff</small>
+                        <span>{claim.assignedStaffName || <span className="text-muted">Unassigned</span>}</span>
+                      </div>
+
+                      {claim.staffRemarks && (
+                        <div className="col-12 mt-4 p-3 bg-light rounded-3 border-start border-4 border-primary">
+                          <small className="text-muted d-block fw-bold mb-1">Staff Remarks</small>
+                          <p className="mb-0 text-dark">{claim.staffRemarks}</p>
                         </div>
                       )}
                       {claim.adminRemarks && (
@@ -209,7 +258,7 @@ const StaffClaimDetailPage = () => {
                                 </div>
                               </div>
                               {doc.documentReference && (
-                                <button 
+                                <button
                                   onClick={() => setPreviewDoc(doc)}
                                   className="btn btn-sm btn-light text-primary d-flex align-items-center gap-1"
                                   style={{ borderRadius: 6 }}
@@ -228,7 +277,6 @@ const StaffClaimDetailPage = () => {
                 </div>
               </div>
 
-              {/* Customer Details */}
               <div className="col-12">
                 <div className="card border-0 mb-4 bg-white" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-sm)' }}>
                   <div className="card-body p-4">
@@ -240,7 +288,7 @@ const StaffClaimDetailPage = () => {
                       </div>
                       <div>
                         <small className="text-muted d-block fw-bold mb-1">Policy Number</small>
-                        <span className="text-primary fw-bold" style={{ cursor: 'pointer' }}>{claim.Number || claim.policyNumber || 'N/A'}</span>
+                        <span className="text-primary fw-bold" style={{ cursor: 'pointer' }} onClick={() => navigate(`/staff/policies/${claim.policyId}`)}>{claim.policyNumber || 'N/A'}</span>
                       </div>
                     </div>
                   </div>
@@ -251,17 +299,17 @@ const StaffClaimDetailPage = () => {
         )}
       </div>
 
-      <ConfirmModal 
+      <ConfirmModal
         isOpen={actionModal.isOpen}
         title={actionModal.type === 'approve' ? "Recommend Approval" : "Recommend Rejection"}
         message={
           <div>
             <p>Are you sure you want to recommend to {actionModal.type} this claim of <strong>₹{amount.toLocaleString('en-IN')}</strong>?</p>
-            <FormTextarea 
-              label="Staff Remarks (Required)" 
-              name="remark" 
-              value={remark} 
-              onChange={(e) => setRemark(e.target.value)} 
+            <FormTextarea
+              label="Staff Remarks (Required)"
+              name="remark"
+              value={remark}
+              onChange={(e) => setRemark(e.target.value)}
               placeholder="Add your justification here..."
               rows={3}
               required
@@ -288,4 +336,3 @@ const StaffClaimDetailPage = () => {
 };
 
 export default StaffClaimDetailPage;
-

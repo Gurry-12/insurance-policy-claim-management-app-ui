@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../navigation/Sidebar';
 import TopNavbar from '../navigation/TopNavbar';
 import useAuth from '../../hooks/useAuth';
 import { ROLES } from '../../utils/roles';
+import PageTransition from '../common/PageTransition';
 
 // Define navigation items dynamically per role
 const NAV_ITEMS_BY_ROLE = {
@@ -13,26 +14,29 @@ const NAV_ITEMS_BY_ROLE = {
       icon: "bi-speedometer2",
       label: "Dashboard",
       end: true,
+      section: null,
     },
-    { to: "/admin/users", icon: "bi-people", label: "Users" },
-    { to: "/admin/customers", icon: "bi-person-badge", label: "Customers" },
-    { to: "/admin/products", icon: "bi-box-seam", label: "Products" },
-    { to: "/admin/plans", icon: "bi-layers", label: "Plans" },
-    { to: "/admin/policies", icon: "bi-file-earmark-text", label: "Policies" },
-    { to: "/admin/claims", icon: "bi-shield-exclamation", label: "Claims" },
-    { to: "/admin/payments", icon: "bi-credit-card", label: "Payments" },
+    { to: "/admin/users",     icon: "bi-people",             label: "Users",     section: "Management" },
+    { to: "/admin/customers", icon: "bi-person-badge",        label: "Customers", section: null },
+    { to: "/admin/products",  icon: "bi-box-seam",           label: "Products",  section: "Catalog" },
+    { to: "/admin/plans",     icon: "bi-layers",             label: "Plans",     section: null },
+    { to: "/admin/policies",  icon: "bi-file-earmark-text",  label: "Policies",  section: "Operations" },
+    { to: "/admin/claims",    icon: "bi-shield-exclamation", label: "Claims",    section: null },
+    { to: "/admin/payments",  icon: "bi-credit-card",        label: "Payments",  section: null },
   ],
   [ROLES.INTERNAL_STAFF]: [
     {
-      to: "/Staff/dashboard",
+      to: "/staff/dashboard",
       icon: "bi-speedometer2",
       label: "Dashboard",
       end: true,
+      section: null,
     },
-    { to: "/Staff/customers", icon: "bi-people", label: "Customers" },
-    { to: "/Staff/policies", icon: "bi-file-earmark-text", label: "Policies" },
-    { to: "/Staff/claims", icon: "bi-shield-exclamation", label: "Claims" },
-    { to: "/Staff/payments", icon: "bi-credit-card", label: "Payments" },
+    { to: "/staff/customers",    icon: "bi-people",              label: "Customers",    section: "Manage" },
+    { to: "/staff/policies",     icon: "bi-file-earmark-text",   label: "Policies",     section: null },
+    { to: "/staff/claims",       icon: "bi-shield-exclamation",  label: "Claims",       section: null },
+    { to: "/staff/payments",     icon: "bi-credit-card",         label: "Payments",     section: null },
+    { to: "/staff/issue-policy", icon: "bi-file-earmark-plus",   label: "Issue Policy", section: "Actions" },
   ],
   [ROLES.CUSTOMER]: [
     {
@@ -40,28 +44,13 @@ const NAV_ITEMS_BY_ROLE = {
       icon: "bi-speedometer2",
       label: "Dashboard",
       end: true,
+      section: null,
     },
-    { to: "/customer/profile", icon: "bi-person-circle", label: "My Profile" },
-    {
-      to: "/customer/products",
-      icon: "bi-box-seam",
-      label: "Insurance Products",
-    },
-    {
-      to: "/customer/policies",
-      icon: "bi-file-earmark-text",
-      label: "My Policies",
-    },
-    {
-      to: "/customer/payments",
-      icon: "bi-credit-card",
-      label: "Payment History",
-    },
-    {
-      to: "/customer/claims",
-      icon: "bi-shield-exclamation",
-      label: "My Claims",
-    },
+    { to: "/customer/profile",   icon: "bi-person-circle",      label: "My Profile",          section: "Account" },
+    { to: "/customer/products",  icon: "bi-box-seam",           label: "Insurance Products",  section: "Explore" },
+    { to: "/customer/policies",  icon: "bi-file-earmark-text",  label: "My Policies",         section: null },
+    { to: "/customer/payments",  icon: "bi-credit-card",        label: "Payment History",     section: null },
+    { to: "/customer/claims",    icon: "bi-shield-exclamation", label: "My Claims",           section: null },
   ],
 };
 
@@ -79,6 +68,7 @@ const PORTAL_TITLE_BY_ROLE = {
 
 const MainLayout = () => {
   const { user } = useAuth();
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false); // For mobile overlay
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false); // For desktop
 
@@ -113,7 +103,9 @@ const MainLayout = () => {
 
         {/* Page content */}
         <main className="ip-content" style={{ padding: '1.75rem 1.5rem' }}>
-          <Outlet />
+          <PageTransition key={location.pathname}>
+            <Outlet />
+          </PageTransition>
         </main>
       </div>
     </div>
