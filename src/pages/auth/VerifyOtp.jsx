@@ -10,7 +10,8 @@ const VerifyOtp = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const targetEmail = location.state?.email || "";
+  const searchParams = new URLSearchParams(location.search);
+  const targetEmail = location.state?.email || searchParams.get("email") || "";
 
   const [formData, setFormData] = useState({
     email: targetEmail,

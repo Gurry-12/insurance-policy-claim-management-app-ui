@@ -14,7 +14,9 @@ const CustomerClaimListPage = () => {
     try {
       setIsLoading(true);
       const response = await getMyClaims();
-      setClaims(response.data || response.content || []);
+      const data = response.data || response.content || [];
+      const sortedData = [...data].sort((a, b) => (b.claimId || b.id || 0) - (a.claimId || a.id || 0));
+      setClaims(sortedData);
     } catch (error) {
       console.error(error);
     } finally {
@@ -109,7 +111,7 @@ const CustomerClaimListPage = () => {
                           <FileText size={14} className="me-2 text-primary" />
                           #{claim.claimNumber}
                         </span>
-                        <StatusBadge status={claim.claimStatus} icon={getStatusIcon(claim.claimStatus)} />
+                        <StatusBadge status={claim.claimStatus} />
                       </div>
 
                       <div className="mb-4">

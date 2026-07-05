@@ -60,9 +60,9 @@ const CustomerDashboard = () => {
           getMyClaims().catch(() => null),
           getMyPayments().catch(() => null)
         ]);
-        const policies = policyResponse?.content || policyResponse?.data || [];
-        const claims = claimResponse?.content || claimResponse?.data || [];
-        const payments = paymentResponse?.content || paymentResponse?.data || [];
+        const policies = (policyResponse?.content || policyResponse?.data || []).sort((a, b) => (b.policyId || b.id || 0) - (a.policyId || a.id || 0));
+        const claims = (claimResponse?.content || claimResponse?.data || []).sort((a, b) => (b.claimId || b.id || 0) - (a.claimId || a.id || 0));
+        const payments = (paymentResponse?.content || paymentResponse?.data || []).sort((a, b) => (b.paymentId || b.id || 0) - (a.paymentId || a.id || 0));
         const pendingCount = policies.filter(p => p.policyStatus === "PENDING_PAYMENT").length;
         setStats({
           totalPolicies: policyResponse?.totalRecords || policies.length,

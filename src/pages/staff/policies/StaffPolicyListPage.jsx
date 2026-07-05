@@ -8,28 +8,51 @@ import usePolicyPdf from "../../../hooks/PdfDownload/usePolicyPdf";
 import ExportButton from "../../../components/common/ExportButton";
 import useTableState from "../../../hooks/useTableState";
 import PaginationBar from "../../../components/tables/PaginationBar";
+import DataTable from "../../../components/tables/DataTable";
+import FilterPanel from "../../../components/ui/FilterPanel";
+import FilterChips from "../../../components/ui/FilterChips";
+import SortableHeader from "../../../components/tables/SortableHeader";
+import useDebounceFilters from "../../../hooks/useDebounceFilters";
+
+const FILTER_FIELDS = [
+  { type: 'select', name: 'status', label: 'Policy Status',
+    options: [
+      { value: 'ACTIVE',          label: 'Active' },
+      { value: 'PENDING_PAYMENT', label: 'Pending Payment' },
+      { value: 'EXPIRED',         label: 'Expired' },
+      { value: 'CANCELLED',       label: 'Cancelled' },
+    ],
+  },
+];
 
 const StaffPolicyListPage = () => {
   const [policies, setPolicies] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("ALL");
 
   const { downloadPolicy } = usePolicyPdf();
 
   const tableState = useTableState({
-    initialSortBy: 'id'
+    initialSortBy: "id",
+    initialFilters: { status: '', startDate: '', endDate: '' }
   });
-  
+
+  const { localFilters, handleFilterChange, clearFilters } = useDebounceFilters(
+    tableState.filters,
+    tableState.handleFilterChange
+  );
+
   useEffect(() => {
     const loadPolicies = async () => {
       try {
         setLoading(true);
         const params = tableState.getQueryParams();
-        if (statusFilter !== "ALL") {
-          params.status = statusFilter;
+        
+        // Match old specific 'status' logic mapped to 'PAYMENT_PENDING' etc
+        if (params.status === 'PAYMENT_PENDING') {
+          // This ensures the backend gets the correct enum format if needed, though backend handles it
         }
+
         const res = await getAllPoliciesPaginated(params);
         setPolicies(res.content || []);
         tableState.setTotalPages(res.totalPages || 1);
@@ -42,187 +65,141 @@ const StaffPolicyListPage = () => {
     };
 
     loadPolicies();
-  
-  }, [tableState.currentPage, tableState.sortBy, tableState.sortDirection, statusFilter]);
+  }, [
+    tableState.currentPage,
+    JSON.stringify(tableState.filters),
+    tableState.sortBy,
+    tableState.sortDirection,
+  ]);
 
-  const filteredPolicies = policies.filter((policy) => {
-  const matchesSearch =
-    policy.policyNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    policy.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    policy.planName?.toLowerCase().includes(searchTerm.toLowerCase());
+  const renderHeader = (label, field) => (
+    <SortableHeader 
+      label={label} 
+      field={field} 
+      currentSortBy={tableState.sortBy} 
+      currentDirection={tableState.sortDirection} 
+      onSort={tableState.handleSort} 
+    />
+  );
 
-  const matchesStatus =
-    statusFilter === "ALL" ||
-    policy.policyStatus?.toUpperCase() === statusFilter;
-
-  return matchesSearch && matchesStatus;
-});
-
-  if (loading) {
-    return (
-      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+  const columns = [
+    { 
+      header: "Sr. No.",
+      cell: (row, index) => tableState.getSrNo(index), 
+      minWidth: "85px" 
+    },
+    { header: renderHeader("Policy Number", "policyNumber"), cell: (row) => <span className="fw-semibold">{row.policyNumber}</span> },
+    { header: "Customer Name", accessor: "customerName" },
+    { header: "Plan Name", accessor: "planName" },
+    {
+      header: "Premium Amount (₹)",
+      cell: (row) => <span className="fw-semibold">₹{row.premiumAmount?.toLocaleString("en-IN") || 0}</span>,
+    },
+    { header: "Start Date", accessor: "startDate" },
+    { header: "Expiry Date", accessor: "endDate" },
+    {
+      header: renderHeader("Status", "policyStatus"),
+      cell: (row) => <StatusBadge status={row.policyStatus} />,
+    },
+    {
+      header: "Actions",
+      cell: (row) => (
+        <div className="d-flex align-items-center gap-2">
+          <Link
+            to={`/staff/policies/${row.policyId}`}
+            className="btn btn-sm btn-light text-primary border-0"
+            title="View Details"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <i className="bi bi-eye" />
+          </Link>
+          {row.policyStatus?.toUpperCase() === "PAYMENT_PENDING" && (
+            <Link
+              to={`/staff/payments/create/${row.policyId}`}
+              className="btn btn-sm btn-success"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Pay
+            </Link>
+          )}
         </div>
-      </div>
-    );
-  }
+      ),
+    },
+  ];
 
   return (
-    
-      <div className="animate-fade-in">
+    <div className="animate-fade-in">
       <PageHeader
         title="Policy Management"
-        subtitle="Track your client  policies"
-       action={
-  <div className="d-flex align-items-center gap-2">
-    <ExportButton
-      data={policies || []}
-      columns={[
-        { header: "Policy Number", accessor: "policyNumber" },
-        { header: "Customer Name", accessor: "customerName" },
-        { header: "Plan Name", accessor: "planName" },
-        { header: "Premium Amount (₹)", accessor: "premiumAmount" },
-        { header: "Status", accessor: "policyStatus" }
-      ]}
-      filename="Staff_policies_list.csv"
-    />
-
-
-    <button
-      className="btn btn-secondary d-flex align-items-center gap-1"
-      onClick={() => navigate("/Staff/dashboard")}
-    >
-      <i className="bi bi-arrow-left"></i>
-      Back
-    </button>
-
-  </div>
-}
-/>
-      <div className="d-flex gap-2 mb-3">
-        <select
-          className="form-select"
-          style={{ width: "220px" }}
-          value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value);
-            tableState.setCurrentPage(1);
-          }}
-        >
-          <option value="ALL">All Policies</option>
-          <option value="ACTIVE">Active Policies</option>
-          <option value="CANCELLED">Cancelled Policies</option>
-          <option value="PAYMENT_PENDING">Payment Pending</option>
-        </select>
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Search by Policy Number, Customer Name or Plan Name"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-
-      <div className="table-responsive">
-        <table className="table table-hover align-middle mb-0">
-          <thead>
-            <tr>
-              <th>Sr. No.</th>
-              <th>Policy Number</th>
-              <th>Customer Name</th>
-              <th>Plan Name</th>
-              <th>Premium Amount</th>
-              <th>Status</th>
-              <th>Actions</th>
-              <th>Download</th>
-            </tr>
-          </thead>
-
-          <tbody>
-  {filteredPolicies.length > 0 ? (
-    filteredPolicies.map((policy, index) => (
-      <tr key={policy.policyId}>
-        <td>{tableState.getSrNo(index)}</td>
-        <td style={{ fontWeight: 600 }}>
-          {policy.policyNumber}
-        </td>
-
-        <td>
-          {policy.customerName}
-        </td>
-
-        <td>
-          {policy.planName}
-        </td>
-
-        <td style={{ fontWeight: 600 }}>
-          ₹ {policy.premiumAmount?.toLocaleString()}
-        </td>
-
-        <td>
-          <StatusBadge status={policy.policyStatus} />
-        </td>
-
-        <td>
-  <div className="d-flex flex-column gap-2">
-
-    <Link
-      to={`/Staff/policies/${policy.policyId}`}
-      className="btn btn-light btn-sm text-primary"
-      title="View Details"
-    >
-      <Eye size={16} />
-      <span className="ms-1">View</span>
-    </Link>
-
-    {policy.policyStatus?.toUpperCase() === "PAYMENT_PENDING" && (
-      <Link
-        to={`/Staff/payments/create/${policy.policyId}`}
-        className="btn btn-success btn-sm"
-      >
-        Make Payment
-      </Link>
-    )}
-
-  </div>
-</td>
-<td>
-    <button
-        className="btn btn-danger btn-sm"
-        onClick={() => downloadPolicy(policy)}
-    >
-        <i className="bi bi-download me-1"></i>
-        PDF
-    </button>
-</td>
-    
-      </tr>
-    ))
-  ) : (
-    <tr>
-      <td colSpan="6" className="text-center py-4">
-        No Policies Found
-      </td>
-    </tr>
-  )}
-</tbody>
-        </table>
-      </div>
-      {policies.length > 0 && (
-        <div className="mt-3">
-          <PaginationBar
-            currentPage={tableState.currentPage}
-            totalPages={tableState.totalPages}
-            totalElements={tableState.totalElements}
-            pageSize={tableState.pageSize}
-            onPageChange={tableState.setCurrentPage}
-          />
+        subtitle="Track your client policies"
+        action={
+          <div className="d-flex align-items-center gap-2">
+            <ExportButton
+              fetchAll={async () => {
+                const res = await getAllPoliciesPaginated({ pageSize: tableState.totalElements || 1000, pageNumber: 0 });
+                return res.content || [];
+              }}
+              columns={[
+                { header: "Policy Number", accessor: "policyNumber" },
+                { header: "Customer Name", accessor: "customerName" },
+                { header: "Plan Name", accessor: "planName" },
+                { header: "Premium Amount (₹)", accessor: "premiumAmount" },
+                { header: "Status", accessor: "policyStatus" },
+              ]}
+              filename="Staff_policies_list.csv"
+            />
+            <button
+              className="btn btn-secondary d-flex align-items-center gap-1"
+              onClick={() => navigate("/staff/dashboard")}
+            >
+              <i className="bi bi-arrow-left"></i>
+              Back
+            </button>
+          </div>
+        }
+      />
+      
+      <div className="card border-0" style={{ borderRadius: 16, boxShadow: "var(--ip-shadow-md)" }}>
+        <div className="card-body p-0">
+          <div className="p-4 border-bottom border-light">
+            <div className="ip-table-toolbar">
+              <div className="ip-table-toolbar-left">
+                <h6 className="ip-table-title">All Policies</h6>
+                {tableState.totalElements > 0 && (
+                  <span className="ip-total-badge">{tableState.totalElements} total</span>
+                )}
+              </div>
+              <FilterPanel
+                fields={FILTER_FIELDS}
+                localFilters={localFilters}
+                onApply={(draft) => tableState.handleFilterChange(draft)}
+                onClear={clearFilters}
+              />
+            </div>
+            <FilterChips
+              fields={FILTER_FIELDS}
+              localFilters={localFilters}
+              onRemove={(updates) => tableState.handleFilterChange(updates)}
+              onClearAll={clearFilters}
+            />
+          </div>
+          <div className="p-4">
+            <DataTable
+              columns={columns}
+              data={policies}
+              loading={loading}
+              onRowClick={(row) => navigate(`/staff/policies/${row.policyId}`)}
+            />
+            <PaginationBar
+              currentPage={tableState.currentPage}
+              totalPages={tableState.totalPages}
+              onPageChange={tableState.setCurrentPage}
+            />
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
 
 export default StaffPolicyListPage;
-

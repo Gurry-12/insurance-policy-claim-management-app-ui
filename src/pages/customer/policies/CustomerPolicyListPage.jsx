@@ -123,7 +123,7 @@ const CustomerPolicyListPage = () => {
                         </span>
                         <h5 className="fw-bold text-dark mb-0 mt-1">{policy.planName}</h5>
                       </div>
-                      <StatusBadge status={policy.policyStatus} icon={getStatusIcon(policy.policyStatus)} />
+                      <StatusBadge status={policy.policyStatus} />
                     </div>
 
                     <div className="bg-white rounded-3 p-3 shadow-sm border mt-4 mb-4">

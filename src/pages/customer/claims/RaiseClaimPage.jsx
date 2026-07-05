@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import toast from 'react-hot-toast';
 import { raiseClaim } from "../../../services/claimService";
-import { getMyPolicies } from "../../../services/policyService";
+import { getMyPolicies, getPolicyById } from "../../../services/policyService";
 import PageHeader from "../../../components/common/PageHeader";
 import { FilePlus, ArrowLeft, Save, ShieldCheck, AlertCircle, FileText, Calendar, IndianRupee, FileUp, Info, X } from "lucide-react";
 
@@ -20,6 +20,9 @@ const RaiseClaimPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [policies, setPolicies] = useState([]);
   const [isLoadingPolicies, setIsLoadingPolicies] = useState(true);
+  const [selectedPolicyDetails, setSelectedPolicyDetails] = useState(null);
+  const [isLoadingPolicyDetails, setIsLoadingPolicyDetails] = useState(false);
+  const [selectedDocType, setSelectedDocType] = useState('Medical Certificate');
 
   useEffect(() => {
     const fetchPolicies = async () => {
@@ -35,15 +38,79 @@ const RaiseClaimPage = () => {
     fetchPolicies();
   }, []);
 
+  useEffect(() => {
+    if (!selectedPolicyDetails) return;
+
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      let changed = false;
+
+      if (claim.claimAmount) {
+        const amount = Number(claim.claimAmount);
+        const remaining = selectedPolicyDetails.remainingClaimAmount ?? selectedPolicyDetails.coverageAmount ?? 0;
+        if (amount <= 0) {
+          if (newErrors.claimAmount !== 'Claim amount must be greater than 0') {
+            newErrors.claimAmount = 'Claim amount must be greater than 0';
+            changed = true;
+          }
+        } else if (amount > remaining) {
+          const msg = `Cannot exceed remaining coverage (₹${remaining.toLocaleString()})`;
+          if (newErrors.claimAmount !== msg) {
+            newErrors.claimAmount = msg;
+            changed = true;
+          }
+        } else if (newErrors.claimAmount) {
+          delete newErrors.claimAmount;
+          changed = true;
+        }
+      }
+
+      if (claim.incidentDate && selectedPolicyDetails.startDate) {
+        const incDate = new Date(claim.incidentDate);
+        const startDate = new Date(selectedPolicyDetails.startDate);
+        incDate.setHours(0,0,0,0);
+        startDate.setHours(0,0,0,0);
+        if (incDate < startDate) {
+          const msg = `Date cannot be before policy start date (${startDate.toLocaleDateString()})`;
+          if (newErrors.incidentDate !== msg) {
+            newErrors.incidentDate = msg;
+            changed = true;
+          }
+        } else if (newErrors.incidentDate) {
+          delete newErrors.incidentDate;
+          changed = true;
+        }
+      }
+
+      return changed ? newErrors : prev;
+    });
+  }, [claim.claimAmount, claim.incidentDate, selectedPolicyDetails]);
+
   const [errors, setErrors] = useState({});
 
-  const handleChange = (e) => {
-    setClaim({
-      ...claim,
-      [e.target.name]: e.target.value,
-    });
-    if (errors[e.target.name]) {
-      setErrors(prev => ({ ...prev, [e.target.name]: '' }));
+  const handleChange = async (e) => {
+    const { name, value } = e.target;
+    setClaim(prev => ({ ...prev, [name]: value }));
+    
+    if (name === "policyId") {
+      if (value) {
+        setIsLoadingPolicyDetails(true);
+        try {
+          const details = await getPolicyById(value);
+          setSelectedPolicyDetails(details);
+        } catch (err) {
+          console.error("Failed to fetch policy details", err);
+          setSelectedPolicyDetails(null);
+        } finally {
+          setIsLoadingPolicyDetails(false);
+        }
+      } else {
+        setSelectedPolicyDetails(null);
+      }
+    }
+
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
@@ -70,7 +137,11 @@ const RaiseClaimPage = () => {
       }
 
       if (newFiles.length > 0) {
-        setFiles((prev) => [...prev, ...newFiles]);
+        const categorizedFiles = newFiles.map(file => ({
+          file: file,
+          docType: selectedDocType
+        }));
+        setFiles((prev) => [...prev, ...categorizedFiles]);
         if (errors.files) {
           setErrors((prev) => ({ ...prev, files: '' }));
         }
@@ -89,10 +160,29 @@ const RaiseClaimPage = () => {
     if (!claim.policyId) errs.policyId = 'Policy is required';
     if (!claim.claimAmount) {
       errs.claimAmount = 'Claim amount is required';
-    } else if (Number(claim.claimAmount) <= 0) {
-      errs.claimAmount = 'Claim amount must be greater than 0';
+    } else {
+      const amount = Number(claim.claimAmount);
+      if (amount <= 0) {
+        errs.claimAmount = 'Claim amount must be greater than 0';
+      } else if (selectedPolicyDetails) {
+        const remaining = selectedPolicyDetails.remainingClaimAmount ?? selectedPolicyDetails.coverageAmount ?? 0;
+        if (amount > remaining) {
+          errs.claimAmount = `Cannot exceed remaining coverage (₹${remaining.toLocaleString()})`;
+        }
+      }
     }
-    if (!claim.incidentDate) errs.incidentDate = 'Incident date is required';
+    
+    if (!claim.incidentDate) {
+      errs.incidentDate = 'Incident date is required';
+    } else if (selectedPolicyDetails && selectedPolicyDetails.startDate) {
+      const incDate = new Date(claim.incidentDate);
+      const startDate = new Date(selectedPolicyDetails.startDate);
+      incDate.setHours(0,0,0,0);
+      startDate.setHours(0,0,0,0);
+      if (incDate < startDate) {
+        errs.incidentDate = `Date cannot be before policy start date (${startDate.toLocaleDateString()})`;
+      }
+    }
     if (!claim.claimReason) errs.claimReason = 'Claim reason is required';
     if (files.length === 0) errs.files = 'Upload at least one document';
 
@@ -111,8 +201,15 @@ const RaiseClaimPage = () => {
 
       formData.append("claim", claimBlob);
 
-      files.forEach((file) => {
-        formData.append("files", file);
+      files.forEach((fileObj) => {
+        const originalFile = fileObj.file;
+        const extension = originalFile.name.substring(originalFile.name.lastIndexOf('.'));
+        const safeDocType = fileObj.docType.replace(/[^a-zA-Z0-9]/g, '_');
+        const safeName = originalFile.name.substring(0, originalFile.name.lastIndexOf('.')).replace(/[^a-zA-Z0-9]/g, '_');
+        const newFileName = `${safeDocType}_${safeName}${extension}`;
+        
+        const renamedFile = new File([originalFile], newFileName, { type: originalFile.type });
+        formData.append("files", renamedFile);
       });
 
       await raiseClaim(formData);
@@ -237,6 +334,24 @@ const RaiseClaimPage = () => {
                       )}
                       {errors.policyId && <div className="invalid-feedback">{errors.policyId}</div>}
                     </div>
+
+                    {/* Real-time Coverage Display */}
+                    {isLoadingPolicyDetails && (
+                      <div className="mt-2 text-muted small"><span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Fetching policy details...</div>
+                    )}
+                    {!isLoadingPolicyDetails && selectedPolicyDetails && (
+                      <div className="mt-3 p-3 rounded-3 border d-flex align-items-center bg-white" style={{ borderColor: 'var(--ip-border)' }}>
+                        <div className="bg-success bg-opacity-10 p-2 rounded-circle me-3">
+                          <ShieldCheck size={24} className="text-success" />
+                        </div>
+                        <div className="flex-grow-1">
+                          <div className="text-muted small fw-medium mb-1">Available Claim Coverage</div>
+                          <h4 className="mb-0 fw-bold text-success">
+                            ₹{(selectedPolicyDetails.remainingClaimAmount ?? selectedPolicyDetails.coverageAmount ?? 0).toLocaleString()}
+                          </h4>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="col-md-6">
@@ -274,6 +389,7 @@ const RaiseClaimPage = () => {
                         name="incidentDate"
                         value={claim.incidentDate}
                         onChange={handleChange}
+                        min={selectedPolicyDetails?.startDate ? selectedPolicyDetails.startDate.split('T')[0] : ""}
                         max={new Date().toISOString().split("T")[0]}
                       />
                       {errors.incidentDate && <div className="invalid-feedback">{errors.incidentDate}</div>}
@@ -304,6 +420,22 @@ const RaiseClaimPage = () => {
                 <h5 className="fw-bold mb-4 border-bottom pb-3 mt-5">Supporting Documents</h5>
 
                 <div className="mb-4">
+                  <div className="mb-3">
+                    <label className="form-label fw-medium text-secondary">Document Category <span className="text-danger">*</span></label>
+                    <select 
+                      className="form-select bg-light" 
+                      value={selectedDocType} 
+                      onChange={(e) => setSelectedDocType(e.target.value)}
+                    >
+                      <option value="Medical Certificate">Medical Certificate</option>
+                      <option value="Hospital Invoice">Hospital Invoice</option>
+                      <option value="Bank Statement">Bank Statement</option>
+                      <option value="Police Report (FIR)">Police Report (FIR)</option>
+                      <option value="Other Proof">Other Proof</option>
+                    </select>
+                    <div className="form-text mt-2 mb-3">Select the type of document before uploading it below.</div>
+                  </div>
+
                   <div className={`p-5 text-center border rounded-3 bg-light position-relative ${errors.files ? 'border-danger' : 'border-dashed'}`} style={{ borderStyle: 'dashed', borderWidth: '2px', borderColor: 'var(--ip-border)' }}>
                     <FileUp size={48} className="text-primary mb-3 opacity-75" />
                     <h6 className="fw-bold">Upload your files here</h6>
@@ -325,9 +457,9 @@ const RaiseClaimPage = () => {
                     <div className="mt-4">
                       <h6 className="fw-medium mb-3 text-secondary">Selected Files ({files.length})</h6>
                       <div className="row g-3">
-                        {files.map((file, index) => {
-                          const isImage = file.type.startsWith('image/');
-                          const previewUrl = isImage ? URL.createObjectURL(file) : null;
+                        {files.map((fileObj, index) => {
+                          const isImage = fileObj.file.type.startsWith('image/');
+                          const previewUrl = isImage ? URL.createObjectURL(fileObj.file) : null;
                           return (
                             <div key={index} className="col-md-6 col-lg-4">
                               <div className="border rounded-3 p-2 d-flex align-items-center bg-white shadow-sm position-relative h-100">
@@ -339,8 +471,11 @@ const RaiseClaimPage = () => {
                                   )}
                                 </div>
                                 <div className="text-truncate flex-grow-1 pe-4">
-                                  <div className="fw-medium small text-truncate" title={file.name}>{file.name}</div>
-                                  <div className="text-muted" style={{ fontSize: '11px' }}>{(file.size / 1024 / 1024).toFixed(2)} MB</div>
+                                  <div className="fw-medium small text-truncate" title={fileObj.file.name}>{fileObj.file.name}</div>
+                                  <div className="text-muted d-flex align-items-center gap-2 mt-1" style={{ fontSize: '11px' }}>
+                                    <span>{(fileObj.file.size / 1024 / 1024).toFixed(2)} MB</span>
+                                    <span className="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25" style={{ fontSize: '10px' }}>{fileObj.docType}</span>
+                                  </div>
                                 </div>
                                 <button
                                   type="button"

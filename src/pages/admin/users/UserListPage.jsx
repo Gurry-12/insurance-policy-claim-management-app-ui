@@ -43,7 +43,7 @@ const UserListPage = () => {
     initialFilters: { fullName: '', email: '', role: '', isActive: '' }
   });
 
-  const { localFilters, handleFilterChange, clearFilters } = useDebounceFilters(
+  const { localFilters, clearFilters } = useDebounceFilters(
     tableState.filters,
     tableState.handleFilterChange
   );
@@ -67,6 +67,7 @@ const UserListPage = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     tableState.currentPage, 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     JSON.stringify(tableState.filters), 
     tableState.sortBy, 
     tableState.sortDirection
@@ -127,10 +128,7 @@ const UserListPage = () => {
     },
   ];
 
-  const handleApplyFilters = (updates) => {
-    handleFilterChange({ name: '__batch__', value: updates }, updates);
-  };
-
+  
   const handleRemoveFilter = (updates) => {
     tableState.handleFilterChange(updates);
   };
@@ -143,7 +141,10 @@ const UserListPage = () => {
         action={
           <div className="d-flex gap-2">
             <ExportButton
-              data={users || []}
+              fetchAll={async () => {
+                const res = await getAllUsers({ pageSize: tableState.totalElements || 1000, pageNumber: 0 });
+                return res.content || [];
+              }}
               filename="Users_Export"
               columns={[
                 { header: "Full Name", accessor: "fullName" },

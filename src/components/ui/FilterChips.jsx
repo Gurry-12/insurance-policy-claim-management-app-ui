@@ -11,11 +11,7 @@
 const formatAmount = (val) =>
   val ? `₹${Number(val).toLocaleString('en-IN')}` : '';
 
-const formatDate = (dateStr) => {
-  if (!dateStr) return '';
-  const d = new Date(dateStr + 'T00:00:00');
-  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-};
+
 
 const FilterChips = ({ fields = [], localFilters, onRemove, onClearAll }) => {
   const chips = [];
@@ -44,17 +40,7 @@ const FilterChips = ({ fields = [], localFilters, onRemove, onClearAll }) => {
       }
     }
 
-    if (field.type === 'date-range') {
-      const s = localFilters[field.startName];
-      const e = localFilters[field.endName];
-      if (s && e) {
-        chips.push({
-          key: `${field.startName}-${field.endName}`,
-          label: `Date: ${formatDate(s)} – ${formatDate(e)}`,
-          onRemove: () => onRemove({ [field.startName]: '', [field.endName]: '' }),
-        });
-      }
-    }
+
 
     if (field.type === 'amount-range') {
       const mn = localFilters[field.minName];

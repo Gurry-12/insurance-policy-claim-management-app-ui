@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import toast from 'react-hot-toast';
+import toast from "react-hot-toast";
 import PageHeader from "../../../components/common/PageHeader";
 
 import { getAllCustomers } from "../../../services/customerService";
@@ -43,13 +43,9 @@ const StaffIssuePolicyPage = () => {
 
   const filteredCustomers = customers.filter(
     (customer) =>
-      customer.fullName
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      customer.email
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      customer.mobileNumber?.includes(searchTerm)
+      customer.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.mobileNumber?.includes(searchTerm),
   );
 
   const [errors, setErrors] = useState({});
@@ -77,7 +73,7 @@ const StaffIssuePolicyPage = () => {
       const payload = {
         customerId: Number(formData.customerId),
         planId: Number(formData.planId),
-        startDate: new Date().toISOString().split('T')[0],
+        startDate: new Date().toISOString().split("T")[0],
       };
 
       await issuePolicy(payload);
@@ -88,10 +84,7 @@ const StaffIssuePolicyPage = () => {
     } catch (error) {
       console.error(error);
 
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to issue policy"
-      );
+      toast.error(error.response?.data?.message || "Failed to issue policy");
     } finally {
       setLoading(false);
     }
@@ -118,9 +111,7 @@ const StaffIssuePolicyPage = () => {
 
       <div className="card border-0 shadow-sm">
         <div className="card-body p-4">
-
           <form onSubmit={handleSubmit}>
-
             {/* Search Customer */}
             <div className="mb-3">
               <label className="form-label fw-semibold">
@@ -129,15 +120,18 @@ const StaffIssuePolicyPage = () => {
 
               <input
                 type="text"
-                className={`form-control ${errors.customerId ? 'is-invalid' : ''}`}
+                className={`form-control ${errors.customerId ? "is-invalid" : ""}`}
                 placeholder="Search by Name, Email or Mobile"
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
-                  if (errors.customerId) setErrors(prev => ({ ...prev, customerId: '' }));
+                  if (errors.customerId)
+                    setErrors((prev) => ({ ...prev, customerId: "" }));
                 }}
               />
-              {errors.customerId && <div className="invalid-feedback">{errors.customerId}</div>}
+              {errors.customerId && (
+                <div className="invalid-feedback">{errors.customerId}</div>
+              )}
             </div>
 
             {/* Customer List */}
@@ -150,7 +144,6 @@ const StaffIssuePolicyPage = () => {
                 }}
               >
                 <div className="list-group list-group-flush">
-
                   {filteredCustomers.length > 0 ? (
                     filteredCustomers.map((customer) => (
                       <button
@@ -162,38 +155,26 @@ const StaffIssuePolicyPage = () => {
 
                           setFormData((prev) => ({
                             ...prev,
-                            customerId:
-                              customer.customerId,
+                            customerId: customer.customerId,
                           }));
 
-                          setSearchTerm(
-                            customer.fullName
-                          );
+                          setSearchTerm(customer.fullName);
                         }}
                       >
                         <div>
-                          <strong>
-                            {customer.fullName}
-                          </strong>
+                          <strong>{customer.fullName}</strong>
                         </div>
 
-                        <small>
-                          {customer.email}
-                        </small>
+                        <small>{customer.email}</small>
 
                         <br />
 
-                        <small>
-                          {customer.mobileNumber}
-                        </small>
+                        <small>{customer.mobileNumber}</small>
                       </button>
                     ))
                   ) : (
-                    <div className="p-3 text-muted">
-                      No customer found
-                    </div>
+                    <div className="p-3 text-muted">No customer found</div>
                   )}
-
                 </div>
               </div>
             )}
@@ -201,23 +182,15 @@ const StaffIssuePolicyPage = () => {
             {/* Selected Customer */}
             {selectedCustomer && (
               <div className="alert alert-success">
-                <h6 className="mb-2">
-                  Selected Customer
-                </h6>
+                <h6 className="mb-2">Selected Customer</h6>
 
                 <div>
-                  <strong>
-                    {selectedCustomer.fullName}
-                  </strong>
+                  <strong>{selectedCustomer.fullName}</strong>
                 </div>
 
-                <div>
-                  {selectedCustomer.email}
-                </div>
+                <div>{selectedCustomer.email}</div>
 
-                <div>
-                  {selectedCustomer.mobileNumber}
-                </div>
+                <div>{selectedCustomer.mobileNumber}</div>
               </div>
             )}
 
@@ -228,31 +201,29 @@ const StaffIssuePolicyPage = () => {
               </label>
 
               <select
-                className={`form-select ${errors.planId ? 'is-invalid' : ''}`}
+                className={`form-select ${errors.planId ? "is-invalid" : ""}`}
                 value={formData.planId}
                 onChange={(e) => {
                   setFormData({
                     ...formData,
                     planId: e.target.value,
                   });
-                  if (errors.planId) setErrors(prev => ({ ...prev, planId: '' }));
+                  if (errors.planId)
+                    setErrors((prev) => ({ ...prev, planId: "" }));
                 }}
                 required
               >
-                <option value="">
-                  Select Plan
-                </option>
+                <option value="">Select Plan</option>
 
                 {plans.map((plan) => (
-                  <option
-                    key={plan.planId}
-                    value={plan.planId}
-                  >
+                  <option key={plan.planId} value={plan.planId}>
                     {plan.planName}
                   </option>
                 ))}
               </select>
-              {errors.planId && <div className="invalid-feedback">{errors.planId}</div>}
+              {errors.planId && (
+                <div className="invalid-feedback">{errors.planId}</div>
+              )}
             </div>
 
             {/* Start Date Removed */}
@@ -269,9 +240,7 @@ const StaffIssuePolicyPage = () => {
               <button
                 type="button"
                 className="btn btn-secondary"
-                onClick={() =>
-                  navigate("/staff/policies")
-                }
+                onClick={() => navigate("/staff/policies")}
               >
                 Cancel
               </button>
@@ -281,14 +250,10 @@ const StaffIssuePolicyPage = () => {
                 className="btn btn-primary px-4"
                 disabled={loading}
               >
-                {loading
-                  ? "Issuing..."
-                  : "Issue Policy"}
+                {loading ? "Issuing..." : "Issue Policy"}
               </button>
             </div>
-
           </form>
-
         </div>
       </div>
     </div>

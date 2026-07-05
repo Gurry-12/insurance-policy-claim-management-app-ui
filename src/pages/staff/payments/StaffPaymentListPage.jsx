@@ -6,18 +6,38 @@ import StatusBadge from "../../../components/ui/StatusBadge";
 import ExportButton from "../../../components/common/ExportButton";
 import useTableState from "../../../hooks/useTableState";
 import PaginationBar from "../../../components/tables/PaginationBar";
+import DataTable from "../../../components/tables/DataTable";
+import FilterPanel from "../../../components/ui/FilterPanel";
+import FilterChips from "../../../components/ui/FilterChips";
+import SortableHeader from "../../../components/tables/SortableHeader";
+import useDebounceFilters from "../../../hooks/useDebounceFilters";
+
+const FILTER_FIELDS = [
+  { type: 'select', name: 'status', label: 'Payment Status',
+    options: [
+      { value: 'SUCCESS', label: 'Success' },
+      { value: 'PENDING', label: 'Pending' },
+      { value: 'FAILED',  label: 'Failed' },
+    ],
+  },
+  { type: 'amount-range', minName: 'minAmount', maxName: 'maxAmount', label: 'Amount' },
+];
 
 const StaffPaymentListPage = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("ALL");
 
   const tableState = useTableState({
-    initialSortBy: 'id',
-    initialSortDirection: 'desc'
+    initialSortBy: "id",
+    initialSortDirection: "desc",
+    initialFilters: { status: '', minAmount: '', maxAmount: '' }
   });
+
+  const { localFilters, clearFilters } = useDebounceFilters(
+    tableState.filters,
+    tableState.handleFilterChange
+  );
 
   useEffect(() => {
     const loadPayments = async () => {
@@ -27,7 +47,9 @@ const StaffPaymentListPage = () => {
         const data = await getAllPaymentsPaginated(params);
         setPayments(data.content || []);
         tableState.setTotalPages(data.totalPages || 1);
-        tableState.setTotalElements(data.totalRecords || data.totalElements || 0);
+        tableState.setTotalElements(
+          data.totalRecords || data.totalElements || 0,
+        );
       } catch (error) {
         console.error("Error loading payments:", error);
       } finally {
@@ -35,26 +57,40 @@ const StaffPaymentListPage = () => {
       }
     };
     loadPayments();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [tableState, tableState.currentPage, tableState.sortBy, tableState.sortDirection]);
 
-  const filteredPayments = payments.filter((payment) => {
-    const matchesSearch = payment.policyNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.transactionReference?.toLowerCase().includes(searchTerm.toLowerCase());
-      
-    const matchesStatus = statusFilter === "ALL" || payment.paymentStatus?.toUpperCase() === statusFilter;
-    
-    return matchesSearch && matchesStatus;
-  });
-  if (loading) {
-    return (
-      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    );
-  }
+  const renderHeader = (label, field) => (
+    <SortableHeader 
+      label={label} 
+      field={field} 
+      currentSortBy={tableState.sortBy} 
+      currentDirection={tableState.sortDirection} 
+      onSort={tableState.handleSort} 
+    />
+  );
+
+  const columns = [
+    { 
+      header: "Sr. No.",
+      cell: (row, index) => tableState.getSrNo(index), 
+      minWidth: "85px" 
+    },
+    { header: "Policy Number", accessor: "policyNumber" },
+    {
+      header: renderHeader("Amount (₹)", "amount"),
+      cell: (row) => <span className="fw-semibold">₹{row.amount?.toLocaleString("en-IN") || 0}</span>,
+    },
+    { header: renderHeader("Payment Mode", "paymentMode"), accessor: "paymentMode" },
+    { header: "Transaction Ref", accessor: "transactionReference" },
+    {
+      header: renderHeader("Status", "paymentStatus"),
+      cell: (row) => <StatusBadge status={row.paymentStatus} />,
+    },
+    {
+      header: renderHeader("Payment Date", "paymentDate"),
+      cell: (row) => row.paymentDate ? new Date(row.paymentDate).toLocaleString() : "-",
+    },
+  ];
 
   return (
     <div className="animate-fade-in">
@@ -64,130 +100,70 @@ const StaffPaymentListPage = () => {
         action={
           <div className="d-flex gap-2">
             <ExportButton
-              data={payments || []}
+              fetchAll={async () => {
+                const res = await getAllPaymentsPaginated({ pageSize: tableState.totalElements || 1000, pageNumber: 0 });
+                return res.content || [];
+              }}
               columns={[
                 { header: "Policy Number", accessor: "policyNumber" },
                 { header: "Amount (₹)", accessor: "amount" },
                 { header: "Payment Mode", accessor: "paymentMode" },
                 { header: "Status", accessor: "paymentStatus" },
                 { header: "Date", accessor: "paymentDate" },
-                { header: "Reference", accessor: "transactionReference" }
+                { header: "Reference", accessor: "transactionReference" },
               ]}
               filename="Staff_payments_list.csv"
             />
-            <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate("/staff/dashboard")}>
+            <button
+              className="btn btn-secondary d-flex align-items-center gap-1"
+              onClick={() => navigate("/staff/dashboard")}
+            >
               <i className="bi bi-arrow-left"></i> Back
             </button>
           </div>
         }
       />
-      <div className="d-flex gap-2 mb-3">
-        <select
-          className="form-select"
-          style={{ width: "200px" }}
-          value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value);
-            tableState.setCurrentPage(1);
-          }}
-        >
-          <option value="ALL">All Payments</option>
-          <option value="SUCCESS">Success</option>
-          <option value="FAILED">Failed</option>
-          <option value="PENDING">Pending</option>
-        </select>
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Search by Policy Number or Payment Reference Number"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-      <div className="table-responsive">
-        <table className="table table-hover align-middle mb-0">
-          <thead>
-            <tr>
-              <th>Sr. No.</th>
-              <th>Policy Number</th>
-              <th>Amount</th>
-              <th>Payment Mode</th>
-              <th>Transaction Ref</th>
-              <th>Status</th>
-              <th>Payment Date</th>
-            </tr>
-          </thead>
-
-          {/* <tbody>
-            {payments.length > 0 ? (
-              payments.map((payment) => (
-                <tr key={payment.paymentId}>
-                  <td style={{ fontWeight: 600 }}>#{payment.paymentId}</td>
-                  <td style={{ fontWeight: 600 }}>#{payment.policyId}</td>
-                  <td>{payment.policyNumber}</td>
-                  <td style={{ fontWeight: 600 }}>₹ {payment.amount}</td>
-                  <td>{payment.paymentMode}</td>
-                  <td>{payment.transactionReference}</td>
-                  <td>
-                    <StatusBadge status={payment.paymentStatus} />
-                  </td>
-                  <td style={{ color: 'var(--ip-text-muted)' }}>
-                    {payment.paymentDate
-                      ? new Date(payment.paymentDate).toLocaleString()
-                      : "-"}
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="8" className="text-center py-4">No Payments Found</td>
-              </tr>
-            )}
-          </tbody> */}
-
-                        <tbody>
-                {filteredPayments.length > 0 ? (
-                  filteredPayments.map((payment,index) => (
-                    <tr key={payment.paymentId}>
-                      <td style={{ fontWeight: 600 }}>
-                        {tableState.getSrNo(index)}
-                      </td>
-
-                      <td>{payment.policyNumber}</td>
-                      <td style={{ fontWeight: 600 }}>₹ {payment.amount}</td>
-                        <td>{payment.paymentMode}</td>
-                      <td>{payment.transactionReference}</td>
-                      <td><StatusBadge status={payment.paymentStatus} /> </td>
-
-                      <td style={{ color: 'var(--ip-text-muted)' }}>
-                        {payment.paymentDate
-                          ? new Date(payment.paymentDate).toLocaleString()
-                          : "-"}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="7" className="text-center py-4">
-                      No Payments Found
-                    </td>
-                  </tr>
+      
+      <div className="card border-0" style={{ borderRadius: 16, boxShadow: "var(--ip-shadow-md)" }}>
+        <div className="card-body p-0">
+          <div className="p-4 border-bottom border-light">
+            <div className="ip-table-toolbar">
+              <div className="ip-table-toolbar-left">
+                <h6 className="ip-table-title">All Payments</h6>
+                {tableState.totalElements > 0 && (
+                  <span className="ip-total-badge">{tableState.totalElements} total</span>
                 )}
-              </tbody>
-        </table>
-      </div>
-      {payments.length > 0 && (
-        <div className="mt-3">
-          <PaginationBar
-            currentPage={tableState.currentPage}
-            totalPages={tableState.totalPages}
-            onPageChange={tableState.setCurrentPage}
-          />
+              </div>
+              <FilterPanel
+                fields={FILTER_FIELDS}
+                localFilters={localFilters}
+                onApply={(draft) => tableState.handleFilterChange(draft)}
+                onClear={clearFilters}
+              />
+            </div>
+            <FilterChips
+              fields={FILTER_FIELDS}
+              localFilters={localFilters}
+              onRemove={(updates) => tableState.handleFilterChange(updates)}
+              onClearAll={clearFilters}
+            />
+          </div>
+          <div className="p-4">
+            <DataTable
+              columns={columns}
+              data={payments}
+              loading={loading}
+            />
+            <PaginationBar
+              currentPage={tableState.currentPage}
+              totalPages={tableState.totalPages}
+              onPageChange={tableState.setCurrentPage}
+            />
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
 
 export default StaffPaymentListPage;
-

@@ -1,17 +1,24 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import StatusBadge from '../../../components/ui/StatusBadge';
-import LoadingSpinner from '../../../components/common/LoadingSpinner';
-import ErrorAlert from '../../../components/ui/ErrorAlert';
-import { getClaimById, markUnderReview, reviewClaim, assignClaim } from '../../../services/claimService';
-import { getPolicyById } from '../../../services/policyService';
-import useAuth from '../../../hooks/useAuth';
-import useClaimPdf from '../../../hooks/PdfDownload/useClaimPdf';
-import toast from 'react-hot-toast';
-import ConfirmModal from '../../../components/modals/ConfirmModal';
-import DocumentPreviewModal from '../../../components/modals/DocumentPreviewModal';
-import FormTextarea from '../../../components/forms/FormTextarea';
-import Drawer from '../../../components/ui/Drawer';
+import { useState, useEffect } from "react";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import StatusBadge from "../../../components/ui/StatusBadge";
+import LoadingSpinner from "../../../components/common/LoadingSpinner";
+import ErrorAlert from "../../../components/ui/ErrorAlert";
+import {
+  getClaimById,
+  getClaimHistory,
+  markUnderReview,
+  reviewClaim,
+  assignClaim,
+} from "../../../services/claimService";
+import { getPolicyById } from "../../../services/policyService";
+import useAuth from "../../../hooks/useAuth";
+import useClaimPdf from "../../../hooks/PdfDownload/useClaimPdf";
+import toast from "react-hot-toast";
+import ConfirmModal from "../../../components/modals/ConfirmModal";
+import DocumentPreviewModal from "../../../components/modals/DocumentPreviewModal";
+import FormTextarea from "../../../components/forms/FormTextarea";
+import Drawer from "../../../components/ui/Drawer";
+import { ExternalLink, Clock, Upload, Eye } from "lucide-react";
 
 const StaffClaimDetailPage = () => {
   const { id } = useParams();
@@ -19,34 +26,42 @@ const StaffClaimDetailPage = () => {
   const { user } = useAuth();
   const { downloadClaim } = useClaimPdf();
   const [claim, setClaim] = useState(null);
+  const [history, setHistory] = useState([]);
   const [policy, setPolicy] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const [actionModal, setActionModal] = useState({ isOpen: false, type: null });
-  const [remark, setRemark] = useState('');
+  const [remark, setRemark] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
   const [previewDoc, setPreviewDoc] = useState(null);
 
-  const fetchClaimData = (id) => {
+  const fetchClaimData = async (id) => {
     setLoading(true);
-    getClaimById(id)
-      .then(async (claimData) => {
-        setClaim(claimData);
-        if (claimData?.policyId) {
-          try {
-            const policyData = await getPolicyById(claimData.policyId);
-            setPolicy(policyData);
-          } catch (e) {
-            console.error("Policy fetch error:", e);
-          }
-        }
-      })
-      .catch((err) => {
-        console.error("Claim fetch error:", err);
-        setError(err.response?.data?.message || err.message || 'Could not load claim details.');
-      })
-      .finally(() => setLoading(false));
+    try {
+      const [claimData, historyResponse] = await Promise.all([
+        getClaimById(id),
+        getClaimHistory(id).catch(() => [])
+      ]);
+      
+      setClaim(claimData);
+
+      const rawHistory = historyResponse?.content || historyResponse?.data || (Array.isArray(historyResponse) ? historyResponse : []);
+      const sortedHistory = [...rawHistory].sort((a, b) => new Date(b.updatedDate) - new Date(a.updatedDate));
+      setHistory(sortedHistory);
+
+      if (claimData?.policyId) {
+        const policyData = await getPolicyById(claimData.policyId);
+        setPolicy(policyData);
+      }
+    } catch (err) {
+      console.error("Claim fetch error:", err);
+      setError(
+        err.response?.data?.message || err.message || "Could not load claim details."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -55,23 +70,28 @@ const StaffClaimDetailPage = () => {
 
   const handleRecommendation = async () => {
     if (!remark.trim()) {
-      toast.error('Remarks are required to submit a recommendation.');
+      toast.error("Remarks are required to submit a recommendation.");
       return;
     }
 
     setActionLoading(true);
-    const recommendedStatus = actionModal.type === 'approve' ? "RECOMMENDED_FOR_APPROVAL" : "RECOMMENDED_FOR_REJECTION";
+    const recommendedStatus =
+      actionModal.type === "approve"
+        ? "RECOMMENDED_FOR_APPROVAL"
+        : "RECOMMENDED_FOR_REJECTION";
 
     try {
       const response = await reviewClaim(id, {
         recommendedStatus: recommendedStatus,
-        remarks: remark
+        remarks: remark,
       });
 
       setClaim(response.data || response);
-      toast.success(`Claim recommended for ${actionModal.type === 'approve' ? 'approval' : 'rejection'}`);
+      toast.success(
+        `Claim recommended for ${actionModal.type === "approve" ? "approval" : "rejection"}`,
+      );
       setActionModal({ isOpen: false, type: null });
-      setRemark('');
+      setRemark("");
     } catch (error) {
       console.error(error);
       toast.error("Failed to submit recommendation");
@@ -84,11 +104,18 @@ const StaffClaimDetailPage = () => {
     try {
       await markUnderReview(id);
       await assignClaim(id);
-      setClaim({ ...claim, claimStatus: "UNDER_REVIEW", assignedStaffName: user?.name });
+      setClaim({
+        ...claim,
+        claimStatus: "UNDER_REVIEW",
+        assignedStaffName: user?.name,
+      });
       toast.success("Claim assigned and moved to Under Review");
     } catch (error) {
       console.error("Under Review/Assign Error:", error);
-      if (error.response?.status === 400 && error.response?.data?.message?.includes("already under review")) {
+      if (
+        error.response?.status === 400 &&
+        error.response?.data?.message?.includes("already under review")
+      ) {
         toast.error("Sorry, another Staff just claimed this ticket!");
         fetchClaimData(id);
       } else {
@@ -99,15 +126,15 @@ const StaffClaimDetailPage = () => {
 
   const {
     claimAmount = 0,
-    claimStatus = '',
+    claimStatus = "",
     createdDate,
-    claimReason = 'No reason provided',
+    claimReason = "No reason provided",
     incidentDate,
     documents = [],
-    customerName = 'Unknown'
+    customerName = "Unknown",
   } = claim || {};
 
-  const dateFiled = createdDate?.split('T')[0] || 'N/A';
+  const dateFiled = createdDate?.split("T")[0] || "N/A";
   const reason = claimReason;
   const amount = claimAmount;
   const status = claimStatus;
@@ -115,13 +142,19 @@ const StaffClaimDetailPage = () => {
   return (
     <Drawer
       isOpen={true}
-      onClose={() => navigate('/staff/claims')}
-      title={claim ? `Viewing Claim #${claim.claimNumber || claim.id}` : 'Claim Details'}
+      onClose={() => navigate("/staff/claims")}
+      title={
+        claim
+          ? `Viewing Claim #${claim.claimNumber || claim.id}`
+          : "Claim Details"
+      }
       width="900px"
     >
       <div className="p-4">
         {loading && <LoadingSpinner text="Loading claim details..." />}
-        {error && !claim && <ErrorAlert message={error || 'Claim not found.'} />}
+        {error && !claim && (
+          <ErrorAlert message={error || "Claim not found."} />
+        )}
 
         {!loading && claim && (
           <>
@@ -140,157 +173,276 @@ const StaffClaimDetailPage = () => {
                 </button>
               )}
 
-              {claim.assignedStaffName === user?.name && claim.claimStatus === "UNDER_REVIEW" && (
-                <>
-                  <button
-                    className="btn btn-danger d-flex align-items-center gap-1"
-                    onClick={() => setActionModal({ isOpen: true, type: 'reject' })}
-                  >
-                    Recommend Rejection
-                  </button>
-                  <button
-                    className="btn btn-success d-flex align-items-center gap-1"
-                    onClick={() => setActionModal({ isOpen: true, type: 'approve' })}
-                  >
-                    Recommend Approval
-                  </button>
-                </>
-              )}
+              {claim.assignedStaffName === user?.name &&
+                claim.claimStatus === "UNDER_REVIEW" && (
+                  <>
+                    <button
+                      className="btn btn-danger d-flex align-items-center gap-1"
+                      onClick={() =>
+                        setActionModal({ isOpen: true, type: "reject" })
+                      }
+                    >
+                      Recommend Rejection
+                    </button>
+                    <button
+                      className="btn btn-success d-flex align-items-center gap-1"
+                      onClick={() =>
+                        setActionModal({ isOpen: true, type: "approve" })
+                      }
+                    >
+                      Recommend Approval
+                    </button>
+                  </>
+                )}
 
-              {claim.assignedStaffName && claim.assignedStaffName !== user?.name && (
-                <span className="badge bg-secondary d-flex align-items-center px-3 py-2" style={{ fontSize: '0.9rem' }}>
-                  🔒 Locked by {claim.assignedStaffName}
-                </span>
-              )}
+              {claim.assignedStaffName &&
+                claim.assignedStaffName !== user?.name && (
+                  <span
+                    className="badge bg-secondary d-flex align-items-center px-3 py-2"
+                    style={{ fontSize: "0.9rem" }}
+                  >
+                    🔒 Locked by {claim.assignedStaffName}
+                  </span>
+                )}
 
               <button
                 className="btn btn-outline-danger d-flex align-items-center gap-1"
-                style={{ borderRadius: '8px' }}
+                style={{ borderRadius: "8px" }}
                 onClick={() => downloadClaim(claim)}
               >
                 <i className="bi bi-file-earmark-pdf"></i> PDF
               </button>
-              <button
-                className="btn btn-outline-secondary d-flex align-items-center gap-1"
-                style={{ borderRadius: '8px' }}
-                onClick={() => navigate(`/staff/claims/${id}/history`)}
-              >
-                <i className="bi bi-clock-history"></i> History
-              </button>
             </div>
 
-            <div className="row g-4">
-              <div className="col-12">
-                <div className="card border-0 mb-4 bg-white" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-sm)' }}>
+            <div className="row g-4 mb-4">
+              {/* Left Side: Claim Info & Customer Details */}
+              <div className="col-lg-8">
+                <div
+                  className="card border-0 mb-4 bg-white h-100"
+                  style={{ borderRadius: 16, boxShadow: "var(--ip-shadow-sm)" }}
+                >
                   <div className="card-body p-4">
                     <div className="d-flex justify-content-between align-items-center mb-4">
-                      <h6 className="fw-bold m-0">Claim Information</h6>
+                      <h6 className="fw-bold m-0 text-primary">Claim Information</h6>
                       <StatusBadge status={status} />
                     </div>
 
                     <div className="row mb-4">
-                      <div className="col-md-4 mb-3">
-                        <small className="text-muted d-block fw-bold mb-1">Claim Amount</small>
-                        <h4 className="fw-bold m-0 text-primary">₹{amount.toLocaleString('en-IN')}</h4>
+                      <div className="col-md-6 mb-3">
+                        <small className="text-muted d-block fw-bold mb-1">
+                          Claim Amount
+                        </small>
+                        <h4 className="fw-bold m-0 text-dark">
+                          ₹{amount.toLocaleString("en-IN")}
+                        </h4>
                       </div>
-                      <div className="col-md-4 mb-3">
-                        <small className="text-muted d-block fw-bold mb-1">Date Filed</small>
+                      <div className="col-md-6 mb-3">
+                        <small className="text-muted d-block fw-bold mb-1">
+                          Date Filed
+                        </small>
                         <span>{dateFiled}</span>
                       </div>
                       {incidentDate && (
-                        <div className="col-md-4 mb-3">
-                          <small className="text-muted d-block fw-bold mb-1">Incident Date</small>
-                          <span>{new Date(incidentDate).toLocaleDateString()}</span>
+                        <div className="col-md-6 mb-3">
+                          <small className="text-muted d-block fw-bold mb-1">
+                            Incident Date
+                          </small>
+                          <span>
+                            {new Date(incidentDate).toLocaleDateString()}
+                          </span>
                         </div>
                       )}
 
                       <div className="col-12 mt-2 mb-3">
-                        <small className="text-muted d-block fw-bold mb-1">Reason / Description</small>
-                        <p className="mb-0" style={{ color: 'var(--ip-text-secondary)' }}>{reason}</p>
+                        <small className="text-muted d-block fw-bold mb-1">
+                          Reason / Description
+                        </small>
+                        <p
+                          className="mb-0"
+                          style={{ color: "var(--ip-text-secondary)" }}
+                        >
+                          {reason}
+                        </p>
                       </div>
 
                       {policy && (
                         <>
-                          <div className="col-md-4 mt-3">
-                            <small className="text-muted d-block fw-bold mb-1">Total Coverage</small>
-                            <span className="fw-bold">₹{Number(policy.coverageAmount || 0).toLocaleString('en-IN')}</span>
+                          <div className="col-md-6 mt-3">
+                            <small className="text-muted d-block fw-bold mb-1">
+                              Total Coverage
+                            </small>
+                            <span className="fw-bold">
+                              ₹
+                              {Number(
+                                policy.coverageAmount || 0,
+                              ).toLocaleString("en-IN")}
+                            </span>
                           </div>
-                          <div className="col-md-4 mt-3">
-                            <small className="text-muted d-block fw-bold mb-1">Remaining Coverage</small>
-                            <span className="fw-bold text-success">₹{Number(policy.remainingClaimAmount ?? policy.coverageAmount ?? 0).toLocaleString('en-IN')}</span>
+                          <div className="col-md-6 mt-3">
+                            <small className="text-muted d-block fw-bold mb-1">
+                              Remaining Coverage
+                            </small>
+                            <span className="fw-bold text-success">
+                              ₹
+                              {Number(
+                                policy.remainingClaimAmount ??
+                                  policy.coverageAmount ??
+                                  0,
+                              ).toLocaleString("en-IN")}
+                            </span>
                           </div>
                         </>
                       )}
 
-                      <div className="col-md-4 mt-3">
-                        <small className="text-muted d-block fw-bold mb-1">Assigned Staff</small>
-                        <span>{claim.assignedStaffName || <span className="text-muted">Unassigned</span>}</span>
+                      <div className="col-md-6 mt-3">
+                        <small className="text-muted d-block fw-bold mb-1">
+                          Assigned Staff
+                        </small>
+                        <span>
+                          {claim.assignedStaffName || (
+                            <span className="text-muted">Unassigned</span>
+                          )}
+                        </span>
                       </div>
 
                       {claim.staffRemarks && (
                         <div className="col-12 mt-4 p-3 bg-light rounded-3 border-start border-4 border-primary">
-                          <small className="text-muted d-block fw-bold mb-1">Staff Remarks</small>
+                          <small className="text-muted d-block fw-bold mb-1">
+                            Staff Remarks
+                          </small>
                           <p className="mb-0 text-dark">{claim.staffRemarks}</p>
                         </div>
                       )}
                       {claim.adminRemarks && (
                         <div className="col-12 mt-3 p-3 bg-light rounded-3 border-start border-4 border-warning">
-                          <small className="text-muted d-block fw-bold mb-1">Admin Remarks</small>
+                          <small className="text-muted d-block fw-bold mb-1">
+                            Admin Remarks
+                          </small>
                           <p className="mb-0 text-dark">{claim.adminRemarks}</p>
                         </div>
                       )}
                     </div>
+                    
+                    <hr className="my-4" style={{ borderColor: "var(--ip-border-light)" }} />
+                    
+                    <h6 className="fw-bold mb-3 text-primary">Customer Details</h6>
+                    <div className="d-flex gap-5">
+                      <div>
+                        <small className="text-muted d-block fw-bold mb-1">
+                          Name
+                        </small>
+                        <span>{customerName}</span>
+                      </div>
+                      <div>
+                        <small className="text-muted d-block fw-bold mb-1">
+                          Policy Number
+                        </small>
+                        <span
+                          className="text-primary fw-bold"
+                          style={{ cursor: "pointer" }}
+                          onClick={() =>
+                            navigate(`/staff/policies/${claim.policyId}`)
+                          }
+                        >
+                          {claim.policyNumber || "N/A"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-                    <hr className="my-4" style={{ borderColor: 'var(--ip-border-light)' }} />
+              {/* Right Side: Status History Timeline */}
+              <div className="col-lg-4">
+                <div className="card border-0 shadow-sm h-100" style={{ borderRadius: 16 }}>
+                  <div className="card-header bg-white border-bottom-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
+                    <h6 className="card-title mb-0 fw-bold text-primary">Status History</h6>
+                  </div>
+                  <div className="card-body">
+                    {history.length > 0 ? (
+                      <div className="timeline-wrapper position-relative ps-3 ms-2 mt-2" style={{ borderLeft: '2px solid #e9ecef' }}>
+                        {history.slice(0, 5).map((item, index) => (
+                          <div key={index} className="position-relative mb-4">
+                            <div 
+                              className="position-absolute bg-primary rounded-circle" 
+                              style={{ width: '12px', height: '12px', left: '-23px', top: '5px' }}
+                            ></div>
+                            <div className="mb-1">
+                              <StatusBadge status={item.newStatus || item.status} />
+                            </div>
+                            <div className="small text-muted mb-1">
+                              {new Date(item.updatedDate).toLocaleString()}
+                            </div>
+                            <div className="small">
+                              By: <span className="fw-medium">{item.updatedBy || "System"}</span>
+                            </div>
+                          </div>
+                        ))}
+                        {history.length > 5 && (
+                          <div className="text-center mt-3 text-muted small">
+                            Older updates hidden.
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-center text-muted p-4 d-flex flex-column align-items-center">
+                        <Clock size={40} className="mb-2 opacity-50" />
+                        <small>No history available yet.</small>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
 
-                    <h6 className="fw-bold mb-3">Attached Documents</h6>
+            {/* Bottom Side: Documents */}
+            <div className="row">
+              <div className="col-12">
+                <div className="card border-0 shadow-sm" style={{ borderRadius: 16 }}>
+                  <div className="card-header bg-white border-bottom-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
+                    <h6 className="card-title mb-0 fw-bold text-primary">Attached Documents</h6>
+                    <span className="badge bg-light text-dark border">
+                      {documents?.length || 0} Files
+                    </span>
+                  </div>
+                  <div className="card-body">
                     {documents?.length > 0 ? (
-                      <div className="d-flex flex-column gap-2 mb-4">
-                        {documents.map((doc, idx) => {
-                          const isPdf = doc.documentType?.includes('pdf') || doc.documentName?.endsWith('.pdf');
+                      <div className="row g-3">
+                        {documents.map((doc, index) => {
                           return (
-                            <div key={idx} className="d-flex justify-content-between align-items-center p-3 border rounded-3" style={{ borderColor: 'var(--ip-border-light)' }}>
-                              <div className="d-flex align-items-center gap-3">
-                                <i className={`bi ${isPdf ? 'bi-file-earmark-pdf text-danger' : 'bi-file-earmark-image text-primary'} fs-4`}></i>
-                                <div>
-                                  <div className="fw-bold" style={{ fontSize: '0.9rem' }}>{doc.documentName || `Document-${idx+1}`}</div>
-                                  <div className="text-muted" style={{ fontSize: '0.78rem' }}>{doc.documentType || 'File'}</div>
+                            <div key={index} className="col-md-6">
+                              <div className="d-flex align-items-center justify-content-between p-3 border rounded bg-light h-100">
+                                <div className="d-flex align-items-center overflow-hidden me-2">
+                                  <div className="bg-white p-2 rounded shadow-sm me-3 text-primary">
+                                    <Eye size={20} />
+                                  </div>
+                                  <div className="text-truncate" title={doc.documentName}>
+                                    <span className="fw-medium d-block text-truncate">{doc.documentName || `Document-${index + 1}`}</span>
+                                    <small className="text-muted">{doc.documentType || "File"}</small>
+                                  </div>
                                 </div>
+                                {doc.documentReference && (
+                                  <button
+                                    onClick={() => setPreviewDoc(doc)}
+                                    className="btn btn-sm btn-primary flex-shrink-0"
+                                  >
+                                    Preview
+                                  </button>
+                                )}
                               </div>
-                              {doc.documentReference && (
-                                <button
-                                  onClick={() => setPreviewDoc(doc)}
-                                  className="btn btn-sm btn-light text-primary d-flex align-items-center gap-1"
-                                  style={{ borderRadius: 6 }}
-                                >
-                                  <i className="bi bi-eye"></i> Preview
-                                </button>
-                              )}
                             </div>
                           );
                         })}
                       </div>
                     ) : (
-                      <p className="text-muted my-2 mb-4">No documents attached to this claim.</p>
+                      <div className="text-center text-muted p-5 bg-light rounded border-dashed">
+                        <div className="mb-3">
+                          <Upload size={48} className="text-secondary opacity-50" />
+                        </div>
+                        <h6>No Documents Uploaded</h6>
+                        <p className="small mb-0">No documents have been attached to this claim yet.</p>
+                      </div>
                     )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-12">
-                <div className="card border-0 mb-4 bg-white" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-sm)' }}>
-                  <div className="card-body p-4">
-                    <h6 className="fw-bold mb-4">Customer Details</h6>
-                    <div className="d-flex gap-5">
-                      <div>
-                        <small className="text-muted d-block fw-bold mb-1">Name</small>
-                        <span>{customerName}</span>
-                      </div>
-                      <div>
-                        <small className="text-muted d-block fw-bold mb-1">Policy Number</small>
-                        <span className="text-primary fw-bold" style={{ cursor: 'pointer' }} onClick={() => navigate(`/staff/policies/${claim.policyId}`)}>{claim.policyNumber || 'N/A'}</span>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -301,10 +453,17 @@ const StaffClaimDetailPage = () => {
 
       <ConfirmModal
         isOpen={actionModal.isOpen}
-        title={actionModal.type === 'approve' ? "Recommend Approval" : "Recommend Rejection"}
+        title={
+          actionModal.type === "approve"
+            ? "Recommend Approval"
+            : "Recommend Rejection"
+        }
         message={
           <div>
-            <p>Are you sure you want to recommend to {actionModal.type} this claim of <strong>₹{amount.toLocaleString('en-IN')}</strong>?</p>
+            <p>
+              Are you sure you want to recommend to {actionModal.type} this
+              claim of <strong>₹{amount.toLocaleString("en-IN")}</strong>?
+            </p>
             <FormTextarea
               label="Staff Remarks (Required)"
               name="remark"
@@ -316,11 +475,17 @@ const StaffClaimDetailPage = () => {
             />
           </div>
         }
-        isDanger={actionModal.type === 'reject'}
-        confirmText={actionLoading ? "Processing..." : (actionModal.type === 'approve' ? "Confirm Recommendation" : "Confirm Rejection")}
+        isDanger={actionModal.type === "reject"}
+        confirmText={
+          actionLoading
+            ? "Processing..."
+            : actionModal.type === "approve"
+              ? "Confirm Recommendation"
+              : "Confirm Rejection"
+        }
         onCancel={() => {
           setActionModal({ isOpen: false, type: null });
-          setRemark('');
+          setRemark("");
         }}
         onConfirm={handleRecommendation}
       />

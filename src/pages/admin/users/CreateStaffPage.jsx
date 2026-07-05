@@ -1,4 +1,4 @@
-import  { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import FormInput from '../../../components/forms/FormInput';
@@ -18,6 +18,7 @@ const CreateStaffPage = () => {
   });
   const [showSuccess, setShowSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [showPw, setShowPw] = useState(false);
 
   const [errors, setErrors] = useState({});
 
@@ -79,7 +80,7 @@ const CreateStaffPage = () => {
 
     createStaff(payload)
       .then(() => {
-        toast.success('Staff registered successfully!');
+        toast.success('Staff registered successfully! An email/SMS with the verification link has been sent.');
         navigate('/admin/users');
       })
       .catch((err) => toast.error(err.response?.data?.message || 'Failed to register new Staff. Please check your connection.'))
@@ -160,16 +161,38 @@ const CreateStaffPage = () => {
 
             <div className="row mt-2">
               <div className="col-md-6">
-                <FormInput
-                  label="Temporary Password"
-                  name="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  placeholder="••••••••"
-                  error={errors.password}
-                />
+                <div className="form-group mb-3">
+                  <label className="fw-bold mb-1" style={{ fontSize: "0.85rem" }}>
+                    Temporary Password <span className="text-danger">*</span>
+                  </label>
+                  <div className="input-embedded-wrapper">
+                    <input
+                      id="staff-password"
+                      name="password"
+                      type={showPw ? "text" : "password"}
+                      className={`form-control pristine-input${errors.password ? ' is-invalid' : ''}`}
+                      placeholder="••••••••"
+                      value={formData.password}
+                      onChange={handleChange}
+                      required
+                      autoComplete="new-password"
+                    />
+                    <button
+                      type="button"
+                      className="input-embedded-trigger"
+                      onClick={() => setShowPw(v => !v)}
+                      tabIndex="-1"
+                      aria-label={showPw ? "Hide password" : "Show password"}
+                    >
+                      <i className={`bi ${showPw ? 'bi-eye-slash' : 'bi-eye'}`} />
+                    </button>
+                  </div>
+                  {errors.password && (
+                    <div className="text-danger mt-1" style={{ fontSize: '0.8rem' }}>
+                      <i className="bi bi-x-circle-fill" /> {errors.password}
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="col-md-6">
                 <div className="form-group mb-3">

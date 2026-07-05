@@ -1,23 +1,34 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { getClaimById } from "../../../services/claimService";
-import PageHeader from "../../../components/common/PageHeader";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { getClaimById, getClaimHistory } from "../../../services/claimService";
 import LoadingSpinner from "../../../components/common/LoadingSpinner";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import DocumentPreviewModal from '../../../components/modals/DocumentPreviewModal';
-import { ArrowLeft, ExternalLink, History, Upload, Eye } from "lucide-react";
+import Drawer from '../../../components/ui/Drawer';
+import { ExternalLink, History, Upload, Eye, Clock } from "lucide-react";
 
 const ClaimDetailsPage = () => {
   const { claimId } = useParams();
+  const navigate = useNavigate();
   const [claim, setClaim] = useState(null);
+  const [history, setHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [previewDoc, setPreviewDoc] = useState(null);
 
-  const loadClaim = async () => {
+  const loadClaimData = async () => {
     try {
       setIsLoading(true);
-      const response = await getClaimById(claimId);
-      setClaim(response);
+      const [claimResponse, historyResponse] = await Promise.all([
+        getClaimById(claimId),
+        getClaimHistory(claimId).catch(() => []) // Handle case where history might fail
+      ]);
+      
+      setClaim(claimResponse);
+
+      const rawHistory = historyResponse?.content || historyResponse?.data || (Array.isArray(historyResponse) ? historyResponse : []);
+      const sortedHistory = [...rawHistory].sort((a, b) => new Date(b.updatedDate) - new Date(a.updatedDate));
+      setHistory(sortedHistory);
+      
     } catch (error) {
       console.error(error);
     } finally {
@@ -26,10 +37,9 @@ const ClaimDetailsPage = () => {
   };
 
   useEffect(() => {
-    loadClaim();
-  }, []);
-
-  
+    loadClaimData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [claimId]);
 
   if (isLoading) {
     return <LoadingSpinner text="Loading claim details..." />;
@@ -40,52 +50,42 @@ const ClaimDetailsPage = () => {
   }
 
   return (
-    <div className="animate-fade-in">
-      <PageHeader
-        title={`Claim ${claim.claimNumber}`}
-        subtitle="Detailed view of your claim"
-        action={
-          <div className="d-flex gap-2">
-            <Link
-              to={`/customer/claims/history/${claim.claimId}`}
-              className="btn btn-outline-primary"
-            >
-              <History size={18} className="me-2" />
-              History
-            </Link>
-            <Link
-              to={`/customer/claims/upload/${claim.claimId}`}
-              className="btn btn-outline-warning text-dark"
-            >
-              <Upload size={18} className="me-2" />
-              Upload Docs
-            </Link>
-            <Link to="/customer/claims" className="btn btn-outline-secondary">
-              <ArrowLeft size={18} className="me-2" />
-              Back
-            </Link>
-          </div>
-        }
-      />
+    <Drawer 
+      isOpen={true} 
+      onClose={() => navigate('/customer/claims')} 
+      title={`Claim ${claim.claimNumber || claim.claimId}`}
+      width="900px"
+    >
+      <div className="p-4">
+        <div className="d-flex justify-content-end gap-2 mb-4">
+          <Link
+            to={`/customer/claims/upload/${claim.claimId}`}
+            className="btn btn-outline-warning text-dark d-flex align-items-center gap-1"
+            style={{ borderRadius: "8px" }}
+          >
+            <Upload size={18} /> Upload Docs
+          </Link>
+        </div>
 
-      <div className="row g-4">
+        <div className="row g-4 mb-4">
+        {/* Left Side: Claim Info */}
         <div className="col-lg-8">
-          <div className="card border-0 shadow-sm h-100">
+          <div className="card border-0 shadow-sm h-100" style={{ borderRadius: 16 }}>
             <div className="card-header bg-white border-bottom-0 pt-4 pb-0">
-              <h5 className="card-title mb-0">Claim Information</h5>
+              <h5 className="card-title mb-0 fw-bold text-primary">Claim Information</h5>
             </div>
             <div className="card-body">
               <div className="row g-3">
                 <div className="col-sm-6">
-                  <div className="p-3 bg-light rounded">
+                  <div className="p-3 bg-light rounded h-100">
                     <small className="text-muted d-block mb-1">Status</small>
                     <StatusBadge status={claim.claimStatus} />
                   </div>
                 </div>
                 <div className="col-sm-6">
-                  <div className="p-3 bg-light rounded">
+                  <div className="p-3 bg-light rounded h-100">
                     <small className="text-muted d-block mb-1">Claim Amount</small>
-                    <div className="fw-semibold">₹{claim.claimAmount?.toLocaleString()}</div>
+                    <div className="fw-bold fs-5 text-dark">₹{claim.claimAmount?.toLocaleString()}</div>
                   </div>
                 </div>
                 <div className="col-12">
@@ -134,32 +134,94 @@ const ClaimDetailsPage = () => {
           </div>
         </div>
 
+        {/* Right Side: Claim Status History */}
         <div className="col-lg-4">
-          <div className="card border-0 shadow-sm h-100">
-            <div className="card-header bg-white border-bottom-0 pt-4 pb-0">
-              <h5 className="card-title mb-0">Uploaded Documents</h5>
+          <div className="card border-0 shadow-sm h-100" style={{ borderRadius: 16 }}>
+            <div className="card-header bg-white border-bottom-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
+              <h5 className="card-title mb-0 fw-bold text-primary">Status History</h5>
+            </div>
+            <div className="card-body">
+              {history.length > 0 ? (
+                <div className="timeline-wrapper position-relative ps-3 ms-2 mt-2" style={{ borderLeft: '2px solid #e9ecef' }}>
+                  {history.slice(0, 5).map((item, index) => (
+                    <div key={index} className="position-relative mb-4">
+                      <div 
+                        className="position-absolute bg-primary rounded-circle" 
+                        style={{ width: '12px', height: '12px', left: '-23px', top: '5px' }}
+                      ></div>
+                      <div className="mb-1">
+                        <StatusBadge status={item.newStatus || item.status} />
+                      </div>
+                      <div className="small text-muted mb-1">
+                        {new Date(item.updatedDate).toLocaleString()}
+                      </div>
+                      <div className="small">
+                        By: <span className="fw-medium">{item.updatedBy || "System"}</span>
+                      </div>
+                    </div>
+                  ))}
+                  {history.length > 5 && (
+                    <div className="text-center mt-3 text-muted small">
+                      Older updates hidden.
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center text-muted p-4 d-flex flex-column align-items-center">
+                  <Clock size={40} className="mb-2 opacity-50" />
+                  <small>No history available yet.</small>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Side: Documents */}
+      <div className="row">
+        <div className="col-12">
+          <div className="card border-0 shadow-sm" style={{ borderRadius: 16 }}>
+            <div className="card-header bg-white border-bottom-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
+              <h5 className="card-title mb-0 fw-bold text-primary">Uploaded Documents</h5>
+              <span className="badge bg-light text-dark border">
+                {claim.documents?.length || 0} Files
+              </span>
             </div>
             <div className="card-body">
               {claim.documents?.length > 0 ? (
-                <div className="d-flex flex-column gap-3">
+                <div className="row g-3">
                   {claim.documents.map((doc, index) => (
-                    <div key={index} className="d-flex align-items-center justify-content-between p-3 border rounded bg-light">
-                      <div className="text-truncate me-3" style={{ maxWidth: "200px" }} title={doc.documentName}>
-                        <span className="fw-medium small">{doc.documentName}</span>
+                    <div key={index} className="col-md-6 col-lg-4">
+                      <div className="d-flex align-items-center justify-content-between p-3 border rounded bg-light h-100">
+                        <div className="d-flex align-items-center overflow-hidden me-2">
+                          <div className="bg-white p-2 rounded shadow-sm me-3 text-primary">
+                            <Eye size={20} />
+                          </div>
+                          <div className="text-truncate" title={doc.documentName}>
+                            <span className="fw-medium d-block text-truncate">{doc.documentName}</span>
+                            <small className="text-muted">Document</small>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setPreviewDoc(doc)}
+                          className="btn btn-sm btn-primary flex-shrink-0"
+                        >
+                          Preview
+                        </button>
                       </div>
-                      <button
-                        onClick={() => setPreviewDoc(doc)}
-                        className="btn btn-sm btn-primary"
-                      >
-                        <Eye size={14} className="me-1" />
-                        Preview
-                      </button>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center text-muted p-4">
-                  No documents uploaded yet
+                <div className="text-center text-muted p-5 bg-light rounded border-dashed">
+                  <div className="mb-3">
+                    <Upload size={48} className="text-secondary opacity-50" />
+                  </div>
+                  <h6>No Documents Uploaded</h6>
+                  <p className="small mb-3">Supporting documents speed up the claim approval process.</p>
+                  <Link to={`/customer/claims/upload/${claim.claimId}`} className="btn btn-outline-primary btn-sm">
+                    Upload Documents Now
+                  </Link>
                 </div>
               )}
             </div>
@@ -173,7 +235,8 @@ const ClaimDetailsPage = () => {
         documentUrl={previewDoc?.documentReference}
         documentName={previewDoc?.documentName}
       />
-    </div>
+      </div>
+    </Drawer>
   );
 };
 

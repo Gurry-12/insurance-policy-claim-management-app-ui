@@ -6,10 +6,12 @@ import LoadingSpinner from "../../../components/common/LoadingSpinner";
 import ErrorAlert from "../../../components/ui/ErrorAlert";
 import { getCustomerById } from "../../../services/customerService";
 import { getPoliciesByCustomerId } from "../../../services/policyService";
+import useCustomerPdf from "../../../hooks/PdfDownload/useCustomerPdf";
 
 const StaffCustomerDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { downloadCustomer } = useCustomerPdf();
   const [customer, setCustomer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -22,24 +24,26 @@ const StaffCustomerDetailPage = () => {
     setError("");
 
     Promise.all([
-      getCustomerById(id).catch(err => {
+      getCustomerById(id).catch((err) => {
         console.error("Profile load failed:", err);
         return null;
       }),
-      getPoliciesByCustomerId(id).catch(err => {
+      getPoliciesByCustomerId(id).catch((err) => {
         console.error("Policies load failed:", err);
         return [];
+      }),
+    ])
+      .then(([customerData, policiesData]) => {
+        if (!customerData) {
+          setError("Could not load customer profile details.");
+        } else {
+          setCustomer(customerData);
+          setPolicies(policiesData || []);
+        }
       })
-    ]).then(([customerData, policiesData]) => {
-      if (!customerData) {
-        setError("Could not load customer profile details.");
-      } else {
-        setCustomer(customerData);
-        setPolicies(policiesData || []);
-      }
-    }).finally(() => {
-      setLoading(false);
-    });
+      .finally(() => {
+        setLoading(false);
+      });
   }, [id]);
 
   if (loading) {
@@ -71,7 +75,20 @@ const StaffCustomerDetailPage = () => {
       <PageHeader
         title="Customer Details"
         subtitle={`Viewing profile for ${name}`}
-        onBack={() => navigate("/staff/customers")}
+        action={
+          <div className="d-flex gap-2">
+            <button
+              className="btn btn-outline-danger d-flex align-items-center gap-1"
+              style={{ borderRadius: '8px' }}
+              onClick={() => downloadCustomer(customer)}
+            >
+              <i className="bi bi-file-earmark-pdf"></i> PDF
+            </button>
+            <button onClick={() => navigate('/staff/customers')} className="btn btn-outline-secondary d-flex align-items-center gap-1" style={{ borderRadius: '8px' }}>
+              <i className="bi bi-arrow-left"></i> Back
+            </button>
+          </div>
+        }
       />
 
       <div className="row g-4">
@@ -101,7 +118,6 @@ const StaffCustomerDetailPage = () => {
                 </div>
               </div>
               <h5 className="fw-bold mb-1">{name}</h5>
-
 
               <hr
                 className="my-4"
@@ -205,5 +221,3 @@ const StaffCustomerDetailPage = () => {
 };
 
 export default StaffCustomerDetailPage;
-
-

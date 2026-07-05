@@ -103,7 +103,10 @@ const PaymentListPage = () => {
         subtitle="View all incoming payments and transaction history"
         action={
           <ExportButton
-            data={payments || []}
+            fetchAll={async () => {
+              const res = await getAllPaymentsPaginated({ pageSize: tableState.totalElements || 1000, pageNumber: 0 });
+              return res.content || [];
+            }}
             columns={[
               { header: "Policy Number", accessor: "policyNumber" },
               { header: "Amount (₹)", accessor: "amount" },

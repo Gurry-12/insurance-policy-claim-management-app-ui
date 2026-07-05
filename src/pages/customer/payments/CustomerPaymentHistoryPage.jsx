@@ -2,18 +2,25 @@ import { useEffect, useState } from "react";
 import { getMyPayments } from "../../../services/paymentService";
 import PageHeader from "../../../components/common/PageHeader";
 import StatusBadge from "../../../components/ui/StatusBadge";
-import { FileText, CheckCircle, Clock, XCircle } from "lucide-react";
+import { FileText } from "lucide-react";
 import ExportButton from "../../../components/common/ExportButton";
+import DataTable from "../../../components/tables/DataTable";
 
 const CustomerPaymentHistoryPage = () => {
   const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchPayments = async () => {
     try {
+      setLoading(true);
       const response = await getMyPayments();
-      setPayments(response.data || []);
+      const data = response.data || response.content || [];
+      const sortedData = [...data].sort((a, b) => (b.paymentId || b.id || 0) - (a.paymentId || a.id || 0));
+      setPayments(sortedData);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -21,16 +28,28 @@ const CustomerPaymentHistoryPage = () => {
     fetchPayments();
   }, []);
 
-  
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "SUCCESS": return <CheckCircle size={16} className="me-1" />;
-      case "PENDING": return <Clock size={16} className="me-1" />;
-      case "FAILED": return <XCircle size={16} className="me-1" />;
-      default: return null;
-    }
-  };
+  const columns = [
+    { 
+      header: "Sr. No.",
+      cell: (row, index) => index + 1, 
+      minWidth: "85px" 
+    },
+    { header: "Policy Number", cell: (row) => <span className="fw-semibold">{row.policyNumber}</span> },
+    {
+      header: "Amount (₹)",
+      cell: (row) => <span className="fw-semibold">₹{row.amount?.toLocaleString("en-IN") || 0}</span>,
+    },
+    { header: "Payment Mode", accessor: "paymentMode" },
+    { header: "Transaction Ref", accessor: "transactionReference" },
+    {
+      header: "Status",
+      cell: (row) => <StatusBadge status={row.paymentStatus} />,
+    },
+    {
+      header: "Payment Date",
+      cell: (row) => row.paymentDate ? new Date(row.paymentDate).toLocaleString() : "-",
+    },
+  ];
 
   return (
     <div className="animate-fade-in">
@@ -54,51 +73,19 @@ const CustomerPaymentHistoryPage = () => {
         }
       />
 
-      <div className="card border-0 shadow-sm mt-4">
+      <div className="card border-0 shadow-sm mt-4" style={{ borderRadius: 16 }}>
         <div className="card-body p-0">
-          <div className="table-responsive">
-            <table className="table table-hover align-middle mb-0">
-              <thead className="table-light">
-                <tr>
-                  <th className="px-4 py-3">Sr. No.</th>
-                  <th className="px-4 py-3">Policy Number</th>
-                  <th className="px-4 py-3">Amount</th>
-                  <th className="px-4 py-3">Mode</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Transaction Ref</th>
-                  <th className="px-4 py-3">Payment Date</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {payments.length > 0 ? (
-                  payments.map((payment, index) => (
-                    <tr key={payment.paymentId}>
-                      <td className="px-4 py-3">{index + 1}</td>
-                      <td className="px-4 py-3 fw-medium">{payment.policyNumber}</td>
-                      <td className="px-4 py-3">₹ {payment.amount?.toLocaleString()}</td>
-                      <td className="px-4 py-3">{payment.paymentMode}</td>
-                      <td className="px-4 py-3">
-                        <StatusBadge status={payment.paymentStatus} icon={getStatusIcon(payment.paymentStatus)} />
-                      </td>
-                      <td className="px-4 py-3 text-muted">{payment.transactionReference}</td>
-                      <td className="px-4 py-3">
-                        {new Date(payment.paymentDate).toLocaleString()}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="7" className="text-center py-5 text-muted">
-                      <div className="d-flex flex-column align-items-center">
-                        <FileText size={48} className="mb-3 text-secondary opacity-50" />
-                        <p className="mb-0">No Payments Found</p>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+          <div className="p-4 border-bottom border-light">
+            <h6 className="mb-0 fw-bold text-primary">All Payments</h6>
+          </div>
+          <div className="p-4">
+            <DataTable
+              columns={columns}
+              data={payments}
+              loading={loading}
+              emptyMessage="No Payments Found"
+              emptyIcon={<FileText size={48} className="mb-3 text-secondary opacity-50" />}
+            />
           </div>
         </div>
       </div>

@@ -1,21 +1,24 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import FormTextarea from '../../../components/forms/FormTextarea';
 import StatusBadge from '../../../components/ui/StatusBadge';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
-import { getClaimById, approveClaim, rejectClaim } from '../../../services/claimService';
+import { getClaimById, getClaimHistory, approveClaim, rejectClaim } from '../../../services/claimService';
 import { getPolicyById } from '../../../services/policyService';
 import toast from 'react-hot-toast';
 import useClaimPdf from '../../../hooks/PdfDownload/useClaimPdf';
 import DocumentPreviewModal from '../../../components/modals/DocumentPreviewModal';
 import Drawer from '../../../components/ui/Drawer';
+import Modal from '../../../components/ui/Modal';
+import { ExternalLink, Clock, Upload, Eye } from 'lucide-react';
 
 const ClaimDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { downloadClaim } = useClaimPdf();
   const [claim, setClaim] = useState(null);
+  const [history, setHistory] = useState([]);
   const [policy, setPolicy] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -24,25 +27,32 @@ const ClaimDetailPage = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [previewDoc, setPreviewDoc] = useState(null);
 
-  const fetchClaimData = (id) => {
+  const fetchClaimData = async (id) => {
     setLoading(true);
-    getClaimById(id)
-      .then(async (claimData) => {
-        setClaim(claimData);
-        if (claimData?.policyId) {
-          try {
-            const policyData = await getPolicyById(claimData.policyId);
-            setPolicy(policyData);
-          } catch (e) {
-            console.error("Policy fetch error:", e);
-          }
-        }
-      })
-      .catch((err) => {
-        console.error("Claim fetch error:", err);
-        setError(err.response?.data?.message || err.message || 'Could not load claim details.');
-      })
-      .finally(() => setLoading(false));
+    try {
+      const [claimData, historyResponse] = await Promise.all([
+        getClaimById(id),
+        getClaimHistory(id).catch(() => [])
+      ]);
+      
+      setClaim(claimData);
+
+      const rawHistory = historyResponse?.content || historyResponse?.data || (Array.isArray(historyResponse) ? historyResponse : []);
+      const sortedHistory = [...rawHistory].sort((a, b) => new Date(b.updatedDate) - new Date(a.updatedDate));
+      setHistory(sortedHistory);
+
+      if (claimData?.policyId) {
+        const policyData = await getPolicyById(claimData.policyId);
+        setPolicy(policyData);
+      }
+    } catch (err) {
+      console.error("Claim fetch error:", err);
+      setError(
+        err.response?.data?.message || err.message || 'Could not load claim details.'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -55,7 +65,7 @@ const ClaimDetailPage = () => {
       return;
     }
 
-    setActionLoading(true);
+    setActionLoading(type);
     const apiCall = type === 'approve'
       ? approveClaim(id, { remarks: remark })
       : rejectClaim(id, remark);
@@ -111,13 +121,6 @@ const ClaimDetailPage = () => {
               >
                 <i className="bi bi-file-earmark-pdf"></i> PDF
               </button>
-              <button
-                className="btn btn-outline-secondary d-flex align-items-center gap-1"
-                style={{ borderRadius: '8px' }}
-                onClick={() => navigate(`/admin/claims/${id}/history`)}
-              >
-                <i className="bi bi-clock-history"></i> History
-              </button>
               {(status?.toUpperCase() === 'RECOMMENDED_FOR_APPROVAL' || status?.toUpperCase() === 'RECOMMENDED_FOR_REJECTION') && (
                 <button 
                   className="btn btn-primary fw-bold" 
@@ -129,27 +132,27 @@ const ClaimDetailPage = () => {
               )}
             </div>
 
-            <div className="row g-4">
-              {/* Main Details */}
-              <div className="col-12">
-                <div className="card border-0 mb-4 bg-white" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-sm)' }}>
+            <div className="row g-4 mb-4">
+              {/* Left Side: Claim Info & Customer Details */}
+              <div className="col-lg-8">
+                <div className="card border-0 mb-4 bg-white h-100" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-sm)' }}>
                   <div className="card-body p-4">
                     <div className="d-flex justify-content-between align-items-center mb-4">
-                      <h6 className="fw-bold m-0">Claim Information</h6>
+                      <h6 className="fw-bold m-0 text-primary">Claim Information</h6>
                       <StatusBadge status={status} />
                     </div>
 
                     <div className="row mb-4">
-                      <div className="col-md-4 mb-3">
+                      <div className="col-md-6 mb-3">
                         <small className="text-muted d-block fw-bold mb-1">Claim Amount</small>
-                        <h4 className="fw-bold m-0 text-primary">₹{amount.toLocaleString('en-IN')}</h4>
+                        <h4 className="fw-bold m-0 text-dark">₹{amount.toLocaleString('en-IN')}</h4>
                       </div>
-                      <div className="col-md-4 mb-3">
+                      <div className="col-md-6 mb-3">
                         <small className="text-muted d-block fw-bold mb-1">Date Filed</small>
                         <span>{dateFiled}</span>
                       </div>
                       {incidentDate && (
-                        <div className="col-md-4 mb-3">
+                        <div className="col-md-6 mb-3">
                           <small className="text-muted d-block fw-bold mb-1">Incident Date</small>
                           <span>{new Date(incidentDate).toLocaleDateString()}</span>
                         </div>
@@ -162,18 +165,18 @@ const ClaimDetailPage = () => {
 
                       {policy && (
                         <>
-                          <div className="col-md-4 mt-3">
+                          <div className="col-md-6 mt-3">
                             <small className="text-muted d-block fw-bold mb-1">Total Coverage</small>
                             <span className="fw-bold">₹{Number(policy.coverageAmount || 0).toLocaleString('en-IN')}</span>
                           </div>
-                          <div className="col-md-4 mt-3">
+                          <div className="col-md-6 mt-3">
                             <small className="text-muted d-block fw-bold mb-1">Remaining Coverage</small>
                             <span className="fw-bold text-success">₹{Number(policy.remainingClaimAmount ?? policy.coverageAmount ?? 0).toLocaleString('en-IN')}</span>
                           </div>
                         </>
                       )}
 
-                      <div className="col-md-4 mt-3">
+                      <div className="col-md-6 mt-3">
                         <small className="text-muted d-block fw-bold mb-1">Assigned Staff</small>
                         <span>{claim.assignedStaffName || <span className="text-muted">Unassigned</span>}</span>
                       </div>
@@ -191,48 +194,10 @@ const ClaimDetailPage = () => {
                         </div>
                       )}
                     </div>
-
+                    
                     <hr className="my-4" style={{ borderColor: 'var(--ip-border-light)' }} />
-
-                    <h6 className="fw-bold mb-3">Attached Documents</h6>
-                    {documents.length > 0 ? (
-                      <div className="d-flex flex-column gap-2 mb-4">
-                        {documents.map((doc, idx) => {
-                          const isPdf = doc.documentType?.includes('pdf') || doc.documentName?.endsWith('.pdf');
-                          return (
-                            <div key={idx} className="d-flex justify-content-between align-items-center p-3 border rounded-3" style={{ borderColor: 'var(--ip-border-light)' }}>
-                              <div className="d-flex align-items-center gap-3">
-                                <i className={`bi ${isPdf ? 'bi-file-earmark-pdf text-danger' : 'bi-file-earmark-image text-primary'} fs-4`}></i>
-                                <div>
-                                  <div className="fw-bold" style={{ fontSize: '0.9rem' }}>{doc.documentName || `Document-${idx+1}`}</div>
-                                  <div className="text-muted" style={{ fontSize: '0.78rem' }}>{doc.documentType || 'File'}</div>
-                                </div>
-                              </div>
-                              {doc.documentReference && (
-                                <button 
-                                  onClick={() => setPreviewDoc(doc)}
-                                  className="btn btn-sm btn-light text-primary d-flex align-items-center gap-1"
-                                  style={{ borderRadius: 6 }}
-                                >
-                                  <i className="bi bi-eye"></i> Preview
-                                </button>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <p className="text-muted my-2 mb-4">No documents attached to this claim.</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Customer Details */}
-              <div className="col-12">
-                <div className="card border-0 mb-4 bg-white" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-sm)' }}>
-                  <div className="card-body p-4">
-                    <h6 className="fw-bold mb-4">Customer Details</h6>
+                    
+                    <h6 className="fw-bold mb-3 text-primary">Customer Details</h6>
                     <div className="d-flex gap-5">
                       <div>
                         <small className="text-muted d-block fw-bold mb-1">Name</small>
@@ -246,54 +211,160 @@ const ClaimDetailPage = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Right Side: Status History Timeline */}
+              <div className="col-lg-4">
+                <div className="card border-0 shadow-sm h-100" style={{ borderRadius: 16 }}>
+                  <div className="card-header bg-white border-bottom-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
+                    <h6 className="card-title mb-0 fw-bold text-primary">Status History</h6>
+                  </div>
+                  <div className="card-body">
+                    {history.length > 0 ? (
+                      <div className="timeline-wrapper position-relative ps-3 ms-2 mt-2" style={{ borderLeft: '2px solid #e9ecef' }}>
+                        {history.slice(0, 5).map((item, index) => (
+                          <div key={index} className="position-relative mb-4">
+                            <div 
+                              className="position-absolute bg-primary rounded-circle" 
+                              style={{ width: '12px', height: '12px', left: '-23px', top: '5px' }}
+                            ></div>
+                            <div className="mb-1">
+                              <StatusBadge status={item.newStatus || item.status} />
+                            </div>
+                            <div className="small text-muted mb-1">
+                              {new Date(item.updatedDate).toLocaleString()}
+                            </div>
+                            <div className="small">
+                              By: <span className="fw-medium">{item.updatedBy || "System"}</span>
+                            </div>
+                          </div>
+                        ))}
+                        {history.length > 5 && (
+                          <div className="text-center mt-3 text-muted small">
+                            Older updates hidden.
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-center text-muted p-4 d-flex flex-column align-items-center">
+                        <Clock size={40} className="mb-2 opacity-50" />
+                        <small>No history available yet.</small>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Side: Documents */}
+            <div className="row">
+              <div className="col-12">
+                <div className="card border-0 shadow-sm" style={{ borderRadius: 16 }}>
+                  <div className="card-header bg-white border-bottom-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
+                    <h6 className="card-title mb-0 fw-bold text-primary">Attached Documents</h6>
+                    <span className="badge bg-light text-dark border">
+                      {documents?.length || 0} Files
+                    </span>
+                  </div>
+                  <div className="card-body">
+                    {documents?.length > 0 ? (
+                      <div className="row g-3">
+                        {documents.map((doc, index) => {
+                          return (
+                            <div key={index} className="col-md-6">
+                              <div className="d-flex align-items-center justify-content-between p-3 border rounded bg-light h-100">
+                                <div className="d-flex align-items-center overflow-hidden me-2">
+                                  <div className="bg-white p-2 rounded shadow-sm me-3 text-primary">
+                                    <Eye size={20} />
+                                  </div>
+                                  <div className="text-truncate" title={doc.documentName}>
+                                    <span className="fw-medium d-block text-truncate">{doc.documentName || `Document-${index + 1}`}</span>
+                                    <small className="text-muted">{doc.documentType || "File"}</small>
+                                  </div>
+                                </div>
+                                {doc.documentReference && (
+                                  <button
+                                    onClick={() => setPreviewDoc(doc)}
+                                    className="btn btn-sm btn-primary flex-shrink-0"
+                                  >
+                                    Preview
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="text-center text-muted p-5 bg-light rounded border-dashed">
+                        <div className="mb-3">
+                          <Upload size={48} className="text-secondary opacity-50" />
+                        </div>
+                        <h6>No Documents Uploaded</h6>
+                        <p className="small mb-0">No documents have been attached to this claim yet.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           </>
         )}
       </div>
 
-      {actionModal && (
-        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content border-0 shadow" style={{ borderRadius: '12px' }}>
-              <div className="modal-header border-0 pb-0">
-                <h5 className="modal-title fw-bold">Final Decision</h5>
-                <button type="button" className="btn-close" onClick={() => setActionModal(false)}></button>
-              </div>
-              <div className="modal-body">
-                <p>Please review the Staff's remarks and provide your final decision.</p>
-                
-                <div className="bg-light p-3 rounded mb-3 border-start border-4 border-primary">
-                  <small className="fw-bold text-muted d-block mb-1">Staff's Remarks</small>
-                  <p className="mb-0">{claim.staffRemarks || 'No remarks provided.'}</p>
-                </div>
-
-                <FormTextarea 
-                  label="Admin Remarks (Required)" 
-                  name="remark" 
-                  value={remark} 
-                  onChange={(e) => setRemark(e.target.value)} 
-                  placeholder="Add your justification for this decision here..."
-                  rows={3}
-                  required
-                />
-              </div>
-              <div className="modal-footer border-0 pt-0 justify-content-between">
-                <button className="btn btn-outline-secondary" onClick={() => setActionModal(false)} disabled={actionLoading}>
-                  Cancel
-                </button>
-                <div className="d-flex gap-2">
-                  <button className="btn btn-danger" onClick={() => handleAction('reject')} disabled={actionLoading}>
-                    {actionLoading ? 'Processing...' : 'Reject Claim'}
-                  </button>
-                  <button className="btn btn-success" onClick={() => handleAction('approve')} disabled={actionLoading}>
-                    {actionLoading ? 'Processing...' : 'Approve Claim'}
-                  </button>
-                </div>
-              </div>
+      <Modal
+        isOpen={actionModal}
+        onClose={() => setActionModal(false)}
+        title="Final Decision"
+        footer={
+          <div className="d-flex w-100 justify-content-between">
+            <button className="btn btn-outline-secondary" onClick={() => setActionModal(false)} disabled={!!actionLoading}>
+              Cancel
+            </button>
+            <div className="d-flex gap-2">
+              <button className="btn btn-danger" onClick={() => handleAction('reject')} disabled={!!actionLoading}>
+                {actionLoading === 'reject' ? 'Processing...' : 'Reject Claim'}
+              </button>
+              <button className="btn btn-success" onClick={() => handleAction('approve')} disabled={!!actionLoading}>
+                {actionLoading === 'approve' ? 'Processing...' : 'Approve Claim'}
+              </button>
             </div>
           </div>
+        }
+      >
+        <p>Please review the Staff's remarks and provide your final decision.</p>
+        
+        <div className="bg-light p-3 rounded mb-3 border-start border-4 border-primary">
+          <small className="fw-bold text-muted d-block mb-1">Staff's Remarks</small>
+          <p className="mb-0">{claim?.staffRemarks || 'No remarks provided.'}</p>
         </div>
-      )}
+
+        {policy && (
+          <div className="bg-light p-3 rounded mb-3 border-start border-4 border-info">
+            <div className="d-flex justify-content-between mb-2">
+              <small className="fw-bold text-muted">Claim Amount:</small>
+              <span className="fw-bold text-primary">₹{amount.toLocaleString('en-IN')}</span>
+            </div>
+            <div className="d-flex justify-content-between mb-2">
+              <small className="fw-bold text-muted">Total Coverage:</small>
+              <span className="fw-bold">₹{Number(policy.coverageAmount || 0).toLocaleString('en-IN')}</span>
+            </div>
+            <div className="d-flex justify-content-between">
+              <small className="fw-bold text-muted">Remaining Coverage:</small>
+              <span className="fw-bold text-success">₹{Number(policy.remainingClaimAmount ?? policy.coverageAmount ?? 0).toLocaleString('en-IN')}</span>
+            </div>
+          </div>
+        )}
+
+        <FormTextarea 
+          label="Admin Remarks (Required)" 
+          name="remark" 
+          value={remark} 
+          onChange={(e) => setRemark(e.target.value)} 
+          placeholder="Add your justification for this decision here..."
+          rows={3}
+          required
+        />
+      </Modal>
 
       <DocumentPreviewModal
         isOpen={!!previewDoc}

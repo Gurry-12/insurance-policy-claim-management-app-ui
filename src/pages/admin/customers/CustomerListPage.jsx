@@ -25,7 +25,7 @@ const CustomerListPage = () => {
     initialFilters: { city: '', state: '', pinCode: '' }
   });
 
-  const { localFilters, handleFilterChange, clearFilters } = useDebounceFilters(
+  const { localFilters, clearFilters } = useDebounceFilters(
     tableState.filters,
     tableState.handleFilterChange
   );
@@ -47,6 +47,7 @@ const CustomerListPage = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     tableState.currentPage, 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     JSON.stringify(tableState.filters),
     tableState.sortBy, 
     tableState.sortDirection
@@ -99,7 +100,10 @@ const CustomerListPage = () => {
         subtitle="View and manage all registered customers"
         action={
           <ExportButton
-            data={customers || []}
+            fetchAll={async () => {
+              const res = await getAllCustomersPaginated({ pageSize: tableState.totalElements || 1000, pageNumber: 0 });
+              return res.content || [];
+            }}
             columns={[
               { header: "Customer Name", accessor: "fullName" },
               { header: "Email Address", accessor: "email" },

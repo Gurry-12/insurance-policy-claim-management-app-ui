@@ -1,7 +1,6 @@
 import  { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
-import FormInput from '../../../components/forms/FormInput';
 import RichSelect from '../../../components/forms/RichSelect';
 import AlertModal from '../../../components/modals/AlertModal';
 import { getAllCustomers } from '../../../services/customerService';
@@ -14,7 +13,6 @@ const IssuePolicyPage = () => {
   const [formData, setFormData] = useState({
     customerId: '',
     planId: '',
-    startDate: '',
   });
   const [customers, setCustomers] = useState([]);
   const [plans, setPlans] = useState([]);
@@ -53,16 +51,6 @@ const IssuePolicyPage = () => {
     setSubmitting(true);
     const errs = {};
 
-    if (!formData.startDate) {
-      errs.startDate = 'Start date is required.';
-    } else {
-      const today = new Date();
-      today.setHours(24, 0, 0, 0);
-      const selectedDate = new Date(formData.startDate);
-      if (selectedDate > today) {
-        errs.startDate = 'Start date cannot be in the future.';
-      }
-    }
 
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
@@ -73,7 +61,7 @@ const IssuePolicyPage = () => {
     const payload = {
       customerId: Number(formData.customerId),
       planId: Number(formData.planId),
-      startDate: formData.startDate
+      startDate: new Date().toISOString().split("T")[0],
     };
 
     issuePolicy(payload)
@@ -139,17 +127,13 @@ const IssuePolicyPage = () => {
               </div>
             </div>
 
-            <div className="row mt-2">
-              <div className="col-md-6">
-                <FormInput 
-                  label="Start Date" 
-                  name="startDate" 
-                  type="date"
-                  value={formData.startDate} 
-                  onChange={handleChange} 
-                  required 
-                  error={errors.startDate}
-                />
+
+            <div className="mb-4 mt-4">
+              <p className="fw-medium text-dark">
+                Date of Issue: {new Date().toLocaleDateString()}
+              </p>
+              <div className="form-text mt-2 text-muted">
+                The policy coverage will begin starting today.
               </div>
             </div>
 

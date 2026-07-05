@@ -61,6 +61,8 @@ const Login = () => {
                 <h1 className="form-display-title">Login</h1>
               </div>
 
+
+
               <form onSubmit={handleSubmit(onSubmit)} noValidate>
                 <div className="mb-3 text-start">
                   <label htmlFor="login-email" className="custom-field-label">
@@ -73,6 +75,8 @@ const Login = () => {
                     className={`form-control pristine-input ${errors.email ? 'is-invalid' : ''}`}
                     placeholder="username@gmail.com"
                     disabled={loading}
+                    aria-invalid={errors.email ? "true" : "false"}
+                    aria-describedby={errors.email ? "email-error" : undefined}
                     {...register("email", {
                       required: "Email is required.",
                       pattern: {
@@ -82,7 +86,7 @@ const Login = () => {
                     })}
                   />
                   {errors.email && (
-                    <div className="input-error-tip text-danger mt-1" aria-live="polite">
+                    <div id="email-error" className="input-error-tip text-danger mt-1" aria-live="polite">
                       <i className="bi bi-x-circle-fill" /> {errors.email.message}
                     </div>
                   )}
@@ -103,6 +107,8 @@ const Login = () => {
                       className={`form-control pristine-input ${errors.password ? 'is-invalid' : ''}`}
                       placeholder="Password"
                       disabled={loading}
+                      aria-invalid={errors.password ? "true" : "false"}
+                      aria-describedby={errors.password ? "password-error" : undefined}
                       {...register("password", { required: "Password is required." })}
                     />
                     <button
@@ -117,7 +123,7 @@ const Login = () => {
                     </button>
                   </div>
                   {errors.password && (
-                    <div className="input-error-tip text-danger mt-1" aria-live="polite">
+                    <div id="password-error" className="input-error-tip text-danger mt-1" aria-live="polite">
                       <i className="bi bi-x-circle-fill" /> {errors.password.message}
                     </div>
                   )}

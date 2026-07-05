@@ -11,6 +11,7 @@ const INIT = {
   email: "",
   mobileNumber: "",
   password: "",
+  confirmPassword: "",
 };
 
 const Register = () => {
@@ -20,11 +21,32 @@ const Register = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [showPw, setShowPw] = useState(false);
+  const [showConfirmPw, setShowConfirmPw] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
+    setFormData((prev) => {
+      const updated = { ...prev, [name]: value };
+
+      // Real-time confirm password validation
+      if (name === 'confirmPassword' || name === 'password') {
+        const pw = name === 'password' ? value : updated.password;
+        const cpw = name === 'confirmPassword' ? value : updated.confirmPassword;
+        if (cpw) {
+          if (pw !== cpw) {
+            setErrors((prev) => ({ ...prev, confirmPassword: 'Passwords do not match.' }));
+          } else {
+            setErrors((prev) => ({ ...prev, confirmPassword: '' }));
+          }
+        } else {
+          setErrors((prev) => ({ ...prev, confirmPassword: '' }));
+        }
+      } else if (errors[name]) {
+        setErrors((prev) => ({ ...prev, [name]: '' }));
+      }
+
+      return updated;
+    });
   };
 
   const validate = () => {
@@ -46,6 +68,9 @@ const Register = () => {
       errs.password = "Password is required.";
     } else if (formData.password.length < 6) {
       errs.password = "Password must be at least 6 characters.";
+    }
+    if (formData.password !== formData.confirmPassword) {
+      errs.confirmPassword = "Passwords do not match.";
     }
     return errs;
   };
@@ -115,6 +140,8 @@ const Register = () => {
                 <h1 className="form-display-title">Register</h1>
               </div>
 
+
+
               {/* Clean Single-View 4-Field Form */}
               <form onSubmit={handleSubmit} noValidate>
                 {/* Full Name field */}
@@ -127,14 +154,16 @@ const Register = () => {
                     name="fullName"
                     type="text"
                     autoComplete="name"
-                    className="form-control pristine-input"
+                    className={`form-control pristine-input ${errors.fullName ? 'is-invalid' : ''}`}
                     placeholder="Shyam Verma"
                     value={formData.fullName}
                     onChange={handleChange}
                     disabled={loading}
+                    aria-invalid={errors.fullName ? "true" : "false"}
+                    aria-describedby={errors.fullName ? "fullname-error" : undefined}
                   />
                   {errors.fullName && (
-                    <div className="input-error-tip">
+                    <div id="fullname-error" className="input-error-tip text-danger mt-1" aria-live="polite">
                       <i className="bi bi-x-circle-fill" /> {errors.fullName}
                     </div>
                   )}
@@ -150,14 +179,16 @@ const Register = () => {
                     name="mobileNumber"
                     type="tel"
                     autoComplete="tel"
-                    className="form-control pristine-input"
+                    className={`form-control pristine-input ${errors.mobileNumber ? 'is-invalid' : ''}`}
                     placeholder="+917428730894"
                     value={formData.mobileNumber}
                     onChange={handleChange}
                     disabled={loading}
+                    aria-invalid={errors.mobileNumber ? "true" : "false"}
+                    aria-describedby={errors.mobileNumber ? "mobile-error" : undefined}
                   />
                   {errors.mobileNumber && (
-                    <div className="input-error-tip">
+                    <div id="mobile-error" className="input-error-tip text-danger mt-1" aria-live="polite">
                       <i className="bi bi-x-circle-fill" />{" "}
                       {errors.mobileNumber}
                     </div>
@@ -174,14 +205,16 @@ const Register = () => {
                     name="email"
                     type="email"
                     autoComplete="email"
-                    className="form-control pristine-input"
+                    className={`form-control pristine-input ${errors.email ? 'is-invalid' : ''}`}
                     placeholder="shyam.verma@yopmail.com"
                     value={formData.email}
                     onChange={handleChange}
                     disabled={loading}
+                    aria-invalid={errors.email ? "true" : "false"}
+                    aria-describedby={errors.email ? "email-error" : undefined}
                   />
                   {errors.email && (
-                    <div className="input-error-tip">
+                    <div id="email-error" className="input-error-tip text-danger mt-1" aria-live="polite">
                       <i className="bi bi-x-circle-fill" /> {errors.email}
                     </div>
                   )}
@@ -198,11 +231,13 @@ const Register = () => {
                       name="password"
                       type={showPw ? "text" : "password"}
                       autoComplete="new-password"
-                      className="form-control pristine-input"
+                      className={`form-control pristine-input ${errors.password ? 'is-invalid' : ''}`}
                       placeholder="Password"
                       value={formData.password}
                       onChange={handleChange}
                       disabled={loading}
+                      aria-invalid={errors.password ? "true" : "false"}
+                      aria-describedby={errors.password ? "password-error" : undefined}
                     />
                     <button
                       type="button"
@@ -216,12 +251,60 @@ const Register = () => {
                     </button>
                   </div>
                   {errors.password && (
-                    <div className="input-error-tip">
+                    <div id="password-error" className="input-error-tip text-danger mt-1" aria-live="polite">
                       <i className="bi bi-x-circle-fill" /> {errors.password}
                     </div>
                   )}
                   {formData.password && (
                     <PasswordStrength password={formData.password} />
+                  )}
+                </div>
+
+                {/* Confirm Password field */}
+                <div className="mb-4 text-start">
+                  <label htmlFor="reg-confirm-password" className="custom-field-label">
+                    Confirm Password <span className="text-danger">*</span>
+                  </label>
+                  <div className="input-embedded-wrapper">
+                    <input
+                      id="reg-confirm-password"
+                      name="confirmPassword"
+                      type={showConfirmPw ? "text" : "password"}
+                      autoComplete="new-password"
+                      className={`form-control pristine-input ${
+                        errors.confirmPassword
+                          ? 'is-invalid'
+                          : formData.confirmPassword && formData.password === formData.confirmPassword
+                          ? 'is-valid'
+                          : ''
+                      }`}
+                      placeholder="Confirm Password"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      disabled={loading}
+                      aria-invalid={errors.confirmPassword ? "true" : "false"}
+                      aria-describedby={errors.confirmPassword ? "confirm-password-error" : undefined}
+                    />
+                    <button
+                      type="button"
+                      className="input-embedded-trigger"
+                      onClick={() => setShowConfirmPw((v) => !v)}
+                      aria-label={showConfirmPw ? "Hide password" : "Show password"}
+                    >
+                      <i
+                        className={`bi ${showConfirmPw ? "bi-eye-slash" : "bi-eye"}`}
+                      />
+                    </button>
+                  </div>
+                  {errors.confirmPassword && (
+                    <div id="confirm-password-error" className="input-error-tip text-danger mt-1" aria-live="polite">
+                      <i className="bi bi-x-circle-fill" /> {errors.confirmPassword}
+                    </div>
+                  )}
+                  {!errors.confirmPassword && formData.confirmPassword && formData.password === formData.confirmPassword && (
+                    <div className="input-error-tip text-success mt-1" aria-live="polite">
+                      <i className="bi bi-check-circle-fill" /> Passwords match!
+                    </div>
                   )}
                 </div>
 

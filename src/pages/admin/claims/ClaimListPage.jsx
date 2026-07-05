@@ -116,14 +116,6 @@ const ClaimListPage = () => {
           >
             <i className="bi bi-eye" /> Review
           </button>
-          <button 
-            className="btn btn-sm btn-light text-secondary d-flex align-items-center gap-1" 
-            onClick={() => navigate(`/admin/claims/${row.claimId}/history`)}
-            title="View History"
-            style={{ borderRadius: '6px' }}
-          >
-            <i className="bi bi-clock-history" />
-          </button>
         </div>
       ),
     },
@@ -136,15 +128,20 @@ const ClaimListPage = () => {
         subtitle="Review and process all incoming insurance claims"
         action={
           <ExportButton
-            data={claims || []}
+            fetchAll={async () => {
+              const res = await getAllClaimsPaginated({ pageSize: tableState.totalElements || 1000, pageNumber: 0 });
+              return res.content || [];
+            }}
             columns={[
-              { header: "Claim Number", accessor: "claimNumber" },
-              { header: "Customer Name", accessor: "customerName" },
-              { header: "Claim Amount (₹)", accessor: "claimAmount" },
-              { header: "Status", accessor: "claimStatus" },
-              { header: "Policy Number", accessor: "policyNumber" }
+              { header: "Claim Number",    accessor: "claimNumber" },
+              { header: "Customer Name",   accessor: "customerName" },
+              { header: "Claim Amount (₹)",accessor: "claimAmount" },
+              { header: "Status",          accessor: "claimStatus" },
+              { header: "Policy Number",   accessor: "policyNumber" },
+              { header: "Incident Date",   accessor: "incidentDate" },
+              { header: "Filed Date",      accessor: "createdDate" },
             ]}
-            filename="claims_list.csv"
+            filename="claims_export.csv"
           />
         }
       />
