@@ -1,13 +1,20 @@
 import { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ThemeContext } from '../../context/ThemeContext';
 import useAuth from '../../hooks/useAuth';
-import { Search, Bell } from 'lucide-react';
 
 const TopNavbar = ({ onMenuClick, breadcrumb }) => {
   const { theme, toggleTheme } = useContext(ThemeContext);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const getBreadcrumb = () => {
+    if (breadcrumb) return breadcrumb;
+    const pathSegments = location.pathname.split('/').filter(Boolean);
+    if (pathSegments.length === 0) return user?.role ? `${user.role.charAt(0) + user.role.slice(1).toLowerCase()} Portal` : 'Portal';
+    return pathSegments.map(segment => segment.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())).join(' / ');
+  };
 
   return (
     <header className="ip-topbar px-4 align-items-center justify-content-between">
@@ -27,6 +34,7 @@ const TopNavbar = ({ onMenuClick, breadcrumb }) => {
             className="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center"
             style={{ width: 32, height: 32 }}
             title="Go Back"
+            aria-label="Go Back"
           >
             <i className="bi bi-chevron-left small" />
           </button>
@@ -35,13 +43,14 @@ const TopNavbar = ({ onMenuClick, breadcrumb }) => {
             className="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center"
             style={{ width: 32, height: 32 }}
             title="Go Forward"
+            aria-label="Go Forward"
           >
             <i className="bi bi-chevron-right small" />
           </button>
         </div>
 
         <span className="fw-medium text-muted small ms-2 d-none d-sm-block text-capitalize">
-          {breadcrumb ?? (user?.role ? `${user.role.charAt(0) + user.role.slice(1).toLowerCase()} Portal` : 'Portal')}
+          {getBreadcrumb()}
         </span>
       </div>
 

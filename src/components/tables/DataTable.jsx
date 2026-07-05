@@ -8,6 +8,7 @@ const DataTable = ({
   emptyIcon = "bi-table",
   emptyMessage = "No data available"
 }) => {
+
   if (loading) {
     return (
       <div className="table-responsive" style={{ minHeight: '440px' }}>
@@ -44,12 +45,16 @@ const DataTable = ({
   }
 
   return (
-    <div className="table-responsive" style={{ minHeight: '440px' }}>
+    <div className="table-responsive" style={{ minHeight: '440px', maxHeight: '600px', overflowY: 'auto' }}>
       <table className="table table-hover align-middle mb-0">
-        <thead>
+        <thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: 'var(--ip-body-bg, #fff)' }}>
           <tr>
             {columns.map((col, idx) => (
-              <th key={idx} className="border-0" style={{ minWidth: col.minWidth }}>
+              <th 
+                key={idx} 
+                className="border-0 bg-white" 
+                style={{ minWidth: col.minWidth }}
+              >
                 {col.header}
               </th>
             ))}
@@ -60,7 +65,15 @@ const DataTable = ({
             <tr
               key={row.id || rowIndex}
               onClick={() => onRowClick && onRowClick(row)}
+              onKeyDown={(e) => {
+                if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
+                  e.preventDefault();
+                  onRowClick(row);
+                }
+              }}
+              tabIndex={onRowClick ? 0 : undefined}
               style={{ cursor: onRowClick ? 'pointer' : 'default' }}
+              role="row"
             >
               {columns.map((col, colIndex) => (
                 <td key={colIndex}>

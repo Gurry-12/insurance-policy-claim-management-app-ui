@@ -2,21 +2,36 @@ import { useEffect, useState } from "react";
 import { getAllCustomersPaginated } from "../../../services/customerService";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
-import useSearch from "../../../hooks/useSearch";
-import useCustomerPdf from "../../../hooks/PdfDownload/useCustomerPdf";
 import ExportButton from "../../../components/common/ExportButton";
 import useTableState from "../../../hooks/useTableState";
 import PaginationBar from "../../../components/tables/PaginationBar";
+import DataTable from "../../../components/tables/DataTable";
+import FilterPanel from "../../../components/ui/FilterPanel";
+import FilterChips from "../../../components/ui/FilterChips";
+import SortableHeader from "../../../components/tables/SortableHeader";
+import useDebounceFilters from "../../../hooks/useDebounceFilters";
+
+const FILTER_FIELDS = [
+  { type: 'text', name: 'city',    label: 'City',     placeholder: 'Search by city...' },
+  { type: 'text', name: 'state',   label: 'State',    placeholder: 'Search by state...' },
+  { type: 'text', name: 'pinCode', label: 'PIN Code', placeholder: 'Search by PIN...' },
+];
 
 const StaffCustomerListPage = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { downloadCustomer } = useCustomerPdf();
 
   const tableState = useTableState({
-    initialSortBy: 'id'
+    initialSortBy: "id",
+    initialSortDirection: "desc",
+    initialFilters: { city: '', state: '', pinCode: '' }
   });
+
+  const { localFilters, handleFilterChange, clearFilters } = useDebounceFilters(
+    tableState.filters,
+    tableState.handleFilterChange
+  );
 
   useEffect(() => {
     const loadCustomers = async () => {
@@ -35,26 +50,45 @@ const StaffCustomerListPage = () => {
     };
 
     loadCustomers();
-  }, [tableState.currentPage, tableState.sortBy, tableState.sortDirection]);
+  }, [tableState.currentPage, JSON.stringify(tableState.filters), tableState.sortBy, tableState.sortDirection]);
 
-  const {
-  searchTerm,
-  setSearchTerm,
-  filteredData: filteredCustomers,
-} = useSearch(customers, [
-  "fullName",
-  "email",
-  "mobileNumber",
-]);
-  if (loading) {
-    return (
-      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    );
-  }
+  const renderHeader = (label, field) => (
+    <SortableHeader 
+      label={label} 
+      field={field} 
+      currentSortBy={tableState.sortBy} 
+      currentDirection={tableState.sortDirection} 
+      onSort={tableState.handleSort} 
+    />
+  );
+
+  const columns = [
+    { 
+      header: "Sr. No.",
+      cell: (row, index) => tableState.getSrNo(index), 
+      minWidth: "85px" 
+    },
+    { header: "Full Name", accessor: "fullName", cell: (row) => <span className="fw-semibold">{row.fullName}</span> },
+    { header: "Email", accessor: "email" },
+    { header: "Mobile", accessor: "mobileNumber" },
+    { header: renderHeader("City", "city"), accessor: "city" },
+    { header: "State", accessor: "state" },
+    {
+      header: "Actions",
+      cell: (row) => (
+        <button
+          className="btn btn-sm btn-light text-primary border-0"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/staff/customers/${row.customerId}`);
+          }}
+        >
+          <i className="bi bi-eye" /> View
+        </button>
+      ),
+    },
+  ];
+
   return (
     <div className="animate-fade-in">
       <PageHeader
@@ -63,7 +97,10 @@ const StaffCustomerListPage = () => {
         action={
           <div className="d-flex gap-2">
             <ExportButton
-              data={customers || []}
+              fetchAll={async () => {
+                const res = await getAllCustomersPaginated({ pageSize: tableState.totalElements || 1000, pageNumber: 0 });
+                return res.content || [];
+              }}
               columns={[
                 { header: "Customer Name", accessor: "fullName" },
                 { header: "Email Address", accessor: "email" },
@@ -71,92 +108,60 @@ const StaffCustomerListPage = () => {
                 { header: "City", accessor: "city" },
                 { header: "State", accessor: "state" },
                 { header: "Nominee Name", accessor: "nomineeName" },
-                { header: "Nominee Relation", accessor: "nomineeRelation" }
+                { header: "Nominee Relation", accessor: "nomineeRelation" },
               ]}
               filename="Staff_customers_list.csv"
             />
-            <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate("/staff/dashboard")}>
+            <button
+              className="btn btn-secondary d-flex align-items-center gap-1"
+              onClick={() => navigate("/staff/dashboard")}
+            >
               <i className="bi bi-arrow-left"></i> Back
             </button>
           </div>
         }
       />
 
-      <div className="mb-3">
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Search by Name, Email or Mobile"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-
-      <div className="table-responsive">
-        <table className="table table-hover align-middle mb-0">
-          <thead>
-            <tr>
-              <th>Sr. No.</th>
-              <th>Full Name</th>
-              <th>Email</th>
-              <th>Mobile</th>
-              <th>City</th>
-              <th>State</th>
-              <th>Download</th>
-            </tr>
-          </thead>
-
-         
-          <tbody>
-  {filteredCustomers.length > 0 ? (
-    filteredCustomers.map((customer,index) => (
-      <tr key={customer.customerId}>
-          <td>{tableState.getSrNo(index)}</td>
-         <td style={{ fontWeight: 600 }}>
-          {customer.fullName}
-        </td>
-
-        <td>{customer.email}</td>
-        <td>{customer.mobileNumber}</td>
-        <td>{customer.city}</td>
-        <td>{customer.state}</td>
-
-        <td>
-    <button
-        className="btn btn-danger btn-sm"
-        onClick={() => downloadCustomer(customer)}
-    >
-        <i className="bi bi-download me-1"></i>
-        PDF
-    </button>
-</td>
-
-      </tr>
-    ))
-  ) : (
-    <tr>
-      
-           <td colSpan="5" className="text-center py-4">
-        No Customers Found
-      </td>
-
-    </tr>
-  )}
-</tbody>
-        </table>
-      </div>
-      {customers.length > 0 && (
-        <div className="mt-3">
-          <PaginationBar
-            currentPage={tableState.currentPage}
-            totalPages={tableState.totalPages}
-            onPageChange={tableState.setCurrentPage}
-          />
+      <div className="card border-0" style={{ borderRadius: 16, boxShadow: "var(--ip-shadow-md)" }}>
+        <div className="card-body p-0">
+          <div className="p-4 border-bottom border-light">
+            <div className="ip-table-toolbar">
+              <div className="ip-table-toolbar-left">
+                <h6 className="ip-table-title">All Customers</h6>
+                {tableState.totalElements > 0 && (
+                  <span className="ip-total-badge">{tableState.totalElements} total</span>
+                )}
+              </div>
+              <FilterPanel
+                fields={FILTER_FIELDS}
+                localFilters={localFilters}
+                onApply={(draft) => tableState.handleFilterChange(draft)}
+                onClear={clearFilters}
+              />
+            </div>
+            <FilterChips
+              fields={FILTER_FIELDS}
+              localFilters={localFilters}
+              onRemove={(updates) => tableState.handleFilterChange(updates)}
+              onClearAll={clearFilters}
+            />
+          </div>
+          <div className="p-4">
+            <DataTable
+              columns={columns}
+              data={customers}
+              loading={loading}
+            />
+            <PaginationBar
+              currentPage={tableState.currentPage}
+              totalPages={tableState.totalPages}
+              onPageChange={tableState.setCurrentPage}
+            />
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
 
 export default StaffCustomerListPage;
-

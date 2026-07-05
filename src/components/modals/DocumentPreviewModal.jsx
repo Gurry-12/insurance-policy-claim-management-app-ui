@@ -1,4 +1,3 @@
-import React from 'react';
 
 const DocumentPreviewModal = ({ isOpen, onClose, documentUrl, documentName }) => {
   if (!isOpen || !documentUrl) return null;
@@ -17,7 +16,7 @@ const DocumentPreviewModal = ({ isOpen, onClose, documentUrl, documentName }) =>
               </h5>
               <button type="button" className="btn-close" onClick={onClose} aria-label="Close"></button>
             </div>
-            <div className="modal-body p-4 bg-light d-flex justify-content-center align-items-center" style={{ height: '75vh', overflow: 'hidden' }}>
+            <div className="modal-body p-0 bg-light d-flex justify-content-center align-items-center" style={{ height: '80vh', overflow: 'hidden' }}>
               {isImage ? (
                 <img 
                   src={documentUrl} 

@@ -1,26 +1,33 @@
+import { CheckCircle, Clock, XCircle, AlertTriangle, AlertCircle, RefreshCw, HelpCircle } from "lucide-react";
+
 const STATUS_MAP = {
-  PENDING:      { label: 'Pending',     bg: 'var(--ip-claim-submitted-bg)', color: 'var(--ip-claim-submitted)' },
-  SUBMITTED:    { label: 'Pending',     bg: 'var(--ip-claim-submitted-bg)', color: 'var(--ip-claim-submitted)' },
-  UNDER_REVIEW: { label: 'In Review',   bg: 'var(--ip-claim-under-review-bg)', color: 'var(--ip-claim-under-review)' },
-  APPROVED:     { label: 'Approved',    bg: 'var(--ip-claim-approved-bg)', color: 'var(--ip-claim-approved)' },
-  REJECTED:     { label: 'Rejected',    bg: 'var(--ip-claim-rejected-bg)', color: 'var(--ip-claim-rejected)' },
-  RECOMMENDED_FOR_APPROVAL: { label: 'Rec. Approval', bg: 'var(--ip-claim-rec-approval-bg)', color: 'var(--ip-claim-rec-approval)'},
-  RECOMMENDED_FOR_REJECTION: { label: 'Rec. Rejection', bg: 'var(--ip-claim-rec-rejection-bg)', color: 'var(--ip-claim-rec-rejection)'},
-  ACTIVE:           { label: 'Active',          bg: 'var(--ip-policy-active-bg)', color: 'var(--ip-policy-active)' },
-  EXPIRED:          { label: 'Expired',         bg: 'var(--ip-policy-expired-bg)', color: 'var(--ip-policy-expired)' },
-  CANCELLED:        { label: 'Cancelled',       bg: 'var(--ip-policy-cancelled-bg)', color: 'var(--ip-policy-cancelled)' },
-  PENDING_PAYMENT:  { label: 'Pending Payment', bg: 'var(--ip-policy-pending-bg)', color: 'var(--ip-policy-pending)' },
-  SUCCESS:      { label: 'Success',     bg: 'var(--ip-payment-success-bg)', color: 'var(--ip-payment-success)' },
-  FAILED:       { label: 'Failed',      bg: 'var(--ip-payment-failed-bg)', color: 'var(--ip-payment-failed)' },
-  REFUNDED:     { label: 'Refunded',    bg: 'var(--ip-payment-success-bg)', color: 'var(--ip-payment-success)' },
+  PENDING:      { label: 'PENDING',     bg: 'var(--ip-claim-submitted-bg)', color: 'var(--ip-claim-submitted)', icon: Clock },
+  SUBMITTED:    { label: 'SUBMITTED',   bg: 'var(--ip-claim-submitted-bg)', color: 'var(--ip-claim-submitted)', icon: Clock },
+  UNDER_REVIEW: { label: 'UNDER_REVIEW',   bg: 'var(--ip-claim-under-review-bg)', color: 'var(--ip-claim-under-review)', icon: AlertTriangle },
+  APPROVED:     { label: 'APPROVED',    bg: 'var(--ip-claim-approved-bg)', color: 'var(--ip-claim-approved)', icon: CheckCircle },
+  REJECTED:     { label: 'REJECTED',    bg: 'var(--ip-claim-rejected-bg)', color: 'var(--ip-claim-rejected)', icon: XCircle },
+  RECOMMENDED_FOR_APPROVAL: { label: 'RECOMMENDED_FOR_APPROVAL', bg: 'var(--ip-claim-rec-approval-bg)', color: 'var(--ip-claim-rec-approval)', icon: CheckCircle },
+  RECOMMENDED_FOR_REJECTION: { label: 'RECOMMENDED_FOR_REJECTION', bg: 'var(--ip-claim-rec-rejection-bg)', color: 'var(--ip-claim-rec-rejection)', icon: XCircle },
+  ACTIVE:           { label: 'Active',          bg: 'var(--ip-policy-active-bg)', color: 'var(--ip-policy-active)', icon: CheckCircle },
+  EXPIRED:          { label: 'Expired',         bg: 'var(--ip-policy-expired-bg)', color: 'var(--ip-policy-expired)', icon: Clock },
+  CANCELLED:        { label: 'Cancelled',       bg: 'var(--ip-policy-cancelled-bg)', color: 'var(--ip-policy-cancelled)', icon: XCircle },
+  PENDING_PAYMENT:  { label: 'Pending Payment', bg: 'var(--ip-policy-pending-bg)', color: 'var(--ip-policy-pending)', icon: AlertCircle },
+  SUCCESS:      { label: 'Success',     bg: 'var(--ip-payment-success-bg)', color: 'var(--ip-payment-success)', icon: CheckCircle },
+  FAILED:       { label: 'Failed',      bg: 'var(--ip-payment-failed-bg)', color: 'var(--ip-payment-failed)', icon: XCircle },
+  REFUNDED:     { label: 'Refunded',    bg: 'var(--ip-payment-success-bg)', color: 'var(--ip-payment-success)', icon: RefreshCw },
 };
 
 const StatusBadge = ({ status, icon, className = '' }) => {
-  const s = STATUS_MAP[status] ?? { label: status ?? '\u2014', bg: '#f1f5f9', color: '#64748b' };
+  const normalizedStatus = typeof status === 'string' ? status.toUpperCase().replace(/ /g, '_') : status;
+  const s = STATUS_MAP[normalizedStatus] ?? { label: status ?? '\u2014', bg: '#f1f5f9', color: '#64748b', icon: HelpCircle };
+  
+  const IconComponent = s.icon;
+  const renderedIcon = icon || (IconComponent ? <IconComponent size={14} className="me-1" /> : null);
+
   return (
     <span className={`badge badge-soft ${className}`} style={{ color: s.color }}>
-      <span className="d-flex align-items-center gap-1">
-        {icon}
+      <span className="d-flex align-items-center justify-content-center">
+        {renderedIcon}
         {s.label}
       </span>
     </span>

@@ -4,7 +4,8 @@ import { getClaimHistory } from "../../../services/claimService";
 import PageHeader from "../../../components/common/PageHeader";
 import LoadingSpinner from "../../../components/common/LoadingSpinner";
 import StatusBadge from "../../../components/ui/StatusBadge";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Clock } from "lucide-react";
+import DataTable from "../../../components/tables/DataTable";
 
 const ClaimStatusHistoryPage = () => {
   const { claimId } = useParams();
@@ -15,7 +16,9 @@ const ClaimStatusHistoryPage = () => {
     try {
       setIsLoading(true);
       const response = await getClaimHistory(claimId);
-      setHistory(response?.content || response?.data || (Array.isArray(response) ? response : []));
+      const rawData = response?.content || response?.data || (Array.isArray(response) ? response : []);
+      const sortedData = [...rawData].sort((a, b) => new Date(b.updatedDate) - new Date(a.updatedDate));
+      setHistory(sortedData);
     } catch (error) {
       console.error(error);
     } finally {
@@ -28,11 +31,21 @@ const ClaimStatusHistoryPage = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  
-
   if (isLoading) {
     return <LoadingSpinner text="Loading claim history..." />;
   }
+
+  const columns = [
+    {
+      header: "Status",
+      cell: (row) => <StatusBadge status={row.newStatus || row.status} />,
+    },
+    { header: "Updated By", cell: (row) => row.updatedBy || "System" },
+    {
+      header: "Date",
+      cell: (row) => new Date(row.updatedDate).toLocaleString(),
+    },
+  ];
 
   return (
     <div className="animate-fade-in">
@@ -47,36 +60,20 @@ const ClaimStatusHistoryPage = () => {
         }
       />
 
-      <div className="card border-0 shadow-sm">
-        <div className="table-responsive">
-          <table className="table table-hover align-middle mb-0">
-            <thead className="table-light">
-              <tr>
-                <th>Status</th>
-                <th>Updated By</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {history.length === 0 ? (
-                <tr>
-                  <td colSpan="3" className="text-center py-4 text-muted">
-                    No history found
-                  </td>
-                </tr>
-              ) : (
-                history.map((item, index) => (
-                  <tr key={index}>
-                    <td>
-                      <StatusBadge status={item.newStatus || item.status} />
-                    </td>
-                    <td>{item.updatedBy || "System"}</td>
-                    <td>{new Date(item.updatedDate).toLocaleString()}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+      <div className="card border-0 shadow-sm" style={{ borderRadius: 16 }}>
+        <div className="card-body p-0">
+          <div className="p-4 border-bottom border-light">
+            <h6 className="mb-0 fw-bold text-primary">History Timeline</h6>
+          </div>
+          <div className="p-4">
+            <DataTable
+              columns={columns}
+              data={history}
+              loading={isLoading}
+              emptyMessage="No history found"
+              emptyIcon={<Clock size={48} className="mb-3 text-secondary opacity-50" />}
+            />
+          </div>
         </div>
       </div>
     </div>

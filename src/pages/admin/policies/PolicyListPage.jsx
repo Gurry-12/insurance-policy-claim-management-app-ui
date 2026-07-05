@@ -79,13 +79,13 @@ const PolicyListPage = () => {
     { header: "Customer", accessor: "customerName" },
     { header: "Plan", accessor: "planName" },
     {
-      header: renderHeader("Premium (₹)", "premiumAmount"),
+      header: "Premium (₹)",
       cell: (row) => `₹${row.premiumAmount.toLocaleString("en-IN")}`,
     },
-    { header: renderHeader("Start Date", "startDate"), accessor: "startDate" },
-    { header: renderHeader("Expiry Date", "endDate"), accessor: "endDate" },
+    { header: "Start Date", accessor: "startDate" },
+    { header: "Expiry Date", accessor: "endDate" },
     {
-      header: "Status",
+      header: renderHeader("Status", "policyStatus"),
       cell: (row) => <StatusBadge status={row.policyStatus} />,
     },
     {
@@ -112,16 +112,21 @@ const PolicyListPage = () => {
         action={
           <div className="d-flex gap-2">
             <ExportButton
-              data={policies}
-              filename="Policies_Export"
+              fetchAll={async () => {
+                const res = await getAllPoliciesPaginated({ pageSize: tableState.totalElements || 1000, pageNumber: 0 });
+                return res.content || [];
+              }}
+              filename="policies_export.csv"
               columns={[
-                { header: "Policy Number", accessor: "policyNumber" },
-                { header: "Customer Name", accessor: "customerName" },
-                { header: "Plan Name", accessor: "planName" },
-                { header: "Premium Amount (₹)", accessor: "premiumAmount" },
-                { header: "Start Date", accessor: "startDate" },
-                { header: "End Date", accessor: "endDate" },
-                { header: "Status", accessor: "policyStatus" }
+                { header: "Policy Number",     accessor: "policyNumber" },
+                { header: "Customer Name",     accessor: "customerName" },
+                { header: "Plan Name",         accessor: "planName" },
+                { header: "Product Type",      accessor: "productType" },
+                { header: "Premium Amount (₹)",accessor: "premiumAmount" },
+                { header: "Coverage Amount (₹)",accessor: "coverageAmount" },
+                { header: "Start Date",        accessor: "startDate" },
+                { header: "End Date",          accessor: "endDate" },
+                { header: "Status",            accessor: "policyStatus" },
               ]}
             />
             <Link to="/admin/policies/issue" className="btn btn-primary d-flex align-items-center gap-2" style={{ borderRadius: '8px' }}>

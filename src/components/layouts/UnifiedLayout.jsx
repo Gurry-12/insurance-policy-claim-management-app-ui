@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
-import Sidebar from '../navigation/Sidebar';
-import TopNavbar from '../navigation/TopNavbar';
-import useAuth from '../../hooks/useAuth';
-import { ROLES } from '../../utils/roles';
-import PageTransition from '../common/PageTransition';
+import { useState } from "react";
+import { Outlet, useLocation } from "react-router-dom";
+import Sidebar from "../navigation/Sidebar";
+import TopNavbar from "../navigation/TopNavbar";
+import useAuth from "../../hooks/useAuth";
+import { ROLES } from "../../utils/roles";
+import PageTransition from "../common/PageTransition";
 
 // Define navigation items dynamically per role
 const NAV_ITEMS_BY_ROLE = {
@@ -16,13 +16,43 @@ const NAV_ITEMS_BY_ROLE = {
       end: true,
       section: null,
     },
-    { to: "/admin/users",     icon: "bi-people",             label: "Users",     section: "Management" },
-    { to: "/admin/customers", icon: "bi-person-badge",        label: "Customers", section: null },
-    { to: "/admin/products",  icon: "bi-box-seam",           label: "Products",  section: "Catalog" },
-    { to: "/admin/plans",     icon: "bi-layers",             label: "Plans",     section: null },
-    { to: "/admin/policies",  icon: "bi-file-earmark-text",  label: "Policies",  section: "Operations" },
-    { to: "/admin/claims",    icon: "bi-shield-exclamation", label: "Claims",    section: null },
-    { to: "/admin/payments",  icon: "bi-credit-card",        label: "Payments",  section: null },
+    {
+      to: "/admin/users",
+      icon: "bi-people",
+      label: "Users",
+      section: "Management",
+    },
+    {
+      to: "/admin/customers",
+      icon: "bi-person-badge",
+      label: "Customers",
+      section: null,
+    },
+    {
+      to: "/admin/products",
+      icon: "bi-box-seam",
+      label: "Products",
+      section: "Catalog",
+    },
+    { to: "/admin/plans", icon: "bi-layers", label: "Plans", section: null },
+    {
+      to: "/admin/policies",
+      icon: "bi-file-earmark-text",
+      label: "Policies",
+      section: "Operations",
+    },
+    {
+      to: "/admin/claims",
+      icon: "bi-shield-exclamation",
+      label: "Claims",
+      section: null,
+    },
+    {
+      to: "/admin/payments",
+      icon: "bi-credit-card",
+      label: "Payments",
+      section: null,
+    },
   ],
   [ROLES.INTERNAL_STAFF]: [
     {
@@ -32,11 +62,36 @@ const NAV_ITEMS_BY_ROLE = {
       end: true,
       section: null,
     },
-    { to: "/staff/customers",    icon: "bi-people",              label: "Customers",    section: "Manage" },
-    { to: "/staff/policies",     icon: "bi-file-earmark-text",   label: "Policies",     section: null },
-    { to: "/staff/claims",       icon: "bi-shield-exclamation",  label: "Claims",       section: null },
-    { to: "/staff/payments",     icon: "bi-credit-card",         label: "Payments",     section: null },
-    { to: "/staff/issue-policy", icon: "bi-file-earmark-plus",   label: "Issue Policy", section: "Actions" },
+    {
+      to: "/staff/customers",
+      icon: "bi-people",
+      label: "Customers",
+      section: "Manage",
+    },
+    {
+      to: "/staff/policies",
+      icon: "bi-file-earmark-text",
+      label: "Policies",
+      section: null,
+    },
+    {
+      to: "/staff/claims",
+      icon: "bi-shield-exclamation",
+      label: "Claims",
+      section: null,
+    },
+    {
+      to: "/staff/payments",
+      icon: "bi-credit-card",
+      label: "Payments",
+      section: null,
+    },
+    {
+      to: "/staff/issue-policy",
+      icon: "bi-file-earmark-plus",
+      label: "Issue Policy",
+      section: "Actions",
+    },
   ],
   [ROLES.CUSTOMER]: [
     {
@@ -46,11 +101,36 @@ const NAV_ITEMS_BY_ROLE = {
       end: true,
       section: null,
     },
-    { to: "/customer/profile",   icon: "bi-person-circle",      label: "My Profile",          section: "Account" },
-    { to: "/customer/products",  icon: "bi-box-seam",           label: "Insurance Products",  section: "Explore" },
-    { to: "/customer/policies",  icon: "bi-file-earmark-text",  label: "My Policies",         section: null },
-    { to: "/customer/payments",  icon: "bi-credit-card",        label: "Payment History",     section: null },
-    { to: "/customer/claims",    icon: "bi-shield-exclamation", label: "My Claims",           section: null },
+    {
+      to: "/customer/profile",
+      icon: "bi-person-circle",
+      label: "My Profile",
+      section: "Account",
+    },
+    {
+      to: "/customer/products",
+      icon: "bi-box-seam",
+      label: "Insurance Products",
+      section: "Explore",
+    },
+    {
+      to: "/customer/policies",
+      icon: "bi-file-earmark-text",
+      label: "My Policies",
+      section: null,
+    },
+    {
+      to: "/customer/payments",
+      icon: "bi-credit-card",
+      label: "Payment History",
+      section: null,
+    },
+    {
+      to: "/customer/claims",
+      icon: "bi-shield-exclamation",
+      label: "My Claims",
+      section: null,
+    },
   ],
 };
 
@@ -74,35 +154,40 @@ const MainLayout = () => {
 
   const userRole = user?.role || ROLES.CUSTOMER;
   const navItems = NAV_ITEMS_BY_ROLE[userRole] || [];
-  const themeClass = THEME_CLASS_BY_ROLE[userRole] || 'theme-customer';
-  const portalTitle = PORTAL_TITLE_BY_ROLE[userRole] || 'Portal';
+  const themeClass = THEME_CLASS_BY_ROLE[userRole] || "theme-customer";
+  const portalTitle = PORTAL_TITLE_BY_ROLE[userRole] || "Portal";
 
   // Map user role for nice visual breadcrumb
-  const formattedRole = userRole.replace('ROLE_', '');
+  const formattedRole = userRole.replace("ROLE_", "");
   const breadcrumb = `${formattedRole.charAt(0) + formattedRole.slice(1).toLowerCase()} Portal`;
 
   return (
-    <div className={themeClass} style={{ minHeight: '100vh', backgroundColor: 'var(--ip-bg)' }}>
+    <div
+      className={themeClass}
+      style={{ minHeight: "100vh", backgroundColor: "var(--ip-bg)" }}
+    >
       {/* ── Sidebar ───────────────────────────────── */}
-      <Sidebar 
-        navItems={navItems} 
-        isOpen={sidebarOpen} 
-        setIsOpen={setSidebarOpen} 
+      <Sidebar
+        navItems={navItems}
+        isOpen={sidebarOpen}
+        setIsOpen={setSidebarOpen}
         isCollapsed={sidebarCollapsed}
         setIsCollapsed={setSidebarCollapsed}
-        title={portalTitle} 
+        title={portalTitle}
       />
 
       {/* ── Main area ─────────────────────────────── */}
-      <div className={`ip-main-wrapper ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+      <div
+        className={`ip-main-wrapper ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}
+      >
         {/* Top Navbar */}
-        <TopNavbar 
-          onMenuClick={() => setSidebarOpen(v => !v)} 
-          breadcrumb={breadcrumb} 
+        <TopNavbar
+          onMenuClick={() => setSidebarOpen((v) => !v)}
+          breadcrumb={breadcrumb}
         />
 
         {/* Page content */}
-        <main className="ip-content" style={{ padding: '1.75rem 1.5rem' }}>
+        <main className="ip-content" style={{ padding: "1.75rem 1.5rem" }}>
           <PageTransition key={location.pathname}>
             <Outlet />
           </PageTransition>

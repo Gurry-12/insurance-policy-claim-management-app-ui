@@ -3,6 +3,7 @@ import { getClaimHistory } from "../../../services/claimService";
 import { useNavigate, useParams } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
 import StatusBadge from "../../../components/ui/StatusBadge";
+import DataTable from "../../../components/tables/DataTable";
 
 const StaffClaimHistory = () => {
   const [historyList, setHistoryList] = useState([]);
@@ -13,8 +14,11 @@ const StaffClaimHistory = () => {
   useEffect(() => {
     const loadClaimHistory = async () => {
       try {
+        setLoading(true);
         const data = await getClaimHistory(id);
-        setHistoryList(data?.content || data?.data || (Array.isArray(data) ? data : []));
+        const rawData = data?.content || data?.data || (Array.isArray(data) ? data : []);
+        const sortedData = [...rawData].sort((a, b) => new Date(b.updatedDate) - new Date(a.updatedDate));
+        setHistoryList(sortedData);
       } catch (error) {
         console.error("Error fetching claim history:", error);
       } finally {
@@ -27,15 +31,27 @@ const StaffClaimHistory = () => {
     }
   }, [id]);
 
-  if (loading) {
-    return (
-      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    );
-  }
+  const columns = [
+    {
+      header: "Sr. No.",
+      cell: (row, index) => index + 1,
+      minWidth: "85px"
+    },
+    {
+      header: "Previous Status",
+      cell: (row) => <StatusBadge status={row.previousStatus} />
+    },
+    {
+      header: "New Status",
+      cell: (row) => <StatusBadge status={row.newStatus} />
+    },
+    { header: "Remarks", accessor: "remarks", cell: (row) => row.remarks || "-" },
+    { header: "Updated By", accessor: "updatedBy", cell: (row) => <span className="fw-medium">{row.updatedBy}</span> },
+    {
+      header: "Updated Date",
+      cell: (row) => new Date(row.updatedDate).toLocaleString(),
+    }
+  ];
 
   return (
     <div className="animate-fade-in">
@@ -43,51 +59,30 @@ const StaffClaimHistory = () => {
         title="Claim Status History"
         subtitle="Historical logs of claim adjustments and statuses"
         action={
-          <button className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => navigate(`/staff/claims/${id}`)}>
+          <button
+            className="btn btn-secondary d-flex align-items-center gap-1"
+            onClick={() => navigate(`/staff/claims/${id}`)}
+          >
             <i className="bi bi-arrow-left"></i> Back
           </button>
         }
       />
 
-      {historyList.length === 0 ? (
-        <div className="alert alert-info" style={{ borderRadius: 12 }}>
-          No claim history available.
+      <div className="card border-0 shadow-sm" style={{ borderRadius: 16 }}>
+        <div className="card-body p-0">
+          <div className="p-4 border-bottom border-light">
+            <h6 className="mb-0 fw-bold text-primary">History Timeline</h6>
+          </div>
+          <div className="p-4">
+            <DataTable
+              columns={columns}
+              data={historyList}
+              loading={loading}
+              emptyMessage="No claim history available."
+            />
+          </div>
         </div>
-      ) : (
-        <div className="table-responsive">
-          <table className="table table-hover align-middle mb-0">
-            <thead>
-              <tr>
-                <th>Sr. No.</th>
-                <th>Previous Status</th>
-                <th>New Status</th>
-                <th>Remarks</th>
-                <th>Updated By</th>
-                <th>Updated Date</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {historyList.map((history, index) => (
-                <tr key={history.historyId}>
-                  <td style={{ fontWeight: 600 }}>{index + 1}</td>
-                  <td>
-                    <StatusBadge status={history.previousStatus} />
-                  </td>
-                  <td>
-                    <StatusBadge status={history.newStatus} />
-                  </td>
-                  <td>{history.remarks || "-"}</td>
-                  <td style={{ fontWeight: 500 }}>{history.updatedBy}</td>
-                  <td style={{ color: 'var(--ip-text-muted)' }}>
-                    {new Date(history.updatedDate).toLocaleString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      </div>
     </div>
   );
 };
