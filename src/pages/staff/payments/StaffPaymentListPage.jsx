@@ -57,7 +57,13 @@ const StaffPaymentListPage = () => {
       }
     };
     loadPayments();
-  }, [tableState, tableState.currentPage, tableState.sortBy, tableState.sortDirection]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    tableState.currentPage,
+    JSON.stringify(tableState.filters),
+    tableState.sortBy,
+    tableState.sortDirection,
+  ]);
 
   const renderHeader = (label, field) => (
     <SortableHeader 

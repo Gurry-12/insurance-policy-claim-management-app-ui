@@ -14,7 +14,7 @@ import { getPolicyById } from "../../../services/policyService";
 import useAuth from "../../../hooks/useAuth";
 import useClaimPdf from "../../../hooks/PdfDownload/useClaimPdf";
 import toast from "react-hot-toast";
-import ConfirmModal from "../../../components/modals/ConfirmModal";
+import Modal from "../../../components/ui/Modal";
 import DocumentPreviewModal from "../../../components/modals/DocumentPreviewModal";
 import FormTextarea from "../../../components/forms/FormTextarea";
 import Drawer from "../../../components/ui/Drawer";
@@ -68,15 +68,15 @@ const StaffClaimDetailPage = () => {
     fetchClaimData(id);
   }, [id]);
 
-  const handleRecommendation = async () => {
+  const handleRecommendation = async (actionType) => {
     if (!remark.trim()) {
       toast.error("Remarks are required to submit a recommendation.");
       return;
     }
 
-    setActionLoading(true);
+    setActionLoading(actionType);
     const recommendedStatus =
-      actionModal.type === "approve"
+      actionType === "approve"
         ? "RECOMMENDED_FOR_APPROVAL"
         : "RECOMMENDED_FOR_REJECTION";
 
@@ -88,7 +88,7 @@ const StaffClaimDetailPage = () => {
 
       setClaim(response.data || response);
       toast.success(
-        `Claim recommended for ${actionModal.type === "approve" ? "approval" : "rejection"}`,
+        `Claim recommended for ${actionType === "approve" ? "approval" : "rejection"}`,
       );
       setActionModal({ isOpen: false, type: null });
       setRemark("");
@@ -175,24 +175,12 @@ const StaffClaimDetailPage = () => {
 
               {claim.assignedStaffName === user?.name &&
                 claim.claimStatus === "UNDER_REVIEW" && (
-                  <>
-                    <button
-                      className="btn btn-danger d-flex align-items-center gap-1"
-                      onClick={() =>
-                        setActionModal({ isOpen: true, type: "reject" })
-                      }
-                    >
-                      Recommend Rejection
-                    </button>
-                    <button
-                      className="btn btn-success d-flex align-items-center gap-1"
-                      onClick={() =>
-                        setActionModal({ isOpen: true, type: "approve" })
-                      }
-                    >
-                      Recommend Approval
-                    </button>
-                  </>
+                  <button
+                    className="btn btn-primary d-flex align-items-center gap-1"
+                    onClick={() => setActionModal({ isOpen: true, type: null })}
+                  >
+                    Add Recommendation
+                  </button>
                 )}
 
               {claim.assignedStaffName &&
@@ -451,44 +439,67 @@ const StaffClaimDetailPage = () => {
         )}
       </div>
 
-      <ConfirmModal
+      <Modal
         isOpen={actionModal.isOpen}
-        title={
-          actionModal.type === "approve"
-            ? "Recommend Approval"
-            : "Recommend Rejection"
-        }
-        message={
-          <div>
-            <p>
-              Are you sure you want to recommend to {actionModal.type} this
-              claim of <strong>₹{amount.toLocaleString("en-IN")}</strong>?
-            </p>
-            <FormTextarea
-              label="Staff Remarks (Required)"
-              name="remark"
-              value={remark}
-              onChange={(e) => setRemark(e.target.value)}
-              placeholder="Add your justification here..."
-              rows={3}
-              required
-            />
-          </div>
-        }
-        isDanger={actionModal.type === "reject"}
-        confirmText={
-          actionLoading
-            ? "Processing..."
-            : actionModal.type === "approve"
-              ? "Confirm Recommendation"
-              : "Confirm Rejection"
-        }
-        onCancel={() => {
+        onClose={() => {
           setActionModal({ isOpen: false, type: null });
           setRemark("");
         }}
-        onConfirm={handleRecommendation}
-      />
+        title="Add Recommendation"
+        footer={
+          <div className="d-flex w-100 justify-content-between">
+            <button className="btn btn-outline-secondary" onClick={() => {
+              setActionModal({ isOpen: false, type: null });
+              setRemark("");
+            }} disabled={!!actionLoading}>
+              Cancel
+            </button>
+            <div className="d-flex gap-2">
+              <button 
+                className="btn btn-danger" 
+                onClick={() => handleRecommendation('reject')} 
+                disabled={!!actionLoading || !remark.trim()}>
+                {actionLoading === 'reject' ? 'Processing...' : 'Recommend Rejection'}
+              </button>
+              <button 
+                className="btn btn-success" 
+                onClick={() => handleRecommendation('approve')} 
+                disabled={!!actionLoading || !remark.trim()}>
+                {actionLoading === 'approve' ? 'Processing...' : 'Recommend Approval'}
+              </button>
+            </div>
+          </div>
+        }
+      >
+        <p>Please review the claim details before submitting your recommendation.</p>
+
+        {policy && (
+          <div className="bg-light p-3 rounded mb-3 border-start border-4 border-info">
+            <div className="d-flex justify-content-between mb-2">
+              <small className="fw-bold text-muted">Claim Amount:</small>
+              <span className="fw-bold text-primary">₹{amount.toLocaleString('en-IN')}</span>
+            </div>
+            <div className="d-flex justify-content-between mb-2">
+              <small className="fw-bold text-muted">Total Coverage:</small>
+              <span className="fw-bold">₹{Number(policy.coverageAmount || 0).toLocaleString('en-IN')}</span>
+            </div>
+            <div className="d-flex justify-content-between">
+              <small className="fw-bold text-muted">Remaining Coverage:</small>
+              <span className="fw-bold text-success">₹{Number(policy.remainingClaimAmount ?? policy.coverageAmount ?? 0).toLocaleString('en-IN')}</span>
+            </div>
+          </div>
+        )}
+
+        <FormTextarea
+          label="Staff Remarks (Required)"
+          name="remark"
+          value={remark}
+          onChange={(e) => setRemark(e.target.value)}
+          placeholder="Add your justification here..."
+          rows={3}
+          required
+        />
+      </Modal>
 
       <DocumentPreviewModal
         isOpen={!!previewDoc}

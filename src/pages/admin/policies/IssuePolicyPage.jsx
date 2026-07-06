@@ -4,6 +4,7 @@ import PageHeader from '../../../components/common/PageHeader';
 import RichSelect from '../../../components/forms/RichSelect';
 import AlertModal from '../../../components/modals/AlertModal';
 import { getAllCustomers } from '../../../services/customerService';
+import { getAllProducts } from '../../../services/productService';
 import { getAllPlans } from '../../../services/planService';
 import { issuePolicy } from '../../../services/policyService';
 import toast from 'react-hot-toast';
@@ -24,10 +25,17 @@ const IssuePolicyPage = () => {
   useEffect(() => {
     Promise.all([
       getAllCustomers().catch(() => []),
-      getAllPlans().catch(() => [])
-    ]).then(([customersData, plansData]) => {
+      getAllPlans().catch(() => []),
+      getAllProducts().catch(() => [])
+    ]).then(([customersData, plansData, productsData]) => {
+      
+      const activeProductIds = new Set(productsData?.map(p => p.productId || p.id));
+      const activeProductPlans = (plansData || []).filter(plan => 
+        activeProductIds.has(plan.productId)
+      );
+
       setCustomers(customersData || []);
-      setPlans(plansData || []);
+      setPlans(activeProductPlans);
       
       // Set initial drop-down selection
       const initialCust = customersData?.[0]?.id || customersData?.[0]?.customerId || '';
