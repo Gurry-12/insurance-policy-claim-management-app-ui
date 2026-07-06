@@ -1,48 +1,49 @@
 import axiosInstance from "../api/axiosInstance";
-import { safeExtractArray, safeExtractPaginated } from "../utils/formatters";
+
 
 export const getAllProducts = async () => {
   const response = await axiosInstance.get("/products/active");
-  return safeExtractArray(response);
+  return response;
 };
 
 export const getAllProductsPaginated = async (params = {}) => {
   const response = await axiosInstance.get("/products/page", { params });
-  return safeExtractPaginated(response);
+  return response;
 };
 
 export const getProductById = async (productId) => {
   const response = await axiosInstance.get(`/products/${productId}`);
-  return response.data?.data;
+  return response;
 };
+
 
 export const createProduct = async (payload) => {
   const response = await axiosInstance.post('/products', payload);
-  return response.data;
+  return response;
 };
 
 export const updateProduct = async (productId, payload) => {
   const response = await axiosInstance.put(`/products/${productId}`, payload);
-  return response.data;
+  return response;
 };
 
 export const activateProduct = async (productId) => {
   const response = await axiosInstance.patch(`/products/${productId}/activate`);
-  return response.data;
+  return response;
 };
 
 export const deactivateProduct = async (productId) => {
   const response = await axiosInstance.patch(`/products/${productId}/deactivate`);
-  return response.data;
+  return response;
 };
 
 
 export const getActiveProducts = async () => {
-  const { data } = await axiosInstance.get(
+  const response = await axiosInstance.get(
     "/products/active"
   );
 
-  return data;
+  return response;
 };
 // TODO: Insurance product API service
 

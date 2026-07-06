@@ -2,41 +2,45 @@ import axiosInstance from '../api/axiosInstance';
 import { jwtDecode } from 'jwt-decode';
 
 export const login = async (credentials) => {
-  const { data } = await axiosInstance.post('/auth/login', credentials);
-  const decoded = jwtDecode(data.token);
+  const response = await axiosInstance.post('/auth/login', credentials);
+  const payload = response.data; // Now payload is the actual data object
+  const decoded = jwtDecode(payload.token);
 
   const user = {
-    id: data.userId,
-    email: data.email || decoded.sub,
-    role: data.role || (decoded.role ?? decoded.roles?.[0] ?? null),
-    name: data.fullName || (decoded.fullName ?? decoded.name ?? decoded.sub),
+    id: payload.userId,
+    email: payload.email || decoded.sub,
+    role: payload.role || (decoded.role ?? decoded.roles?.[0] ?? null),
+    name: payload.fullName || (decoded.fullName ?? decoded.name ?? decoded.sub),
+    productSpeciality: payload.productSpeciality || decoded.productSpeciality || null,
   };
 
-  return { token: data.token, user };
+  return { token: payload.token, user, message: response.message };
 };
 
 export const register = async (userData) => {
-  const { data } = await axiosInstance.post('/auth/register', userData);
-  return data;
+  const response = await axiosInstance.post('/auth/register', userData);
+  return response;
 };
 
 export const verifyOtpApi = async (payload) => {
-  const { data } = await axiosInstance.post('/auth/verify-otp', payload);
-  return data.success;
+  const response = await axiosInstance.post('/auth/verify-otp', payload);
+  return response;
 };
+
 
 export const resendOtpApi = async (payload) => {
-  const { data } = await axiosInstance.post('/auth/resend-otp', payload);
-  return data.success;
+  const response = await axiosInstance.post('/auth/resend-otp', payload);
+  return response;
 };
 
+
 export const forgotPasswordApi = async (payload) => {
-  const { data } = await axiosInstance.post('/auth/forgot-password', payload);
-  return data;
+  const response = await axiosInstance.post('/auth/forgot-password', payload);
+  return response;
 };
 
 export const resetPasswordApi = async (payload) => {
-  const { data } = await axiosInstance.post('/auth/reset-password', payload);
-  return data;
+  const response = await axiosInstance.post('/auth/reset-password', payload);
+  return response;
 };
 

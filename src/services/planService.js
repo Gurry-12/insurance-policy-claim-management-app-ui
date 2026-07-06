@@ -1,55 +1,56 @@
 import axiosInstance from "../api/axiosInstance";
-import { safeExtractArray, safeExtractPaginated } from "../utils/formatters";
+
 
 export const getAllPlansPaginated = async (params = {}) => {
   const response = await axiosInstance.get("/plans/page", { params });
-  return safeExtractPaginated(response);
+  return response;
 };
 
 export const getPlanById = async (planId) => {
   const response = await axiosInstance.get(`/plans/${planId}`);
-  return response.data?.data;
+  return response;
 };
+
 
 export const getAllPlans = async () => {
   const response = await axiosInstance.get("/plans/active");
-  return safeExtractArray(response);
+  return response;
 };
 
 export const createPlan = async (payload) => {
   const response = await axiosInstance.post('/plans', payload);
-  return response.data;
+  return response;
 };
 
 export const updatePlan = async (planId, payload) => {
   const response = await axiosInstance.put(`/plans/${planId}`, payload);
-  return response.data;
+  return response;
 };
 
 export const activatePlan = async (planId) => {
   const response = await axiosInstance.patch(`/plans/${planId}/activate`);
-  return response.data;
+  return response;
 };
 
 export const deactivatePlan = async (planId) => {
   const response = await axiosInstance.patch(`/plans/${planId}/deactivate`);
-  return response.data;
+  return response;
 };
 
 
 
    export const getActivePlans = async () => {
-  const { data } = await axiosInstance.get(
+  const response = await axiosInstance.get(
     `/plans/active`
   );
 
-  return data;
+  return response;
 };
 
  export const getPlansByProduct = async (productId) => {
-  const { data } = await axiosInstance.get(
+  const response = await axiosInstance.get(
     `/plans/${productId}/active`
   );
 
-  return data;
+  return response;
  };

@@ -9,6 +9,7 @@ import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import { getProductById, updateProduct } from '../../../services/productService';
 import toast from 'react-hot-toast';
+import { notify } from "../../../utils/notificationService";
 
 const EditProductPage = () => {
   const { id } = useParams();
@@ -73,10 +74,17 @@ const EditProductPage = () => {
 
     updateProduct(id, payload)
       .then(() => {
-        toast.success('Product updated successfully!');
+        notify.success('Product updated successfully!');
         navigate(`/admin/products/${id}`);
       })
-      .catch((err) => toast.error(err.response?.data?.message || 'Failed to save product changes.'))
+      .catch((err) => {
+        if (err.fieldErrors) {
+          setErrors(err.fieldErrors);
+          notify.error("Please correct the highlighted fields.");
+        } else {
+          notify.error(err);
+        }
+      })
       .finally(() => setSubmitting(false));
   };
 

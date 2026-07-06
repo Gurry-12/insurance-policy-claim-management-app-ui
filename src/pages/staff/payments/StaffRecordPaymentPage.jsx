@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import toast from "react-hot-toast";
 import PageHeader from "../../../components/common/PageHeader";
+import { notify } from "../../../utils/notificationService";
 import { Wallet } from "lucide-react";
+import ModernSelect from "../../../components/forms/ModernSelect";
 import { recordPayment } from "../../../services/paymentService";
 import { getPolicyById } from "../../../services/policyService";
 const StaffRecordPaymentPage = () => {
@@ -65,14 +66,17 @@ const StaffRecordPaymentPage = () => {
 
     try {
       await recordPayment(formData);
-      toast.success("Payment recorded successfully!");
+
+      notify.success("Payment recorded successfully");
+
       setTimeout(() => navigate("/staff/payments"), 2000);
     } catch (err) {
-      toast.error(
-        err.response?.data?.message ||
-          err.message ||
-          "Failed to record payment",
-      );
+      if (err.fieldErrors) {
+        setErrors(err.fieldErrors);
+        notify.error("Please correct the highlighted fields.");
+      } else {
+        notify.error(err);
+      }
     } finally {
       setLoading(false);
     }
@@ -107,31 +111,26 @@ const StaffRecordPaymentPage = () => {
                   <label className="form-label fw-medium">
                     Policy <span className="text-danger">*</span>
                   </label>
-                  <select
+                  <ModernSelect
                     name="policyId"
-                    className={`form-select form-select-lg ${errors.policyId ? "is-invalid" : ""}`}
                     value={formData.policyId}
                     onChange={handleChange}
-                    required
-                    disabled
-                  >
-                    {policyDetails ? (
-                      <option
-                        value={policyDetails.policyId || policyDetails.id}
-                      >
-                        {policyDetails.planName
-                          ? `${policyDetails.planName} (No: ${policyDetails.policyNumber})`
-                          : `Policy No: ${policyDetails.policyNumber}`}
-                      </option>
-                    ) : (
-                      <option value={formData.policyId}>
-                        Loading policy details...
-                      </option>
-                    )}
-                  </select>
-                  {errors.policyId && (
-                    <div className="invalid-feedback">{errors.policyId}</div>
-                  )}
+                    required={true}
+                    isDisabled={true}
+                    error={errors.policyId}
+                    options={
+                      policyDetails
+                        ? [
+                            {
+                              value: policyDetails.policyId || policyDetails.id,
+                              label: policyDetails.planName
+                                ? `${policyDetails.planName} (No: ${policyDetails.policyNumber})`
+                                : `Policy No: ${policyDetails.policyNumber}`
+                            }
+                          ]
+                        : [{ value: formData.policyId, label: 'Loading policy details...' }]
+                    }
+                  />
                 </div>
 
                 <div className="mb-4">
@@ -154,17 +153,17 @@ const StaffRecordPaymentPage = () => {
 
                 <div className="mb-4">
                   <label className="form-label fw-medium">Payment Mode</label>
-                  <select
+                  <ModernSelect
                     name="paymentMode"
-                    className="form-select form-select-lg"
                     value={formData.paymentMode}
                     onChange={handleChange}
-                  >
-                    <option value="CARD">Credit/Debit Card</option>
-                    <option value="NET_BANKING">Net Banking</option>
-                    <option value="UPI">UPI</option>
-                    <option value="CASH">Cash</option>
-                  </select>
+                    options={[
+                      { value: 'CARD', label: 'Credit/Debit Card' },
+                      { value: 'NET_BANKING', label: 'Net Banking' },
+                      { value: 'UPI', label: 'UPI' },
+                      { value: 'CASH', label: 'Cash' }
+                    ]}
+                  />
                 </div>
 
                 <button

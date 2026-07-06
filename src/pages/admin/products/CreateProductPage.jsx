@@ -6,7 +6,7 @@ import FormSelect from '../../../components/forms/FormSelect';
 import FormTextarea from '../../../components/forms/FormTextarea';
 import AlertModal from '../../../components/modals/AlertModal';
 import { createProduct } from '../../../services/productService';
-import toast from 'react-hot-toast';
+import { notify } from '../../../utils/notificationService';
 
 const CreateProductPage = () => {
   const navigate = useNavigate();
@@ -51,10 +51,17 @@ const CreateProductPage = () => {
 
     createProduct(payload)
       .then(() => {
-        toast.success('Product created successfully!');
+        notify.success('Product created successfully!');
         navigate('/admin/products');
       })
-      .catch((err) => toast.error(err.response?.data?.message || 'Failed to create product. Check your connection.'))
+      .catch((err) => {
+        if (err.fieldErrors) {
+          setErrors(err.fieldErrors);
+          notify.error("Please correct the highlighted fields.");
+        } else {
+          notify.error(err);
+        }
+      })
       .finally(() => setSubmitting(false));
   };
 

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import ModernSelect from './../../components/forms/ModernSelect';
 
 /**
  * FilterPanel — Enterprise-grade floating filter panel
@@ -254,17 +255,19 @@ const FilterPanel = ({ fields = [], localFilters, onApply, onClear }) => {
                 return (
                   <div key={i} className="ip-filter-field">
                     <label className="ip-filter-label" htmlFor={`fp-${field.name}`}>{field.label}</label>
-                    <select
-                      id={`fp-${field.name}`}
-                      className="form-select ip-filter-input"
-                      value={draft[field.name] || ''}
-                      onChange={e => updateDraft(field.name, e.target.value)}
-                    >
-                      <option value="">All {field.label}s</option>
-                      {field.options.map(opt => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
+                    <div style={{ marginTop: '0.25rem' }}>
+                      <ModernSelect
+                        name={`fp-${field.name}`}
+                        value={draft[field.name] || ''}
+                        onChange={e => updateDraft(field.name, e.target.value)}
+                        options={[
+                          { value: "", label: `All ${field.label}s` },
+                          ...field.options
+                        ]}
+                        isSearchable={false}
+                        className="ip-filter-modern-select"
+                      />
+                    </div>
                   </div>
                 );
               }

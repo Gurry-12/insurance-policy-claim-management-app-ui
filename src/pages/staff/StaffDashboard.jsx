@@ -189,7 +189,17 @@ const StaffDashboard = () => {
     <div>
       <PageHeader
         title="Dashboard"
-        subtitle={`Welcome back, ${user?.name ?? "Staff"} 👋`}
+        subtitle={
+          <span>
+            Welcome back, {user?.name ?? "Staff"} 👋 
+            {user?.productSpeciality && (
+              <span className="badge bg-primary bg-opacity-10 text-primary ms-3 border border-primary-subtle" style={{ verticalAlign: 'middle' }}>
+                <i className="bi bi-star-fill me-1" style={{ fontSize: '0.75rem' }}></i>
+                {user.productSpeciality} Specialist
+              </span>
+            )}
+          </span>
+        }
         action={
           <span style={{ fontSize: "0.8rem", color: "var(--ip-text-muted)" }}>
             <i className="bi bi-calendar3 me-1" />

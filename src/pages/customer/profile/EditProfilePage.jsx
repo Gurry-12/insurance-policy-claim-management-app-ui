@@ -6,6 +6,9 @@ import {
   getProfile,
 } from "../../../services/customerService";
 import PageHeader from "../../../components/common/PageHeader";
+import ModernSelect from "../../../components/forms/ModernSelect";
+import ModernDatePicker from "../../../components/forms/ModernDatePicker";
+import { notify } from "../../../utils/notificationService";
 
 
 const EditProfilePage = () => {
@@ -82,13 +85,21 @@ const EditProfilePage = () => {
     try {
       if (customerId) {
         await updateProfile(customerId, formData);
+        notify.success("Profile Updated Successfully");
       } else {
         await createProfile(formData);
+        notify.success("Profile Created Successfully");
       }
 
       navigate("/customer/profile");
     } catch (error) {
       console.error(error);
+      if (error.fieldErrors) {
+        setErrors(error.fieldErrors);
+        notify.error("Please correct the highlighted fields.");
+      } else {
+        notify.error(error?.response?.data?.message || "Failed to save profile");
+      }
     }
   };
 
@@ -112,16 +123,15 @@ const EditProfilePage = () => {
                   </div>
 
                   <div className="col-md-6">
-                    <label className="form-label fw-medium">Date of Birth <span className="text-danger">*</span></label>
-                    <input
-                      type="date"
+                    <ModernDatePicker
+                      label="Date of Birth"
                       name="dateOfBirth"
-                      className={`form-control ${errors.dateOfBirth ? 'is-invalid' : ''}`}
-                      value={formData.dateOfBirth}
+                      selectedDate={formData.dateOfBirth}
                       onChange={handleChange}
-                      required
+                      error={errors.dateOfBirth}
+                      required={true}
+                      maxDate={new Date()}
                     />
-                    {errors.dateOfBirth && <div className="invalid-feedback">{errors.dateOfBirth}</div>}
                   </div>
 
                   <div className="col-12">
@@ -205,22 +215,22 @@ const EditProfilePage = () => {
                   </div>
 
                   <div className="col-md-6">
-                    <label className="form-label fw-medium">Nominee Relation <span className="text-danger">*</span></label>
-                    <select
+                    <ModernSelect
+                      label="Nominee Relation"
                       name="nomineeRelation"
-                      className={`form-select ${errors.nomineeRelation ? 'is-invalid' : ''}`}
                       value={formData.nomineeRelation}
                       onChange={handleChange}
-                      required
-                    >
-                      <option value="" disabled>Select Relation</option>
-                      <option value="Spouse">Spouse</option>
-                      <option value="Child">Child</option>
-                      <option value="Parent">Parent</option>
-                      <option value="Sibling">Sibling</option>
-                      <option value="Other">Other</option>
-                    </select>
-                    {errors.nomineeRelation && <div className="invalid-feedback">{errors.nomineeRelation}</div>}
+                      error={errors.nomineeRelation}
+                      options={[
+                        { value: 'Spouse', label: 'Spouse' },
+                        { value: 'Child', label: 'Child' },
+                        { value: 'Parent', label: 'Parent' },
+                        { value: 'Sibling', label: 'Sibling' },
+                        { value: 'Other', label: 'Other' }
+                      ]}
+                      required={true}
+                      placeholder="Select Relation"
+                    />
                   </div>
 
                   <div className="col-12 mt-5 d-flex gap-2 justify-content-end border-top pt-4">

@@ -56,8 +56,8 @@ const Register = () => {
     }
     if (!formData.mobileNumber.trim()) {
       errs.mobileNumber = "Mobile number is required.";
-    } else if (!/^\+?[\d\s-]{10,14}$/.test(formData.mobileNumber.trim())) {
-      errs.mobileNumber = "Enter a valid mobile number.";
+    } else if (!/^\d{10}$/.test(formData.mobileNumber.trim())) {
+      errs.mobileNumber = "Enter a valid 10-digit mobile number.";
     }
     if (!formData.email.trim()) {
       errs.email = "Email is required.";
@@ -90,8 +90,10 @@ const Register = () => {
       const payload = {
         fullName: formData.fullName.trim(),
         email: formData.email.trim(),
+        mobileNumber: formData.mobileNumber.startsWith("+91") 
+          ? formData.mobileNumber.trim() 
+          : "+91" + formData.mobileNumber.trim(),
         password: formData.password,
-        mobileNumber: formData.mobileNumber.trim(),
       };
 
       await registerService(payload);
@@ -174,19 +176,24 @@ const Register = () => {
                   <label htmlFor="reg-mobile" className="custom-field-label">
                     Mobile Number <span className="text-danger">*</span>
                   </label>
-                  <input
-                    id="reg-mobile"
-                    name="mobileNumber"
-                    type="tel"
-                    autoComplete="tel"
-                    className={`form-control pristine-input ${errors.mobileNumber ? 'is-invalid' : ''}`}
-                    placeholder="+917428730894"
-                    value={formData.mobileNumber}
-                    onChange={handleChange}
-                    disabled={loading}
-                    aria-invalid={errors.mobileNumber ? "true" : "false"}
-                    aria-describedby={errors.mobileNumber ? "mobile-error" : undefined}
-                  />
+                  <div className="input-group">
+                    <span className="input-group-text bg-white text-muted border-end-0 pe-2" id="basic-addon-mobile">+91</span>
+                    <input
+                      id="reg-mobile"
+                      name="mobileNumber"
+                      type="number"
+                      autoComplete="tel-national"
+                      className={`form-control pristine-input border-start-0 ps-1 ${errors.mobileNumber ? 'is-invalid' : ''}`}
+                      placeholder="9876543210"
+                      value={formData.mobileNumber}
+                      onChange={handleChange}
+                      disabled={loading}
+                      aria-invalid={errors.mobileNumber ? "true" : "false"}
+                      aria-describedby={errors.mobileNumber ? "mobile-error" : undefined}
+                      style={{ boxShadow: 'none' }}
+                      onWheel={(e) => e.target.blur()} // prevent scrolling from changing number
+                    />
+                  </div>
                   {errors.mobileNumber && (
                     <div id="mobile-error" className="input-error-tip text-danger mt-1" aria-live="polite">
                       <i className="bi bi-x-circle-fill" />{" "}

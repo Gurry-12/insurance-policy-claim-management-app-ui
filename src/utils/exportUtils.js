@@ -24,7 +24,13 @@ export const exportToCSV = (data, columns, filename = "export.csv") => {
         const rawVal = row[col.accessor];
         val = rawVal !== undefined && rawVal !== null ? rawVal : "";
       }
-      return `"${String(val).replace(/"/g, '""')}"`;
+      let stringVal = String(val);
+      // Force Excel/Sheets to treat phone numbers as text by prepending a tab
+      // This prevents long numbers or numbers starting with + from being converted to scientific notation
+      if (/^\+?\d{10,15}$/.test(stringVal.replace(/\s+/g, ''))) {
+        stringVal = `\t${stringVal}`;
+      }
+      return `"${stringVal.replace(/"/g, '""')}"`;
     });
     csvRows.push(values.join(","));
   });

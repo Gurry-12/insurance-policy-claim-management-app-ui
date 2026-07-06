@@ -42,7 +42,7 @@ const useCustomerPdf = () => {
       body: [
         ["Full Name",        customer.fullName       || "—"],
         ["Email",            customer.email          || "—"],
-        ["Mobile Number",    customer.mobileNumber   || "—"],
+        ["Mobile Number",    customer.mobileNumber ? (customer.mobileNumber.startsWith('+91') ? customer.mobileNumber : `+91${customer.mobileNumber}`) : "—"],
         ["Date of Birth",    customer.dateOfBirth    ? new Date(customer.dateOfBirth).toLocaleDateString("en-IN") : "—"],
         ["Address",          customer.address        || "—"],
         ["City",             customer.city           || "—"],

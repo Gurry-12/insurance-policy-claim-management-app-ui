@@ -13,7 +13,7 @@ import useDebounceFilters from '../../../hooks/useDebounceFilters';
 import ExportButton from '../../../components/common/ExportButton';
 
 const FILTER_FIELDS = [
-  { type: 'select', name: 'status', label: 'Payment Status',
+  { type: 'select', name: 'paymentStatus', label: 'Payment Status',
     options: [
       { value: 'SUCCESS', label: 'Success' },
       { value: 'PENDING', label: 'Pending' },
@@ -31,7 +31,7 @@ const PaymentListPage = () => {
   const tableState = useTableState({
     initialSortBy: 'id',
     initialSortDirection: 'desc',
-    initialFilters: { status: '', minAmount: '', maxAmount: '', startDate: '', endDate: '' }
+    initialFilters: { paymentStatus: '', minAmount: '', maxAmount: '', startDate: '', endDate: '' }
   });
 
   const { localFilters, handleFilterChange, clearFilters } = useDebounceFilters(

@@ -58,13 +58,24 @@ const ClaimDetailsPage = () => {
     >
       <div className="p-4">
         <div className="d-flex justify-content-end gap-2 mb-4">
-          <Link
-            to={`/customer/claims/upload/${claim.claimId}`}
-            className="btn btn-outline-warning text-dark d-flex align-items-center gap-1"
-            style={{ borderRadius: "8px" }}
-          >
-            <Upload size={18} /> Upload Docs
-          </Link>
+          {['SUBMITTED', 'UNDER_REVIEW'].includes(claim.claimStatus) ? (
+            <Link
+              to={`/customer/claims/upload/${claim.claimId}`}
+              className="btn btn-outline-warning text-dark d-flex align-items-center gap-1"
+              style={{ borderRadius: "8px" }}
+            >
+              <Upload size={18} /> Upload Docs
+            </Link>
+          ) : (
+            <button
+              disabled
+              className="btn btn-outline-secondary d-flex align-items-center gap-1"
+              style={{ borderRadius: "8px" }}
+              title="Uploads are disabled for this claim status"
+            >
+              <Upload size={18} /> Upload Docs
+            </button>
+          )}
         </div>
 
         <div className="row g-4 mb-4">
@@ -219,9 +230,15 @@ const ClaimDetailsPage = () => {
                   </div>
                   <h6>No Documents Uploaded</h6>
                   <p className="small mb-3">Supporting documents speed up the claim approval process.</p>
-                  <Link to={`/customer/claims/upload/${claim.claimId}`} className="btn btn-outline-primary btn-sm">
-                    Upload Documents Now
-                  </Link>
+                  {['SUBMITTED', 'UNDER_REVIEW'].includes(claim.claimStatus) ? (
+                    <Link to={`/customer/claims/upload/${claim.claimId}`} className="btn btn-outline-primary btn-sm">
+                      Upload Documents Now
+                    </Link>
+                  ) : (
+                    <button disabled className="btn btn-outline-secondary btn-sm" title="Uploads are disabled for this claim status">
+                      Upload Documents Now
+                    </button>
+                  )}
                 </div>
               )}
             </div>

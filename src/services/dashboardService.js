@@ -2,7 +2,6 @@
 
 
 import axiosInstance from '../api/axiosInstance';
-import { safeExtractArray } from '../utils/formatters';
 
 export const getAdminStats = async () => {
   return {
@@ -19,7 +18,7 @@ export const getAdminStats = async () => {
 
 const getOpenClaimsCount = async () => {
   const response = await axiosInstance.get('/claims');
-  const claims = safeExtractArray(response);
+  const claims = response.data || [];
 
   const pending = claims.filter(
     (c) => c.claimStatus === "SUBMITTED" || c.claimStatus === "UNDER_REVIEW",
@@ -36,27 +35,27 @@ const getOpenClaimsCount = async () => {
 
 const getTotalProducts = async () => {
   const response = await axiosInstance.get('/products/active');
-  return safeExtractArray(response).length;
+  return (response.data || []).length;
 };
 
 const getActiveUsers = async () => {
   const response = await axiosInstance.get('/users');
-  return safeExtractArray(response).length;
+  return (response.data || []).length;
 };
 
 const getCustomerCount = async () =>  {
   const response = await axiosInstance.get("/customers");
-  return safeExtractArray(response).length;
+  return (response.data || []).length;
 };
 
 const getTotalActivePolicies = async () => {
   const response = await axiosInstance.get('/plans/active');
-  return safeExtractArray(response).length;
+  return (response.data || []).length;
 };
 
 const getRecentClaims = async () => {
   const response = await axiosInstance.get('/claims');
-  const list = safeExtractArray(response);
+  const list = response.data || [];
   return list.slice(0, 5).map(c => ({
     id: c.id || c.claimId || 'N/A',
     customerName: c.customerName ,
@@ -68,7 +67,7 @@ const getRecentClaims = async () => {
 
 const getRecentPolicies = async () => {
   const response = await axiosInstance.get('/policies');
-  const list = safeExtractArray(response);
+  const list = response.data || [];
   return list.slice(0, 5).map((p) => ({
     id: p.id || p.policyId || "N/A",
     customerName:

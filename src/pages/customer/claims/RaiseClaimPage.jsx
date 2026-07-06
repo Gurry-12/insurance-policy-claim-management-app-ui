@@ -5,6 +5,10 @@ import { raiseClaim } from "../../../services/claimService";
 import { getMyPolicies, getPolicyById } from "../../../services/policyService";
 import PageHeader from "../../../components/common/PageHeader";
 import { FilePlus, ArrowLeft, Save, ShieldCheck, AlertCircle, FileText, Calendar, IndianRupee, FileUp, Info, X } from "lucide-react";
+import ModernSelect from "../../../components/forms/ModernSelect";
+import ModernDatePicker from "../../../components/forms/ModernDatePicker";
+import { notify } from "../../../utils/notificationService";
+import { PRODUCT_DOCUMENT_CATEGORIES } from "../../../utils/documentCategories";
 
 const RaiseClaimPage = () => {
   const navigate = useNavigate();
@@ -41,6 +45,7 @@ const RaiseClaimPage = () => {
   useEffect(() => {
     if (!selectedPolicyDetails) return;
 
+    // eslint-disable-next-line react-hooks/immutability
     setErrors(prev => {
       const newErrors = { ...prev };
       let changed = false;
@@ -133,7 +138,7 @@ const RaiseClaimPage = () => {
       }
 
       if (invalidFiles.length > 0) {
-        toast.error(`Some files could not be added: \n${invalidFiles.join('\n')}`);
+        notify.error(`Some files could not be added: \n${invalidFiles.join('\n')}`);
       }
 
       if (newFiles.length > 0) {
@@ -213,11 +218,16 @@ const RaiseClaimPage = () => {
       });
 
       await raiseClaim(formData);
-      toast.success("Claim Raised Successfully");
+      notify.success("Claim Raised Successfully");
       navigate("/customer/claims");
     } catch (error) {
       console.error(error);
-      toast.error(error?.response?.data?.message || "Unable to raise claim");
+      if (error.fieldErrors) {
+        setErrors(error.fieldErrors);
+        notify.error("Please correct the highlighted fields.");
+      } else {
+        notify.error(error);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -306,34 +316,25 @@ const RaiseClaimPage = () => {
                 
                 <div className="row g-4 mb-4">
                   <div className="col-md-12">
-                    <label className="form-label fw-medium text-secondary">
-                      Select Policy <span className="text-danger">*</span>
-                    </label>
-                    <div className="input-group input-group-lg">
-                      <span className="input-group-text bg-light border-end-0">
-                        <FileText size={20} className="text-muted" />
-                      </span>
-                      {isLoadingPolicies ? (
-                        <div className="form-control bg-light border-start-0 text-muted">Loading policies...</div>
-                      ) : (
-                        <select
-                          className={`form-select border-start-0 ps-0 bg-light ${errors.policyId ? 'is-invalid' : ''}`}
-                          name="policyId"
-                          value={claim.policyId}
-                          onChange={handleChange}
-                        >
-                          <option value="">-- Choose an active policy --</option>
-                          {policies
-                            .filter(policy => policy.policyStatus === 'ACTIVE')
-                            .map((policy) => (
-                              <option key={policy.id || policy.policyId} value={policy.id || policy.policyId}>
-                                {policy.planName ? `${policy.planName} (No: ${policy.policyNumber})` : `Policy No: ${policy.policyNumber}`}
-                              </option>
-                            ))}
-                        </select>
-                      )}
-                      {errors.policyId && <div className="invalid-feedback">{errors.policyId}</div>}
-                    </div>
+                    <ModernSelect
+                      label="Select Policy"
+                      name="policyId"
+                      value={claim.policyId}
+                      onChange={handleChange}
+                      options={policies
+                        .filter(policy => policy.policyStatus === 'ACTIVE')
+                        .map(policy => ({
+                          value: policy.id || policy.policyId,
+                          label: policy.planName ? `${policy.planName} (No: ${policy.policyNumber})` : `Policy No: ${policy.policyNumber}`,
+                          mainText: policy.planName || 'Policy',
+                          subText: `No: ${policy.policyNumber}`
+                        }))
+                      }
+                      placeholder={isLoadingPolicies ? "Loading policies..." : "Choose an active policy..."}
+                      error={errors.policyId}
+                      required={true}
+                      isDisabled={isLoadingPolicies}
+                    />
 
                     {/* Real-time Coverage Display */}
                     {isLoadingPolicyDetails && (
@@ -376,24 +377,16 @@ const RaiseClaimPage = () => {
                   </div>
 
                   <div className="col-md-6">
-                    <label className="form-label fw-medium text-secondary">
-                      Incident Date <span className="text-danger">*</span>
-                    </label>
-                    <div className="input-group input-group-lg">
-                      <span className="input-group-text bg-light border-end-0">
-                        <Calendar size={20} className="text-muted" />
-                      </span>
-                      <input
-                        type="date"
-                        className={`form-control border-start-0 ps-0 bg-light ${errors.incidentDate ? 'is-invalid' : ''}`}
-                        name="incidentDate"
-                        value={claim.incidentDate}
-                        onChange={handleChange}
-                        min={selectedPolicyDetails?.startDate ? selectedPolicyDetails.startDate.split('T')[0] : ""}
-                        max={new Date().toISOString().split("T")[0]}
-                      />
-                      {errors.incidentDate && <div className="invalid-feedback">{errors.incidentDate}</div>}
-                    </div>
+                    <ModernDatePicker
+                      label="Incident Date"
+                      name="incidentDate"
+                      selectedDate={claim.incidentDate}
+                      onChange={handleChange}
+                      error={errors.incidentDate}
+                      required={true}
+                      minDate={selectedPolicyDetails?.startDate ? new Date(selectedPolicyDetails.startDate.split('T')[0]) : null}
+                      maxDate={new Date()}
+                    />
                   </div>
 
                   <div className="col-12">
@@ -421,19 +414,19 @@ const RaiseClaimPage = () => {
 
                 <div className="mb-4">
                   <div className="mb-3">
-                    <label className="form-label fw-medium text-secondary">Document Category <span className="text-danger">*</span></label>
-                    <select 
-                      className="form-select bg-light" 
-                      value={selectedDocType} 
+                    <ModernSelect
+                      label="Document Category"
+                      name="selectedDocType"
+                      value={selectedDocType}
                       onChange={(e) => setSelectedDocType(e.target.value)}
-                    >
-                      <option value="Medical Certificate">Medical Certificate</option>
-                      <option value="Hospital Invoice">Hospital Invoice</option>
-                      <option value="Bank Statement">Bank Statement</option>
-                      <option value="Police Report (FIR)">Police Report (FIR)</option>
-                      <option value="Other Proof">Other Proof</option>
-                    </select>
-                    <div className="form-text mt-2 mb-3">Select the type of document before uploading it below.</div>
+                      options={(
+                        selectedPolicyDetails?.productType && PRODUCT_DOCUMENT_CATEGORIES[selectedPolicyDetails.productType]
+                          ? PRODUCT_DOCUMENT_CATEGORIES[selectedPolicyDetails.productType]
+                          : PRODUCT_DOCUMENT_CATEGORIES.INSURANCE
+                      ).map(doc => ({ value: doc, label: doc }))}
+                      required={true}
+                    />
+                    <div className="form-text mb-3">Select the type of document before uploading it below.</div>
                   </div>
 
                   <div className={`p-5 text-center border rounded-3 bg-light position-relative ${errors.files ? 'border-danger' : 'border-dashed'}`} style={{ borderStyle: 'dashed', borderWidth: '2px', borderColor: 'var(--ip-border)' }}>

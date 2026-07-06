@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
 import PageHeader from "../../../components/common/PageHeader";
+import { notify } from "../../../utils/notificationService";
+import ModernSelect from "../../../components/forms/ModernSelect";
 
 import { getAllCustomers } from "../../../services/customerService";
 import { getAllProducts } from "../../../services/productService";
@@ -48,14 +49,27 @@ const StaffIssuePolicyPage = () => {
     loadData();
   }, []);
 
-  const filteredCustomers = customers.filter(
-    (customer) =>
-      customer.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.mobileNumber?.includes(searchTerm),
-  );
-
   const [errors, setErrors] = useState({});
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
+
+  const customerOptions = customers.map(c => ({
+    value: c.id || c.customerId,
+    label: `${c.fullName || c.name || 'Customer'} (Email: ${c.email})`,
+    mainText: c.fullName || c.name || 'Customer',
+    subText: `Email: ${c.email}`
+  }));
+
+  const planOptions = plans.map(p => ({
+    value: p.id || p.planId,
+    label: `${p.planName || p.name || 'Plan'} (Product: ${p.productName || 'Unknown'})`,
+    mainText: p.planName || p.name || 'Plan',
+    subText: `Product: ${p.productName || 'Unknown'}`
+  }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -85,13 +99,18 @@ const StaffIssuePolicyPage = () => {
 
       await issuePolicy(payload);
 
-      toast.success("Policy Issued Successfully");
+      notify.success("Policy Issued Successfully");
 
       navigate("/staff/policies");
     } catch (error) {
       console.error(error);
 
-      toast.error(error.response?.data?.message || "Failed to issue policy");
+      if (error.fieldErrors) {
+        setErrors(error.fieldErrors);
+        notify.error("Please correct the highlighted fields.");
+      } else {
+        notify.error(error?.response?.data?.message || "Failed to issue policy");
+      }
     } finally {
       setLoading(false);
     }
@@ -119,122 +138,35 @@ const StaffIssuePolicyPage = () => {
       <div className="card border-0 shadow-sm">
         <div className="card-body p-4">
           <form onSubmit={handleSubmit}>
-            {/* Search Customer */}
-            <div className="mb-3">
-              <label className="form-label fw-semibold">
-                Search Customer <span className="text-danger">*</span>
-              </label>
-
-              <input
-                type="text"
-                className={`form-control ${errors.customerId ? "is-invalid" : ""}`}
-                placeholder="Search by Name, Email or Mobile"
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  if (errors.customerId)
-                    setErrors((prev) => ({ ...prev, customerId: "" }));
-                }}
-              />
-              {errors.customerId && (
-                <div className="invalid-feedback">{errors.customerId}</div>
-              )}
-            </div>
-
-            {/* Customer List */}
-            {searchTerm && (
-              <div
-                className="card mb-3"
-                style={{
-                  maxHeight: "250px",
-                  overflowY: "auto",
-                }}
-              >
-                <div className="list-group list-group-flush">
-                  {filteredCustomers.length > 0 ? (
-                    filteredCustomers.map((customer) => (
-                      <button
-                        key={customer.customerId}
-                        type="button"
-                        className="list-group-item list-group-item-action text-start"
-                        onClick={() => {
-                          setSelectedCustomer(customer);
-
-                          setFormData((prev) => ({
-                            ...prev,
-                            customerId: customer.customerId,
-                          }));
-
-                          setSearchTerm(customer.fullName);
-                        }}
-                      >
-                        <div>
-                          <strong>{customer.fullName}</strong>
-                        </div>
-
-                        <small>{customer.email}</small>
-
-                        <br />
-
-                        <small>{customer.mobileNumber}</small>
-                      </button>
-                    ))
-                  ) : (
-                    <div className="p-3 text-muted">No customer found</div>
-                  )}
-                </div>
+            <div className="row">
+              <div className="col-md-6 mb-3 mb-md-0">
+                <ModernSelect
+                  label="Select Customer"
+                  name="customerId"
+                  value={formData.customerId}
+                  onChange={handleChange}
+                  options={customerOptions}
+                  placeholder="Choose a customer..."
+                  error={errors.customerId}
+                  required={true}
+                />
               </div>
-            )}
-
-            {/* Selected Customer */}
-            {selectedCustomer && (
-              <div className="alert alert-success">
-                <h6 className="mb-2">Selected Customer</h6>
-
-                <div>
-                  <strong>{selectedCustomer.fullName}</strong>
-                </div>
-
-                <div>{selectedCustomer.email}</div>
-
-                <div>{selectedCustomer.mobileNumber}</div>
+              <div className="col-md-6">
+                <ModernSelect
+                  label="Select Plan"
+                  name="planId"
+                  value={formData.planId}
+                  onChange={handleChange}
+                  options={planOptions}
+                  placeholder="Choose an insurance plan..."
+                  error={errors.planId}
+                  required={true}
+                />
               </div>
-            )}
-
-            {/* Plan */}
-            <div className="mb-3">
-              <label className="form-label fw-semibold">
-                Select Plan <span className="text-danger">*</span>
-              </label>
-
-              <select
-                className={`form-select ${errors.planId ? "is-invalid" : ""}`}
-                value={formData.planId}
-                onChange={(e) => {
-                  setFormData({
-                    ...formData,
-                    planId: e.target.value,
-                  });
-                  if (errors.planId)
-                    setErrors((prev) => ({ ...prev, planId: "" }));
-                }}
-                required
-              >
-                <option value="">Select Plan</option>
-
-                {plans.map((plan) => (
-                  <option key={plan.planId} value={plan.planId}>
-                    {plan.planName} (Product: {plan.productName})
-                  </option>
-                ))}
-              </select>
-              {errors.planId && (
-                <div className="invalid-feedback">{errors.planId}</div>
-              )}
             </div>
 
             {/* Start Date Removed */}
-            <div className="mb-4">
+            <div className="mb-4 mt-4">
               <p className="fw-medium text-dark">
                 Date of Issue: {new Date().toLocaleDateString()}
               </p>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import toast from 'react-hot-toast';
+import { notify } from "../../../utils/notificationService";
 import { purchasePolicy } from "../../../services/policyService";
 import { getPlanById } from "../../../services/planService";
 import PageHeader from "../../../components/common/PageHeader";
@@ -22,7 +22,7 @@ const PurchasePolicyPage = () => {
         const data = await getPlanById(planId);
         setPlanDetails(data);
       } catch (error) {
-        toast.error("Failed to load plan details");
+        notify.error("Failed to load plan details");
       } finally {
         setLoadingPlan(false);
       }
@@ -33,7 +33,7 @@ const PurchasePolicyPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!acceptedTerms) {
-      toast.error("You must accept the terms and declarations.");
+      notify.error("You must accept the terms and declarations.");
       return;
     }
     setIsSubmitting(true);
@@ -44,11 +44,15 @@ const PurchasePolicyPage = () => {
         startDate: new Date().toISOString().split('T')[0],
       });
 
-      toast.success("Policy Purchased Successfully");
+      notify.success("Policy Purchased Successfully");
       navigate("/customer/policies");
     } catch (error) {
       console.error(error);
-      toast.error(error?.response?.data?.message || "Failed to purchase policy");
+      if (error.fieldErrors) {
+        notify.error("Please correct the highlighted fields.");
+      } else {
+        notify.error(error);
+      }
     } finally {
       setIsSubmitting(false);
     }

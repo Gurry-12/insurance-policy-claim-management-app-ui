@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { exportToCSV } from '../../utils/exportUtils';
-import toast from 'react-hot-toast';
+import { notify } from '../../utils/notificationService';
 
 /**
  * ExportButton — exports ALL data (not just current page).
@@ -31,15 +31,15 @@ const ExportButton = ({
       }
 
       if (!rows || rows.length === 0) {
-        toast.error("No data to export.");
+        notify.error("No data to export.");
         return;
       }
 
       exportToCSV(rows, columns, filename);
-      toast.success(`Exported ${rows.length} records.`);
-    } catch (err) {
-      console.error("Export failed:", err);
-      toast.error("Export failed. Please try again.");
+      notify.success(rows.length + " records exported successfully.");
+    } catch (error) {
+      console.error('Export failed:', error);
+      notify.error(error, "Export failed. Please try again.");
     } finally {
       setLoading(false);
     }

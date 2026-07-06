@@ -149,7 +149,7 @@ const UserListPage = () => {
               columns={[
                 { header: "Full Name", accessor: "fullName" },
                 { header: "Email Address", accessor: "email" },
-                { header: "Mobile Number", accessor: "mobileNumber" },
+                { header: "Mobile Number", exportValue: (r) => r.mobileNumber ? (r.mobileNumber.startsWith("+91") ? r.mobileNumber : `+91${r.mobileNumber}`) : "N/A" },
                 { header: "Role", accessor: "role" },
                 { header: "Active Status", exportValue: (r) => r.isActive ? "Active" : "Inactive" }
               ]}

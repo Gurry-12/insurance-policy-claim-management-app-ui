@@ -1,4 +1,21 @@
+import ModernDatePicker from './ModernDatePicker';
+
 const FormInput = ({ label, type = 'text', name, value, onChange, placeholder, error, required = false, ...props }) => {
+  if (type === 'date') {
+    return (
+      <ModernDatePicker
+        label={label}
+        name={name}
+        selectedDate={value}
+        onChange={onChange}
+        error={error}
+        required={required}
+        placeholder={placeholder}
+        {...props}
+      />
+    );
+  }
+
   return (
     <div className="mb-3">
       {label && (

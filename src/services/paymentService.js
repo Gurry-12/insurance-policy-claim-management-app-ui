@@ -1,10 +1,10 @@
 
 import axiosInstance from "../api/axiosInstance";
-import { safeExtractPaginated } from "../utils/formatters";
+
 
 export const getAllPaymentsPaginated = async (params = {}) => {
   const response = await axiosInstance.get("/payments/page", { params });
-  return safeExtractPaginated(response);
+  return response;
 };
 
 
@@ -16,31 +16,32 @@ export const getAllPaymentsPaginated = async (params = {}) => {
 
 
 export const recordPayment = async (paymentData) => {
-  const { data } = await axiosInstance.post(
+  const response = await axiosInstance.post(
     "/payments",
     paymentData
   );
-  return data;
+  return response;
 };
 
 export const getMyPayments = async () => {
-  const { data } = await axiosInstance.get(
+  const response = await axiosInstance.get(
     "/payments/my-payments"
   );
-  return data;
+  return response;
 };
 
 export const getPaymentsByMyPolicy = async (policyId) => {
-  const { data } = await axiosInstance.get(
+  const response = await axiosInstance.get(
     `/payments/my-policies/${policyId}`
   );
-  return data;
+  return response;
 };
 
 
 export const getPaymentsByPolicyId = async (policyId) => {
   const response = await axiosInstance.get(`/payments/policy/${policyId}`);
-  return response.data?.data || [];
+  return response;
 };
+
 
 // removed duplicated pagination API

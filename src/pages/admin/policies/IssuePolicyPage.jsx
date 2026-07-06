@@ -1,13 +1,13 @@
 import  { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
-import RichSelect from '../../../components/forms/RichSelect';
+import ModernSelect from "../../../components/forms/ModernSelect";
 import AlertModal from '../../../components/modals/AlertModal';
 import { getAllCustomers } from '../../../services/customerService';
 import { getAllProducts } from '../../../services/productService';
 import { getAllPlans } from '../../../services/planService';
 import { issuePolicy } from '../../../services/policyService';
-import toast from 'react-hot-toast';
+import { notify } from '../../../utils/notificationService';
 
 const IssuePolicyPage = () => {
   const navigate = useNavigate();
@@ -74,10 +74,17 @@ const IssuePolicyPage = () => {
 
     issuePolicy(payload)
       .then(() => {
-        toast.success('Policy Issued Successfully!');
+        notify.success('Policy Issued Successfully!');
         navigate('/admin/policies');
       })
-      .catch((err) => toast.error(err.response?.data?.message || 'Failed to issue policy. Check your connection.'))
+      .catch((err) => {
+        if (err.fieldErrors) {
+          setErrors(err.fieldErrors);
+          notify.error("Please correct the highlighted fields.");
+        } else {
+          notify.error(err);
+        }
+      })
       .finally(() => setSubmitting(false));
   };
 
@@ -110,7 +117,7 @@ const IssuePolicyPage = () => {
             
             <div className="row">
               <div className="col-md-6">
-                <RichSelect 
+                <ModernSelect 
                   label="Select Customer" 
                   name="customerId" 
                   value={formData.customerId} 
@@ -122,7 +129,7 @@ const IssuePolicyPage = () => {
                 />
               </div>
               <div className="col-md-6">
-                <RichSelect 
+                <ModernSelect 
                   label="Select Plan" 
                   name="planId" 
                   value={formData.planId} 

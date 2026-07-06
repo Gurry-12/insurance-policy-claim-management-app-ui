@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { notify } from "../../../utils/notificationService";
 import PageHeader from '../../../components/common/PageHeader';
 import FormInput from '../../../components/forms/FormInput';
 import FormSelect from '../../../components/forms/FormSelect';
@@ -102,10 +103,17 @@ const CreatePlanPage = () => {
 
     createPlan(payload)
       .then(() => {
-        toast.success('Plan created successfully!');
+        notify.success('Plan created successfully!');
         navigate('/admin/plans');
       })
-      .catch((err) => toast.error(err.response?.data?.message || 'Failed to create plan. Check your connection.'))
+      .catch((err) => {
+        if (err.fieldErrors) {
+          setErrors(err.fieldErrors);
+          notify.error("Please correct the highlighted fields.");
+        } else {
+          notify.error(err);
+        }
+      })
       .finally(() => setSubmitting(false));
   };
 

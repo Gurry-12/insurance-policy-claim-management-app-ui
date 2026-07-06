@@ -107,7 +107,7 @@ const CustomerListPage = () => {
             columns={[
               { header: "Customer Name", accessor: "fullName" },
               { header: "Email Address", accessor: "email" },
-              { header: "Mobile Number", accessor: "mobileNumber" },
+              { header: "Mobile Number", exportValue: (r) => r.mobileNumber ? (r.mobileNumber.startsWith("+91") ? r.mobileNumber : `+91${r.mobileNumber}`) : "N/A" },
               { header: "City", accessor: "city" },
               { header: "State", accessor: "state" },
               { header: "Nominee Name", accessor: "nomineeName" },

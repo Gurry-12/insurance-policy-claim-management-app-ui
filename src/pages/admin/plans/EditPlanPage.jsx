@@ -10,6 +10,7 @@ import ErrorAlert from '../../../components/ui/ErrorAlert';
 import { getAllProducts } from '../../../services/productService';
 import { getPlanById, updatePlan } from '../../../services/planService';
 import toast from 'react-hot-toast';
+import { notify } from "../../../utils/notificationService";
 
 const EditPlanPage = () => {
   const { id } = useParams();
@@ -123,10 +124,17 @@ const EditPlanPage = () => {
 
     updatePlan(id, payload)
       .then(() => {
-        toast.success('Plan updated successfully!');
+        notify.success('Plan updated successfully!');
         navigate(`/admin/plans/${id}`);
       })
-      .catch((err) => toast.error(err.response?.data?.message || 'Failed to save plan changes.'))
+      .catch((err) => {
+        if (err.fieldErrors) {
+          setErrors(err.fieldErrors);
+          notify.error("Please correct the highlighted fields.");
+        } else {
+          notify.error(err);
+        }
+      })
       .finally(() => setSubmitting(false));
   };
 

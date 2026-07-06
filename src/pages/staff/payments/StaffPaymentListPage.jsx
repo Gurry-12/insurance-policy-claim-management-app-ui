@@ -13,7 +13,7 @@ import SortableHeader from "../../../components/tables/SortableHeader";
 import useDebounceFilters from "../../../hooks/useDebounceFilters";
 
 const FILTER_FIELDS = [
-  { type: 'select', name: 'status', label: 'Payment Status',
+  { type: 'select', name: 'paymentStatus', label: 'Payment Status',
     options: [
       { value: 'SUCCESS', label: 'Success' },
       { value: 'PENDING', label: 'Pending' },
@@ -31,7 +31,7 @@ const StaffPaymentListPage = () => {
   const tableState = useTableState({
     initialSortBy: "id",
     initialSortDirection: "desc",
-    initialFilters: { status: '', minAmount: '', maxAmount: '' }
+    initialFilters: { paymentStatus: '', minAmount: '', maxAmount: '' }
   });
 
   const { localFilters, clearFilters } = useDebounceFilters(
