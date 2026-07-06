@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import PageHeader from "../../../components/common/PageHeader";
 
 import { getAllCustomers } from "../../../services/customerService";
+import { getAllProducts } from "../../../services/productService";
 import { getAllPlans } from "../../../services/planService";
 import { issuePolicy } from "../../../services/policyService";
 
@@ -26,13 +27,19 @@ const StaffIssuePolicyPage = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [customerData, planData] = await Promise.all([
+        const [customerData, planData, productData] = await Promise.all([
           getAllCustomers(),
           getAllPlans(),
+          getAllProducts(),
         ]);
 
+        const activeProductIds = new Set(productData?.map(p => p.productId || p.id));
+        const activeProductPlans = (planData || []).filter(plan => 
+          activeProductIds.has(plan.productId)
+        );
+
         setCustomers(customerData || []);
-        setPlans(planData || []);
+        setPlans(activeProductPlans);
       } catch (error) {
         console.error("Failed to load data", error);
       }
@@ -217,7 +224,7 @@ const StaffIssuePolicyPage = () => {
 
                 {plans.map((plan) => (
                   <option key={plan.planId} value={plan.planId}>
-                    {plan.planName}
+                    {plan.planName} (Product: {plan.productName})
                   </option>
                 ))}
               </select>

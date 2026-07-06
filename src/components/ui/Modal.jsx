@@ -4,6 +4,11 @@ import { createPortal } from 'react-dom';
 const Modal = ({ isOpen, onClose, title, children, footer }) => {
   const modalRef = useRef(null);
   const previousFocusRef = useRef(null);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (isOpen) {
@@ -18,7 +23,7 @@ const Modal = ({ isOpen, onClose, title, children, footer }) => {
 
       const handleKeyDown = (e) => {
         if (e.key === 'Escape') {
-          onClose();
+          if (onCloseRef.current) onCloseRef.current();
         } else if (e.key === 'Tab') {
           if (!focusableElements || focusableElements.length === 0) return;
           const firstElement = focusableElements[0];
@@ -46,14 +51,19 @@ const Modal = ({ isOpen, onClose, title, children, footer }) => {
         }
       };
     }
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   return createPortal(
-    <div className="modal-backdrop show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+    <>
+      <div 
+        className="modal-backdrop show" 
+        style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1070 }}
+      ></div>
       <div 
         className="modal show d-block" 
+        style={{ zIndex: 1075 }}
         tabIndex="-1" 
         role="dialog" 
         aria-modal="true"
@@ -84,7 +94,7 @@ const Modal = ({ isOpen, onClose, title, children, footer }) => {
           </div>
         </div>
       </div>
-    </div>,
+    </>,
     document.body
   );
 };
