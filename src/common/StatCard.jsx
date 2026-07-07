@@ -1,4 +1,4 @@
-const StatCard = ({ title, label, value, icon, iconColor = 'var(--ip-brand)', color, trend, trendType = 'neutral', onClick }) => {
+﻿const StatCard = ({ title, label, value, icon, iconColor = 'var(--ip-brand)', color, trend, trendType = 'neutral', onClick }) => {
   const displayLabel = title || label;
   const displayIconColor = color || iconColor;
   

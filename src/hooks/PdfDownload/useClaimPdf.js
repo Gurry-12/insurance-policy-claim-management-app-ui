@@ -43,7 +43,7 @@ const useClaimPdf = () => {
         ["Claim Number",   claim.claimNumber  || "—"],
         ["Policy Number",  claim.policyNumber || "—"],
         ["Customer Name",  claim.customerName || "—"],
-        ["Claim Amount",   claim.claimAmount  != null ? `₹ ${Number(claim.claimAmount).toLocaleString("en-IN")}` : "—"],
+        ["Claim Amount",   claim.claimAmount  != null ? `Rs. ${Number(claim.claimAmount).toLocaleString("en-IN")}` : "—"],
         ["Claim Status",   claim.claimStatus  || "—"],
         ["Incident Date",  claim.incidentDate ? new Date(claim.incidentDate).toLocaleDateString("en-IN") : "—"],
         ["Date Filed",     claim.createdDate  ? new Date(claim.createdDate).toLocaleDateString("en-IN")  : "—"],

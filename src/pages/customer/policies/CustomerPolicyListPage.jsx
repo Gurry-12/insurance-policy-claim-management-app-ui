@@ -3,7 +3,7 @@ import { getMyPolicies } from "../../../services/policyService";
 import { Link } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
 import StatusBadge from "../../../components/ui/StatusBadge";
-import { Shield, CheckCircle, Clock, XCircle, AlertCircle, Eye, ArrowRight, IndianRupee, Calendar } from "lucide-react";
+import { Shield, CheckCircle, Clock, XCircle, AlertCircle, Eye, ArrowRight, IndianRupee, Calendar, PlusCircle } from "lucide-react";
 import useTableState from "../../../hooks/useTableState";
 import PaginationBar from "../../../components/tables/PaginationBar";
 import ExportButton from "../../../components/common/ExportButton";
@@ -72,7 +72,10 @@ const CustomerPolicyListPage = () => {
         icon={Shield}
         action={
           <ExportButton
-            data={policies || []}
+              fetchAll={async () => {
+                const res = await getMyPolicies({...tableState.getQueryParams(), pageSize: tableState.totalElements || 1000, pageNumber: 0});
+                return res.content || [];
+              }}
             columns={[
               { header: "Policy Number", accessor: "policyNumber" },
               { header: "Plan Name", accessor: "planName" },
@@ -150,7 +153,7 @@ const CustomerPolicyListPage = () => {
                     </div>
                     <Link
                       to={`/customer/policies/${policy.policyId}`}
-                      className="btn btn-primary rounded-pill px-4 d-flex align-items-center"
+                      className="btn btn-primary rounded-pill px-4 py-2 d-flex align-items-center"
                       style={{ fontSize: '0.9rem' }}
                     >
                       View Details <ArrowRight size={16} className="ms-2" />
@@ -165,8 +168,8 @@ const CustomerPolicyListPage = () => {
             <Shield size={48} className="text-muted mb-3 opacity-50" />
             <h5 className="fw-bold text-secondary">No Policies Found</h5>
             <p className="text-muted mb-4">You haven't purchased any insurance policies yet.</p>
-            <Link to="/customer/plans" className="btn btn-primary rounded-pill px-4">
-              Browse Plans
+            <Link to="/customer/plans" className="btn btn-primary rounded-pill px-4 py-2">
+              <PlusCircle size={18} className="me-2 d-inline" /> Browse Plans
             </Link>
           </div>
         )}

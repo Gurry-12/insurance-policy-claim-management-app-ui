@@ -1,10 +1,13 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import toast from 'react-hot-toast';
-import { uploadDocuments } from "../../../services/claimService";
+import { notify } from "../../../utils/notificationService";
+import { uploadDocuments, getClaimById } from "../../../services/claimService";
+import { getPolicyById } from "../../../services/policyService";
 import PageHeader from "../../../components/common/PageHeader";
-import { ArrowLeft, Upload } from "lucide-react";
+import { ArrowLeft, Upload, X } from "lucide-react";
 import LoadingButton from "../../../components/ui/LoadingButton";
+import ModernSelect from "../../../components/forms/ModernSelect";
+import { PRODUCT_DOCUMENT_CATEGORIES } from "../../../utils/documentCategories";
 
 const UploadDocumentsPage = () => {
   const { claimId } = useParams();
@@ -15,6 +18,27 @@ const UploadDocumentsPage = () => {
   const fileInputRef = useRef(null);
 
   const [errors, setErrors] = useState({});
+  const [productType, setProductType] = useState("");
+  const [selectedDocType, setSelectedDocType] = useState("");
+
+  useEffect(() => {
+    const fetchPolicyType = async () => {
+      try {
+        const claimResponse = await getClaimById(claimId);
+        const claimData = claimResponse?.data || claimResponse?.content || claimResponse;
+        if (claimData && claimData.policyId) {
+          const policyResponse = await getPolicyById(claimData.policyId);
+          const policyData = policyResponse?.data || policyResponse?.content || policyResponse;
+          if (policyData && policyData.productType) {
+            setProductType(policyData.productType);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch product type", err);
+      }
+    };
+    fetchPolicyType();
+  }, [claimId]);
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -29,8 +53,15 @@ const UploadDocumentsPage = () => {
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
+    if (!selectedDocType) {
+      notify.error("Please select a document category first");
+      return;
+    }
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      setFiles(Array.from(e.dataTransfer.files));
+      const newFiles = Array.from(e.dataTransfer.files).map(file => ({
+        file, docType: selectedDocType
+      }));
+      setFiles(prev => [...prev, ...newFiles]);
       if (errors.files) {
         setErrors(prev => ({ ...prev, files: '' }));
       }
@@ -38,10 +69,23 @@ const UploadDocumentsPage = () => {
   };
 
   const handleFileChange = (e) => {
-    setFiles([...e.target.files]);
-    if (errors.files) {
-      setErrors(prev => ({ ...prev, files: '' }));
+    if (!selectedDocType) {
+      notify.error("Please select a document category first");
+      return;
     }
+    if (e.target.files && e.target.files.length > 0) {
+      const newFiles = Array.from(e.target.files).map(file => ({
+        file, docType: selectedDocType
+      }));
+      setFiles(prev => [...prev, ...newFiles]);
+      if (errors.files) {
+        setErrors(prev => ({ ...prev, files: '' }));
+      }
+    }
+  };
+
+  const removeFile = (indexToRemove) => {
+    setFiles(files.filter((_, index) => index !== indexToRemove));
   };
 
   const handleSubmit = async (e) => {
@@ -55,7 +99,7 @@ const UploadDocumentsPage = () => {
     // Check file sizes
     const maxFileSize = 10 * 1024 * 1024; // 10 MB
     for (let i = 0; i < files.length; i++) {
-      if (files[i].size > maxFileSize) {
+      if (files[i].file.size > maxFileSize) {
         errs.files = "Each document must not exceed 10 MB in size.";
         break;
       }
@@ -68,13 +112,25 @@ const UploadDocumentsPage = () => {
 
     try {
       setIsUploading(true);
-      await uploadDocuments(claimId, files);
-      toast.success("Documents Uploaded Successfully");
+      const formData = new FormData();
+      files.forEach((fileObj) => {
+        const originalFile = fileObj.file;
+        const extension = originalFile.name.substring(originalFile.name.lastIndexOf('.'));
+        const safeDocType = fileObj.docType.replace(/[^a-zA-Z0-9]/g, '_');
+        const safeName = originalFile.name.substring(0, originalFile.name.lastIndexOf('.')).replace(/[^a-zA-Z0-9]/g, '_');
+        const newFileName = `${safeDocType}_${safeName}${extension}`;
+        
+        const renamedFile = new File([originalFile], newFileName, { type: originalFile.type });
+        formData.append("files", renamedFile);
+      });
+
+      const res = await uploadDocuments(claimId, formData);
+      notify.success(res, "Documents Uploaded Successfully");
       navigate("/customer/claims");
     } catch (error) {
       console.error(error);
-      const errorMessage = error?.response?.data?.message || "Failed to upload documents";
-      toast.error(errorMessage);
+      const errorMessage = error?.message || error?.response?.data?.message || "Failed to upload documents";
+      notify.error(errorMessage);
     } finally {
       setIsUploading(false);
     }
@@ -99,14 +155,37 @@ const UploadDocumentsPage = () => {
             <div className="card-body p-4">
               <form onSubmit={handleSubmit}>
                 <div className="mb-4">
+                  <div className="mb-3">
+                    <ModernSelect
+                      label="Document Category"
+                      name="selectedDocType"
+                      value={selectedDocType}
+                      onChange={(e) => setSelectedDocType(e.target.value)}
+                      options={[
+                        { value: "", label: "Select a category..." },
+                        ...(
+                          productType && PRODUCT_DOCUMENT_CATEGORIES[productType]
+                            ? PRODUCT_DOCUMENT_CATEGORIES[productType]
+                            : PRODUCT_DOCUMENT_CATEGORIES.INSURANCE
+                        ).map(doc => ({ value: doc, label: doc }))
+                      ]}
+                    />
+                    <div className="form-text mb-3">Select the type of document before uploading it below.</div>
+                  </div>
                   <label className="form-label fw-bold mb-2">Select Files <span className="text-danger">*</span></label>
                   <div
-                    className={`p-5 text-center border rounded-3 ${isDragging ? 'bg-light border-primary' : 'bg-white'} ${errors.files ? 'border-danger' : 'border-secondary'}`}
-                    style={{ borderStyle: 'dashed', borderWidth: '2px', cursor: 'pointer', transition: 'all 0.2s' }}
+                    className={`p-5 text-center border rounded-3 ${!selectedDocType ? 'bg-secondary bg-opacity-10' : (isDragging ? 'bg-light border-primary' : 'bg-white')} ${errors.files ? 'border-danger' : 'border-secondary'}`}
+                    style={{ borderStyle: 'dashed', borderWidth: '2px', cursor: !selectedDocType ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
-                    onClick={() => fileInputRef.current.click()}
+                    onClick={() => {
+                      if (!selectedDocType) {
+                        notify.error("Please select a document category first");
+                        return;
+                      }
+                      fileInputRef.current.click();
+                    }}
                   >
                     <Upload size={32} className="text-muted mb-3" />
                     <h6 className="fw-bold">Drag and drop files here</h6>
@@ -121,12 +200,37 @@ const UploadDocumentsPage = () => {
                     />
                   </div>
                   {files.length > 0 && (
-                    <div className="mt-3">
-                      <small className="fw-bold d-block mb-2">Selected files:</small>
+                    <div className="mt-4">
+                      <small className="fw-bold d-block mb-3 text-secondary text-uppercase tracking-wider" style={{ fontSize: '0.75rem', letterSpacing: '0.05em' }}>
+                        Selected Files ({files.length})
+                      </small>
                       <ul className="list-unstyled mb-0">
                         {files.map((f, i) => (
-                          <li key={i} className="small d-flex align-items-center gap-2 mb-1 text-primary">
-                            <i className="bi bi-file-earmark-check"></i> {f.name} ({(f.size / 1024 / 1024).toFixed(2)} MB)
+                          <li key={i} className="d-flex align-items-center justify-content-between p-3 mb-2 bg-white rounded-3 shadow-sm border border-light transition-all hover-shadow">
+                            <div className="d-flex align-items-center text-truncate pe-3">
+                              <div className="bg-primary bg-opacity-10 text-primary p-2 rounded-2 me-3 flex-shrink-0">
+                                <Upload size={18} />
+                              </div>
+                              <div className="text-truncate">
+                                <div className="fw-semibold text-dark text-truncate" style={{ fontSize: '0.9rem' }}>{f.file.name}</div>
+                                <div className="d-flex align-items-center mt-1">
+                                  <span className="badge bg-light text-secondary border me-2 fw-normal" style={{ fontSize: '0.7rem' }}>
+                                    {f.docType}
+                                  </span>
+                                  <small className="text-muted" style={{ fontSize: '0.75rem' }}>
+                                    {(f.file.size / 1024 / 1024).toFixed(2)} MB
+                                  </small>
+                                </div>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-light text-danger bg-danger bg-opacity-10 hover-bg-danger hover-text-white rounded-circle p-2 flex-shrink-0 transition-all border-0"
+                              onClick={() => removeFile(i)}
+                              title="Remove file"
+                            >
+                              <X size={16} />
+                            </button>
                           </li>
                         ))}
                       </ul>

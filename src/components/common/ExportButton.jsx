@@ -1,13 +1,13 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { exportToCSV } from '../../utils/exportUtils';
-import toast from 'react-hot-toast';
+import { notify } from '../../utils/notificationService';
 
 /**
- * ExportButton — exports ALL data (not just current page).
+ * ExportButton â€” exports ALL data (not just current page).
  *
  * Props:
  *  - data       : current page data (fallback if fetchAll not provided)
- *  - fetchAll   : async () => full array — called on click to get every record
+ *  - fetchAll   : async () => full array â€” called on click to get every record
  *  - columns    : [{ header, accessor, exportValue }]
  *  - filename   : output filename
  *  - label      : button label
@@ -31,15 +31,15 @@ const ExportButton = ({
       }
 
       if (!rows || rows.length === 0) {
-        toast.error("No data to export.");
+        notify.error("No data to export.");
         return;
       }
 
       exportToCSV(rows, columns, filename);
-      toast.success(`Exported ${rows.length} records.`);
-    } catch (err) {
-      console.error("Export failed:", err);
-      toast.error("Export failed. Please try again.");
+      notify.success(rows.length + " records exported successfully.");
+    } catch (error) {
+      console.error('Export failed:', error);
+      notify.error(error, "Export failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -62,7 +62,7 @@ const ExportButton = ({
       {loading ? (
         <>
           <span className="spinner-border spinner-border-sm" />
-          <span>Exporting…</span>
+          <span>Exportingâ€¦</span>
         </>
       ) : (
         <>

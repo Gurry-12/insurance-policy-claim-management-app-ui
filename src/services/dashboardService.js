@@ -2,7 +2,6 @@
 
 
 import axiosInstance from '../api/axiosInstance';
-import { safeExtractArray } from '../utils/formatters';
 
 export const getAdminStats = async () => {
   return {
@@ -18,9 +17,10 @@ export const getAdminStats = async () => {
 
 
 const getOpenClaimsCount = async () => {
-  const response = await axiosInstance.get('/claims');
-  const claims = safeExtractArray(response);
-
+  const response = await axiosInstance.get('/claims', {
+    params: { pageNumber: 0, pageSize: 100 }
+  });
+  const claims = response.data?.content || response.data || [];
   const pending = claims.filter(
     (c) => c.claimStatus === "SUBMITTED" || c.claimStatus === "UNDER_REVIEW",
   ).length;
@@ -36,39 +36,47 @@ const getOpenClaimsCount = async () => {
 
 const getTotalProducts = async () => {
   const response = await axiosInstance.get('/products/active');
-  return safeExtractArray(response).length;
+  return (response.data || []).length;
 };
 
 const getActiveUsers = async () => {
   const response = await axiosInstance.get('/users');
-  return safeExtractArray(response).length;
+  return (response.data || []).length;
 };
 
 const getCustomerCount = async () =>  {
   const response = await axiosInstance.get("/customers");
-  return safeExtractArray(response).length;
+  return (response.data || []).length;
 };
 
 const getTotalActivePolicies = async () => {
   const response = await axiosInstance.get('/plans/active');
-  return safeExtractArray(response).length;
+  return (response.data || []).length;
 };
 
 const getRecentClaims = async () => {
-  const response = await axiosInstance.get('/claims');
-  const list = safeExtractArray(response);
-  return list.slice(0, 5).map(c => ({
-    id: c.id || c.claimId || 'N/A',
-    customerName: c.customerName ,
-    type: c.claimType || c.type || 'Claim',
-    date: c.dateFiled || c.date || c.createdAt?.split('T')[0] || new Date().toISOString().split('T')[0],
-    status: c.claimStatus 
+  const response = await axiosInstance.get('/claims', {
+    params: { pageNumber: 0, pageSize: 5 }
+  });
+  const list = response.data?.content || response.data || [];
+  return list.slice(0, 5).map((c) => ({
+    id: c.id || c.claimId || "N/A",
+    customerName: c.customerName,
+    policyNumber: c.policyNumber || c.policyId || "N/A",
+    claimAmount: c.claimAmount || 0,
+    type: c.claimType || c.type || "Claim",
+    date:
+      c.dateFiled ||
+      c.date ||
+      c.createdAt?.split("T")[0] ||
+      new Date().toISOString().split("T")[0],
+    status: c.claimStatus,
   }));
 };
 
 const getRecentPolicies = async () => {
   const response = await axiosInstance.get('/policies');
-  const list = safeExtractArray(response);
+  const list = response.data?.content || response.data || [];
   return list.slice(0, 5).map((p) => ({
     id: p.id || p.policyId || "N/A",
     customerName:

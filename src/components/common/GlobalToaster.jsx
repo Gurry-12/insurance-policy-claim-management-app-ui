@@ -1,19 +1,24 @@
-import { Toaster } from "react-hot-toast";
+﻿import { Toaster } from "react-hot-toast";
 
 const GlobalToaster = () => {
   return (
     <Toaster 
-      position="top-center"
-      containerStyle={{ zIndex: 999999 }}
+      position="top-right"
+      containerStyle={{ zIndex: 999999, top: 24, right: 24 }}
       toastOptions={{
+        className: '',
         style: {
-          background: 'rgba(255, 255, 255, 0.95)',
-          backdropFilter: 'blur(10px)',
-          WebkitBackdropFilter: 'blur(10px)',
-          border: '1px solid rgba(200, 200, 200, 0.3)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-          color: '#1e293b', // Hardcoded to stay dark text on light bg in both themes
+          background: 'rgba(255, 255, 255, 0.65)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          color: '#1e293b',
+          border: '1px solid rgba(255, 255, 255, 0.4)',
+          boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
           borderRadius: '12px',
+          padding: '12px 16px',
+          fontSize: '0.875rem', // 14px
+          fontWeight: '500',
+          maxWidth: '400px'
         },
         success: {
           iconTheme: { primary: '#10b981', secondary: '#fff' },

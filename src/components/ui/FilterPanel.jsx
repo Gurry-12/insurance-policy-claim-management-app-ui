@@ -1,13 +1,14 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+﻿import { useState, useRef, useEffect, useCallback } from 'react';
+import ModernSelect from './../../components/forms/ModernSelect';
 
 /**
- * FilterPanel — Enterprise-grade floating filter panel
+ * FilterPanel â€” Enterprise-grade floating filter panel
  *
  * Props:
- *   fields        — Array of filter field config objects (see below)
- *   localFilters  — Current filter values from useDebounceFilters
- *   onApply       — Called with validated updates to apply (calls handleFilterChange)
- *   onClear       — Called to reset all filters (calls clearFilters)
+ *   fields        â€” Array of filter field config objects (see below)
+ *   localFilters  â€” Current filter values from useDebounceFilters
+ *   onApply       â€” Called with validated updates to apply (calls handleFilterChange)
+ *   onClear       â€” Called to reset all filters (calls clearFilters)
  *
  * Field Config Types:
  *   { type: 'text',         name, label, placeholder }
@@ -254,17 +255,19 @@ const FilterPanel = ({ fields = [], localFilters, onApply, onClear }) => {
                 return (
                   <div key={i} className="ip-filter-field">
                     <label className="ip-filter-label" htmlFor={`fp-${field.name}`}>{field.label}</label>
-                    <select
-                      id={`fp-${field.name}`}
-                      className="form-select ip-filter-input"
-                      value={draft[field.name] || ''}
-                      onChange={e => updateDraft(field.name, e.target.value)}
-                    >
-                      <option value="">All {field.label}s</option>
-                      {field.options.map(opt => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
+                    <div style={{ marginTop: '0.25rem' }}>
+                      <ModernSelect
+                        name={`fp-${field.name}`}
+                        value={draft[field.name] || ''}
+                        onChange={e => updateDraft(field.name, e.target.value)}
+                        options={[
+                          { value: "", label: `All ${field.label}s` },
+                          ...field.options
+                        ]}
+                        isSearchable={false}
+                        className="ip-filter-modern-select"
+                      />
+                    </div>
                   </div>
                 );
               }

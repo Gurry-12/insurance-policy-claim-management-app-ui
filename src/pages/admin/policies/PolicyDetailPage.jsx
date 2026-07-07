@@ -9,7 +9,7 @@ import toast from 'react-hot-toast';
 import { getAllPaymentsPaginated } from '../../../services/paymentService';
 import { getClaimsByPolicy } from '../../../services/policyService';
 import usePolicyPdf from '../../../hooks/PdfDownload/usePolicyPdf';
-
+import ConfirmModal from '../../../components/modals/ConfirmModal';
 const PolicyDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -20,6 +20,7 @@ const PolicyDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [cancelling, setCancelling] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -34,14 +35,13 @@ const PolicyDetailPage = () => {
       })
       .catch((err) => {
         console.error("Policy fetch error:", err);
-        setError(err.response?.data?.message || err.message || 'Could not load policy details.');
+        setError(err.message || err.message || 'Could not load policy details.');
       })
       .finally(() => setLoading(false));
   }, [id]);
 
   const handleCancel = () => {
-    if (!window.confirm('Are you sure you want to cancel this policy?')) return;
-    
+    setShowCancelModal(false);
     setCancelling(true);
     cancelPolicy(id)
       .then(() => {
@@ -49,7 +49,7 @@ const PolicyDetailPage = () => {
         // Refresh details
         return getPolicyById(id).then(setPolicy);
       })
-      .catch((err) => toast.error(err.response?.data?.message || 'Failed to cancel the policy.'))
+      .catch((err) => toast.error(err.message || 'Failed to cancel the policy.'))
       .finally(() => setCancelling(false));
   };
 
@@ -151,7 +151,7 @@ const PolicyDetailPage = () => {
                 <button 
                   className="btn btn-outline-danger w-100 py-2 d-flex align-items-center justify-content-center gap-2"
                   style={{ borderRadius: '8px' }}
-                  onClick={handleCancel}
+                  onClick={() => setShowCancelModal(true)}
                   disabled={cancelling}
                 >
                   <i className="bi bi-x-circle"></i>
@@ -286,6 +286,16 @@ const PolicyDetailPage = () => {
           </div>
         </div>
       </div>
+      <ConfirmModal
+        isOpen={showCancelModal}
+        title="Cancel Policy"
+        message="Are you sure you want to cancel this policy? This action cannot be undone."
+        onConfirm={handleCancel}
+        onCancel={() => setShowCancelModal(false)}
+        confirmText="Yes, Cancel Policy"
+        cancelText="No, Keep It"
+        isDanger={true}
+      />
     </div>
   );
 };

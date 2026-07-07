@@ -13,8 +13,8 @@ const NotFound = () => {
     >
       <i className="bi bi-map" style={{ fontSize: '4rem', color: 'var(--ip-text-muted)' }} />
       <h1 className="fw-bold mt-3" style={{ fontSize: '4rem', lineHeight: 1 }}>404</h1>
-      <p className="text-muted mb-4">Oops — page not found.</p>
-      <button onClick={() => navigate(isAuthenticated && user ? (ROLE_HOME[user.role] ?? '/') : '/login')} className="btn btn-primary px-4 rounded-pill">
+      <p className="text-muted mb-4">Oops â€” page not found.</p>
+      <button onClick={() => navigate(isAuthenticated && user ? (ROLE_HOME[user.role] ?? '/') : '/login')} className="btn btn-primary px-4 py-2 rounded-pill">
         <i className="bi bi-arrow-left me-2" />{isAuthenticated ? 'Go to Dashboard' : 'Go to Login'}
       </button>
     </div>

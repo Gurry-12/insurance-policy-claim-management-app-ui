@@ -1,6 +1,8 @@
 import axios from 'axios';
 import NProgress from 'nprogress';
 
+import { parseSuccessResponse, parseErrorResponse } from './apiAdapter';
+
 NProgress.configure({ showSpinner: false, speed: 400, minimum: 0.1 });
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -31,7 +33,7 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => {
     NProgress.done();
-    return response;
+    return parseSuccessResponse(response);
   },
   (error) => {
     NProgress.done();
@@ -43,9 +45,9 @@ axiosInstance.interceptors.response.use(
     } else if (status === 403) {
       window.dispatchEvent(new CustomEvent('auth:forbidden'));
     } else if (status >= 500 || !error.response) {
-      window.dispatchEvent(new CustomEvent('api:error', { detail: error.message }));
+      window.dispatchEvent(new CustomEvent('api:error', { detail: parseErrorResponse(error).message }));
     }
-    return Promise.reject(error);
+    return Promise.reject(parseErrorResponse(error));
   }
 );
 

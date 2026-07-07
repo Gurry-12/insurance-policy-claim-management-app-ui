@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import PageHeader from '../../../components/common/PageHeader';
 import DataTable from '../../../components/tables/DataTable';
 import PaginationBar from '../../../components/tables/PaginationBar';
@@ -11,14 +11,11 @@ import useTableState from '../../../hooks/useTableState';
 import SortableHeader from '../../../components/tables/SortableHeader';
 import useDebounceFilters from '../../../hooks/useDebounceFilters';
 import ExportButton from '../../../components/common/ExportButton';
+import { PAYMENT_STATUS_OPTIONS } from '../../../utils/options';
 
 const FILTER_FIELDS = [
-  { type: 'select', name: 'status', label: 'Payment Status',
-    options: [
-      { value: 'SUCCESS', label: 'Success' },
-      { value: 'PENDING', label: 'Pending' },
-      { value: 'FAILED',  label: 'Failed' },
-    ],
+  { type: 'select', name: 'paymentStatus', label: 'Payment Status',
+    options: PAYMENT_STATUS_OPTIONS,
   },
   { type: 'amount-range', minName: 'minAmount', maxName: 'maxAmount', label: 'Amount' },
 ];
@@ -31,7 +28,7 @@ const PaymentListPage = () => {
   const tableState = useTableState({
     initialSortBy: 'id',
     initialSortDirection: 'desc',
-    initialFilters: { status: '', minAmount: '', maxAmount: '', startDate: '', endDate: '' }
+    initialFilters: { paymentStatus: '', minAmount: '', maxAmount: '', startDate: '', endDate: '' }
   });
 
   const { localFilters, handleFilterChange, clearFilters } = useDebounceFilters(
@@ -104,7 +101,7 @@ const PaymentListPage = () => {
         action={
           <ExportButton
             fetchAll={async () => {
-              const res = await getAllPaymentsPaginated({ pageSize: tableState.totalElements || 1000, pageNumber: 0 });
+                const res = await getAllPaymentsPaginated({...tableState.getQueryParams(),  pageSize: tableState.totalElements || 1000, pageNumber: 0 });
               return res.content || [];
             }}
             columns={[

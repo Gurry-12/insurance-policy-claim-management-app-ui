@@ -1,11 +1,11 @@
-/**
- * FilterChips — Displays active filters as individually-removable chips
+﻿/**
+ * FilterChips â€” Displays active filters as individually-removable chips
  *
  * Props:
- *   fields       — same field config array passed to FilterPanel
- *   localFilters — current applied filter values
- *   onRemove     — called with { [name]: '' } to clear a specific filter key
- *   onClearAll   — called to reset all filters
+ *   fields       â€” same field config array passed to FilterPanel
+ *   localFilters â€” current applied filter values
+ *   onRemove     â€” called with { [name]: '' } to clear a specific filter key
+ *   onClearAll   â€” called to reset all filters
  */
 
 const formatAmount = (val) =>
@@ -48,7 +48,7 @@ const FilterChips = ({ fields = [], localFilters, onRemove, onClearAll }) => {
       if (mn && mx) {
         chips.push({
           key: `${field.minName}-${field.maxName}`,
-          label: `${field.label}: ${formatAmount(mn)} – ${formatAmount(mx)}`,
+          label: `${field.label}: ${formatAmount(mn)} â€“ ${formatAmount(mx)}`,
           onRemove: () => onRemove({ [field.minName]: '', [field.maxName]: '' }),
         });
       }

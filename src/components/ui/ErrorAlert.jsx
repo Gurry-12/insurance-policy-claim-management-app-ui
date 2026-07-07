@@ -1,4 +1,4 @@
-
+﻿
 
 const ErrorAlert = ({ message, onDismiss }) => {
   if (!message) return null;

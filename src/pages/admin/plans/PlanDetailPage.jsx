@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import StatusBadge from '../../../components/ui/StatusBadge';
@@ -30,7 +30,7 @@ const PlanDetailPage = () => {
       })
       .catch((err) => {
         console.error("Plan fetch error:", err);
-        setError(err.response?.data?.message || err.message || 'Could not load plan details.');
+        setError(err.message || err.message || 'Could not load plan details.');
       })
       .finally(() => setLoading(false));
   };
@@ -52,7 +52,7 @@ const PlanDetailPage = () => {
         fetchPlanData(id);
       })
       .catch((err) => {
-        toast.error(err.response?.data?.message || `Failed to ${isActive ? 'deactivate' : 'activate'} plan.`);
+        toast.error(err.message || `Failed to ${isActive ? 'deactivate' : 'activate'} plan.`);
       })
       .finally(() => {
         setActionLoading(false);

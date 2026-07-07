@@ -1,10 +1,12 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import FormInput from '../../../components/forms/FormInput';
 import AlertModal from '../../../components/modals/AlertModal';
+import ModernSelect from '../../../components/forms/ModernSelect';
 import { createStaff } from '../../../services/userService';
-import toast from 'react-hot-toast';
+import { notify } from '../../../utils/notificationService';
+import { SPECIALITY_OPTIONS } from "../../../utils/options";
 
 const CreateStaffPage = () => {
   const navigate = useNavigate();
@@ -36,32 +38,46 @@ const CreateStaffPage = () => {
     setSubmitting(true);
     const errs = {};
 
-    const fullName = `${formData.firstName} ${formData.lastName}`.trim();
-
-    // 1. Full Name Validation: letters and spaces only, min 2 max 100
-    const nameRegex = /^[a-zA-Z\s]+$/;
-    if (!nameRegex.test(fullName)) {
-      errs.fullName = 'Only letters and spaces are allowed in name.';
-    } else if (fullName.length < 2 || fullName.length > 100) {
-      errs.fullName = 'Name should be between 2 and 100 characters.';
+    if (!formData.firstName.trim()) errs.firstName = 'First Name is required.';
+    if (!formData.lastName.trim()) errs.lastName = 'Last Name is required.';
+    
+    if (formData.firstName.trim() && formData.lastName.trim()) {
+      const fullName = `${formData.firstName} ${formData.lastName}`.trim();
+      const nameRegex = /^[a-zA-Z\s]+$/;
+      if (!nameRegex.test(fullName)) {
+        errs.firstName = 'Only letters and spaces are allowed.';
+        errs.lastName = 'Only letters and spaces are allowed.';
+      } else if (fullName.length < 2 || fullName.length > 100) {
+        errs.firstName = 'Name should be between 2 and 100 characters combined.';
+      }
     }
 
-    // 2. Email Validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      errs.email = 'Enter a valid email address.';
+    if (!formData.email.trim()) {
+      errs.email = 'Email address is required.';
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        errs.email = 'Enter a valid email address.';
+      }
     }
 
-    // 3. Password Validation: uppercase, lowercase, digit, special char, length 6-15
-    const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{6,15}$/;
-    if (!passRegex.test(formData.password)) {
-      errs.password = 'Password must be 6-15 chars with uppercase, lowercase, digit, and special char (@#$%^&+=!).';
+    if (!formData.password) {
+      errs.password = 'Password is required.';
+    } else {
+      const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{6,15}$/;
+      if (!passRegex.test(formData.password)) {
+        errs.password = 'Password must be 6-15 chars with uppercase, lowercase, digit, and special char (@#$%^&+=!).';
+      }
     }
 
-    // 4. Mobile Number Validation: international format +919876543210
-    const mobileRegex = /^\+?[1-9]\d{9,14}$/;
-    if (!mobileRegex.test(formData.phone)) {
-      errs.phone = 'Use international format for mobile number, example: +919876543210';
+    if (!formData.phone.trim()) {
+      errs.phone = 'Phone number is required.';
+    } else if (!/^\d{10}$/.test(formData.phone.trim())) {
+      errs.phone = 'Enter a valid 10-digit mobile number.';
+    }
+    
+    if (!formData.productSpeciality) {
+      errs.productSpeciality = 'Product Speciality is required.';
     }
 
     if (Object.keys(errs).length > 0) {
@@ -71,19 +87,28 @@ const CreateStaffPage = () => {
     }
 
     const payload = {
-      fullName: fullName,
+      fullName: `${formData.firstName} ${formData.lastName}`.trim(),
       email: formData.email,
       password: formData.password,
-      mobileNumber: formData.phone,
+      mobileNumber: formData.phone.replace(/^\+91/, '').trim().length === 10
+        ? "+91" + formData.phone.replace(/^\+91/, '').trim()
+        : formData.phone,
       productSpeciality: formData.productSpeciality
     };
 
     createStaff(payload)
-      .then(() => {
-        toast.success('Staff registered successfully! An email/SMS with the verification link has been sent.');
+      .then((res) => {
+        notify.success(res, 'Staff registered successfully! An email/SMS with the verification link has been sent.');
         navigate('/admin/users');
       })
-      .catch((err) => toast.error(err.response?.data?.message || 'Failed to register new Staff. Please check your connection.'))
+      .catch((err) => {
+        if (err.fieldErrors) {
+          setErrors(err.fieldErrors);
+          notify.error("Please correct the highlighted fields.");
+        } else {
+          notify.error(err);
+        }
+      })
       .finally(() => setSubmitting(false));
   };
 
@@ -100,7 +125,7 @@ const CreateStaffPage = () => {
         style={{ borderRadius: 16, boxShadow: "var(--ip-shadow-md)" }}
       >
         <div className="card-body p-4 p-md-5">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} noValidate>
             <h5
               className="mb-4 fw-bold"
               style={{ color: "var(--ip-text-primary)" }}
@@ -117,7 +142,7 @@ const CreateStaffPage = () => {
                   onChange={handleChange}
                   required
                   placeholder="e.g. John"
-                  error={errors.fullName}
+                  error={errors.firstName}
                 />
               </div>
               <div className="col-md-6">
@@ -128,7 +153,7 @@ const CreateStaffPage = () => {
                   onChange={handleChange}
                   required
                   placeholder="e.g. Doe"
-                  error={errors.fullName}
+                  error={errors.lastName}
                 />
               </div>
             </div>
@@ -147,15 +172,26 @@ const CreateStaffPage = () => {
                 />
               </div>
               <div className="col-md-6">
-                <FormInput
-                  label="Phone Number"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                  placeholder="+919876543210"
-                  error={errors.phone}
-                />
+              <div className="mb-3">
+                <label htmlFor="phone" className="form-label" style={{ fontSize: "0.85rem", fontWeight: "bold" }}>
+                  Phone Number <span className="text-danger">*</span>
+                </label>
+                <div className="input-group">
+                  <span className="input-group-text bg-white text-muted border-end-0 pe-2" id="basic-addon-phone">+91</span>
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="number"
+                    className={`form-control border-start-0 ps-1 ${errors.phone ? 'is-invalid' : ''}`}
+                    placeholder="9876543210"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    style={{ boxShadow: 'none' }}
+                    onWheel={(e) => e.target.blur()} // prevent scrolling from changing number
+                  />
+                  {errors.phone && <div className="invalid-feedback">{errors.phone}</div>}
+                </div>
+              </div>
               </div>
             </div>
 
@@ -171,7 +207,7 @@ const CreateStaffPage = () => {
                       name="password"
                       type={showPw ? "text" : "password"}
                       className={`form-control pristine-input${errors.password ? ' is-invalid' : ''}`}
-                      placeholder="••••••••"
+                      placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                       value={formData.password}
                       onChange={handleChange}
                       required
@@ -195,28 +231,15 @@ const CreateStaffPage = () => {
                 </div>
               </div>
               <div className="col-md-6">
-                <div className="form-group mb-3">
-                  <label
-                    className="fw-bold mb-1"
-                    style={{ fontSize: "0.85rem" }}
-                  >
-                    Product Speciality <span className="text-danger">*</span>
-                  </label>
-                  <select
-                    className="form-select"
+                  <ModernSelect
+                    label="Product Speciality"
                     name="productSpeciality"
                     value={formData.productSpeciality}
                     onChange={handleChange}
-                    required
-                    style={{ borderRadius: "8px", padding: "0.6rem 1rem" }}
-                  >
-                    <option value="HEALTH">Health </option>
-                    <option value="LIFE">Life </option>
-                    <option value="MOTOR">Motor </option>
-                    <option value="TRAVEL">Travel </option>
-                    <option value="INSURANCE">Insurance </option>
-                  </select>
-                </div>
+                    required={true}
+                    options={SPECIALITY_OPTIONS}
+                    error={errors.productSpeciality}
+                  />
               </div>
             </div>
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import DataTable from '../../../components/tables/DataTable';
@@ -13,22 +13,16 @@ import useTableState from '../../../hooks/useTableState';
 import SortableHeader from '../../../components/tables/SortableHeader';
 import useDebounceFilters from '../../../hooks/useDebounceFilters';
 import ExportButton from '../../../components/common/ExportButton';
+import { ROLE_OPTIONS, STATUS_OPTIONS } from '../../../utils/options';
 
 const FILTER_FIELDS = [
   { type: 'text',   name: 'fullName', label: 'Full Name',  placeholder: 'Search by name...' },
   { type: 'text',   name: 'email',    label: 'Email',       placeholder: 'Search by email...' },
   { type: 'select', name: 'role',     label: 'Role',
-    options: [
-      { value: 'ROLE_ADMIN',           label: 'Admin' },
-      { value: 'ROLE_INTERNAL_STAFF',  label: 'Staff' },
-      { value: 'ROLE_CUSTOMER',        label: 'Customer' },
-    ],
+    options: ROLE_OPTIONS,
   },
   { type: 'select', name: 'isActive', label: 'Status',
-    options: [
-      { value: 'true',  label: 'Active' },
-      { value: 'false', label: 'Inactive' },
-    ],
+    options: STATUS_OPTIONS,
   },
 ];
 
@@ -142,14 +136,14 @@ const UserListPage = () => {
           <div className="d-flex gap-2">
             <ExportButton
               fetchAll={async () => {
-                const res = await getAllUsers({ pageSize: tableState.totalElements || 1000, pageNumber: 0 });
+                const res = await getAllUsers({...tableState.getQueryParams(),  pageSize: tableState.totalElements || 1000, pageNumber: 0 });
                 return res.content || [];
               }}
               filename="Users_Export"
               columns={[
                 { header: "Full Name", accessor: "fullName" },
                 { header: "Email Address", accessor: "email" },
-                { header: "Mobile Number", accessor: "mobileNumber" },
+                { header: "Mobile Number", exportValue: (r) => r.mobileNumber ? (r.mobileNumber.startsWith("+91") ? r.mobileNumber : `+91${r.mobileNumber}`) : "N/A" },
                 { header: "Role", accessor: "role" },
                 { header: "Active Status", exportValue: (r) => r.isActive ? "Active" : "Inactive" }
               ]}

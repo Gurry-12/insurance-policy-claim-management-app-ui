@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "../navigation/Sidebar";
 import TopNavbar from "../navigation/TopNavbar";
@@ -166,7 +166,7 @@ const MainLayout = () => {
       className={themeClass}
       style={{ minHeight: "100vh", backgroundColor: "var(--ip-bg)" }}
     >
-      {/* ── Sidebar ───────────────────────────────── */}
+      {/* â”€â”€ Sidebar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <Sidebar
         navItems={navItems}
         isOpen={sidebarOpen}
@@ -176,7 +176,7 @@ const MainLayout = () => {
         title={portalTitle}
       />
 
-      {/* ── Main area ─────────────────────────────── */}
+      {/* â”€â”€ Main area â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div
         className={`ip-main-wrapper ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}
       >

@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import toast from 'react-hot-toast';
+import { notify } from "../../../utils/notificationService";
 import { purchasePolicy } from "../../../services/policyService";
 import { getPlanById } from "../../../services/planService";
 import PageHeader from "../../../components/common/PageHeader";
@@ -15,6 +15,7 @@ const PurchasePolicyPage = () => {
   const [planDetails, setPlanDetails] = useState(null);
   const [loadingPlan, setLoadingPlan] = useState(true);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     const fetchPlan = async () => {
@@ -22,7 +23,7 @@ const PurchasePolicyPage = () => {
         const data = await getPlanById(planId);
         setPlanDetails(data);
       } catch (error) {
-        toast.error("Failed to load plan details");
+        notify.error("Failed to load plan details");
       } finally {
         setLoadingPlan(false);
       }
@@ -33,22 +34,26 @@ const PurchasePolicyPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!acceptedTerms) {
-      toast.error("You must accept the terms and declarations.");
+      setErrors({ acceptedTerms: "You must accept the terms and declarations." });
       return;
     }
     setIsSubmitting(true);
 
     try {
-      await purchasePolicy({
+      const payload = {
         planId: Number(planId),
         startDate: new Date().toISOString().split('T')[0],
-      });
-
-      toast.success("Policy Purchased Successfully");
+      };
+      const res = await purchasePolicy(payload);
+      notify.success(res, "Policy Purchased Successfully");
       navigate("/customer/policies");
     } catch (error) {
       console.error(error);
-      toast.error(error?.response?.data?.message || "Failed to purchase policy");
+      if (error.fieldErrors) {
+        notify.error("Please correct the highlighted fields.");
+      } else {
+        notify.error(error);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -105,25 +110,32 @@ const PurchasePolicyPage = () => {
                 <div className="alert alert-warning">Plan details could not be loaded. You may proceed at your own risk.</div>
               )}
 
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} noValidate>
                 <div className="mb-4 form-check">
                   <input 
                     type="checkbox" 
-                    className="form-check-input" 
+                    className={`form-check-input ${errors.acceptedTerms ? 'is-invalid' : ''}`} 
                     id="termsCheck" 
                     checked={acceptedTerms}
-                    onChange={(e) => setAcceptedTerms(e.target.checked)}
-                    required
+                    onChange={(e) => {
+                      setAcceptedTerms(e.target.checked);
+                      if (errors.acceptedTerms) setErrors({});
+                    }}
                   />
                   <label className="form-check-label text-muted small" htmlFor="termsCheck">
                     I declare that the information provided is correct. I agree to the terms and conditions and acknowledge that my policy coverage will begin starting today. Note: Cancellation policies apply as per standard terms.
                   </label>
+                  {errors.acceptedTerms && (
+                    <div className="input-error-tip text-danger mt-1">
+                      <i className="bi bi-x-circle-fill" /> {errors.acceptedTerms}
+                    </div>
+                  )}
                 </div>
 
                 <button
                   className="btn btn-primary btn-lg w-100 mt-2"
                   type="submit"
-                  disabled={isSubmitting || !acceptedTerms}
+                  disabled={isSubmitting}
                 >
                   {isSubmitting ? (
                     <span className="d-flex align-items-center justify-content-center">

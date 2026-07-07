@@ -1,4 +1,4 @@
-const AlertModal = ({ isOpen, title, message, onClose, type = 'info' }) => {
+﻿const AlertModal = ({ isOpen, title, message, onClose, type = 'info' }) => {
   if (!isOpen) return null;
 
   const typeConfig = {

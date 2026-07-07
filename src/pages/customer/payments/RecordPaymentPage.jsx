@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import toast from 'react-hot-toast';
+import { notify } from "../../../utils/notificationService";
 import { recordPayment } from "../../../services/paymentService";
 import { getMyPolicies } from "../../../services/policyService";
 import PageHeader from "../../../components/common/PageHeader";
 import { Wallet } from "lucide-react";
+import ModernSelect from "../../../components/forms/ModernSelect";
+import { PAYMENT_MODE_OPTIONS } from "../../../utils/options";
 
 const RecordPaymentPage = () => {
   const navigate = useNavigate();
@@ -88,16 +90,21 @@ const RecordPaymentPage = () => {
     setIsSubmitting(true);
 
     try {
-      await recordPayment({
+      const payload = {
         ...formData,
         amount: Number(formData.amount),
-      });
-
-      toast.success("Payment Recorded Successfully");
+      };
+      const res = await recordPayment(payload);
+      notify.success(res, "Payment Recorded Successfully");
       navigate("/customer/payments");
     } catch (error) {
       console.error(error);
-      toast.error(error?.response?.data?.message || "Payment Failed");
+      if (error.fieldErrors) {
+        setErrors(error.fieldErrors);
+        notify.error("Please correct the highlighted fields.");
+      } else {
+        notify.error(error);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -129,27 +136,25 @@ const RecordPaymentPage = () => {
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} noValidate>
                 <div className="mb-4">
                   <label className="form-label fw-medium">Select Policy <span className="text-danger">*</span></label>
                   {isLoadingPolicies ? (
                     <div className="form-control form-control-lg bg-light text-muted">Loading policies...</div>
                   ) : (
-                    <select
+                    <ModernSelect
                       name="policyId"
-                      className={`form-select form-select-lg ${errors.policyId ? 'is-invalid' : ''}`}
                       value={formData.policyId}
                       onChange={handleChange}
-                      required
-                      disabled={!!policyId}
-                    >
-                      <option value="">-- Select a Policy --</option>
-                      {policies.map((policy) => (
-                        <option key={policy.id || policy.policyId} value={policy.id || policy.policyId}>
-                          {policy.planName ? `${policy.planName} (No: ${policy.policyNumber})` : `Policy No: ${policy.policyNumber}`}
-                        </option>
-                      ))}
-                    </select>
+                      required={true}
+                      isDisabled={!!policyId}
+                      error={errors.policyId}
+                      options={policies.map(policy => ({
+                        value: policy.id || policy.policyId,
+                        label: policy.planName ? `${policy.planName} (No: ${policy.policyNumber})` : `Policy No: ${policy.policyNumber}`
+                      }))}
+                      placeholder="-- Select a Policy --"
+                    />
                   )}
                   {errors.policyId && <div className="invalid-feedback d-block">{errors.policyId}</div>}
                 </div>
@@ -171,17 +176,12 @@ const RecordPaymentPage = () => {
 
                 <div className="mb-4">
                   <label className="form-label fw-medium">Payment Mode</label>
-                  <select
+                  <ModernSelect
                     name="paymentMode"
-                    className="form-select form-select-lg"
                     value={formData.paymentMode}
                     onChange={handleChange}
-                  >
-                    <option value="UPI">UPI</option>
-                    <option value="CARD">Credit/Debit Card</option>
-                    <option value="NET_BANKING">Net Banking</option>
-                    <option value="CASH">Cash</option>
-                  </select>
+                    options={PAYMENT_MODE_OPTIONS}
+                  />
                 </div>
 
                 <button 

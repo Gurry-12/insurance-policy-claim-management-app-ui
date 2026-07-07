@@ -1,14 +1,14 @@
 import axiosInstance from "../api/axiosInstance";
-import { safeExtractArray, safeExtractPaginated } from "../utils/formatters";
+
 
 export const getMyPolicies = async (params = {}) => {
-  const { data } = await axiosInstance.get("/policies/my-policies", { params });
-  return data;
+  const response = await axiosInstance.get("/policies/my-policies", { params });
+  return response;
 };
 
 export const getAllPoliciesPaginated = async (params = {}) => {
   const response = await axiosInstance.get("/policies", { params });
-  return safeExtractPaginated(response);
+  return response;
 };
 
 // export const getAllPolicies = async () => {
@@ -18,33 +18,33 @@ export const getAllPoliciesPaginated = async (params = {}) => {
 
 export const getPolicyById = async (policyId) => {
   const response = await axiosInstance.get(`/policies/${policyId}`);
-  return response.data?.data;
+  return response;
 };
+
 
 export const getPoliciesByCustomerId = async (customerId) => {
   const response = await axiosInstance.get(`/policies/customer/${customerId}`);
-  return safeExtractArray(response);
+  return response;
 };
 
 export const getClaimsByPolicy = async (policyId) => {
   const response = await axiosInstance.get(`/policies/${policyId}/claims`);
-  return response.data?.data || response.data?.content || response.data || [];
+  return response;
 };
 
 export const issuePolicy = async (payload) => {
   const response = await axiosInstance.post("/policies/issue", payload);
-  return response.data;
+  return response;
 };
 
 export const cancelPolicy = async (policyId) => {
   const response = await axiosInstance.patch(`/policies/${policyId}/cancel`);
-  return response.data;
+  return response;
 };
 
 export const purchasePolicy = async (payload) => {
-  const { data } = await axiosInstance.post("/policies/purchase", payload);
-
-  return data;
+  const response = await axiosInstance.post("/policies/purchase", payload);
+  return response;
 };
 // TODO: Policy API service
 

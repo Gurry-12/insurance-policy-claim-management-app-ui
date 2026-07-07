@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import FormInput from '../../../components/forms/FormInput';
@@ -9,6 +9,8 @@ import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import { getProductById, updateProduct } from '../../../services/productService';
 import toast from 'react-hot-toast';
+import { notify } from "../../../utils/notificationService";
+import { STATUS_OPTIONS } from "../../../utils/options";
 
 const EditProductPage = () => {
   const { id } = useParams();
@@ -17,7 +19,7 @@ const EditProductPage = () => {
     name: '',
     category: 'HEALTH',
     description: '',
-    status: 'Active'
+    status: true
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -33,7 +35,7 @@ const EditProductPage = () => {
             name: data.productName || '',
             category: data.productType || 'HEALTH',
             description: data.description || data.productDescription || '',
-            status: (data.activeStatus ?? data.active) ? 'Active' : 'Inactive'
+            status: data.activeStatus ?? data.active ?? true
           });
         }
       })
@@ -54,8 +56,14 @@ const EditProductPage = () => {
     setSubmitting(true);
     const errs = {};
 
-    if (!/^[A-Za-z\s]+$/.test(formData.name)) {
+    if (!formData.name?.trim()) {
+      errs.name = 'Product Name is required';
+    } else if (!/^[A-Za-z\s]+$/.test(formData.name)) {
       errs.name = 'Only letters and spaces are allowed in the product name.';
+    }
+
+    if (!formData.description?.trim()) {
+      errs.description = 'Description is required';
     }
 
     if (Object.keys(errs).length > 0) {
@@ -68,15 +76,22 @@ const EditProductPage = () => {
       productName: formData.name,
       productType: formData.category,
       description: formData.description,
-      activeStatus: formData.status === 'Active'
+      activeStatus: formData.status
     };
 
     updateProduct(id, payload)
-      .then(() => {
-        toast.success('Product updated successfully!');
+      .then((res) => {
+        notify.success(res, 'Product updated successfully!');
         navigate(`/admin/products/${id}`);
       })
-      .catch((err) => toast.error(err.response?.data?.message || 'Failed to save product changes.'))
+      .catch((err) => {
+        if (err.fieldErrors) {
+          setErrors(err.fieldErrors);
+          notify.error("Please correct the highlighted fields.");
+        } else {
+          notify.error(err);
+        }
+      })
       .finally(() => setSubmitting(false));
   };
 
@@ -100,7 +115,7 @@ const EditProductPage = () => {
           style={{ borderRadius: 16, boxShadow: "var(--ip-shadow-md)" }}
         >
           <div className="card-body p-4 p-md-5">
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} noValidate>
               <div className="row">
                 <div className="col-md-6">
                   <FormInput
@@ -126,6 +141,7 @@ const EditProductPage = () => {
                       { value: "TRAVEL", label: "Travel" },
                       { value: "INSURANCE", label: "Insurance" },
                     ]}
+                    error={errors.category}
                   />
                 </div>
               </div>
@@ -139,6 +155,7 @@ const EditProductPage = () => {
                     onChange={handleChange}
                     required
                     rows={4}
+                    error={errors.description}
                   />
                 </div>
               </div>
@@ -151,10 +168,8 @@ const EditProductPage = () => {
                     value={formData.status}
                     onChange={handleChange}
                     required
-                    options={[
-                      { value: "Active", label: "Active" },
-                      { value: "Inactive", label: "Inactive" },
-                    ]}
+                    options={STATUS_OPTIONS}
+                    error={errors.status}
                   />
                 </div>
               </div>

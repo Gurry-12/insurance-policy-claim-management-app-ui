@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import StatusBadge from '../../../components/ui/StatusBadge';
@@ -31,7 +31,7 @@ const UserDetailPage = () => {
       })
       .catch((err) => {
         console.error("User fetch error:", err);
-        setError(err.response?.data?.message || err.message || 'Could not load user details.');
+        setError(err.message || err.message || 'Could not load user details.');
       })
       .finally(() => setLoading(false));
   };
@@ -55,7 +55,7 @@ const UserDetailPage = () => {
         fetchUserData(id);
       })
       .catch((err) => {
-        toast.error(err.response?.data?.message || `Failed to ${isActive ? 'deactivate' : 'activate'} user.`);
+        toast.error(err.message || `Failed to ${isActive ? 'deactivate' : 'activate'} user.`);
       })
       .finally(() => {
         setActionLoading(false);

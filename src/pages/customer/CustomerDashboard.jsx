@@ -9,6 +9,9 @@ import EmptyState  from "../../components/ui/EmptyState";
 import ErrorAlert  from "../../components/ui/ErrorAlert";
 import PageHeader  from "../../components/common/PageHeader";
 import BentoCard   from "../../common/BentoCard";
+import DataTable   from "../../components/tables/DataTable";
+import { POLICY_STATUS } from '../../utils/statuses';
+import { EMPTY_STATES } from '../../utils/labels';
 
 const StatTile = ({ icon, label, value, color }) => (
   <BentoCard className="ip-bento-stat-tile">
@@ -149,31 +152,22 @@ const CustomerDashboard = () => {
                 ))}
               </div>
             ) : recentClaims.length ? (
-              <div className="d-flex flex-column gap-1">
-                {recentClaims.map((claim, i) => (
-                  <div
-                    key={claim.claimId ?? i}
-                    className="d-flex align-items-center gap-3 py-2"
-                    style={{ borderBottom: i < recentClaims.length - 1 ? '1px solid var(--ip-border)' : 'none', cursor: 'pointer' }}
-                    onClick={() => navigate(`/customer/claims/${claim.claimId}`)}
-                  >
-                    <div className="ip-bento-stat-icon" style={{ background: '#d9770618', width: 36, height: 36, borderRadius: 10 }}>
-                      <i className="bi bi-shield-exclamation" style={{ color: '#d97706', fontSize: '0.9rem' }} />
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--ip-text-primary)' }}>
-                        #{claim.claimNumber ?? claim.claimId}
-                      </div>
-                      <div style={{ fontSize: '0.74rem', color: 'var(--ip-text-muted)' }}>
-                        ₹{Number(claim.claimAmount).toLocaleString('en-IN')}
-                      </div>
-                    </div>
-                    <StatusBadge status={claim.claimStatus} />
-                  </div>
-                ))}
+              <div className="table-responsive">
+                <DataTable
+                  compact={true}
+                  data={recentClaims}
+                  onRowClick={(c) => navigate(`/customer/claims/${c.claimId}`)}
+                  columns={[
+                    { header: 'Sr No.', accessor: 'claimId', cell: (_, i) => <span style={{ fontWeight: 600 }}>{i + 1}</span> },
+                    { header: 'Amount', accessor: 'claimAmount', cell: (c) => <span style={{ fontWeight: 600 }}>₹{Number(c.claimAmount).toLocaleString('en-IN')}</span> },
+                    { header: 'Date', accessor: 'createdDate', cell: (c) => <span style={{ color: 'var(--ip-text-muted)' }}>{c.createdDate ? new Date(c.createdDate).toLocaleDateString() : "-"}</span> },
+                    { header: 'Status', accessor: 'claimStatus', cell: (c) => <StatusBadge status={c.claimStatus} /> }
+                  ]}
+                  emptyMessage={EMPTY_STATES.NO_CLAIMS}
+                />
               </div>
             ) : (
-              <EmptyState icon="bi-shield-slash" message="You haven't raised any claims yet." />
+              <EmptyState icon="bi-shield-slash" message={EMPTY_STATES.NO_CLAIMS} />
             )}
           </BentoCard>
         </div>
@@ -196,8 +190,8 @@ const CustomerDashboard = () => {
                 <div 
                   className="border rounded-3 p-3 h-100 position-relative shadow-sm"
                   style={{ 
-                    background: p.policyStatus === 'PENDING_PAYMENT' ? 'linear-gradient(135deg, var(--ip-policy-pending-bg) 0%, var(--ip-surface) 100%)' : 'linear-gradient(135deg, var(--ip-policy-active-bg) 0%, var(--ip-surface) 100%)',
-                    borderColor: p.policyStatus === 'PENDING_PAYMENT' ? 'var(--ip-warning-subtle)' : 'var(--ip-success-subtle)'
+                    background: p.policyStatus === POLICY_STATUS.PENDING_PAYMENT ? 'linear-gradient(135deg, var(--ip-policy-pending-bg) 0%, var(--ip-surface) 100%)' : 'linear-gradient(135deg, var(--ip-policy-active-bg) 0%, var(--ip-surface) 100%)',
+                    borderColor: p.policyStatus === POLICY_STATUS.PENDING_PAYMENT ? 'var(--ip-warning-subtle)' : 'var(--ip-success-subtle)'
                   }}
                 >
                   <div className="d-flex justify-content-between align-items-start mb-2">
@@ -214,7 +208,7 @@ const CustomerDashboard = () => {
                       <div className="fw-bold" style={{ fontSize: '0.85rem' }}>₹{Number(p.premiumAmount || p.premium || 0).toLocaleString('en-IN')}</div>
                     </div>
                     <div>
-                      {p.policyStatus === 'PENDING_PAYMENT' ? (
+                      {p.policyStatus === POLICY_STATUS.PENDING_PAYMENT ? (
                         <Link to={`/customer/payments/pay/${p.policyId || p.id}`}
                           className="btn btn-warning py-1 px-3 text-dark rounded-pill fw-semibold shadow-sm"
                           style={{ fontSize: '0.75rem' }}>
@@ -234,7 +228,7 @@ const CustomerDashboard = () => {
             ))}
           </div>
         ) : (
-          <EmptyState icon="bi-file-earmark-x" message="You have no active policies yet." />
+          <EmptyState icon="bi-file-earmark-x" message={EMPTY_STATES.NO_POLICIES} />
         )}
       </BentoCard>
     </div>

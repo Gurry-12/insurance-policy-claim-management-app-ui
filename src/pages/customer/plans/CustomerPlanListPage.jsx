@@ -76,7 +76,7 @@ const CustomerPlanListPage = () => {
                       {plan.duration} Years
                     </span>
                     <Link
-                      className="btn btn-primary px-4 rounded-pill"
+                      className="btn btn-primary px-4 py-2 rounded-pill shadow-sm"
                       to={`/customer/purchase-policy/${plan.planId}`}
                     >
                       Purchase

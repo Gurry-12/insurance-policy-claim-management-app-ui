@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
+﻿import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import toast from 'react-hot-toast';
+import { notify } from '../../utils/notificationService';
 import useAuth from '../../hooks/useAuth';
 
 const GlobalApiHandler = () => {
@@ -9,10 +9,15 @@ const GlobalApiHandler = () => {
   const { logout } = useAuth();
 
   useEffect(() => {
-    const handleUnauthorized = () => {
+    const handleUnauthorized = (event) => {
+      const detail = event.detail;
       logout();
       if (location.pathname !== '/login') {
-        toast.error('Session expired. Please log in again.');
+        if (detail && typeof detail === 'string') {
+          notify.error(detail, 'Session expired. Please log in again.');
+        } else {
+          notify.error('Session expired. Please log in again.');
+        }
         navigate('/login', { state: { from: location }, replace: true });
       }
     };
@@ -24,7 +29,7 @@ const GlobalApiHandler = () => {
     const handleApiError = (event) => {
       const message = event.detail || 'A network error occurred.';
       if (message !== 'canceled') {
-        toast.error(`Error: ${message}`);
+        notify.error(message, `Error: ${message}`);
       }
     };
 

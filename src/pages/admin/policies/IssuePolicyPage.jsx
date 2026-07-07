@@ -1,13 +1,13 @@
-import  { useState, useEffect } from 'react';
+﻿import  { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
-import RichSelect from '../../../components/forms/RichSelect';
+import ModernSelect from "../../../components/forms/ModernSelect";
 import AlertModal from '../../../components/modals/AlertModal';
 import { getAllCustomers } from '../../../services/customerService';
 import { getAllProducts } from '../../../services/productService';
 import { getAllPlans } from '../../../services/planService';
 import { issuePolicy } from '../../../services/policyService';
-import toast from 'react-hot-toast';
+import { notify } from '../../../utils/notificationService';
 
 const IssuePolicyPage = () => {
   const navigate = useNavigate();
@@ -59,6 +59,12 @@ const IssuePolicyPage = () => {
     setSubmitting(true);
     const errs = {};
 
+    if (!formData.customerId) {
+      errs.customerId = 'Customer is required.';
+    }
+    if (!formData.planId) {
+      errs.planId = 'Plan is required.';
+    }
 
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
@@ -73,11 +79,18 @@ const IssuePolicyPage = () => {
     };
 
     issuePolicy(payload)
-      .then(() => {
-        toast.success('Policy Issued Successfully!');
+      .then((res) => {
+        notify.success(res, 'Policy Issued Successfully!');
         navigate('/admin/policies');
       })
-      .catch((err) => toast.error(err.response?.data?.message || 'Failed to issue policy. Check your connection.'))
+      .catch((err) => {
+        if (err.fieldErrors) {
+          setErrors(err.fieldErrors);
+          notify.error("Please correct the highlighted fields.");
+        } else {
+          notify.error(err);
+        }
+      })
       .finally(() => setSubmitting(false));
   };
 
@@ -105,12 +118,12 @@ const IssuePolicyPage = () => {
 
       <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
         <div className="card-body p-4 p-md-5">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} noValidate>
             <h5 className="mb-4 fw-bold" style={{ color: 'var(--ip-text-primary)' }}>Policy Information</h5>
             
             <div className="row">
               <div className="col-md-6">
-                <RichSelect 
+                <ModernSelect 
                   label="Select Customer" 
                   name="customerId" 
                   value={formData.customerId} 
@@ -122,7 +135,7 @@ const IssuePolicyPage = () => {
                 />
               </div>
               <div className="col-md-6">
-                <RichSelect 
+                <ModernSelect 
                   label="Select Plan" 
                   name="planId" 
                   value={formData.planId} 

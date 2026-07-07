@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import FormTextarea from '../../../components/forms/FormTextarea';
 import StatusBadge from '../../../components/ui/StatusBadge';
@@ -11,6 +11,7 @@ import useClaimPdf from '../../../hooks/PdfDownload/useClaimPdf';
 import DocumentPreviewModal from '../../../components/modals/DocumentPreviewModal';
 import Drawer from '../../../components/ui/Drawer';
 import Modal from '../../../components/ui/Modal';
+import ClaimHistoryTimeline from '../../../components/claims/ClaimHistoryTimeline';
 import { ExternalLink, Clock, Upload, Eye } from 'lucide-react';
 
 const ClaimDetailPage = () => {
@@ -48,7 +49,7 @@ const ClaimDetailPage = () => {
     } catch (err) {
       console.error("Claim fetch error:", err);
       setError(
-        err.response?.data?.message || err.message || 'Could not load claim details.'
+        err.message || err.message || 'Could not load claim details.'
       );
     } finally {
       setLoading(false);
@@ -215,42 +216,10 @@ const ClaimDetailPage = () => {
               {/* Right Side: Status History Timeline */}
               <div className="col-lg-4">
                 <div className="card border-0 shadow-sm h-100" style={{ borderRadius: 16 }}>
-                  <div className="card-header bg-white border-bottom-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
-                    <h6 className="card-title mb-0 fw-bold text-primary">Status History</h6>
+                  <div className="card-header bg-white border-bottom-0 pt-4 pb-0">
+                    <h6 className="card-title mb-0 fw-bold text-primary">Claim Status History</h6>
                   </div>
-                  <div className="card-body">
-                    {history.length > 0 ? (
-                      <div className="timeline-wrapper position-relative ps-3 ms-2 mt-2" style={{ borderLeft: '2px solid #e9ecef' }}>
-                        {history.slice(0, 5).map((item, index) => (
-                          <div key={index} className="position-relative mb-4">
-                            <div 
-                              className="position-absolute bg-primary rounded-circle" 
-                              style={{ width: '12px', height: '12px', left: '-23px', top: '5px' }}
-                            ></div>
-                            <div className="mb-1">
-                              <StatusBadge status={item.newStatus || item.status} />
-                            </div>
-                            <div className="small text-muted mb-1">
-                              {new Date(item.updatedDate).toLocaleString()}
-                            </div>
-                            <div className="small">
-                              By: <span className="fw-medium">{item.updatedBy || "System"}</span>
-                            </div>
-                          </div>
-                        ))}
-                        {history.length > 5 && (
-                          <div className="text-center mt-3 text-muted small">
-                            Older updates hidden.
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-center text-muted p-4 d-flex flex-column align-items-center">
-                        <Clock size={40} className="mb-2 opacity-50" />
-                        <small>No history available yet.</small>
-                      </div>
-                    )}
-                  </div>
+                  <ClaimHistoryTimeline history={history} />
                 </div>
               </div>
             </div>

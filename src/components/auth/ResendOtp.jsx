@@ -1,8 +1,9 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { createPortal } from "react-dom";
-import toast from 'react-hot-toast';
+import { notify } from "../../utils/notificationService";
 import { resendOtpApi } from "../../services/authService";
 import "../../pages/css/Otp.css";
+import { handleApiError } from "../../utils/errorHandler";
 
 const ResendOtp = ({ email = '', triggerButton = true, isOpenProp, onClose, onSuccess }) => {
   const [isInternalOpen, setIsInternalOpen] = useState(false);
@@ -19,7 +20,10 @@ const ResendOtp = ({ email = '', triggerButton = true, isOpenProp, onClose, onSu
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
+    if (name === 'phone') {
+      value = value.replace(/\D/g, '');
+    }
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
@@ -32,7 +36,9 @@ const ResendOtp = ({ email = '', triggerButton = true, isOpenProp, onClose, onSu
       errs.email = "Enter a valid email.";
     }
     if (!formData.phone.trim()) {
-      errs.phone = "Phone number is required.";
+      errs.phone = "Phone number is required";
+    } else if (!/^\d{10}$/.test(formData.phone.trim())) {
+      errs.phone = "Please enter a valid 10-digit mobile number";
     }
     return errs;
   };
@@ -48,13 +54,13 @@ const ResendOtp = ({ email = '', triggerButton = true, isOpenProp, onClose, onSu
     try {
       setLoading(true);
 
-      const payload = {
-        email: formData.email.trim(),
-        phone: formData.phone.trim(),
-      };
+      const res = await resendOtpApi(
+        formData.email.trim(),
+        "+91" + formData.phone.trim()
+      );
 
-      if (await resendOtpApi(payload)) {
-        toast.success("New verification codes sent!");
+      if (res?.success) {
+        notify.success(res, "New verification codes sent!");
         setTimeout(() => {
           handleClose();
           setFormData({ email: "", phone: "" });
@@ -62,11 +68,10 @@ const ResendOtp = ({ email = '', triggerButton = true, isOpenProp, onClose, onSu
         }, 1800);
       }
     } catch (err) {
-      toast.error(
-        err.response?.data?.message ||
-          err.response?.data?.error ||
-          "Failed to resend OTP.",
-      );
+      const { isValidationError, messages } = handleApiError(err, "Failed to resend OTP.");
+      if (isValidationError) {
+        setErrors(messages);
+      }
     } finally {
       setLoading(false);
     }
@@ -116,14 +121,14 @@ const ResendOtp = ({ email = '', triggerButton = true, isOpenProp, onClose, onSu
                   id="resend-email"
                   name="email"
                   type="email"
-                  className="form-control pristine-input"
+                  className={`form-control pristine-input ${errors.email ? 'is-invalid' : ''}`}
                   placeholder="username@gmail.com"
                   value={formData.email}
                   onChange={handleChange}
                   disabled={loading}
                 />
                 {errors.email && (
-                  <div className="input-error-tip">{errors.email}</div>
+                  <div className="input-error-tip text-danger mt-1"><i className="bi bi-x-circle-fill" /> {errors.email}</div>
                 )}
               </div>
 
@@ -131,18 +136,22 @@ const ResendOtp = ({ email = '', triggerButton = true, isOpenProp, onClose, onSu
                 <label htmlFor="resend-phone" className="custom-field-label">
                   Phone Number
                 </label>
-                <input
-                  id="resend-phone"
-                  name="phone"
-                  type="tel"
-                  className="form-control pristine-input"
-                  placeholder="+919983710550"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  disabled={loading}
-                />
+                <div className="input-group">
+                  <span className="input-group-text bg-white border-end-0 text-muted">+91</span>
+                  <input
+                    id="resend-phone"
+                    name="phone"
+                    type="tel"
+                    className={`form-control pristine-input border-start-0 ps-0 ${errors.phone ? 'is-invalid' : ''}`}
+                    placeholder="9983710550"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    disabled={loading}
+                    maxLength="10"
+                  />
+                </div>
                 {errors.phone && (
-                  <div className="input-error-tip">{errors.phone}</div>
+                  <div className="input-error-tip text-danger mt-1"><i className="bi bi-x-circle-fill" /> {errors.phone}</div>
                 )}
               </div>
 

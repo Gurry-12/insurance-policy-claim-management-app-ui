@@ -1,4 +1,4 @@
-const RoleBadge = () => {
+﻿const RoleBadge = () => {
   return <div><h4>RoleBadge</h4></div>;
 };
 

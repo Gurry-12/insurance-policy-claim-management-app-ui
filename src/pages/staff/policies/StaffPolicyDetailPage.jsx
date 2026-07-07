@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import StatusBadge from '../../../components/ui/StatusBadge';
@@ -32,7 +32,7 @@ const StaffPolicyDetailPage = () => {
       })
       .catch((err) => {
         console.error("Policy fetch error:", err);
-        setError(err.response?.data?.message || err.message || 'Could not load policy details.');
+        setError(err.message || err.message || 'Could not load policy details.');
       })
       .finally(() => setLoading(false));
   }, [policyId]);
