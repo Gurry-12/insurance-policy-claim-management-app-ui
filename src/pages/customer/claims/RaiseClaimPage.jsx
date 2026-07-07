@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import toast from 'react-hot-toast';
 import { raiseClaim } from "../../../services/claimService";
 import { getMyPolicies, getPolicyById } from "../../../services/policyService";
 import PageHeader from "../../../components/common/PageHeader";
-import { FilePlus, ArrowLeft, Save, ShieldCheck, AlertCircle, FileText, Calendar, IndianRupee, FileUp, Info, X } from "lucide-react";
+import { FilePlus, ArrowLeft, Save, ShieldCheck, AlertCircle, FileText, IndianRupee, FileUp, Info, X } from "lucide-react";
 import ModernSelect from "../../../components/forms/ModernSelect";
 import ModernDatePicker from "../../../components/forms/ModernDatePicker";
 import { notify } from "../../../utils/notificationService";
@@ -26,7 +25,7 @@ const RaiseClaimPage = () => {
   const [isLoadingPolicies, setIsLoadingPolicies] = useState(true);
   const [selectedPolicyDetails, setSelectedPolicyDetails] = useState(null);
   const [isLoadingPolicyDetails, setIsLoadingPolicyDetails] = useState(false);
-  const [selectedDocType, setSelectedDocType] = useState('Medical Certificate');
+  const [selectedDocType, setSelectedDocType] = useState('');
 
   useEffect(() => {
     const fetchPolicies = async () => {
@@ -120,6 +119,11 @@ const RaiseClaimPage = () => {
   };
 
   const handleFileChange = (e) => {
+    if (!selectedDocType) {
+      notify.error("Please select a document category first");
+      e.target.value = null;
+      return;
+    }
     if (e.target.files && e.target.files.length > 0) {
       const newFiles = [];
       const invalidFiles = [];
@@ -188,7 +192,7 @@ const RaiseClaimPage = () => {
         errs.incidentDate = `Date cannot be before policy start date (${startDate.toLocaleDateString()})`;
       }
     }
-    if (!claim.claimReason) errs.claimReason = 'Claim reason is required';
+    if (!claim.claimReason?.trim()) errs.claimReason = 'Claim reason is required';
     if (files.length === 0) errs.files = 'Upload at least one document';
 
     if (Object.keys(errs).length > 0) {
@@ -217,8 +221,8 @@ const RaiseClaimPage = () => {
         formData.append("files", renamedFile);
       });
 
-      await raiseClaim(formData);
-      notify.success("Claim Raised Successfully");
+      const res = await raiseClaim(formData);
+      notify.success(res, "Claim Raised Successfully");
       navigate("/customer/claims");
     } catch (error) {
       console.error(error);
@@ -240,7 +244,7 @@ const RaiseClaimPage = () => {
         subtitle="Submit a new insurance claim and track its progress."
         icon={FilePlus}
         action={
-          <Link to="/customer/claims" className="btn btn-outline-secondary rounded-pill px-4">
+          <Link to="/customer/claims" className="btn btn-outline-secondary rounded-pill px-4 py-2">
             <ArrowLeft size={18} className="me-2" />
             Back to Claims
           </Link>
@@ -311,7 +315,7 @@ const RaiseClaimPage = () => {
         <div className="col-lg-8">
           <div className="card border-0 shadow-sm" style={{ borderRadius: '16px' }}>
             <div className="card-body p-4 p-md-5">
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} noValidate>
                 <h5 className="fw-bold mb-4 border-bottom pb-3">Claim Information</h5>
                 
                 <div className="row g-4 mb-4">
@@ -419,17 +423,20 @@ const RaiseClaimPage = () => {
                       name="selectedDocType"
                       value={selectedDocType}
                       onChange={(e) => setSelectedDocType(e.target.value)}
-                      options={(
-                        selectedPolicyDetails?.productType && PRODUCT_DOCUMENT_CATEGORIES[selectedPolicyDetails.productType]
-                          ? PRODUCT_DOCUMENT_CATEGORIES[selectedPolicyDetails.productType]
-                          : PRODUCT_DOCUMENT_CATEGORIES.INSURANCE
-                      ).map(doc => ({ value: doc, label: doc }))}
+                      options={[
+                        { value: '', label: 'Select a category...' },
+                        ...(
+                          selectedPolicyDetails?.productType && PRODUCT_DOCUMENT_CATEGORIES[selectedPolicyDetails.productType]
+                            ? PRODUCT_DOCUMENT_CATEGORIES[selectedPolicyDetails.productType]
+                            : PRODUCT_DOCUMENT_CATEGORIES.INSURANCE
+                        ).map(doc => ({ value: doc, label: doc }))
+                      ]}
                       required={true}
                     />
                     <div className="form-text mb-3">Select the type of document before uploading it below.</div>
                   </div>
 
-                  <div className={`p-5 text-center border rounded-3 bg-light position-relative ${errors.files ? 'border-danger' : 'border-dashed'}`} style={{ borderStyle: 'dashed', borderWidth: '2px', borderColor: 'var(--ip-border)' }}>
+                  <div className={`p-5 text-center border rounded-3 ${!selectedDocType ? 'bg-secondary bg-opacity-10' : 'bg-light'} position-relative ${errors.files ? 'border-danger' : 'border-dashed'}`} style={{ borderStyle: 'dashed', borderWidth: '2px', borderColor: 'var(--ip-border)' }}>
                     <FileUp size={48} className="text-primary mb-3 opacity-75" />
                     <h6 className="fw-bold">Upload your files here</h6>
                     <p className="text-muted small mb-3">Supported formats: PDF, JPG, PNG. Max 5MB per file.</p>
@@ -439,9 +446,15 @@ const RaiseClaimPage = () => {
                       accept=".pdf,.jpg,.jpeg,.png"
                       className="form-control position-absolute top-0 start-0 w-100 h-100 opacity-0"
                       onChange={handleFileChange}
-                      style={{ cursor: 'pointer', zIndex: 10 }}
+                      onClick={(e) => {
+                        if (!selectedDocType) {
+                          e.preventDefault();
+                          notify.error("Please select a document category first");
+                        }
+                      }}
+                      style={{ cursor: !selectedDocType ? 'not-allowed' : 'pointer', zIndex: 10 }}
                     />
-                    <button type="button" className="btn btn-outline-primary rounded-pill px-4" style={{ pointerEvents: 'none' }}>
+                    <button type="button" className="btn btn-outline-primary rounded-pill px-4 py-2" style={{ pointerEvents: 'none' }}>
                       Browse Files
                     </button>
                   </div>
@@ -489,12 +502,12 @@ const RaiseClaimPage = () => {
                 </div>
 
                 <div className="d-flex justify-content-end mt-5 pt-3 border-top">
-                  <Link to="/customer/claims" className="btn btn-light rounded-pill px-4 me-3">
+                  <Link to="/customer/claims" className="btn btn-light rounded-pill px-4 py-2 me-3">
                     Cancel
                   </Link>
                   <button 
                     type="submit" 
-                    className="btn btn-primary rounded-pill px-5 d-flex align-items-center shadow-sm"
+                    className="btn btn-primary rounded-pill px-5 py-2 d-flex align-items-center shadow-sm"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (

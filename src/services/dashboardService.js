@@ -17,9 +17,10 @@ export const getAdminStats = async () => {
 
 
 const getOpenClaimsCount = async () => {
-  const response = await axiosInstance.get('/claims');
-  const claims = response.data || [];
-
+  const response = await axiosInstance.get('/claims', {
+    params: { pageNumber: 0, pageSize: 100 }
+  });
+  const claims = response.data?.content || response.data || [];
   const pending = claims.filter(
     (c) => c.claimStatus === "SUBMITTED" || c.claimStatus === "UNDER_REVIEW",
   ).length;
@@ -54,20 +55,28 @@ const getTotalActivePolicies = async () => {
 };
 
 const getRecentClaims = async () => {
-  const response = await axiosInstance.get('/claims');
-  const list = response.data || [];
-  return list.slice(0, 5).map(c => ({
-    id: c.id || c.claimId || 'N/A',
-    customerName: c.customerName ,
-    type: c.claimType || c.type || 'Claim',
-    date: c.dateFiled || c.date || c.createdAt?.split('T')[0] || new Date().toISOString().split('T')[0],
-    status: c.claimStatus 
+  const response = await axiosInstance.get('/claims', {
+    params: { pageNumber: 0, pageSize: 5 }
+  });
+  const list = response.data?.content || response.data || [];
+  return list.slice(0, 5).map((c) => ({
+    id: c.id || c.claimId || "N/A",
+    customerName: c.customerName,
+    policyNumber: c.policyNumber || c.policyId || "N/A",
+    claimAmount: c.claimAmount || 0,
+    type: c.claimType || c.type || "Claim",
+    date:
+      c.dateFiled ||
+      c.date ||
+      c.createdAt?.split("T")[0] ||
+      new Date().toISOString().split("T")[0],
+    status: c.claimStatus,
   }));
 };
 
 const getRecentPolicies = async () => {
   const response = await axiosInstance.get('/policies');
-  const list = response.data || [];
+  const list = response.data?.content || response.data || [];
   return list.slice(0, 5).map((p) => ({
     id: p.id || p.policyId || "N/A",
     customerName:

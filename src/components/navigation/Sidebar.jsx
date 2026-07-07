@@ -1,5 +1,5 @@
-import { NavLink, useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+﻿import { NavLink, useNavigate } from "react-router-dom";
+import { notify } from "../../utils/notificationService";
 import useAuth from "../../hooks/useAuth";
 import logoImg from "../../assets/logo/insurance-heart-vector.png";
 import { ChevronLeft, ChevronRight, LogOut } from "lucide-react";
@@ -10,7 +10,7 @@ const Sidebar = ({ navItems, isOpen, setIsOpen, isCollapsed, setIsCollapsed, tit
 
   const handleLogout = () => {
     logout();
-    toast.success("Logged out successfully!");
+    notify.success("Logged out successfully!");
     navigate("/login", { replace: true });
   };
 
@@ -64,8 +64,15 @@ const Sidebar = ({ navItems, isOpen, setIsOpen, isCollapsed, setIsCollapsed, tit
 
         {/* Nav */}
         <nav className="ip-sidebar-nav">
-          {navItems.map(({ to, icon, label, end, section }, idx) => {
-            const prevSection = idx > 0 ? navItems[idx - 1].section : undefined;
+          {navItems
+            .filter((item) => {
+              if (user?.role === "INTERNAL_STAFF" && user?.productSpeciality && item.speciality) {
+                return item.speciality === user.productSpeciality || user.productSpeciality === "ALL";
+              }
+              return true;
+            })
+            .map(({ to, icon, label, end, section }, idx, arr) => {
+            const prevSection = idx > 0 ? arr[idx - 1].section : undefined;
             const showSection = !isCollapsed && section && section !== prevSection;
             return (
               <span key={to}>

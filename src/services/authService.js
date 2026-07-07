@@ -2,7 +2,11 @@ import axiosInstance from '../api/axiosInstance';
 import { jwtDecode } from 'jwt-decode';
 
 export const login = async (credentials) => {
-  const response = await axiosInstance.post('/auth/login', credentials);
+  const payloadReq = { ...credentials };
+  if (payloadReq.password) {
+    payloadReq.password = btoa(payloadReq.password);
+  }
+  const response = await axiosInstance.post('/auth/login', payloadReq);
   const payload = response.data; // Now payload is the actual data object
   const decoded = jwtDecode(payload.token);
 
@@ -18,7 +22,11 @@ export const login = async (credentials) => {
 };
 
 export const register = async (userData) => {
-  const response = await axiosInstance.post('/auth/register', userData);
+  const payloadReq = { ...userData };
+  if (payloadReq.password) {
+    payloadReq.password = btoa(payloadReq.password);
+  }
+  const response = await axiosInstance.post('/auth/register', payloadReq);
   return response;
 };
 
@@ -40,7 +48,14 @@ export const forgotPasswordApi = async (payload) => {
 };
 
 export const resetPasswordApi = async (payload) => {
-  const response = await axiosInstance.post('/auth/reset-password', payload);
+  const payloadReq = { ...payload };
+  if (payloadReq.newPassword) {
+    payloadReq.newPassword = btoa(payloadReq.newPassword);
+  }
+  if (payloadReq.password) {
+    payloadReq.password = btoa(payloadReq.password);
+  }
+  const response = await axiosInstance.post('/auth/reset-password', payloadReq);
   return response;
 };
 

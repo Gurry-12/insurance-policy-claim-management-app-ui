@@ -57,7 +57,10 @@ const CustomerClaimListPage = () => {
         action={
           <div className="d-flex gap-2">
             <ExportButton
-              data={claims || []}
+              fetchAll={async () => {
+                const res = await getMyClaims({...tableState.getQueryParams(), pageSize: tableState.totalElements || 1000, pageNumber: 0});
+                return res.content || [];
+              }}
               columns={[
                 { header: "Claim Number", accessor: "claimNumber" },
                 { header: "Policy Number", accessor: "policyNumber" },
@@ -67,7 +70,7 @@ const CustomerClaimListPage = () => {
               ]}
               filename="my_claims.csv"
             />
-            <Link to="/customer/claims/raise" className="btn btn-primary rounded-pill px-4 d-flex align-items-center shadow-sm">
+            <Link to="/customer/claims/raise" className="btn btn-primary rounded-pill px-4 py-2 d-flex align-items-center shadow-sm">
               <FilePlus size={18} className="me-2" /> Raise Claim
             </Link>
           </div>
@@ -141,7 +144,7 @@ const CustomerClaimListPage = () => {
                     <div className="card-footer bg-white border-top-0 p-3 pt-0 d-flex justify-content-end">
                       <Link
                         to={`/customer/claims/${claim.claimId}`}
-                        className="btn btn-outline-primary rounded-pill px-4 d-flex align-items-center w-100 justify-content-center"
+                        className="btn btn-outline-primary rounded-pill px-4 py-2 d-flex align-items-center w-100 justify-content-center"
                         style={{ fontSize: '0.9rem' }}
                       >
                         <Eye size={16} className="me-2" /> View Full Details <ArrowRight size={16} className="ms-2" />
@@ -157,7 +160,7 @@ const CustomerClaimListPage = () => {
             <FileText size={48} className="text-muted mb-3 opacity-50" />
             <h5 className="fw-bold text-secondary">No Claims Found</h5>
             <p className="text-muted mb-4">You haven't filed any insurance claims yet.</p>
-            <Link to="/customer/claims/raise" className="btn btn-primary rounded-pill px-4 shadow-sm">
+            <Link to="/customer/claims/raise" className="btn btn-primary rounded-pill px-4 py-2 shadow-sm">
               <FilePlus size={18} className="me-2 d-inline" /> Raise a Claim
             </Link>
           </div>

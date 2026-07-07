@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import DataTable from '../../../components/tables/DataTable';
@@ -13,7 +13,12 @@ import SortableHeader from '../../../components/tables/SortableHeader';
 import useDebounceFilters from '../../../hooks/useDebounceFilters';
 import ExportButton from '../../../components/common/ExportButton';
 
+import { STATUS_OPTIONS } from '../../../utils/options';
+
 const FILTER_FIELDS = [
+  { type: 'select', name: 'isActive', label: 'Status',
+    options: STATUS_OPTIONS,
+  },
   { type: 'text',         name: 'planName',        label: 'Plan Name',       placeholder: 'Search by plan name...' },
   { type: 'amount-range', minName: 'minCoverageAmount', maxName: 'maxCoverageAmount', label: 'Coverage Amount' },
   { type: 'amount-range', minName: 'minPremiumAmount',  maxName: 'maxPremiumAmount',  label: 'Premium Amount' },
@@ -129,7 +134,10 @@ const PlanListPage = () => {
         action={
           <div className="d-flex gap-2">
             <ExportButton
-              data={plans || []}
+              fetchAll={async () => {
+                const res = await getAllPlansPaginated({...tableState.getQueryParams(), pageSize: tableState.totalElements || 1000, pageNumber: 0});
+                return res.content || [];
+              }}
               columns={[
                 { header: "Plan Name", accessor: "planName" },
                 { header: "Product Name", accessor: "productName" },

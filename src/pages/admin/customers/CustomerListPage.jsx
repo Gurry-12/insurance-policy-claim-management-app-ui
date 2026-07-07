@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import DataTable from '../../../components/tables/DataTable';
@@ -101,7 +101,7 @@ const CustomerListPage = () => {
         action={
           <ExportButton
             fetchAll={async () => {
-              const res = await getAllCustomersPaginated({ pageSize: tableState.totalElements || 1000, pageNumber: 0 });
+                const res = await getAllCustomersPaginated({...tableState.getQueryParams(),  pageSize: tableState.totalElements || 1000, pageNumber: 0 });
               return res.content || [];
             }}
             columns={[

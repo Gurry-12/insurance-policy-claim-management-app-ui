@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+﻿import { useNavigate } from 'react-router-dom';
 
 const PageHeader = ({ title, subtitle, badge, actions, backPath }) => {
   const navigate = useNavigate();

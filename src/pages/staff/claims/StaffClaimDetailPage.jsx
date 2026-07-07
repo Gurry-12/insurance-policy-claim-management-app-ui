@@ -18,7 +18,8 @@ import Modal from "../../../components/ui/Modal";
 import DocumentPreviewModal from "../../../components/modals/DocumentPreviewModal";
 import FormTextarea from "../../../components/forms/FormTextarea";
 import Drawer from "../../../components/ui/Drawer";
-import { ExternalLink, Clock, Upload, Eye } from "lucide-react";
+import ClaimHistoryTimeline from "../../../components/claims/ClaimHistoryTimeline";
+import { ExternalLink, Clock, Upload, Eye, Lock } from "lucide-react";
 
 const StaffClaimDetailPage = () => {
   const { id } = useParams();
@@ -57,7 +58,7 @@ const StaffClaimDetailPage = () => {
     } catch (err) {
       console.error("Claim fetch error:", err);
       setError(
-        err.response?.data?.message || err.message || "Could not load claim details."
+        err.message || err.message || "Could not load claim details."
       );
     } finally {
       setLoading(false);
@@ -92,6 +93,7 @@ const StaffClaimDetailPage = () => {
       );
       setActionModal({ isOpen: false, type: null });
       setRemark("");
+      fetchClaimData(id); // Refetch to update history timeline
     } catch (error) {
       console.error(error);
       toast.error("Failed to submit recommendation");
@@ -102,19 +104,20 @@ const StaffClaimDetailPage = () => {
 
   const handleUnderReview = async () => {
     try {
-      await markUnderReview(id);
       await assignClaim(id);
+      await markUnderReview(id);
       setClaim({
         ...claim,
         claimStatus: "UNDER_REVIEW",
         assignedStaffName: user?.name,
       });
       toast.success("Claim assigned and moved to Under Review");
+      fetchClaimData(id); // Refetch to update history timeline
     } catch (error) {
       console.error("Under Review/Assign Error:", error);
       if (
         error.response?.status === 400 &&
-        error.response?.data?.message?.includes("already under review")
+        error.message?.includes("already under review")
       ) {
         toast.error("Sorry, another Staff just claimed this ticket!");
         fetchClaimData(id);
@@ -189,7 +192,7 @@ const StaffClaimDetailPage = () => {
                     className="badge bg-secondary d-flex align-items-center px-3 py-2"
                     style={{ fontSize: "0.9rem" }}
                   >
-                    🔒 Locked by {claim.assignedStaffName}
+                    <Lock size={16} className="me-2" /> Locked by {claim.assignedStaffName}
                   </span>
                 )}
 
@@ -343,42 +346,10 @@ const StaffClaimDetailPage = () => {
               {/* Right Side: Status History Timeline */}
               <div className="col-lg-4">
                 <div className="card border-0 shadow-sm h-100" style={{ borderRadius: 16 }}>
-                  <div className="card-header bg-white border-bottom-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
-                    <h6 className="card-title mb-0 fw-bold text-primary">Status History</h6>
+                  <div className="card-header bg-white border-bottom-0 pt-4 pb-0">
+                    <h6 className="card-title mb-0 fw-bold text-primary">Claim Status History</h6>
                   </div>
-                  <div className="card-body">
-                    {history.length > 0 ? (
-                      <div className="timeline-wrapper position-relative ps-3 ms-2 mt-2" style={{ borderLeft: '2px solid #e9ecef' }}>
-                        {history.slice(0, 5).map((item, index) => (
-                          <div key={index} className="position-relative mb-4">
-                            <div 
-                              className="position-absolute bg-primary rounded-circle" 
-                              style={{ width: '12px', height: '12px', left: '-23px', top: '5px' }}
-                            ></div>
-                            <div className="mb-1">
-                              <StatusBadge status={item.newStatus || item.status} />
-                            </div>
-                            <div className="small text-muted mb-1">
-                              {new Date(item.updatedDate).toLocaleString()}
-                            </div>
-                            <div className="small">
-                              By: <span className="fw-medium">{item.updatedBy || "System"}</span>
-                            </div>
-                          </div>
-                        ))}
-                        {history.length > 5 && (
-                          <div className="text-center mt-3 text-muted small">
-                            Older updates hidden.
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-center text-muted p-4 d-flex flex-column align-items-center">
-                        <Clock size={40} className="mb-2 opacity-50" />
-                        <small>No history available yet.</small>
-                      </div>
-                    )}
-                  </div>
+                  <ClaimHistoryTimeline history={history} />
                 </div>
               </div>
             </div>

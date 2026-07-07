@@ -13,7 +13,11 @@ export const getUserById = async (userId) => {
 
 
 export const createStaff = async (payload) => {
-  const response = await axiosInstance.post("/users/staff", payload);
+  const payloadReq = { ...payload };
+  if (payloadReq.password) {
+    payloadReq.password = btoa(payloadReq.password);
+  }
+  const response = await axiosInstance.post("/users/staff", payloadReq);
   return response;
 };
 

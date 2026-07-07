@@ -1,14 +1,14 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+﻿import { useState, useRef, useEffect, useCallback } from 'react';
 import ModernSelect from './../../components/forms/ModernSelect';
 
 /**
- * FilterPanel — Enterprise-grade floating filter panel
+ * FilterPanel â€” Enterprise-grade floating filter panel
  *
  * Props:
- *   fields        — Array of filter field config objects (see below)
- *   localFilters  — Current filter values from useDebounceFilters
- *   onApply       — Called with validated updates to apply (calls handleFilterChange)
- *   onClear       — Called to reset all filters (calls clearFilters)
+ *   fields        â€” Array of filter field config objects (see below)
+ *   localFilters  â€” Current filter values from useDebounceFilters
+ *   onApply       â€” Called with validated updates to apply (calls handleFilterChange)
+ *   onClear       â€” Called to reset all filters (calls clearFilters)
  *
  * Field Config Types:
  *   { type: 'text',         name, label, placeholder }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import DataTable from '../../../components/tables/DataTable';
@@ -12,15 +12,11 @@ import useTableState from '../../../hooks/useTableState';
 import SortableHeader from '../../../components/tables/SortableHeader';
 import useDebounceFilters from '../../../hooks/useDebounceFilters';
 import ExportButton from '../../../components/common/ExportButton';
+import { POLICY_STATUS_OPTIONS } from '../../../utils/options';
 
 const FILTER_FIELDS = [
   { type: 'select', name: 'status', label: 'Policy Status',
-    options: [
-      { value: 'ACTIVE',          label: 'Active' },
-      { value: 'PENDING_PAYMENT', label: 'Pending Payment' },
-      { value: 'EXPIRED',         label: 'Expired' },
-      { value: 'CANCELLED',       label: 'Cancelled' },
-    ],
+    options: POLICY_STATUS_OPTIONS,
   },
 ];
 
@@ -113,7 +109,7 @@ const PolicyListPage = () => {
           <div className="d-flex gap-2">
             <ExportButton
               fetchAll={async () => {
-                const res = await getAllPoliciesPaginated({ pageSize: tableState.totalElements || 1000, pageNumber: 0 });
+                const res = await getAllPoliciesPaginated({...tableState.getQueryParams(),  pageSize: tableState.totalElements || 1000, pageNumber: 0 });
                 return res.content || [];
               }}
               filename="policies_export.csv"

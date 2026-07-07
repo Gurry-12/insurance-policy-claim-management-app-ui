@@ -2,7 +2,7 @@ import { notify } from './notificationService';
 import { extractValidationErrors } from './apiResponse';
 
 export const handleApiError = (error, defaultMessage = "An unexpected error occurred") => {
-    const responseData = error?.response?.data;
+    
     
     // 1. Handle Validation Error Maps (Multiple Messages)
     const fieldErrors = extractValidationErrors(error);

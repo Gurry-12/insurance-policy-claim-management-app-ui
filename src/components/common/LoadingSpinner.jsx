@@ -1,4 +1,4 @@
-const LoadingSpinner = ({ text = 'Loading\u2026' }) => (
+﻿const LoadingSpinner = ({ text = 'Loading\u2026' }) => (
   <div className="d-flex flex-column align-items-center justify-content-center py-5 gap-3">
     <div
       className="spinner-border"

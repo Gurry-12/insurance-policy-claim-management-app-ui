@@ -262,17 +262,20 @@ h5 { font-size: 1rem;     font-weight: 600; }
 h6 { font-size: 0.875rem; font-weight: 600; }
 
 .btn {
+  font-family: 'Inter', sans-serif;
   font-weight: 500;
   font-size: 0.875rem;
   border-radius: var(--ip-radius-sm);
   padding: 0.5rem 1rem;
+  height: 40px;
   transition: all var(--ip-transition-fast);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   border: none;
   cursor: pointer;
+  line-height: 1;
 }
 .btn:focus-visible {
   outline: 2px solid var(--ip-border-focus);
@@ -331,9 +334,14 @@ h6 { font-size: 0.875rem; font-weight: 600; }
   border-radius: var(--ip-radius-sm);
   font-size: 0.875rem;
   padding: 0.5rem 0.75rem;
+  height: 40px;
   color: var(--ip-text-primary);
   background-color: var(--ip-surface);
   transition: border-color var(--ip-transition-fast), box-shadow var(--ip-transition-fast);
+}
+textarea.form-control {
+  height: auto;
+  min-height: 80px;
 }
 .form-control:focus, .form-select:focus {
   border-color: var(--ip-border-focus);
@@ -381,18 +389,21 @@ h6 { font-size: 0.875rem; font-weight: 600; }
   color: var(--ip-text-primary);
 }
 .table thead th {
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--ip-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   border-bottom: 1px solid var(--ip-border);
   background: var(--ip-surface-raised);
-  padding: 0.85rem 1rem;
+  padding: 0 1rem;
+  height: 48px;
+  vertical-align: middle;
   white-space: nowrap;
 }
 .table tbody td {
-  padding: 0.875rem 1rem;
+  padding: 0 1rem;
+  height: 48px;
   border-bottom: 1px solid var(--ip-border);
   vertical-align: middle;
 }
@@ -891,11 +902,17 @@ h6 { font-size: 0.875rem; font-weight: 600; }
 
 /* Sticky Headers */
 .table thead th {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background-color: var(--ip-surface);
-  box-shadow: 0 1px 0 var(--ip-border);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ip-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--ip-border);
+  background: var(--ip-surface-raised);
+  padding: 0 1rem;
+  height: 48px;
+  vertical-align: middle;
+  white-space: nowrap;
 }
 
 /* Compact Mode Toggle */

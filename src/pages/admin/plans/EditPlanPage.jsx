@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import FormInput from '../../../components/forms/FormInput';
@@ -9,8 +9,8 @@ import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import { getAllProducts } from '../../../services/productService';
 import { getPlanById, updatePlan } from '../../../services/planService';
-import toast from 'react-hot-toast';
 import { notify } from "../../../utils/notificationService";
+import { PREMIUM_TYPE_OPTIONS, STATUS_OPTIONS } from "../../../utils/options";
 
 const EditPlanPage = () => {
   const { id } = useParams();
@@ -23,7 +23,7 @@ const EditPlanPage = () => {
     premiumType: 'ANNUAL',
     duration: '1',
     termsAndConditions: '',
-    status: 'Active'
+    status: true
   });
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -51,7 +51,7 @@ const EditPlanPage = () => {
             premiumType: planData.premiumType || 'ANNUAL',
             duration: planData.duration || '1',
             termsAndConditions: planData.termsAndConditions || '',
-            status: (planData.activeStatus ?? planData.active) ? 'Active' : 'Inactive'
+            status: planData.activeStatus ?? planData.active ?? true
           });
         } else {
           setError('Could not load plan details.');
@@ -72,15 +72,26 @@ const EditPlanPage = () => {
     setSubmitting(true);
     const errs = {};
 
-    if (!/^[A-Za-z\s]+$/.test(formData.name)) {
+    const nameRegex = /^[a-zA-Z\s]*$/;
+    if (!formData.name?.trim()) {
+      errs.name = 'Plan Name is required.';
+    } else if (!nameRegex.test(formData.name)) {
       errs.name = 'Only letters and spaces are allowed in the plan name.';
     }
 
-    if (Number(formData.premium) <= 0) {
+    if (!formData.productId) {
+      errs.productId = 'Product is required.';
+    }
+
+    if (!formData.premium) {
+      errs.premium = 'Base premium is required.';
+    } else if (Number(formData.premium) <= 0) {
       errs.premium = 'Base premium must be greater than zero.';
     }
 
-    if (Number(formData.coverage) <= 0) {
+    if (!formData.coverage) {
+      errs.coverage = 'Coverage amount is required.';
+    } else if (Number(formData.coverage) <= 0) {
       errs.coverage = 'Coverage amount must be greater than zero.';
     }
 
@@ -95,7 +106,9 @@ const EditPlanPage = () => {
       }
     }
 
-    if (Number(formData.duration) <= 0 || !Number.isInteger(Number(formData.duration))) {
+    if (!formData.duration) {
+      errs.duration = 'Duration is required.';
+    } else if (Number(formData.duration) <= 0 || !Number.isInteger(Number(formData.duration))) {
       errs.duration = 'Duration must be a positive integer.';
     } else if (Number(formData.duration) > 40) {
       errs.duration = 'Duration cannot exceed 40 years.';
@@ -119,12 +132,12 @@ const EditPlanPage = () => {
       premiumType: formData.premiumType,
       duration: Number(formData.duration),
       termsAndConditions: formData.termsAndConditions,
-      activeStatus: formData.status === 'Active'
+      activeStatus: formData.status
     };
 
     updatePlan(id, payload)
-      .then(() => {
-        notify.success('Plan updated successfully!');
+      .then(async (res) => {
+        notify.success(res, 'Plan updated successfully!');
         navigate(`/admin/plans/${id}`);
       })
       .catch((err) => {
@@ -163,7 +176,7 @@ const EditPlanPage = () => {
           style={{ borderRadius: 16, boxShadow: "var(--ip-shadow-md)" }}
         >
           <div className="card-body p-4 p-md-5">
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} noValidate>
               <div className="row">
                 <div className="col-md-6">
                   <FormInput
@@ -183,6 +196,7 @@ const EditPlanPage = () => {
                     onChange={handleChange}
                     required
                     options={productOptions}
+                    error={errors.productId}
                   />
                 </div>
               </div>
@@ -220,15 +234,13 @@ const EditPlanPage = () => {
                     value={formData.premiumType}
                     onChange={handleChange}
                     required
-                    options={[
-                      { value: "ANNUAL", label: "Annual" },
-                      { value: "ONE_TIME", label: "One-time" },
-                    ]}
+                    options={PREMIUM_TYPE_OPTIONS}
+                    error={errors.premiumType}
                   />
                 </div>
                 <div className="col-md-6">
                   <FormInput
-                    label="Duration (Years/Months)"
+                    label="Duration (Years)"
                     name="duration"
                     type="number"
                     value={formData.duration}
@@ -248,10 +260,8 @@ const EditPlanPage = () => {
                     value={formData.status}
                     onChange={handleChange}
                     required
-                    options={[
-                      { value: "Active", label: "Active" },
-                      { value: "Inactive", label: "Inactive" },
-                    ]}
+                    options={STATUS_OPTIONS}
+                    error={errors.status}
                   />
                 </div>
               </div>

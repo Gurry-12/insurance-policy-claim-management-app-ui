@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { getMyPayments } from "../../../services/paymentService";
 import PageHeader from "../../../components/common/PageHeader";
 import StatusBadge from "../../../components/ui/StatusBadge";
@@ -59,7 +59,10 @@ const CustomerPaymentHistoryPage = () => {
         icon={FileText}
         action={
           <ExportButton
-            data={payments || []}
+              fetchAll={async () => {
+                const res = await getMyPayments({...tableState.getQueryParams(), pageSize: tableState.totalElements || 1000, pageNumber: 0});
+                return res.content || [];
+              }}
             columns={[
               { header: "Policy Number", accessor: "policyNumber" },
               { header: "Amount (₹)", accessor: "amount" },

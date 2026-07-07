@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { notify } from "../../../utils/notificationService";
 import { recordPayment } from "../../../services/paymentService";
@@ -6,6 +6,7 @@ import { getMyPolicies } from "../../../services/policyService";
 import PageHeader from "../../../components/common/PageHeader";
 import { Wallet } from "lucide-react";
 import ModernSelect from "../../../components/forms/ModernSelect";
+import { PAYMENT_MODE_OPTIONS } from "../../../utils/options";
 
 const RecordPaymentPage = () => {
   const navigate = useNavigate();
@@ -89,12 +90,12 @@ const RecordPaymentPage = () => {
     setIsSubmitting(true);
 
     try {
-      await recordPayment({
+      const payload = {
         ...formData,
         amount: Number(formData.amount),
-      });
-
-      notify.success("Payment Recorded Successfully");
+      };
+      const res = await recordPayment(payload);
+      notify.success(res, "Payment Recorded Successfully");
       navigate("/customer/payments");
     } catch (error) {
       console.error(error);
@@ -135,7 +136,7 @@ const RecordPaymentPage = () => {
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} noValidate>
                 <div className="mb-4">
                   <label className="form-label fw-medium">Select Policy <span className="text-danger">*</span></label>
                   {isLoadingPolicies ? (
@@ -179,12 +180,7 @@ const RecordPaymentPage = () => {
                     name="paymentMode"
                     value={formData.paymentMode}
                     onChange={handleChange}
-                    options={[
-                      { value: 'UPI', label: 'UPI' },
-                      { value: 'CREDIT_CARD', label: 'Credit Card' },
-                      { value: 'DEBIT_CARD', label: 'Debit Card' },
-                      { value: 'NET_BANKING', label: 'Net Banking' }
-                    ]}
+                    options={PAYMENT_MODE_OPTIONS}
                   />
                 </div>
 

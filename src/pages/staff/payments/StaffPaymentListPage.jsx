@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { getAllPaymentsPaginated } from "../../../services/paymentService";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
@@ -11,14 +11,14 @@ import FilterPanel from "../../../components/ui/FilterPanel";
 import FilterChips from "../../../components/ui/FilterChips";
 import SortableHeader from "../../../components/tables/SortableHeader";
 import useDebounceFilters from "../../../hooks/useDebounceFilters";
+import { PAYMENT_STATUS_OPTIONS } from "../../../utils/options";
 
 const FILTER_FIELDS = [
-  { type: 'select', name: 'paymentStatus', label: 'Payment Status',
-    options: [
-      { value: 'SUCCESS', label: 'Success' },
-      { value: 'PENDING', label: 'Pending' },
-      { value: 'FAILED',  label: 'Failed' },
-    ],
+  {
+    type: "select",
+    name: "paymentStatus",
+    label: "Payment Status",
+    options: PAYMENT_STATUS_OPTIONS,
   },
   { type: 'amount-range', minName: 'minAmount', maxName: 'maxAmount', label: 'Amount' },
 ];
@@ -107,7 +107,7 @@ const StaffPaymentListPage = () => {
           <div className="d-flex gap-2">
             <ExportButton
               fetchAll={async () => {
-                const res = await getAllPaymentsPaginated({ pageSize: tableState.totalElements || 1000, pageNumber: 0 });
+                const res = await getAllPaymentsPaginated({...tableState.getQueryParams(),  pageSize: tableState.totalElements || 1000, pageNumber: 0 });
                 return res.content || [];
               }}
               columns={[

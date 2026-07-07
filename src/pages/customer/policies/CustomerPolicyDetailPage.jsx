@@ -5,13 +5,15 @@ import { getPaymentsByMyPolicy } from "../../../services/paymentService";
 import PageHeader from "../../../components/common/PageHeader";
 import LoadingSpinner from "../../../components/common/LoadingSpinner";
 import StatusBadge from "../../../components/ui/StatusBadge";
-import { Shield, ArrowLeft, CreditCard, History } from "lucide-react";
+import { Shield, ArrowLeft, CreditCard, History, Download } from "lucide-react";
+import usePolicyPdf from "../../../hooks/PdfDownload/usePolicyPdf";
 
 const CustomerPolicyDetailPage = () => {
   const { policyId } = useParams();
   const [policy, setPolicy] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [payments, setPayments] = useState([]);
+  const { downloadPolicy } = usePolicyPdf();
 
   useEffect(() => {
     const fetchPolicyData = async () => {
@@ -67,6 +69,13 @@ const showPayButton =
         subtitle="Detailed view of your insurance policy"
         action={
           <div className="d-flex gap-2">
+            <button
+              className="btn btn-outline-danger d-flex align-items-center"
+              onClick={() => downloadPolicy(policy)}
+            >
+              <Download size={18} className="me-2" />
+              PDF
+            </button>
             <Link
               to={`/customer/payments`}
               className="btn btn-outline-primary d-flex align-items-center"

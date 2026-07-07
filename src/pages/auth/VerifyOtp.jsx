@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import toast from 'react-hot-toast';
 import "../css/Login.css";
@@ -84,7 +84,7 @@ const VerifyOtp = () => {
       }
     } catch (err) {
       toast.error(
-        err.response?.data?.message ||
+        err.message ||
           err.response?.data?.error ||
           "Verification failed.",
       );
@@ -123,14 +123,14 @@ const VerifyOtp = () => {
                 id="otp-email"
                 name="email"
                 type="email"
-                className="form-control pristine-input"
+                className={`form-control pristine-input ${errors.email ? 'is-invalid' : ''}`}
                 placeholder="username@gmail.com"
                 value={formData.email}
                 onChange={handleChange}
                 disabled={!!targetEmail}
               />
               {errors.email && (
-                <div className="input-error-tip">
+                <div className="input-error-tip text-danger mt-1">
                   <i className="bi bi-x-circle-fill" /> {errors.email}
                 </div>
               )}
@@ -145,14 +145,14 @@ const VerifyOtp = () => {
                 name="emailOtp"
                 type="text"
                 maxLength={6}
-                className="form-control pristine-input otp-input-field"
-                placeholder="••••••"
+                className={`form-control pristine-input otp-input-field ${errors.emailOtp ? 'is-invalid' : ''}`}
+                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢"
                 value={formData.emailOtp}
                 onChange={handleChange}
                 disabled={loading}
               />
               {errors.emailOtp && (
-                <div className="input-error-tip">
+                <div className="input-error-tip text-danger mt-1">
                   <i className="bi bi-x-circle-fill" /> {errors.emailOtp}
                 </div>
               )}
@@ -167,14 +167,14 @@ const VerifyOtp = () => {
                 name="phoneOtp"
                 type="text"
                 maxLength={6}
-                className="form-control pristine-input otp-input-field"
-                placeholder="••••••"
+                className={`form-control pristine-input otp-input-field ${errors.phoneOtp ? 'is-invalid' : ''}`}
+                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢"
                 value={formData.phoneOtp}
                 onChange={handleChange}
                 disabled={loading}
               />
               {errors.phoneOtp && (
-                <div className="input-error-tip">
+                <div className="input-error-tip text-danger mt-1">
                   <i className="bi bi-x-circle-fill" /> {errors.phoneOtp}
                 </div>
               )}

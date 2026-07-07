@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   createProfile,
@@ -9,7 +9,7 @@ import PageHeader from "../../../components/common/PageHeader";
 import ModernSelect from "../../../components/forms/ModernSelect";
 import ModernDatePicker from "../../../components/forms/ModernDatePicker";
 import { notify } from "../../../utils/notificationService";
-
+import { NOMINEE_RELATIONS } from "../../../utils/options";
 
 const EditProfilePage = () => {
   const navigate = useNavigate();
@@ -70,11 +70,11 @@ const EditProfilePage = () => {
     const errs = {};
 
     if (!formData.dateOfBirth) errs.dateOfBirth = "Date of Birth is required";
-    if (!formData.address) errs.address = "Address is required";
-    if (!formData.city) errs.city = "City is required";
-    if (!formData.state) errs.state = "State is required";
-    if (!formData.pinCode) errs.pinCode = "Pin Code is required";
-    if (!formData.nomineeName) errs.nomineeName = "Nominee Name is required";
+    if (!formData.address?.trim()) errs.address = "Address is required";
+    if (!formData.city?.trim()) errs.city = "City is required";
+    if (!formData.state?.trim()) errs.state = "State is required";
+    if (!formData.pinCode?.trim()) errs.pinCode = "Pin Code is required";
+    if (!formData.nomineeName?.trim()) errs.nomineeName = "Nominee Name is required";
     if (!formData.nomineeRelation) errs.nomineeRelation = "Nominee Relation is required";
 
     if (Object.keys(errs).length > 0) {
@@ -84,11 +84,11 @@ const EditProfilePage = () => {
 
     try {
       if (customerId) {
-        await updateProfile(customerId, formData);
-        notify.success("Profile Updated Successfully");
+        const res = await updateProfile(customerId, formData);
+        notify.success(res, "Profile Updated Successfully");
       } else {
-        await createProfile(formData);
-        notify.success("Profile Created Successfully");
+        const res = await createProfile(formData);
+        notify.success(res, "Profile Created Successfully");
       }
 
       navigate("/customer/profile");
@@ -98,7 +98,7 @@ const EditProfilePage = () => {
         setErrors(error.fieldErrors);
         notify.error("Please correct the highlighted fields.");
       } else {
-        notify.error(error?.response?.data?.message || "Failed to save profile");
+        notify.error(error?.message || "Failed to save profile");
       }
     }
   };
@@ -114,7 +114,7 @@ const EditProfilePage = () => {
         <div className="col-lg-8">
           <div className="card border-0 shadow-sm">
             <div className="card-body p-4 p-md-5">
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} noValidate>
                 <div className="row g-4">
                   
                   <div className="col-12">
@@ -141,13 +141,13 @@ const EditProfilePage = () => {
 
                   <div className="col-12">
                     <label className="form-label fw-medium">Address <span className="text-danger">*</span></label>
-                    <input
-                      type="text"
+                    <textarea
                       name="address"
                       className={`form-control ${errors.address ? 'is-invalid' : ''}`}
                       value={formData.address}
                       onChange={handleChange}
                       placeholder="Street address, P.O. box, etc."
+                      rows="3"
                       required
                     />
                     {errors.address && <div className="invalid-feedback">{errors.address}</div>}
@@ -221,13 +221,7 @@ const EditProfilePage = () => {
                       value={formData.nomineeRelation}
                       onChange={handleChange}
                       error={errors.nomineeRelation}
-                      options={[
-                        { value: 'Spouse', label: 'Spouse' },
-                        { value: 'Child', label: 'Child' },
-                        { value: 'Parent', label: 'Parent' },
-                        { value: 'Sibling', label: 'Sibling' },
-                        { value: 'Other', label: 'Other' }
-                      ]}
+                      options={NOMINEE_RELATIONS}
                       required={true}
                       placeholder="Select Relation"
                     />

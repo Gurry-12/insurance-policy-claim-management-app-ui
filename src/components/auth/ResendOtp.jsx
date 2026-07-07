@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { createPortal } from "react-dom";
 import { notify } from "../../utils/notificationService";
 import { resendOtpApi } from "../../services/authService";
@@ -121,14 +121,14 @@ const ResendOtp = ({ email = '', triggerButton = true, isOpenProp, onClose, onSu
                   id="resend-email"
                   name="email"
                   type="email"
-                  className="form-control pristine-input"
+                  className={`form-control pristine-input ${errors.email ? 'is-invalid' : ''}`}
                   placeholder="username@gmail.com"
                   value={formData.email}
                   onChange={handleChange}
                   disabled={loading}
                 />
                 {errors.email && (
-                  <div className="input-error-tip">{errors.email}</div>
+                  <div className="input-error-tip text-danger mt-1"><i className="bi bi-x-circle-fill" /> {errors.email}</div>
                 )}
               </div>
 
@@ -142,7 +142,7 @@ const ResendOtp = ({ email = '', triggerButton = true, isOpenProp, onClose, onSu
                     id="resend-phone"
                     name="phone"
                     type="tel"
-                    className="form-control pristine-input border-start-0 ps-0"
+                    className={`form-control pristine-input border-start-0 ps-0 ${errors.phone ? 'is-invalid' : ''}`}
                     placeholder="9983710550"
                     value={formData.phone}
                     onChange={handleChange}
@@ -151,7 +151,7 @@ const ResendOtp = ({ email = '', triggerButton = true, isOpenProp, onClose, onSu
                   />
                 </div>
                 {errors.phone && (
-                  <div className="input-error-tip">{errors.phone}</div>
+                  <div className="input-error-tip text-danger mt-1"><i className="bi bi-x-circle-fill" /> {errors.phone}</div>
                 )}
               </div>
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
 import { notify } from "../../../utils/notificationService";
@@ -97,9 +97,8 @@ const StaffIssuePolicyPage = () => {
         startDate: new Date().toISOString().split("T")[0],
       };
 
-      await issuePolicy(payload);
-
-      notify.success("Policy Issued Successfully");
+      const res = await issuePolicy(payload);
+      notify.success(res, "Policy Issued Successfully");
 
       navigate("/staff/policies");
     } catch (error) {
@@ -109,7 +108,7 @@ const StaffIssuePolicyPage = () => {
         setErrors(error.fieldErrors);
         notify.error("Please correct the highlighted fields.");
       } else {
-        notify.error(error?.response?.data?.message || "Failed to issue policy");
+        notify.error(error?.message || error?.response?.data?.message || "Failed to issue policy");
       }
     } finally {
       setLoading(false);
@@ -137,7 +136,7 @@ const StaffIssuePolicyPage = () => {
 
       <div className="card border-0 shadow-sm">
         <div className="card-body p-4">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} noValidate>
             <div className="row">
               <div className="col-md-6 mb-3 mb-md-0">
                 <ModernSelect

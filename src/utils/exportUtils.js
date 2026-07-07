@@ -8,15 +8,18 @@
 export const exportToCSV = (data, columns, filename = "export.csv") => {
   if (!data || !data.length) return;
 
-  const headers = columns.map(col => col.header || "");
+  // Filter out any existing 'Sr. No.' column to avoid duplicates
+  const exportColumns = columns.filter(col => col.header !== 'Sr. No.');
+
+  const headers = ["Sr. No.", ...exportColumns.map(col => col.header || "")];
   const csvRows = [];
 
   // Add header row
   csvRows.push(headers.map(h => `"${String(h).replace(/"/g, '""')}"`).join(","));
 
   // Add data rows
-  data.forEach(row => {
-    const values = columns.map(col => {
+  data.forEach((row, index) => {
+    const values = exportColumns.map(col => {
       let val = "";
       if (col.exportValue) {
         val = col.exportValue(row);
@@ -32,11 +35,15 @@ export const exportToCSV = (data, columns, filename = "export.csv") => {
       }
       return `"${stringVal.replace(/"/g, '""')}"`;
     });
+    
+    // Prepend Sr. No. to values
+    values.unshift(`"${index + 1}"`);
+    
     csvRows.push(values.join(","));
   });
 
   // Generate blob & download
-  const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
+  const blob = new Blob(["\uFEFF" + csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.setAttribute("href", url);

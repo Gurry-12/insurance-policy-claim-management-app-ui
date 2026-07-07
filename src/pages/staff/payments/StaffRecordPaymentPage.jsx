@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
 import { notify } from "../../../utils/notificationService";
@@ -6,6 +6,8 @@ import { Wallet } from "lucide-react";
 import ModernSelect from "../../../components/forms/ModernSelect";
 import { recordPayment } from "../../../services/paymentService";
 import { getPolicyById } from "../../../services/policyService";
+import { PAYMENT_MODE_OPTIONS } from "../../../utils/options";
+
 const StaffRecordPaymentPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -65,9 +67,8 @@ const StaffRecordPaymentPage = () => {
     }
 
     try {
-      await recordPayment(formData);
-
-      notify.success("Payment recorded successfully");
+      const res = await recordPayment(formData);
+      notify.success(res, "Payment recorded successfully");
 
       setTimeout(() => navigate("/staff/payments"), 2000);
     } catch (err) {
@@ -106,7 +107,7 @@ const StaffRecordPaymentPage = () => {
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} noValidate>
                 <div className="mb-4">
                   <label className="form-label fw-medium">
                     Policy <span className="text-danger">*</span>
@@ -157,12 +158,7 @@ const StaffRecordPaymentPage = () => {
                     name="paymentMode"
                     value={formData.paymentMode}
                     onChange={handleChange}
-                    options={[
-                      { value: 'CARD', label: 'Credit/Debit Card' },
-                      { value: 'NET_BANKING', label: 'Net Banking' },
-                      { value: 'UPI', label: 'UPI' },
-                      { value: 'CASH', label: 'Cash' }
-                    ]}
+                    options={PAYMENT_MODE_OPTIONS}
                   />
                 </div>
 

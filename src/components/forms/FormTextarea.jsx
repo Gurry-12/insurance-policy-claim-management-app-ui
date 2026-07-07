@@ -1,4 +1,4 @@
-const FormTextarea = ({ label, name, value, onChange, placeholder, error, required = false, rows = 3, ...props }) => {
+﻿const FormTextarea = ({ label, name, value, onChange, placeholder, error, required = false, rows = 3, ...props }) => {
   return (
     <div className="mb-3">
       {label && (

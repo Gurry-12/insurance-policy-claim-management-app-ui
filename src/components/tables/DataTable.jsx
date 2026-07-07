@@ -1,4 +1,4 @@
-import EmptyState from '../ui/EmptyState';
+﻿import EmptyState from '../ui/EmptyState';
 
 const DataTable = ({
   columns,
@@ -6,12 +6,13 @@ const DataTable = ({
   loading = false,
   onRowClick,
   emptyIcon = "bi-table",
-  emptyMessage = "No data available"
+  emptyMessage = "No data available",
+  compact = false
 }) => {
 
   if (loading) {
     return (
-      <div className="table-responsive" style={{ minHeight: '440px' }}>
+      <div className="table-responsive" style={compact ? {} : { minHeight: '440px' }}>
         <table className="table align-middle mb-0">
           <thead>
             <tr>
@@ -38,15 +39,15 @@ const DataTable = ({
 
   if (!data || data.length === 0) {
     return (
-      <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '440px', width: '100%' }}>
+      <div className="d-flex align-items-center justify-content-center py-4" style={compact ? { width: '100%' } : { minHeight: '440px', width: '100%' }}>
         <EmptyState icon={emptyIcon} message={emptyMessage} />
       </div>
     );
   }
 
   return (
-    <div className="table-responsive" style={{ minHeight: '440px', maxHeight: '600px', overflowY: 'auto' }}>
-      <table className="table table-hover align-middle mb-0">
+    <div className="table-responsive" style={compact ? { overflowY: 'auto' } : { minHeight: '440px', maxHeight: '600px', overflowY: 'auto' }}>
+      <table className={`table table-hover align-middle mb-0 ${compact ? 'table-sm' : ''}`} style={compact ? { fontSize: '0.85rem' } : {}}>
         <thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: 'var(--ip-body-bg, #fff)' }}>
           <tr>
             {columns.map((col, idx) => (

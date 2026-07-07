@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from 'react-hot-toast';
 import { register as registerService } from "../../services/authService";
@@ -66,8 +66,8 @@ const Register = () => {
     }
     if (!formData.password) {
       errs.password = "Password is required.";
-    } else if (formData.password.length < 6) {
-      errs.password = "Password must be at least 6 characters.";
+    } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{6,15}$/.test(formData.password)) {
+      errs.password = "Password must be 6-15 characters and contain at least one uppercase letter, one lowercase letter, one digit, and one special character (@#$%^&+=!).";
     }
     if (formData.password !== formData.confirmPassword) {
       errs.confirmPassword = "Passwords do not match.";
@@ -90,9 +90,9 @@ const Register = () => {
       const payload = {
         fullName: formData.fullName.trim(),
         email: formData.email.trim(),
-        mobileNumber: formData.mobileNumber.startsWith("+91") 
-          ? formData.mobileNumber.trim() 
-          : "+91" + formData.mobileNumber.trim(),
+        mobileNumber: formData.mobileNumber.replace(/^\+91/, '').trim().length === 10
+          ? "+91" + formData.mobileNumber.replace(/^\+91/, '').trim()
+          : formData.mobileNumber,
         password: formData.password,
       };
 
@@ -104,7 +104,7 @@ const Register = () => {
       );
     } catch (err) {
       toast.error(
-        err.response?.data?.message ||
+        err.message ||
           err.response?.data?.error ||
           "Registration failed. Please try again.",
       );
@@ -321,7 +321,7 @@ const Register = () => {
                   type="submit"
                   className="login-submit-btn w-100 mt-2 mb-3"
                   isLoading={loading}
-                  loadingText="Creating account…"
+                  loadingText="Creating accountâ€¦"
                 >
                   Register for free
                 </LoadingButton>

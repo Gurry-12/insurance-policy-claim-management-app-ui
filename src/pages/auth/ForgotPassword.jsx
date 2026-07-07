@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { forgotPasswordApi, resetPasswordApi } from "../../services/authService";
@@ -7,7 +7,8 @@ import "../css/Login.css";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
-
+    const [showPw, setShowPw] = useState(false);
+    
   // State Step 1
   const [email, setEmail] = useState("");
   // State Step 2
@@ -19,18 +20,23 @@ const ForgotPassword = () => {
   
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [showPw, setShowPw] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const handleForgotPasswordSubmit = async (e) => {
     e.preventDefault();
+    const errs = {};
     
     if (!email.trim()) {
-      toast.error("Email is required.");
-      return;
+      errs.email = "Email is required.";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast.error("Enter a valid email address.");
+      errs.email = "Enter a valid email address.";
+    }
+
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
       return;
     }
+    setErrors({});
 
     try {
       setLoading(true);
@@ -38,7 +44,7 @@ const ForgotPassword = () => {
       toast.success("OTP sent to your registered email and phone number.");
       setStep(2);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to request password reset.");
+      toast.error(err.message || "Failed to request password reset.");
     } finally {
       setLoading(false);
     }
@@ -47,21 +53,32 @@ const ForgotPassword = () => {
   const handleResetChange = (e) => {
     const { name, value } = e.target;
     setResetData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const handleResetPasswordSubmit = async (e) => {
     e.preventDefault();
+    const errs = {};
 
-    if (!resetData.emailOtp.trim() || !resetData.phoneOtp.trim()) {
-      toast.error("Both Email OTP and Phone OTP are required.");
-      return;
+    if (!resetData.emailOtp.trim()) {
+      errs.emailOtp = "Email OTP is required.";
+    }
+    if (!resetData.phoneOtp.trim()) {
+      errs.phoneOtp = "Phone OTP is required.";
     }
 
     const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{6,15}$/;
-    if (!passRegex.test(resetData.newPassword)) {
-      toast.error("Password must be 6-15 characters and contain at least one uppercase letter, one lowercase letter, one digit, and one special character (@#$%^&+=!).");
+    if (!resetData.newPassword) {
+      errs.newPassword = "New Password is required.";
+    } else if (!passRegex.test(resetData.newPassword)) {
+      errs.newPassword = "Password must be 6-15 characters and contain at least one uppercase letter, one lowercase letter, one digit, and one special character (@#$%^&+=!).";
+    }
+
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
       return;
     }
+    setErrors({});
 
     try {
       setLoading(true);
@@ -74,7 +91,7 @@ const ForgotPassword = () => {
       toast.success("Password has been reset successfully.");
       navigate("/login");
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to reset password.");
+      toast.error(err.message || "Failed to reset password.");
     } finally {
       setLoading(false);
     }
@@ -104,14 +121,20 @@ const ForgotPassword = () => {
                     <input
                       id="fp-email"
                       type="email"
-                      className="form-control pristine-input"
+                      className={`form-control pristine-input ${errors.email ? 'is-invalid' : ''}`}
                       placeholder="username@gmail.com"
                       value={email}
                       onChange={(e) => {
                         setEmail(e.target.value);
+                        if (errors.email) setErrors(prev => ({ ...prev, email: '' }));
                       }}
                       disabled={loading}
                     />
+                    {errors.email && (
+                      <div className="input-error-tip text-danger mt-1">
+                        <i className="bi bi-x-circle-fill" /> {errors.email}
+                      </div>
+                    )}
                   </div>
                   <button type="submit" className="btn login-submit-btn w-100 mt-2 mb-3" disabled={loading}>
                     {loading ? (
@@ -127,13 +150,18 @@ const ForgotPassword = () => {
                       id="emailOtp"
                       name="emailOtp"
                       type="text"
-                      className="form-control pristine-input text-center fs-5 tracking-wider"
+                      className={`form-control pristine-input text-center fs-5 tracking-wider ${errors.emailOtp ? 'is-invalid' : ''}`}
                       placeholder="------"
                       maxLength="6"
                       value={resetData.emailOtp}
                       onChange={handleResetChange}
                       disabled={loading}
                     />
+                    {errors.emailOtp && (
+                      <div className="input-error-tip text-danger mt-1">
+                        <i className="bi bi-x-circle-fill" /> {errors.emailOtp}
+                      </div>
+                    )}
                   </div>
 
                   <div className="mb-3 text-start">
@@ -142,13 +170,18 @@ const ForgotPassword = () => {
                       id="phoneOtp"
                       name="phoneOtp"
                       type="text"
-                      className="form-control pristine-input text-center fs-5 tracking-wider"
+                      className={`form-control pristine-input text-center fs-5 tracking-wider ${errors.phoneOtp ? 'is-invalid' : ''}`}
                       placeholder="------"
                       maxLength="6"
                       value={resetData.phoneOtp}
                       onChange={handleResetChange}
                       disabled={loading}
                     />
+                    {errors.phoneOtp && (
+                      <div className="input-error-tip text-danger mt-1">
+                        <i className="bi bi-x-circle-fill" /> {errors.phoneOtp}
+                      </div>
+                    )}
                   </div>
 
                   <div className="mb-3 text-start">
@@ -158,7 +191,8 @@ const ForgotPassword = () => {
                         id="newPassword"
                         name="newPassword"
                         type={showPw ? "text" : "password"}
-                        className="form-control pristine-input"
+                        autoComplete="new-password"
+                        className={`form-control pristine-input ${errors.newPassword ? 'is-invalid' : ''}`}
                         placeholder="New Password"
                         value={resetData.newPassword}
                         onChange={handleResetChange}
@@ -173,6 +207,11 @@ const ForgotPassword = () => {
                         <i className={`bi ${showPw ? "bi-eye-slash" : "bi-eye"}`} />
                       </button>
                     </div>
+                    {errors.newPassword && (
+                      <div className="input-error-tip text-danger mt-1">
+                        <i className="bi bi-x-circle-fill" /> {errors.newPassword}
+                      </div>
+                    )}
                   </div>
 
                   <button type="submit" className="btn login-submit-btn w-100 mt-2 mb-3" disabled={loading}>

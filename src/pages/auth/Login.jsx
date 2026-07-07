@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import toast from 'react-hot-toast';
@@ -25,6 +25,7 @@ const Login = () => {
   const [showUnverifiedModal, setShowUnverifiedModal] = useState(false);
 
   // Watch email for the OTP modal
+  // eslint-disable-next-line react-hooks/incompatible-library
   const emailValue = watch("email");
 
   const onSubmit = async (data) => {
@@ -37,7 +38,7 @@ const Login = () => {
       navigate(from || ROLE_HOME[user.role] || "/", { replace: true });
     } catch (err) {
       const msg =
-        err.response?.data?.message ||
+        err.message ||
         err.response?.data?.error ||
         "Invalid email or password. Please try again.";
       
@@ -109,7 +110,13 @@ const Login = () => {
                       disabled={loading}
                       aria-invalid={errors.password ? "true" : "false"}
                       aria-describedby={errors.password ? "password-error" : undefined}
-                      {...register("password", { required: "Password is required." })}
+                      {...register("password", { 
+                        required: "Password is required.",
+                        pattern: {
+                          value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{6,15}$/,
+                          message: "Password must be 6-15 characters and contain at least one uppercase letter, one lowercase letter, one digit, and one special character (@#$%^&+=!)."
+                        }
+                      })}
                     />
                     <button
                       type="button"

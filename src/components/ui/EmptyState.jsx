@@ -1,4 +1,4 @@
-
+﻿
 
 const EmptyState = ({ icon = 'bi-inbox', title = 'No data found', message = 'There are no records to display here at the moment.' }) => (
   <div className="d-flex flex-column align-items-center justify-content-center py-5 px-3 text-center animate-slide-up w-100">

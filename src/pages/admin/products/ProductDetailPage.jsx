@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import StatusBadge from '../../../components/ui/StatusBadge';
@@ -63,7 +63,7 @@ const ProductDetailPage = () => {
         fetchProductData(id);
       })
       .catch((err) => {
-        toast.error(err.response?.data?.message || `Failed to ${isActive ? 'deactivate' : 'activate'} product.`);
+        toast.error(err.message || `Failed to ${isActive ? 'deactivate' : 'activate'} product.`);
       })
       .finally(() => {
         setActionLoading(false);

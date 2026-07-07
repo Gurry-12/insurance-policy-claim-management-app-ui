@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { getAdminStats } from '../../services/dashboardService';
 import useAuth from '../../hooks/useAuth';
+import { EMPTY_STATES } from '../../utils/labels';
 import StatusBadge from '../../components/ui/StatusBadge';
 import EmptyState  from '../../components/ui/EmptyState';
 import ErrorAlert  from '../../components/ui/ErrorAlert';
 import PageHeader  from '../../components/common/PageHeader';
 import BentoCard   from '../../common/BentoCard';
+import DataTable   from '../../components/tables/DataTable';
 
 const StatTile = ({ icon, label, value, color }) => (
   <BentoCard className="ip-bento-stat-tile">
@@ -37,7 +39,6 @@ const QuickAction = ({ icon, label, to, color }) => (
 
 const AdminDashboard = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [stats, setStats]     = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState('');
@@ -120,31 +121,22 @@ const AdminDashboard = () => {
                 ))}
               </div>
             ) : s.recentClaims?.length ? (
-              <div className="d-flex flex-column gap-1">
-                {s.recentClaims.map((claim, i) => (
-                  <div 
-                    key={claim.id ?? i} 
-                    className="d-flex align-items-center gap-3 py-2" 
-                    style={{ borderBottom: i < s.recentClaims.length - 1 ? '1px solid var(--ip-border)' : 'none', cursor: 'pointer' }}
-                    onClick={() => navigate(`/admin/claims/${claim.id}`)}
-                  >
-                    <div className="ip-bento-stat-icon" style={{ background: '#f59e0b18', width: 36, height: 36, borderRadius: 10 }}>
-                      <i className="bi bi-shield-exclamation" style={{ color: '#f59e0b', fontSize: '0.9rem' }} />
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--ip-text-primary)' }}>
-                        {claim.customerName ?? 'Customer'} — #{claim.id}
-                      </div>
-                      <div style={{ fontSize: '0.74rem', color: 'var(--ip-text-muted)' }}>
-                        {claim.type} · {claim.date}
-                      </div>
-                    </div>
-                    <StatusBadge status={claim.status} />
-                  </div>
-                ))}
+              <div className="table-responsive">
+                <DataTable 
+                  compact={true}
+                  data={s.recentClaims ?? []}
+                  columns={[
+                    { header: 'Sr No.', accessor: 'id', cell: (_, i) => <span style={{ fontWeight: 600 }}>{i + 1}</span> },
+                    { header: 'Customer', accessor: 'customerName' },
+                    { header: 'Policy Number', accessor: 'policyNumber', cell: (c) => <span style={{ color: 'var(--ip-text-muted)' }}>{c.policyNumber}</span> },
+                    { header: 'Amount', accessor: 'claimAmount', cell: (c) => <span style={{ fontWeight: 600 }}>₹{Number(c.claimAmount).toLocaleString('en-IN')}</span> },
+                    { header: 'Status', accessor: 'status', cell: (c) => <StatusBadge status={c.status} /> }
+                  ]}
+                  emptyMessage={EMPTY_STATES.NO_RECENT_CLAIMS}
+                />
               </div>
             ) : (
-              <EmptyState icon="bi-shield-slash" message="No recent claims" />
+              <EmptyState icon="bi-shield-slash" message={EMPTY_STATES.NO_RECENT_CLAIMS} />
             )}
           </BentoCard>
         </div>
@@ -160,33 +152,22 @@ const AdminDashboard = () => {
           </div>
         ) : s.recentPolicies?.length ? (
           <div className="table-responsive">
-            <table className="table align-middle mb-0" style={{ fontSize: '0.82rem' }}>
-              <thead>
-                <tr style={{ color: 'var(--ip-text-muted)', fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  <th className="border-0">Policy #</th>
-                  <th className="border-0">Customer</th>
-                  <th className="border-0">Product</th>
-                  <th className="border-0">Premium</th>
-                  <th className="border-0">Status</th>
-                  <th className="border-0">Start Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {s.recentPolicies.map((p, i) => (
-                  <tr key={p.id ?? i}>
-                    <td style={{ fontWeight: 600 }}>#{p.id}</td>
-                    <td>{p.customerName}</td>
-                    <td style={{ color: 'var(--ip-text-muted)' }}>{p.productName}</td>
-                    <td style={{ fontWeight: 600 }}>₹{Number(p.premium).toLocaleString('en-IN')}</td>
-                    <td><StatusBadge status={p.status} /></td>
-                    <td style={{ color: 'var(--ip-text-muted)' }}>{p.startDate}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable 
+              compact={true}
+              data={s.recentPolicies}
+              columns={[
+                { header: 'Sr No.', accessor: 'id', cell: (_, i) => <span style={{ fontWeight: 600 }}>{i + 1}</span> },
+                { header: 'Customer', accessor: 'customerName' },
+                { header: 'Product', accessor: 'productName', cell: (p) => <span style={{ color: 'var(--ip-text-muted)' }}>{p.productName}</span> },
+                { header: 'Premium', accessor: 'premium', cell: (p) => <span style={{ fontWeight: 600 }}>₹{Number(p.premium).toLocaleString('en-IN')}</span> },
+                { header: 'Status', accessor: 'status', cell: (p) => <StatusBadge status={p.status} /> },
+                { header: 'Start Date', accessor: 'startDate', cell: (p) => <span style={{ color: 'var(--ip-text-muted)' }}>{p.startDate}</span> }
+              ]}
+              emptyMessage={EMPTY_STATES.NO_RECENT_POLICIES}
+            />
           </div>
         ) : (
-          <EmptyState icon="bi-file-earmark-x" message="No recent policies" />
+          <EmptyState icon="bi-file-earmark-x" message={EMPTY_STATES.NO_RECENT_POLICIES} />
         )}
       </BentoCard>
     </div>

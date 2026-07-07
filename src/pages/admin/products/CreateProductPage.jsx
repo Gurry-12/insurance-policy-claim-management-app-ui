@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import FormInput from '../../../components/forms/FormInput';
@@ -7,6 +7,7 @@ import FormTextarea from '../../../components/forms/FormTextarea';
 import AlertModal from '../../../components/modals/AlertModal';
 import { createProduct } from '../../../services/productService';
 import { notify } from '../../../utils/notificationService';
+import { STATUS_OPTIONS } from "../../../utils/options";
 
 const CreateProductPage = () => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ const CreateProductPage = () => {
     name: '',
     category: 'HEALTH',
     description: '',
-    status: 'Active'
+    status: true
   });
   const [showSuccess, setShowSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -32,8 +33,14 @@ const CreateProductPage = () => {
     setSubmitting(true);
     const errs = {};
 
-    if (!/^[A-Za-z\s]+$/.test(formData.name)) {
+    if (!formData.name?.trim()) {
+      errs.name = 'Product Name is required';
+    } else if (!/^[A-Za-z\s]+$/.test(formData.name)) {
       errs.name = 'Only letters and spaces are allowed in the product name.';
+    }
+
+    if (!formData.description?.trim()) {
+      errs.description = 'Description is required';
     }
 
     if (Object.keys(errs).length > 0) {
@@ -46,12 +53,12 @@ const CreateProductPage = () => {
       productName: formData.name,
       productType: formData.category,
       description: formData.description,
-      activeStatus: formData.status === 'Active'
+      activeStatus: formData.status
     };
 
     createProduct(payload)
-      .then(() => {
-        notify.success('Product created successfully!');
+      .then((res) => {
+        notify.success(res, 'Product created successfully!');
         navigate('/admin/products');
       })
       .catch((err) => {
@@ -78,7 +85,7 @@ const CreateProductPage = () => {
         style={{ borderRadius: 16, boxShadow: "var(--ip-shadow-md)" }}
       >
         <div className="card-body p-4 p-md-5">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} noValidate>
             <div className="row">
               <div className="col-md-6">
                 <FormInput
@@ -119,6 +126,7 @@ const CreateProductPage = () => {
                   required
                   placeholder="Enter detailed description of the product"
                   rows={4}
+                  error={errors.description}
                 />
               </div>
             </div>
@@ -131,10 +139,7 @@ const CreateProductPage = () => {
                   value={formData.status}
                   onChange={handleChange}
                   required
-                  options={[
-                    { value: "Active", label: "Active" },
-                    { value: "Inactive", label: "Inactive" },
-                  ]}
+                  options={STATUS_OPTIONS}
                 />
               </div>
             </div>

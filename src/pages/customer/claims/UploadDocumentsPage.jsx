@@ -124,12 +124,12 @@ const UploadDocumentsPage = () => {
         formData.append("files", renamedFile);
       });
 
-      await uploadDocuments(claimId, formData);
-      notify.success("Documents Uploaded Successfully");
+      const res = await uploadDocuments(claimId, formData);
+      notify.success(res, "Documents Uploaded Successfully");
       navigate("/customer/claims");
     } catch (error) {
       console.error(error);
-      const errorMessage = error?.response?.data?.message || "Failed to upload documents";
+      const errorMessage = error?.message || error?.response?.data?.message || "Failed to upload documents";
       notify.error(errorMessage);
     } finally {
       setIsUploading(false);
@@ -161,22 +161,31 @@ const UploadDocumentsPage = () => {
                       name="selectedDocType"
                       value={selectedDocType}
                       onChange={(e) => setSelectedDocType(e.target.value)}
-                      options={(
-                        productType && PRODUCT_DOCUMENT_CATEGORIES[productType]
-                          ? PRODUCT_DOCUMENT_CATEGORIES[productType]
-                          : PRODUCT_DOCUMENT_CATEGORIES.INSURANCE
-                      ).map(doc => ({ value: doc, label: doc }))}
+                      options={[
+                        { value: "", label: "Select a category..." },
+                        ...(
+                          productType && PRODUCT_DOCUMENT_CATEGORIES[productType]
+                            ? PRODUCT_DOCUMENT_CATEGORIES[productType]
+                            : PRODUCT_DOCUMENT_CATEGORIES.INSURANCE
+                        ).map(doc => ({ value: doc, label: doc }))
+                      ]}
                     />
                     <div className="form-text mb-3">Select the type of document before uploading it below.</div>
                   </div>
                   <label className="form-label fw-bold mb-2">Select Files <span className="text-danger">*</span></label>
                   <div
-                    className={`p-5 text-center border rounded-3 ${isDragging ? 'bg-light border-primary' : 'bg-white'} ${errors.files ? 'border-danger' : 'border-secondary'}`}
-                    style={{ borderStyle: 'dashed', borderWidth: '2px', cursor: 'pointer', transition: 'all 0.2s' }}
+                    className={`p-5 text-center border rounded-3 ${!selectedDocType ? 'bg-secondary bg-opacity-10' : (isDragging ? 'bg-light border-primary' : 'bg-white')} ${errors.files ? 'border-danger' : 'border-secondary'}`}
+                    style={{ borderStyle: 'dashed', borderWidth: '2px', cursor: !selectedDocType ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
-                    onClick={() => fileInputRef.current.click()}
+                    onClick={() => {
+                      if (!selectedDocType) {
+                        notify.error("Please select a document category first");
+                        return;
+                      }
+                      fileInputRef.current.click();
+                    }}
                   >
                     <Upload size={32} className="text-muted mb-3" />
                     <h6 className="fw-bold">Drag and drop files here</h6>

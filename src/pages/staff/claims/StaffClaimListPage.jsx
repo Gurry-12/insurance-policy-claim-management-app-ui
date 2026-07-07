@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { getAllClaimsPaginated } from "../../../services/claimService";
 import { useNavigate, Outlet } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
@@ -12,16 +12,14 @@ import FilterPanel from "../../../components/ui/FilterPanel";
 import FilterChips from "../../../components/ui/FilterChips";
 import SortableHeader from "../../../components/tables/SortableHeader";
 import useDebounceFilters from "../../../hooks/useDebounceFilters";
+import { CLAIM_STATUS_OPTIONS } from "../../../utils/options";
 
 const FILTER_FIELDS = [
-  { type: 'select', name: 'status', label: 'Claim Status',
-    options: [
-      { value: 'SUBMITTED',                 label: 'Submitted' },
-      { value: 'UNDER_REVIEW',              label: 'Under Review' },
-      { value: 'RECOMMENDED_FOR_APPROVAL',  label: 'Reviewed' },
-      { value: 'APPROVED',                  label: 'Approved' },
-      { value: 'REJECTED',                  label: 'Rejected' },
-    ],
+  {
+    type: "select",
+    name: "status",
+    label: "Claim Status",
+    options: CLAIM_STATUS_OPTIONS,
   },
   { type: 'amount-range', minName: 'minClaimAmount', maxName: 'maxClaimAmount', label: 'Claim Amount' },
 ];
@@ -119,7 +117,7 @@ const StaffClaimListPage = () => {
           <div className="d-flex gap-2">
             <ExportButton
               fetchAll={async () => {
-                const res = await getAllClaimsPaginated({ pageSize: tableState.totalElements || 1000, pageNumber: 0 });
+                const res = await getAllClaimsPaginated({...tableState.getQueryParams(),  pageSize: tableState.totalElements || 1000, pageNumber: 0 });
                 return res.content || [];
               }}
               columns={[

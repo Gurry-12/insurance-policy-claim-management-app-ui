@@ -5,11 +5,13 @@ import { getAllPaymentsPaginated as getAllPayments } from "../../services/paymen
 import { getAllClaimsPaginated as getAllClaims } from "../../services/claimService";
 import { getAllPoliciesPaginated as getAllPolicies } from "../../services/policyService";
 import { getAllCustomers } from "../../services/customerService";
+import { EMPTY_STATES } from "../../utils/labels";
 import StatusBadge from "../../components/ui/StatusBadge";
 import EmptyState from "../../components/ui/EmptyState";
 import ErrorAlert from "../../components/ui/ErrorAlert";
 import PageHeader from "../../components/common/PageHeader";
 import BentoCard from "../../common/BentoCard";
+import DataTable from "../../components/tables/DataTable";
 
 const StatTile = ({ icon, label, value, color }) => (
   <BentoCard className="ip-bento-stat-tile">
@@ -191,7 +193,7 @@ const StaffDashboard = () => {
         title="Dashboard"
         subtitle={
           <span>
-            Welcome back, {user?.name ?? "Staff"} 👋 
+            Welcome back, {user?.name ?? "Staff"} 👋
             {user?.productSpeciality && (
               <span className="badge bg-primary bg-opacity-10 text-primary ms-3 border border-primary-subtle" style={{ verticalAlign: 'middle' }}>
                 <i className="bi bi-star-fill me-1" style={{ fontSize: '0.75rem' }}></i>
@@ -275,65 +277,26 @@ const StaffDashboard = () => {
                 ))}
               </div>
             ) : recentClaims.length ? (
-              <div className="d-flex flex-column gap-1">
-                {recentClaims.map((claim, i) => (
-                  <div
-                    key={claim.claimId ?? i}
-                    className="d-flex align-items-center gap-3 py-2 animate-fade-in"
-                    style={{
-                      borderBottom:
-                        i < recentClaims.length - 1
-                          ? "1px solid var(--ip-border)"
-                          : "none",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => navigate(`/staff/claims/${claim.claimId}`)}
-                  >
-                    <div
-                      className="ip-bento-stat-icon"
-                      style={{
-                        background: "#d9770618",
-                        width: 36,
-                        height: 36,
-                        borderRadius: 10,
-                      }}
-                    >
-                      <i
-                        className="bi bi-shield-exclamation"
-                        style={{ color: "#d97706", fontSize: "0.9rem" }}
-                      />
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div
-                        style={{
-                          fontSize: "0.82rem",
-                          fontWeight: 600,
-                          color: "var(--ip-text-primary)",
-                        }}
-                      >
-                        {claim.customerName ?? "Customer"} — #
-                        {claim.claimNumber ?? claim.claimId}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "0.74rem",
-                          color: "var(--ip-text-muted)",
-                        }}
-                      >
-                        ₹{Number(claim.claimAmount).toLocaleString("en-IN")} ·{" "}
-                        {claim.createdDate
-                          ? new Date(claim.createdDate).toLocaleDateString()
-                          : "-"}
-                      </div>
-                    </div>
-                    <StatusBadge status={claim.claimStatus} />
-                  </div>
-                ))}
+              <div className="table-responsive">
+                <DataTable
+                  compact={true}
+                  data={recentClaims}
+                  onRowClick={(c) => navigate(`/staff/claims/${c.claimId}`)}
+                  columns={[
+                    { header: 'Sr No.', accessor: 'claimId', cell: (_, i) => <span style={{ fontWeight: 600 }}>{i + 1}</span> },
+                    { header: 'Customer', accessor: 'customerName', cell: (c) => c.customerName ?? "Customer" },
+                    { header: 'Amount', accessor: 'claimAmount', cell: (c) => <span style={{ fontWeight: 600 }}>₹{Number(c.claimAmount).toLocaleString("en-IN")}</span> },
+                    { header: 'Date', accessor: 'createdDate', cell: (c) => <span style={{ color: 'var(--ip-text-muted)' }}>{c.createdDate ? new Date(c.createdDate).toLocaleDateString() : "-"}</span> },
+                    { header: 'Status', accessor: 'claimStatus', cell: (c) => <StatusBadge status={c.claimStatus} /> }
+                  ]}
+                  emptyIcon="bi-shield-slash"
+                  emptyMessage={EMPTY_STATES.NO_CLAIMS}
+                />
               </div>
             ) : (
               <EmptyState
                 icon="bi-shield-slash"
-                message="No claims currently pending or registered"
+                message={EMPTY_STATES.NO_CLAIMS}
               />
             )}
           </BentoCard>
@@ -376,60 +339,24 @@ const StaffDashboard = () => {
                 ))}
               </div>
             ) : recentCustomers.length ? (
-              <div className="d-flex flex-column gap-1">
-                {recentCustomers.map((c, i) => (
-                  <div
-                    key={c.customerId ?? i}
-                    className="d-flex align-items-center gap-3 py-2 animate-fade-in"
-                    style={{
-                      borderBottom:
-                        i < recentCustomers.length - 1
-                          ? "1px solid var(--ip-border)"
-                          : "none",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => navigate(`/staff/customers/${c.customerId}`)}
-                  >
-                    <div
-                      className="ip-bento-stat-icon"
-                      style={{
-                        background: "#0d948818",
-                        width: 36,
-                        height: 36,
-                        borderRadius: 10,
-                      }}
-                    >
-                      <i
-                        className="bi bi-person-fill"
-                        style={{ color: "#0d9488", fontSize: "0.9rem" }}
-                      />
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div
-                        style={{
-                          fontSize: "0.82rem",
-                          fontWeight: 600,
-                          color: "var(--ip-text-primary)",
-                        }}
-                      >
-                        {c.fullName}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "0.74rem",
-                          color: "var(--ip-text-muted)",
-                        }}
-                      >
-                        {c.email}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+              <div className="table-responsive">
+                <DataTable
+                  compact={true}
+                  data={recentCustomers}
+                  onRowClick={(c) => navigate(`/staff/customers/${c.customerId}`)}
+                  columns={[
+                    { header: 'Sr No.', accessor: 'customerId', cell: (_, i) => <span style={{ fontWeight: 600 }}>{i + 1}</span> },
+                    { header: 'Name', accessor: 'fullName', cell: (c) => <span style={{ fontWeight: 600 }}>{c.fullName}</span> },
+                    { header: 'Email', accessor: 'email', cell: (c) => <span style={{ color: 'var(--ip-text-muted)' }}>{c.email}</span> }
+                  ]}
+                  emptyIcon="bi-people"
+                  emptyMessage={EMPTY_STATES.NO_CUSTOMERS}
+                />
               </div>
             ) : (
               <EmptyState
                 icon="bi-people"
-                message="No customers registered under your workspace"
+                message={EMPTY_STATES.NO_CUSTOMERS}
               />
             )}
           </BentoCard>
@@ -456,64 +383,26 @@ const StaffDashboard = () => {
               </div>
             ) : recentPolicies.length ? (
               <div className="table-responsive">
-                <table
-                  className="table align-middle mb-0"
-                  style={{ fontSize: "0.82rem" }}
-                >
-                  <thead>
-                    <tr
-                      style={{
-                        color: "var(--ip-text-muted)",
-                        fontSize: "0.72rem",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.04em",
-                      }}
-                    >
-                      <th className="border-0">Policy #</th>
-                      <th className="border-0">Customer</th>
-                      <th className="border-0">Product</th>
-                      <th className="border-0">Premium</th>
-                      <th className="border-0">Status</th>
-                      <th className="border-0">Start Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentPolicies.map((p, i) => (
-                      <tr
-                        key={p.policyId || p.id || i}
-                        onClick={() =>
-                          navigate(`/staff/policies/${p.policyId || p.id}`)
-                        }
-                        style={{ cursor: "pointer" }}
-                      >
-                        <td style={{ fontWeight: 600 }}>
-                          #{p.policyId || p.id}
-                        </td>
-                        <td>{p.customerName || "Customer"}</td>
-                        <td style={{ color: "var(--ip-text-muted)" }}>
-                          {p.productName || "Standard Plan"}
-                        </td>
-                        <td style={{ fontWeight: 600 }}>
-                          ₹
-                          {Number(
-                            p.premiumAmount || p.premium || 0,
-                          ).toLocaleString("en-IN")}
-                        </td>
-                        <td>
-                          <StatusBadge status={p.policyStatus || p.status} />
-                        </td>
-                        <td style={{ color: "var(--ip-text-muted)" }}>
-                          {p.startDate || "-"}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <DataTable
+                  compact={true}
+                  data={recentPolicies}
+                  onRowClick={(p) => navigate(`/staff/policies/${p.policyId || p.id}`)}
+                  columns={[
+                    { header: 'Sr No.', accessor: 'policyId', cell: (_, i) => <span style={{ fontWeight: 600 }}>{i + 1}</span> },
+                    { header: 'Customer', accessor: 'customerName', cell: (p) => p.customerName || "Customer" },
+                    { header: 'Product', accessor: 'productName', cell: (p) => <span style={{ color: 'var(--ip-text-muted)' }}>{p.productName || "Standard Plan"}</span> },
+                    { header: 'Premium', accessor: 'premiumAmount', cell: (p) => <span style={{ fontWeight: 600 }}>₹{Number(p.premiumAmount || p.premium || 0).toLocaleString("en-IN")}</span> },
+                    { header: 'Status', accessor: 'policyStatus', cell: (p) => <StatusBadge status={p.policyStatus || p.status} /> },
+                    { header: 'Start Date', accessor: 'startDate', cell: (p) => <span style={{ color: 'var(--ip-text-muted)' }}>{p.startDate || "-"}</span> }
+                  ]}
+                  emptyIcon="bi-file-earmark-x"
+                  emptyMessage={EMPTY_STATES.NO_RECENT_POLICIES}
+                />
               </div>
             ) : (
               <EmptyState
                 icon="bi-file-earmark-x"
-                message="No recent policies"
+                message={EMPTY_STATES.NO_RECENT_POLICIES}
               />
             )}
           </BentoCard>

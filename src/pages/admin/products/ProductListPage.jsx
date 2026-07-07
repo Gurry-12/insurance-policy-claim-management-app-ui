@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import DataTable from '../../../components/tables/DataTable';
@@ -12,6 +12,7 @@ import useTableState from '../../../hooks/useTableState';
 import SortableHeader from '../../../components/tables/SortableHeader';
 import useDebounceFilters from '../../../hooks/useDebounceFilters';
 import ExportButton from '../../../components/common/ExportButton';
+import { STATUS_OPTIONS } from '../../../utils/options';
 
 const FILTER_FIELDS = [
   { type: 'text',   name: 'productName', label: 'Product Name', placeholder: 'Search by name...' },
@@ -25,10 +26,7 @@ const FILTER_FIELDS = [
     ],
   },
   { type: 'select', name: 'isActive', label: 'Status',
-    options: [
-      { value: 'true',  label: 'Active' },
-      { value: 'false', label: 'Inactive' },
-    ],
+    options: STATUS_OPTIONS,
   },
 ];
 
@@ -132,7 +130,10 @@ const ProductListPage = () => {
         action={
           <div className="d-flex gap-2">
             <ExportButton
-              data={products || []}
+              fetchAll={async () => {
+                const res = await getAllProductsPaginated({...tableState.getQueryParams(), pageSize: tableState.totalElements || 1000, pageNumber: 0});
+                return res.content || [];
+              }}
               columns={[
                 { header: "Product Name", accessor: "productName" },
                 { header: "Product Type", accessor: "productType" },
