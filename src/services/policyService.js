@@ -24,8 +24,9 @@ export const getPolicyById = async (policyId) => {
 
 export const getPoliciesByCustomerId = async (customerId) => {
   const response = await axiosInstance.get(`/policies/customer/${customerId}`);
-  return response;
+  return response.data;
 };
+
 
 export const getClaimsByPolicy = async (policyId) => {
   const response = await axiosInstance.get(`/policies/${policyId}/claims`);
