@@ -76,13 +76,13 @@ const CustomerDetailPage = () => {
         action={
           <div className="d-flex gap-2">
             <button
-              className="btn btn-outline-danger d-flex align-items-center gap-1"
+              className="btn btn-outline-danger d-inline-flex align-items-center gap-1"
               style={{ borderRadius: '8px' }}
               onClick={() => downloadCustomer(customer)}
             >
               <i className="bi bi-file-earmark-pdf"></i> PDF
             </button>
-            <button onClick={() => navigate('/admin/customers')} className="btn btn-outline-secondary d-flex align-items-center gap-1" style={{ borderRadius: '8px' }}>
+            <button onClick={() => navigate('/admin/customers')} className="btn btn-outline-secondary d-inline-flex align-items-center gap-1" style={{ borderRadius: '8px' }}>
               <i className="bi bi-arrow-left"></i> Back
             </button>
           </div>

@@ -143,7 +143,7 @@ const ProductListPage = () => {
             />
             <Link
               to="/admin/products/create"
-              className="btn btn-primary d-flex align-items-center gap-2"
+              className="btn btn-primary d-inline-flex align-items-center gap-2"
               style={{ borderRadius: "8px" }}
             >
               <i className="bi bi-plus-lg" />

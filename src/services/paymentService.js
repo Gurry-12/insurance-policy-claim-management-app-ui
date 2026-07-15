@@ -8,13 +8,6 @@ export const getAllPaymentsPaginated = async (params = {}) => {
 };
 
 
-// export const getAllPayments = async () => {
-//   const response = await axiosInstance.get("payments/page");
-//   console.log(response)
-//   return safeExtractArray(response);
-// };
-
-
 export const recordPayment = async (paymentData) => {
   const response = await axiosInstance.post(
     "/payments",

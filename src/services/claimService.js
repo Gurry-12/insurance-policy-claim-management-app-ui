@@ -7,11 +7,6 @@ export const getAllClaimsPaginated = async (params = {}, config = {}) => {
 };
 
 
-// export const getAllClaims = async () => {
-//   const response = await axiosInstance.get("/claims");
-//   return safeExtractArray(response);
-// };
-
 export const getClaimById = async (claimId) => {
   const response = await axiosInstance.get(`/claims/${claimId}`);
   return response;
@@ -82,15 +77,6 @@ export const uploadDocuments = async (
   return response;
 };
 
-// TODO: Claim API service
-
-
-// removed duplicated pagination API
-
-// export const reviewClaim = async (claimId) => {
-//   const {data} = await axiosInstance.patch(`/claims/${claimId}/review`);
-//   return data;
-// };
 
 export const reviewClaim = async (claimId, reviewData) => {
   const response = await axiosInstance.patch(

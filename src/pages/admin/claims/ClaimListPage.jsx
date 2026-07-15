@@ -104,7 +104,7 @@ const ClaimListPage = () => {
       cell: (row) => (
         <div className="d-flex align-items-center gap-2" onClick={(e) => e.stopPropagation()}>
           <button 
-            className="btn btn-sm btn-light text-primary d-flex align-items-center gap-1" 
+            className="btn btn-sm btn-light text-primary d-inline-flex align-items-center gap-1" 
             onClick={() => navigate(`/admin/claims/${row.claimId}`)}
             style={{ borderRadius: '6px' }}
             title="Review Claim"

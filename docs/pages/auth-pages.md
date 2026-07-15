@@ -28,7 +28,7 @@ Authenticates a user by email and password. On success, stores the JWT and user 
 
 ```
 POST /auth/login
-Body: { email: string, password: base64(string) }
+Body: { email: string, password: string }
 Response: LoginResponseDTO { userId, fullName, email, role, token, tokenType }
 ```
 
@@ -52,7 +52,7 @@ Validation mode: `onTouched` (validates after user leaves the field).
 
 ### Success Flow
 
-1. Calls `authService.login()` which encodes password with `btoa()` before sending
+1. Calls `authService.login()`
 2. JWT decoded with `jwt-decode` to extract `role`, `email`, `name`, `productSpeciality`
 3. `AuthContext.login(token, user)` → stores in `localStorage` (`ss_token`, `ss_user`)
 4. `toast.success("Logged in successfully!")`
@@ -97,7 +97,7 @@ Body: {
   fullName: string,
   email: string,
   mobileNumber: string (formatted as +91XXXXXXXXXX),
-  password: base64(string)
+  password: string
 }
 Response: ApiResponseDTO<string>
 ```
@@ -177,7 +177,7 @@ POST /auth/verify-otp
 Body: { email: string, otp: string }
 
 POST /auth/reset-password
-Body: { email: string, otp: string, newPassword: base64(string) }
+Body: { email: string, otp: string, newPassword: string }
 ```
 
 ### State

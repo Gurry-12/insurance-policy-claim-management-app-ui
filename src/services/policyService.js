@@ -47,11 +47,3 @@ export const purchasePolicy = async (payload) => {
   const response = await axiosInstance.post("/policies/purchase", payload);
   return response;
 };
-// TODO: Policy API service
-
-// export const getAllPolicies = async (userData) => {
-//   const { data } = await axiosInstance.get('/policies', userData);
-//   return data;
-// };
-
-// removed duplicated pagination API

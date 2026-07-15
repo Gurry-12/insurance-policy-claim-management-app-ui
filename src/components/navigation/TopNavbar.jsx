@@ -31,7 +31,7 @@ const TopNavbar = ({ onMenuClick, breadcrumb }) => {
         <div className="d-none d-md-flex align-items-center gap-2">
           <button
             onClick={() => navigate(-1)}
-            className="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center"
+            className="btn btn-sm btn-light rounded-circle p-0 d-inline-flex align-items-center justify-content-center"
             style={{ width: 32, height: 32 }}
             title="Go Back"
             aria-label="Go Back"
@@ -40,7 +40,7 @@ const TopNavbar = ({ onMenuClick, breadcrumb }) => {
           </button>
           <button
             onClick={() => navigate(1)}
-            className="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center"
+            className="btn btn-sm btn-light rounded-circle p-0 d-inline-flex align-items-center justify-content-center"
             style={{ width: 32, height: 32 }}
             title="Go Forward"
             aria-label="Go Forward"

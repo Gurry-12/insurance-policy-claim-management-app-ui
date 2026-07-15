@@ -98,13 +98,13 @@ const PolicyDetailPage = () => {
         action={
           <div className="d-flex gap-2">
             <button
-              className="btn btn-outline-danger d-flex align-items-center gap-1"
+              className="btn btn-outline-danger d-inline-flex align-items-center gap-1"
               style={{ borderRadius: '8px' }}
               onClick={() => downloadPolicy(policy)}
             >
               <i className="bi bi-file-earmark-pdf"></i> PDF
             </button>
-            <button onClick={() => navigate('/admin/policies')} className="btn btn-outline-secondary d-flex align-items-center gap-1" style={{ borderRadius: '8px' }}>
+            <button onClick={() => navigate('/admin/policies')} className="btn btn-outline-secondary d-inline-flex align-items-center gap-1" style={{ borderRadius: '8px' }}>
               <i className="bi bi-arrow-left"></i> Back to Policies
             </button>
           </div>
@@ -149,7 +149,7 @@ const PolicyDetailPage = () => {
 
               {status !== 'CANCELLED' && status !== 'EXPIRED' && (
                 <button 
-                  className="btn btn-outline-danger w-100 py-2 d-flex align-items-center justify-content-center gap-2"
+                  className="btn btn-outline-danger w-100 py-2 d-inline-flex align-items-center justify-content-center gap-2"
                   style={{ borderRadius: '8px' }}
                   onClick={() => setShowCancelModal(true)}
                   disabled={cancelling}

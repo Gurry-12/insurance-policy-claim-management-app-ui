@@ -507,7 +507,7 @@ const RaiseClaimPage = () => {
                   </Link>
                   <button 
                     type="submit" 
-                    className="btn btn-primary rounded-pill px-5 py-2 d-flex align-items-center shadow-sm"
+                    className="btn btn-primary rounded-pill px-5 py-2 d-inline-flex align-items-center shadow-sm"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (

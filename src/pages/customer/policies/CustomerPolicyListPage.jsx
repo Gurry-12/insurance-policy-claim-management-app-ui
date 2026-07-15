@@ -153,7 +153,7 @@ const CustomerPolicyListPage = () => {
                     </div>
                     <Link
                       to={`/customer/policies/${policy.policyId}`}
-                      className="btn btn-primary rounded-pill px-4 py-2 d-flex align-items-center"
+                      className="btn btn-primary rounded-pill px-4 py-2 d-inline-flex align-items-center"
                       style={{ fontSize: '0.9rem' }}
                     >
                       View Details <ArrowRight size={16} className="ms-2" />

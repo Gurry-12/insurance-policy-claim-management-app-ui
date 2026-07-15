@@ -64,7 +64,7 @@ return { token: payload.token, user, message: response.message };
 ```
 
 **DTOs:**
-- Request: `{ email, password: base64 }`
+- Request: `{ email, password }`
 - Response: `LoginResponseDTO { userId, fullName, email, role, token, tokenType }`
 
 ---

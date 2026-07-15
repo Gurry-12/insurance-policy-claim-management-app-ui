@@ -113,7 +113,7 @@ const StaffCustomerListPage = () => {
               filename="Staff_customers_list.csv"
             />
             <button
-              className="btn btn-secondary d-flex align-items-center gap-1"
+              className="btn btn-secondary d-inline-flex align-items-center gap-1"
               onClick={() => navigate("/staff/dashboard")}
             >
               <i className="bi bi-arrow-left"></i> Back

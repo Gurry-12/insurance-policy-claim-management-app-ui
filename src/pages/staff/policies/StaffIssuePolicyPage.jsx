@@ -125,7 +125,7 @@ const StaffIssuePolicyPage = () => {
         subtitle="Issue a policy to an existing customer"
         action={
           <button
-            className="btn btn-secondary d-flex align-items-center gap-1"
+            className="btn btn-secondary d-inline-flex align-items-center gap-1"
             onClick={() => navigate("/staff/policies")}
           >
             <i className="bi bi-arrow-left"></i>

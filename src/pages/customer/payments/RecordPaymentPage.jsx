@@ -116,7 +116,7 @@ const RecordPaymentPage = () => {
         title="Make Payment"
         subtitle="Securely pay your policy premium"
         action={
-          <button onClick={() => navigate(-1)} className="btn btn-outline-secondary d-flex align-items-center gap-1" style={{ borderRadius: '8px' }}>
+          <button onClick={() => navigate(-1)} className="btn btn-outline-secondary d-inline-flex align-items-center gap-1" style={{ borderRadius: '8px' }}>
             <i className="bi bi-arrow-left"></i> Back
           </button>
         }

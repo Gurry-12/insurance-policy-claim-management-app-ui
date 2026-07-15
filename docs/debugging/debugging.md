@@ -371,17 +371,6 @@ The component listens for `auth:unauthorized` DOM events. If it's not rendered, 
 
 ---
 
-### Symptom: Password shows as garbled characters on server
-
-**Root cause:** `btoa()` encoding is working as intended. The backend decodes the base64.
-
-If the backend is NOT decoding btoa, check `authService.js` — remove the `btoa()` call:
-```js
-// If backend accepts plain text:
-payloadReq.password = payloadReq.password; // No encoding
-```
-
----
 
 ## Performance Issues
 
