@@ -125,7 +125,7 @@ const PolicyListPage = () => {
                 { header: "Status",            accessor: "policyStatus" },
               ]}
             />
-            <Link to="/admin/policies/issue" className="btn btn-primary d-flex align-items-center gap-2" style={{ borderRadius: '8px' }}>
+            <Link to="/admin/policies/issue" className="btn btn-primary d-inline-flex align-items-center gap-2" style={{ borderRadius: '8px' }}>
               <i className="bi bi-file-earmark-plus" />
               Issue New Policy
             </Link>

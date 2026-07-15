@@ -164,7 +164,7 @@ const StaffClaimDetailPage = () => {
             <div className="d-flex justify-content-end gap-2 mb-4">
               {!claim.assignedStaffName && (
                 <button
-                  className="btn btn-warning d-flex align-items-center gap-1"
+                  className="btn btn-warning d-inline-flex align-items-center gap-1"
                   onClick={handleUnderReview}
                   disabled={
                     claim.claimStatus === "UNDER_REVIEW" ||
@@ -179,7 +179,7 @@ const StaffClaimDetailPage = () => {
               {claim.assignedStaffName === user?.name &&
                 claim.claimStatus === "UNDER_REVIEW" && (
                   <button
-                    className="btn btn-primary d-flex align-items-center gap-1"
+                    className="btn btn-primary d-inline-flex align-items-center gap-1"
                     onClick={() => setActionModal({ isOpen: true, type: null })}
                   >
                     Add Recommendation
@@ -197,7 +197,7 @@ const StaffClaimDetailPage = () => {
                 )}
 
               <button
-                className="btn btn-outline-danger d-flex align-items-center gap-1"
+                className="btn btn-outline-danger d-inline-flex align-items-center gap-1"
                 style={{ borderRadius: "8px" }}
                 onClick={() => downloadClaim(claim)}
               >

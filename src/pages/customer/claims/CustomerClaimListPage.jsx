@@ -70,7 +70,7 @@ const CustomerClaimListPage = () => {
               ]}
               filename="my_claims.csv"
             />
-            <Link to="/customer/claims/raise" className="btn btn-primary rounded-pill px-4 py-2 d-flex align-items-center shadow-sm">
+            <Link to="/customer/claims/raise" className="btn btn-primary rounded-pill px-4 py-2 d-inline-flex align-items-center shadow-sm">
               <FilePlus size={18} className="me-2" /> Raise Claim
             </Link>
           </div>
@@ -144,7 +144,7 @@ const CustomerClaimListPage = () => {
                     <div className="card-footer bg-white border-top-0 p-3 pt-0 d-flex justify-content-end">
                       <Link
                         to={`/customer/claims/${claim.claimId}`}
-                        className="btn btn-outline-primary rounded-pill px-4 py-2 d-flex align-items-center w-100 justify-content-center"
+                        className="btn btn-outline-primary rounded-pill px-4 py-2 d-inline-flex align-items-center w-100 justify-content-center"
                         style={{ fontSize: '0.9rem' }}
                       >
                         <Eye size={16} className="me-2" /> View Full Details <ArrowRight size={16} className="ms-2" />

@@ -1,6 +1,3 @@
-// TODO: implement dashboard service
-
-
 import axiosInstance from '../api/axiosInstance';
 
 export const getAdminStats = async () => {

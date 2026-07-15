@@ -45,5 +45,4 @@ export const getActiveProducts = async () => {
 
   return response;
 };
-// TODO: Insurance product API service
 

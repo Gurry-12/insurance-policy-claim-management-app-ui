@@ -62,7 +62,7 @@ const ClaimDetailsPage = () => {
       <div className="p-4">
         <div className="d-flex justify-content-end gap-2 mb-4">
           <button
-            className="btn btn-outline-danger d-flex align-items-center gap-1"
+            className="btn btn-outline-danger d-inline-flex align-items-center gap-1"
             style={{ borderRadius: "8px" }}
             onClick={() => downloadClaim(claim)}
           >
@@ -71,7 +71,7 @@ const ClaimDetailsPage = () => {
           {['SUBMITTED', 'UNDER_REVIEW'].includes(claim.claimStatus) ? (
             <Link
               to={`/customer/claims/upload/${claim.claimId}`}
-              className="btn btn-outline-warning text-dark d-flex align-items-center gap-1"
+              className="btn btn-outline-warning text-dark d-inline-flex align-items-center gap-1"
               style={{ borderRadius: "8px" }}
             >
               <Upload size={18} /> Upload Docs
@@ -79,7 +79,7 @@ const ClaimDetailsPage = () => {
           ) : (
             <button
               disabled
-              className="btn btn-outline-secondary d-flex align-items-center gap-1"
+              className="btn btn-outline-secondary d-inline-flex align-items-center gap-1"
               style={{ borderRadius: "8px" }}
               title="Uploads are disabled for this claim status"
             >

@@ -148,7 +148,7 @@ const UserListPage = () => {
                 { header: "Active Status", exportValue: (r) => r.isActive ? "Active" : "Inactive" }
               ]}
             />
-            <Link to="/admin/users/create" className="btn btn-primary d-flex align-items-center gap-2" style={{ borderRadius: '8px' }}>
+            <Link to="/admin/users/create" className="btn btn-primary d-inline-flex align-items-center gap-2" style={{ borderRadius: '8px' }}>
               <i className="bi bi-plus-lg" />
               Add New Staff
             </Link>

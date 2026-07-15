@@ -46,11 +46,3 @@ export const getCustomerById = async (customerId) => {
   const response = await axiosInstance.get(`/customers/${customerId}`);
   return response;
 };
-
-// TODO: Customer profile API service
-
-
-// export const getAllCustomers = async (userData) => {
-//   const { data } = await axiosInstance.get('/customers', userData);
-//   return data.data;
-// };

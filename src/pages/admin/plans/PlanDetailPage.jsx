@@ -95,7 +95,7 @@ const PlanDetailPage = () => {
           <div className="d-flex gap-2">
             {status === 'Active' ? (
               <button 
-                className="btn btn-outline-warning d-flex align-items-center gap-2" 
+                className="btn btn-outline-warning d-inline-flex align-items-center gap-2" 
                 style={{ borderRadius: '8px' }}
                 onClick={() => setStatusModalOpen(true)}
                 disabled={actionLoading}
@@ -105,7 +105,7 @@ const PlanDetailPage = () => {
               </button>
             ) : (
               <button 
-                className="btn btn-outline-success d-flex align-items-center gap-2" 
+                className="btn btn-outline-success d-inline-flex align-items-center gap-2" 
                 style={{ borderRadius: '8px' }}
                 onClick={() => setStatusModalOpen(true)}
                 disabled={actionLoading}
@@ -115,7 +115,7 @@ const PlanDetailPage = () => {
               </button>
             )}
             <button 
-              className="btn btn-primary d-flex align-items-center gap-2" 
+              className="btn btn-primary d-inline-flex align-items-center gap-2" 
               style={{ borderRadius: '8px' }}
               onClick={() => navigate(`/admin/plans/edit/${id}`)}
               disabled={actionLoading}

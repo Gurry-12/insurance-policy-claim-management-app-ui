@@ -70,7 +70,7 @@ const showPayButton =
         action={
           <div className="d-flex gap-2">
             <button
-              className="btn btn-outline-danger d-flex align-items-center"
+              className="btn btn-outline-danger d-inline-flex align-items-center"
               onClick={() => downloadPolicy(policy)}
             >
               <Download size={18} className="me-2" />
@@ -78,12 +78,12 @@ const showPayButton =
             </button>
             <Link
               to={`/customer/payments`}
-              className="btn btn-outline-primary d-flex align-items-center"
+              className="btn btn-outline-primary d-inline-flex align-items-center"
             >
               <History size={18} className="me-2" />
               Payment History
             </Link>
-            <Link to="/customer/policies" className="btn btn-outline-secondary d-flex align-items-center">
+            <Link to="/customer/policies" className="btn btn-outline-secondary d-inline-flex align-items-center">
               <ArrowLeft size={18} className="me-2" />
               Back
             </Link>
@@ -130,7 +130,7 @@ const showPayButton =
               {showPayButton && (
                 <Link
                   to={`/customer/payments/pay/${policy.policyId}`}
-                  className="btn btn-success w-100 py-2 d-flex align-items-center justify-content-center gap-2"
+                  className="btn btn-success w-100 py-2 d-inline-flex align-items-center justify-content-center gap-2"
                   style={{ borderRadius: '8px' }}
                 >
                   <CreditCard size={18} />

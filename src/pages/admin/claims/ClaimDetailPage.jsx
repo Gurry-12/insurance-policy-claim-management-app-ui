@@ -116,7 +116,7 @@ const ClaimDetailPage = () => {
           <>
             <div className="d-flex justify-content-end gap-2 mb-4">
               <button
-                className="btn btn-outline-danger d-flex align-items-center gap-1"
+                className="btn btn-outline-danger d-inline-flex align-items-center gap-1"
                 style={{ borderRadius: '8px' }}
                 onClick={() => downloadClaim(claim)}
               >

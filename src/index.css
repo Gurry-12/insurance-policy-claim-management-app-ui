@@ -267,15 +267,14 @@ h6 { font-size: 0.875rem; font-weight: 600; }
   font-size: 0.875rem;
   border-radius: var(--ip-radius-sm);
   padding: 0.5rem 1rem;
-  height: 40px;
   transition: all var(--ip-transition-fast);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
   gap: 8px;
   border: none;
   cursor: pointer;
-  line-height: 1;
 }
 .btn:focus-visible {
   outline: 2px solid var(--ip-border-focus);
