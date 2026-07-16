@@ -207,7 +207,7 @@ const CreateStaffPage = () => {
                       name="password"
                       type={showPw ? "text" : "password"}
                       className={`form-control pristine-input${errors.password ? ' is-invalid' : ''}`}
-                      placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                      placeholder="Password"
                       value={formData.password}
                       onChange={handleChange}
                       required

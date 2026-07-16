@@ -123,7 +123,7 @@ const VerifyOtp = () => {
                 id="otp-email"
                 name="email"
                 type="email"
-                className={`form-control pristine-input ${errors.email ? 'is-invalid' : ''}`}
+                className={`form-control pristine-input ${errors.email ? "is-invalid" : ""}`}
                 placeholder="username@gmail.com"
                 value={formData.email}
                 onChange={handleChange}
@@ -145,8 +145,8 @@ const VerifyOtp = () => {
                 name="emailOtp"
                 type="text"
                 maxLength={6}
-                className={`form-control pristine-input otp-input-field ${errors.emailOtp ? 'is-invalid' : ''}`}
-                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢"
+                className={`form-control pristine-input otp-input-field ${errors.emailOtp ? "is-invalid" : ""}`}
+                placeholder="------"
                 value={formData.emailOtp}
                 onChange={handleChange}
                 disabled={loading}
@@ -167,8 +167,8 @@ const VerifyOtp = () => {
                 name="phoneOtp"
                 type="text"
                 maxLength={6}
-                className={`form-control pristine-input otp-input-field ${errors.phoneOtp ? 'is-invalid' : ''}`}
-                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢"
+                className={`form-control pristine-input otp-input-field ${errors.phoneOtp ? "is-invalid" : ""}`}
+                placeholder="------"
                 value={formData.phoneOtp}
                 onChange={handleChange}
                 disabled={loading}
@@ -211,7 +211,7 @@ const VerifyOtp = () => {
             ) : (
               <>
                 <span>Didn't receive code?</span>
-              <ResendOtp email={formData.email} />
+                <ResendOtp email={formData.email} />
               </>
             )}
           </div>
