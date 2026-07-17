@@ -8,7 +8,6 @@ import AlertModal from '../../../components/modals/AlertModal';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import { getProductById, updateProduct } from '../../../services/productService';
-import toast from 'react-hot-toast';
 import { notify } from "../../../utils/notificationService";
 import { STATUS_OPTIONS } from "../../../utils/options";
 

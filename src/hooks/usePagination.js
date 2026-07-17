@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 export const usePagination = (initialPage = 1, initialSize = 10) => {
   const [currentPage, setCurrentPage] = useState(initialPage);
@@ -6,11 +6,11 @@ export const usePagination = (initialPage = 1, initialSize = 10) => {
   const [totalElements, setTotalElements] = useState(0);
   const [pageSize, setPageSize] = useState(initialSize);
 
-  const pageParams = {
+  const pageParams = useMemo(() => ({
     pageNumber: currentPage - 1,
     pageSize: pageSize,
     sortDirection: "desc"
-  };
+  }), [currentPage, pageSize]);
 
   return {
     currentPage,

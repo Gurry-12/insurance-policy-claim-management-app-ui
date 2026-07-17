@@ -31,7 +31,7 @@ const PaymentListPage = () => {
     initialFilters: { paymentStatus: '', minAmount: '', maxAmount: '', startDate: '', endDate: '' }
   });
 
-  const { localFilters, handleFilterChange, clearFilters } = useDebounceFilters(
+  const { localFilters, clearFilters } = useDebounceFilters(
     tableState.filters,
     tableState.handleFilterChange
   );
@@ -55,6 +55,7 @@ const PaymentListPage = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     tableState.currentPage, 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     JSON.stringify(tableState.filters),
     tableState.sortBy, 
     tableState.sortDirection

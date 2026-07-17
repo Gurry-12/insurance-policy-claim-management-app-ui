@@ -3,7 +3,30 @@ import NProgress from 'nprogress';
 
 import { parseSuccessResponse, parseErrorResponse } from './apiAdapter';
 
-NProgress.configure({ showSpinner: false, speed: 400, minimum: 0.1 });
+NProgress.configure({ showSpinner: false, speed: 400, minimum: 0.08, trickleSpeed: 200 });
+
+// Track concurrent requests — only hide bar when all are done
+let activeRequests = 0;
+// Track when the bar was last started to enforce minimum visible duration
+let progressStartedAt = 0;
+const MIN_VISIBLE_MS = 300;
+
+const startProgress = () => {
+  if (activeRequests === 0) {
+    NProgress.start();
+    progressStartedAt = Date.now();
+  }
+  activeRequests++;
+};
+
+const finishProgress = () => {
+  activeRequests = Math.max(0, activeRequests - 1);
+  if (activeRequests === 0) {
+    const elapsed = Date.now() - progressStartedAt;
+    const remaining = Math.max(0, MIN_VISIBLE_MS - elapsed);
+    setTimeout(() => NProgress.done(), remaining);
+  }
+};
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -14,29 +37,28 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    NProgress.start();
+    startProgress();
     // Let the browser set Content-Type with boundary for FormData
     if (config.data instanceof FormData) {
       delete config.headers['Content-Type'];
     }
-    
     const token = localStorage.getItem('ss_token');
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
   (error) => {
-    NProgress.done();
+    finishProgress();
     return Promise.reject(error);
   }
 );
 
 axiosInstance.interceptors.response.use(
   (response) => {
-    NProgress.done();
+    finishProgress();
     return parseSuccessResponse(response);
   },
   (error) => {
-    NProgress.done();
+    finishProgress();
     const status = error.response?.status;
     if (status === 401) {
       localStorage.removeItem('ss_token');

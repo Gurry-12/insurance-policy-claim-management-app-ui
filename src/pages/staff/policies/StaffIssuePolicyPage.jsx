@@ -15,8 +15,8 @@ const StaffIssuePolicyPage = () => {
   const [customers, setCustomers] = useState([]);
   const [plans, setPlans] = useState([]);
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  
+  
 
   const [formData, setFormData] = useState({
     customerId: "",

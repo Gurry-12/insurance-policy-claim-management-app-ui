@@ -211,15 +211,15 @@ The `TopNavbar` shows:
 
 ---
 
-## Lazy Loading
+## Zero-Latency Static Routing
 
-All page components are loaded via `React.lazy()` and wrapped in `<Suspense>` with a `LoadingSpinner` fallback:
+All page components are loaded statically via standard ES6 `import` statements at the top of `App.jsx`:
 
 ```jsx
-const Login = lazy(() => import("./pages/auth/Login"));
+import Login from "./pages/auth/Login";
 ```
 
-This means each page's JS bundle is fetched only when the user navigates to it.
+This ensures that the entire application is bundled into a single unit, eliminating network round-trips for JavaScript chunks when navigating between views. Navigation is strictly instantaneous.
 
 ---
 

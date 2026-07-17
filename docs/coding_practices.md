@@ -31,7 +31,7 @@ The project follows a scalable, feature-based organization strategy.
 ## Coding Standards
 1. **Functional Components**: All components are written as functional components using React Hooks (`useState`, `useEffect`, etc.).
 2. **Prop Types & Linting**: ESLint is actively configured. Props should be validated, and components should remain modular.
-3. **Routing Configuration**: Pages are lazy-loaded or managed via React Router in `App.jsx` based on the user's role extracted via `jwt-decode`.
+3. **Routing Configuration**: Pages are statically imported and managed via React Router in `App.jsx` based on the user's role extracted via `jwt-decode`.
 4. **API Abstraction**: Axios calls are placed outside the components (in `services/` or `api/`), utilizing try-catch blocks and returning standardized responses or throwing errors handled by the UI.
 5. **UI Consistency**: Reusable UI elements like `FormInput` and `DataTable` should be used instead of building elements from scratch in pages. Modals and alerts are preferred for non-blocking feedback.
 6. **Error Handling**: `GlobalToaster` (powered by `react-hot-toast`) and `ErrorAlert` are used extensively to provide immediate feedback on API success/failures.

@@ -1,5 +1,4 @@
-﻿import React from 'react';
-import StatusBadge from '../ui/StatusBadge';
+﻿import StatusBadge from '../ui/StatusBadge';
 import { Clock } from 'lucide-react';
 
 const ClaimHistoryTimeline = ({ history = [] }) => {

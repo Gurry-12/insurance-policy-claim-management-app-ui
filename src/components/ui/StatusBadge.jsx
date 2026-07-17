@@ -1,4 +1,4 @@
-﻿import React from "react";
+
 
 const toTitleCase = (str) => {
   if (!str) return "";
@@ -18,7 +18,7 @@ const StatusBadge = ({ status }) => {
     border: '1px solid transparent'
   };
   
-  let iconClass = "";
+  let iconClass;
   let label = status;
 
   switch (status) {

@@ -22,6 +22,7 @@ const PurchasePolicyPage = () => {
       try {
         const data = await getPlanById(planId);
         setPlanDetails(data);
+      // eslint-disable-next-line no-unused-vars
       } catch (error) {
         notify.error("Failed to load plan details");
       } finally {

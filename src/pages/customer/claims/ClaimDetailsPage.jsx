@@ -6,7 +6,7 @@ import StatusBadge from "../../../components/ui/StatusBadge";
 import DocumentPreviewModal from '../../../components/modals/DocumentPreviewModal';
 import ClaimHistoryTimeline from '../../../components/claims/ClaimHistoryTimeline';
 import Drawer from '../../../components/ui/Drawer';
-import { ExternalLink, History, Upload, Eye, Clock, Download } from "lucide-react";
+import { Upload, Eye, Download } from "lucide-react";
 import useClaimPdf from "../../../hooks/PdfDownload/useClaimPdf";
 
 const ClaimDetailsPage = () => {

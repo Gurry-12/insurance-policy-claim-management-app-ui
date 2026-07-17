@@ -1,134 +1,66 @@
-﻿import { Navigate, Outlet, Routes, Route, useLocation } from "react-router-dom";
+import { Navigate, Outlet, Routes, Route, useLocation } from "react-router-dom";
 import useAuth from "./hooks/useAuth";
 import { ROLES } from "./utils/roles";
-import { Suspense, lazy } from "react";
+
 import MainLayout from "./components/layouts/UnifiedLayout";
 import GlobalToaster from "./components/common/GlobalToaster";
 import GlobalApiHandler from "./components/common/GlobalApiHandler";
 import LoadingSpinner from "./components/common/LoadingSpinner";
 
-const Login = lazy(() => import("./pages/auth/Login"));
-const Register = lazy(() => import("./pages/auth/Register"));
-const ForgotPassword = lazy(() => import("./pages/auth/ForgotPassword"));
-const VerifyOtp = lazy(() => import("./pages/auth/VerifyOtp"));
-const LandingPage = lazy(() => import("./pages/LandingPage"));
-const NotFound = lazy(() => import("./pages/shared/NotFound"));
-const Unauthorized = lazy(() => import("./pages/shared/Unauthorized"));
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import VerifyOtp from "./pages/auth/VerifyOtp";
+import LandingPage from "./pages/LandingPage";
+import NotFound from "./pages/shared/NotFound";
+import Unauthorized from "./pages/shared/Unauthorized";
 
-const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
-const UserListPage = lazy(() => import("./pages/admin/users/UserListPage"));
-const CreateStaffPage = lazy(
-  () => import("./pages/admin/users/CreateStaffPage"),
-);
-const UserDetailPage = lazy(() => import("./pages/admin/users/UserDetailPage"));
-const CustomerListPage = lazy(
-  () => import("./pages/admin/customers/CustomerListPage"),
-);
-const CustomerDetailPage = lazy(
-  () => import("./pages/admin/customers/CustomerDetailPage"),
-);
-const ProductListPage = lazy(
-  () => import("./pages/admin/products/ProductListPage"),
-);
-const CreateProductPage = lazy(
-  () => import("./pages/admin/products/CreateProductPage"),
-);
-const EditProductPage = lazy(
-  () => import("./pages/admin/products/EditProductPage"),
-);
-const ProductDetailPage = lazy(
-  () => import("./pages/admin/products/ProductDetailPage"),
-);
-const PlanListPage = lazy(() => import("./pages/admin/plans/PlanListPage"));
-const CreatePlanPage = lazy(() => import("./pages/admin/plans/CreatePlanPage"));
-const EditPlanPage = lazy(() => import("./pages/admin/plans/EditPlanPage"));
-const PlanDetailPage = lazy(() => import("./pages/admin/plans/PlanDetailPage"));
-const PolicyListPage = lazy(
-  () => import("./pages/admin/policies/PolicyListPage"),
-);
-const PolicyDetailPage = lazy(
-  () => import("./pages/admin/policies/PolicyDetailPage"),
-);
-const IssuePolicyPage = lazy(
-  () => import("./pages/admin/policies/IssuePolicyPage"),
-);
-const ClaimListPage = lazy(() => import("./pages/admin/claims/ClaimListPage"));
-const ClaimDetailPage = lazy(
-  () => import("./pages/admin/claims/ClaimDetailPage"),
-);
-const PaymentListPage = lazy(
-  () => import("./pages/admin/payments/PaymentListPage"),
-);
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import UserListPage from "./pages/admin/users/UserListPage";
+import CreateStaffPage from "./pages/admin/users/CreateStaffPage";
+import UserDetailPage from "./pages/admin/users/UserDetailPage";
+import CustomerListPage from "./pages/admin/customers/CustomerListPage";
+import CustomerDetailPage from "./pages/admin/customers/CustomerDetailPage";
+import ProductListPage from "./pages/admin/products/ProductListPage";
+import CreateProductPage from "./pages/admin/products/CreateProductPage";
+import EditProductPage from "./pages/admin/products/EditProductPage";
+import ProductDetailPage from "./pages/admin/products/ProductDetailPage";
+import PlanListPage from "./pages/admin/plans/PlanListPage";
+import CreatePlanPage from "./pages/admin/plans/CreatePlanPage";
+import EditPlanPage from "./pages/admin/plans/EditPlanPage";
+import PlanDetailPage from "./pages/admin/plans/PlanDetailPage";
+import PolicyListPage from "./pages/admin/policies/PolicyListPage";
+import PolicyDetailPage from "./pages/admin/policies/PolicyDetailPage";
+import IssuePolicyPage from "./pages/admin/policies/IssuePolicyPage";
+import ClaimListPage from "./pages/admin/claims/ClaimListPage";
+import ClaimDetailPage from "./pages/admin/claims/ClaimDetailPage";
+import PaymentListPage from "./pages/admin/payments/PaymentListPage";
 
-const StaffDashboard = lazy(() => import("./pages/staff/StaffDashboard"));
-const StaffCustomerListPage = lazy(
-  () => import("./pages/staff/customers/StaffCustomerListPage"),
-);
-const StaffCustomerDetailPage = lazy(
-  () => import("./pages/staff/customers/StaffCustomerDetailPage"),
-);
-const StaffPolicyListPage = lazy(
-  () => import("./pages/staff/policies/StaffPolicyListPage"),
-);
-const StaffPolicyDetailPage = lazy(
-  () => import("./pages/staff/policies/StaffPolicyDetailPage"),
-);
-const StaffIssuePolicyPage = lazy(
-  () => import("./pages/staff/policies/StaffIssuePolicyPage"),
-);
-const StaffClaimListPage = lazy(
-  () => import("./pages/staff/claims/StaffClaimListPage"),
-);
-const StaffClaimDetailPage = lazy(
-  () => import("./pages/staff/claims/StaffClaimDetailPage"),
-);
-const StaffPaymentListPage = lazy(
-  () => import("./pages/staff/payments/StaffPaymentListPage"),
-);
-const StaffRecordPaymentPage = lazy(
-  () => import("./pages/staff/payments/StaffRecordPaymentPage"),
-);
+import StaffDashboard from "./pages/staff/StaffDashboard";
+import StaffCustomerListPage from "./pages/staff/customers/StaffCustomerListPage";
+import StaffCustomerDetailPage from "./pages/staff/customers/StaffCustomerDetailPage";
+import StaffPolicyListPage from "./pages/staff/policies/StaffPolicyListPage";
+import StaffPolicyDetailPage from "./pages/staff/policies/StaffPolicyDetailPage";
+import StaffIssuePolicyPage from "./pages/staff/policies/StaffIssuePolicyPage";
+import StaffClaimListPage from "./pages/staff/claims/StaffClaimListPage";
+import StaffClaimDetailPage from "./pages/staff/claims/StaffClaimDetailPage";
+import StaffPaymentListPage from "./pages/staff/payments/StaffPaymentListPage";
+import StaffRecordPaymentPage from "./pages/staff/payments/StaffRecordPaymentPage";
 
-const CustomerDashboard = lazy(
-  () => import("./pages/customer/CustomerDashboard"),
-);
-const ProfilePage = lazy(() => import("./pages/customer/profile/ProfilePage"));
-const EditProfilePage = lazy(
-  () => import("./pages/customer/profile/EditProfilePage"),
-);
-const CustomerProductListPage = lazy(
-  () => import("./pages/customer/products/CustomerProductListPage"),
-);
-const CustomerPlanListPage = lazy(
-  () => import("./pages/customer/plans/CustomerPlanListPage"),
-);
-const PurchasePolicyPage = lazy(
-  () => import("./pages/customer/policies/PurchasePolicyPage"),
-);
-const CustomerPolicyListPage = lazy(
-  () => import("./pages/customer/policies/CustomerPolicyListPage"),
-);
-const CustomerPolicyDetailPage = lazy(
-  () => import("./pages/customer/policies/CustomerPolicyDetailPage"),
-);
-const CustomerPaymentHistoryPage = lazy(
-  () => import("./pages/customer/payments/CustomerPaymentHistoryPage"),
-);
-const RecordPaymentPage = lazy(
-  () => import("./pages/customer/payments/RecordPaymentPage"),
-);
-const CustomerClaimListPage = lazy(
-  () => import("./pages/customer/claims/CustomerClaimListPage"),
-);
-const RaiseClaimPage = lazy(
-  () => import("./pages/customer/claims/RaiseClaimPage"),
-);
-const ClaimDetailsPage = lazy(
-  () => import("./pages/customer/claims/ClaimDetailsPage"),
-);
-const UploadDocumentsPage = lazy(
-  () => import("./pages/customer/claims/UploadDocumentsPage"),
-);
+import CustomerDashboard from "./pages/customer/CustomerDashboard";
+import ProfilePage from "./pages/customer/profile/ProfilePage";
+import EditProfilePage from "./pages/customer/profile/EditProfilePage";
+import CustomerProductListPage from "./pages/customer/products/CustomerProductListPage";
+import CustomerPlanListPage from "./pages/customer/plans/CustomerPlanListPage";
+import PurchasePolicyPage from "./pages/customer/policies/PurchasePolicyPage";
+import CustomerPolicyListPage from "./pages/customer/policies/CustomerPolicyListPage";
+import CustomerPolicyDetailPage from "./pages/customer/policies/CustomerPolicyDetailPage";
+import CustomerPaymentHistoryPage from "./pages/customer/payments/CustomerPaymentHistoryPage";
+import RecordPaymentPage from "./pages/customer/payments/RecordPaymentPage";
+import CustomerClaimListPage from "./pages/customer/claims/CustomerClaimListPage";
+import RaiseClaimPage from "./pages/customer/claims/RaiseClaimPage";
+import ClaimDetailsPage from "./pages/customer/claims/ClaimDetailsPage";
+import UploadDocumentsPage from "./pages/customer/claims/UploadDocumentsPage";
 
 const ProtectedRoute = () => {
   const { isAuthenticated } = useAuth();
@@ -185,14 +117,7 @@ const App = () => (
   <>
     <GlobalApiHandler />
     <GlobalToaster />
-    <Suspense
-      fallback={
-        <div className="d-flex align-items-center justify-content-center vh-100">
-          <LoadingSpinner />
-        </div>
-      }
-    >
-      <Routes>
+    <Routes>
         <Route element={<GuestRoute />}>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
@@ -359,7 +284,6 @@ const App = () => (
 
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </Suspense>
   </>
 );
 

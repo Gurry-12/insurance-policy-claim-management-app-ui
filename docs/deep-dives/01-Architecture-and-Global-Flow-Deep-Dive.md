@@ -55,9 +55,9 @@ sequenceDiagram
 2. <GlobalToaster />
    └─ Mounts react-hot-toast container.
 ↓
-3. <Suspense fallback={<LoadingSpinner />}>
-   └─ All routes are lazy loaded (`lazy(() => import(...))`).
-   └─ While a chunk is downloading over the network, `<LoadingSpinner />` renders.
+3. <Routes> wrapper
+   └─ All routes are statically imported at the top of the file.
+   └─ There are no network requests for JS chunks during routing.
 ↓
 4. <Routes> evaluates the current URL against the route tree.
 ```
@@ -80,7 +80,7 @@ GuestRoute renders:
 ↓
 Matches child <Route path="/login" element={<Login />} />
 ↓
-<Suspense> triggers network request for Login.jsx chunk
+<Login /> mounts instantly.
 ↓
 <Login /> renders.
 ```

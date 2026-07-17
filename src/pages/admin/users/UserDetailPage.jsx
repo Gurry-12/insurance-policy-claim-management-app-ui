@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import StatusBadge from '../../../components/ui/StatusBadge';
@@ -17,8 +17,7 @@ const UserDetailPage = () => {
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
-  const fetchUserData = (userId = id) => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+  const fetchUserData = useCallback((userId = id) => {
     setLoading(true);
     setError('');
     getUserById(userId)
@@ -34,12 +33,11 @@ const UserDetailPage = () => {
         setError(err.message || err.message || 'Could not load user details.');
       })
       .finally(() => setLoading(false));
-  };
+  }, [id]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchUserData(id);
-  }, [id]);
+  }, [id, fetchUserData]);
 
   const handleStatusToggle = () => {
     const isActive = user?.isActive;

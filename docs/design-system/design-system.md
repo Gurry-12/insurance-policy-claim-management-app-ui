@@ -167,7 +167,7 @@ Built on Bootstrap 5 `table table-hover`:
 **Features:**
 - Sticky header (stays visible during scroll)
 - Hover row highlight
-- Skeleton loading state (Bootstrap placeholders)
+- Inline spinner (cold load) and Stale-While-Revalidate dimming (warm load)
 - `animate-slide-up` class for row entry animation
 
 ---

@@ -1,4 +1,4 @@
-﻿import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { notify } from "../../utils/notificationService";
 import useAuth from "../../hooks/useAuth";
 import logoImg from "../../assets/logo/insurance-heart-vector.png";

@@ -1,10 +1,11 @@
-﻿import { useState } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { useLocation, useOutlet } from "react-router-dom";
+import { Suspense } from "react";
 import Sidebar from "../navigation/Sidebar";
 import TopNavbar from "../navigation/TopNavbar";
 import useAuth from "../../hooks/useAuth";
 import { ROLES } from "../../utils/roles";
-import PageTransition from "../common/PageTransition";
+// Page transition removed for instant navigation
 
 // Define navigation items dynamically per role
 const NAV_ITEMS_BY_ROLE = {
@@ -149,6 +150,7 @@ const PORTAL_TITLE_BY_ROLE = {
 const MainLayout = () => {
   const { user } = useAuth();
   const location = useLocation();
+  const currentOutlet = useOutlet();
   const [sidebarOpen, setSidebarOpen] = useState(false); // For mobile overlay
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false); // For desktop
 
@@ -187,10 +189,10 @@ const MainLayout = () => {
         />
 
         {/* Page content */}
-        <main className="ip-content" style={{ padding: "1.75rem 1.5rem" }}>
-          <PageTransition key={location.pathname}>
-            <Outlet />
-          </PageTransition>
+        <main className="ip-content" style={{ padding: "1.75rem 1.5rem", position: "relative" }}>
+          <>
+            {currentOutlet}
+          </>
         </main>
       </div>
     </div>
