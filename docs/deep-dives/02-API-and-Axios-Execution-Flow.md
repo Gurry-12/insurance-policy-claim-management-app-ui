@@ -20,32 +20,26 @@ sequenceDiagram
     Component->>Service: Call API Method (e.g. login)
     Service->>Axios: axiosInstance.post()
     
-    rect rgb(240, 248, 255)
         Note over Axios: Request Interceptor
         Axios->>NProgress: start()
         Axios->>Axios: Check config.data (Delete Content-Type if FormData)
         Axios->>Axios: Read ss_token & Set Authorization Header
-    end
     
     Axios->>Backend: HTTP Request
     
     alt Success (2xx)
         Backend-->>Axios: 200 OK (ApiResponseDTO)
-        rect rgb(240, 255, 240)
             Note over Axios: Response Interceptor
             Axios->>NProgress: done()
             Axios->>Axios: apiAdapter.parseSuccessResponse()
-        end
         Axios-->>Service: Parsed Standard Data
         Service-->>Component: Returns Payload (Updates State)
     else Error (4xx/5xx)
         Backend-->>Axios: Error Response
-        rect rgb(255, 240, 240)
             Note over Axios: Response Error Interceptor
             Axios->>NProgress: done()
             Axios->>Axios: Check 401/403 (Dispatch Event)
             Axios->>Axios: apiAdapter.parseErrorResponse()
-        end
         Axios-->>Service: Promise.reject(parsedError)
         Service-->>Component: throws error (toast/UI)
     end
