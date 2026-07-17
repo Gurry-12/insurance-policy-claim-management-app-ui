@@ -1,55 +1,52 @@
 ﻿/**
- * FilterChips â€” Displays active filters as individually-removable chips
+ * FilterChips - Displays active filters as individually-removable chips
  *
  * Props:
- *   fields       â€” same field config array passed to FilterPanel
- *   localFilters â€” current applied filter values
- *   onRemove     â€” called with { [name]: '' } to clear a specific filter key
- *   onClearAll   â€” called to reset all filters
+ *   fields       - same field config array passed to FilterPanel
+ *   localFilters - current applied filter values
+ *   onRemove     - called with { [name]: '' } to clear a specific filter key
+ *   onClearAll   - called to reset all filters
  */
 
 const formatAmount = (val) =>
-  val ? `₹${Number(val).toLocaleString('en-IN')}` : '';
-
-
+  val ? `₹${Number(val).toLocaleString("en-IN")}` : "";
 
 const FilterChips = ({ fields = [], localFilters, onRemove, onClearAll }) => {
   const chips = [];
 
   fields.forEach((field) => {
-    if (field.type === 'text') {
+    if (field.type === "text") {
       const val = localFilters[field.name];
       if (val) {
         chips.push({
           key: field.name,
           label: `${field.label}: "${val}"`,
-          onRemove: () => onRemove({ [field.name]: '' }),
+          onRemove: () => onRemove({ [field.name]: "" }),
         });
       }
     }
 
-    if (field.type === 'select') {
+    if (field.type === "select") {
       const val = localFilters[field.name];
       if (val) {
-        const opt = field.options?.find(o => o.value === val);
+        const opt = field.options?.find((o) => o.value === val);
         chips.push({
           key: field.name,
           label: `${field.label}: ${opt?.label || val}`,
-          onRemove: () => onRemove({ [field.name]: '' }),
+          onRemove: () => onRemove({ [field.name]: "" }),
         });
       }
     }
 
-
-
-    if (field.type === 'amount-range') {
+    if (field.type === "amount-range") {
       const mn = localFilters[field.minName];
       const mx = localFilters[field.maxName];
       if (mn && mx) {
         chips.push({
           key: `${field.minName}-${field.maxName}`,
           label: `${field.label}: ${formatAmount(mn)} â€“ ${formatAmount(mx)}`,
-          onRemove: () => onRemove({ [field.minName]: '', [field.maxName]: '' }),
+          onRemove: () =>
+            onRemove({ [field.minName]: "", [field.maxName]: "" }),
         });
       }
     }
@@ -58,7 +55,11 @@ const FilterChips = ({ fields = [], localFilters, onRemove, onClearAll }) => {
   if (chips.length === 0) return null;
 
   return (
-    <div className="ip-filter-chips-bar" role="status" aria-label="Active filters">
+    <div
+      className="ip-filter-chips-bar"
+      role="status"
+      aria-label="Active filters"
+    >
       <span className="ip-filter-chips-label">Active:</span>
       {chips.map((chip) => (
         <span key={chip.key} className="ip-filter-chip">

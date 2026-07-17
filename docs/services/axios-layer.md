@@ -8,11 +8,11 @@
 
 ## Files
 
-| File | Purpose |
-|---|---|
-| [`axiosInstance.js`](../../src/api/axiosInstance.js) | Configured Axios instance with request/response interceptors |
-| [`apiAdapter.js`](../../src/api/apiAdapter.js) | Transforms backend API envelopes into normalized frontend objects |
-| [`apiTypes.js`](../../src/api/apiTypes.js) | JSDoc type definitions for all API DTOs |
+| File                                                 | Purpose                                                           |
+| ---------------------------------------------------- | ----------------------------------------------------------------- |
+| [`axiosInstance.js`](../../src/api/axiosInstance.js) | Configured Axios instance with request/response interceptors      |
+| [`apiAdapter.js`](../../src/api/apiAdapter.js)       | Transforms backend API envelopes into normalized frontend objects |
+| [`apiTypes.js`](../../src/api/apiTypes.js)           | JSDoc type definitions for all API DTOs                           |
 
 ---
 
@@ -23,11 +23,12 @@
 ```js
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
-  headers: { 'Content-Type': 'application/json' },
+  headers: { "Content-Type": "application/json" },
 });
 ```
 
 Base URL comes from `.env` file:
+
 ```
 VITE_API_BASE_URL=http://localhost:8081/api
 ```
@@ -38,22 +39,20 @@ VITE_API_BASE_URL=http://localhost:8081/api
 
 Fires before every outgoing request:
 
-1. **NProgress.start()** — shows top-of-page loading bar
-2. **FormData detection** — removes `Content-Type` header so browser sets it with multipart boundary
-3. **JWT injection** — reads `ss_token` from localStorage, adds `Authorization: Bearer <token>`
+1. **NProgress.start()** - shows top-of-page loading bar
+2. **FormData detection** - removes `Content-Type` header so browser sets it with multipart boundary
+3. **JWT injection** - reads `ss_token` from localStorage, adds `Authorization: Bearer <token>`
 
 ```js
-axiosInstance.interceptors.request.use(
-  (config) => {
-    NProgress.start();
-    if (config.data instanceof FormData) {
-      delete config.headers['Content-Type'];
-    }
-    const token = localStorage.getItem('ss_token');
-    if (token) config.headers.Authorization = `Bearer ${token}`;
-    return config;
+axiosInstance.interceptors.request.use((config) => {
+  NProgress.start();
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
   }
-);
+  const token = localStorage.getItem("ss_token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
 ```
 
 ---
@@ -63,10 +62,12 @@ axiosInstance.interceptors.request.use(
 Fires after every response:
 
 **On success (2xx):**
-1. `NProgress.done()` — hides loading bar
-2. `parseSuccessResponse(response)` — normalizes the `ApiResponseDTO` envelope
+
+1. `NProgress.done()` - hides loading bar
+2. `parseSuccessResponse(response)` - normalizes the `ApiResponseDTO` envelope
 
 **On error (4xx / 5xx / network):**
+
 1. `NProgress.done()`
 2. **401 Unauthorized:**
    - Removes `ss_token` and `ss_user` from localStorage
@@ -83,11 +84,11 @@ Fires after every response:
 
 The interceptor uses DOM custom events to communicate with `GlobalApiHandler`:
 
-| Event | Trigger | Handler |
-|---|---|---|
-| `auth:unauthorized` | 401 response | logout + redirect to `/login` |
-| `auth:forbidden` | 403 response | redirect to `/unauthorized` |
-| `api:error` | 500+ or network | shows `notify.error()` toast |
+| Event               | Trigger         | Handler                       |
+| ------------------- | --------------- | ----------------------------- |
+| `auth:unauthorized` | 401 response    | logout + redirect to `/login` |
+| `auth:forbidden`    | 403 response    | redirect to `/unauthorized`   |
+| `api:error`         | 500+ or network | shows `notify.error()` toast  |
 
 This decouples the Axios layer from React state. The interceptor doesn't need access to `navigate()` or `logout()` directly.
 
@@ -135,7 +136,7 @@ return {
   message: "...",
   data: responseData,
   // Backward compatibility: spreads all fields from responseData onto the result
-  ...responseData
+  ...responseData,
 };
 ```
 
@@ -154,21 +155,22 @@ Output: Normalized error object
 return {
   success: false,
   message: payload.message || "An unexpected error occurred",
-  errorType: payload.errorType,           // e.g., "NOT_FOUND", "BAD_REQUEST"
-  statusCode: payload.statusCode,          // e.g., 404, 400
+  errorType: payload.errorType, // e.g., "NOT_FOUND", "BAD_REQUEST"
+  statusCode: payload.statusCode, // e.g., 404, 400
   fieldErrors: payload.fieldErrors || null, // Map of field-name → error message
-  timeStamp: payload.timeStamp
+  timeStamp: payload.timeStamp,
 };
 ```
 
 Network errors (no response):
+
 ```js
 return {
   success: false,
   message: error.message || "Network Error",
   errorType: "NETWORK_ERROR",
   statusCode: error.response?.status || 500,
-  fieldErrors: null
+  fieldErrors: null,
 };
 ```
 
@@ -179,6 +181,7 @@ return {
 The backend wraps all responses in standard envelopes defined in `apiTypes.js`:
 
 ### Success Envelope (ApiResponseDTO\<T\>)
+
 ```json
 {
   "message": "User-facing success message",
@@ -189,6 +192,7 @@ The backend wraps all responses in standard envelopes defined in `apiTypes.js`:
 ```
 
 ### Paginated Envelope (ApiResponseDTO\<PageResponseDTO\<T\>\>)
+
 ```json
 {
   "message": "...",
@@ -207,6 +211,7 @@ The backend wraps all responses in standard envelopes defined in `apiTypes.js`:
 ```
 
 ### Error Envelope (ErrorResponseDTO)
+
 ```json
 {
   "message": "Policy not found",
@@ -219,6 +224,7 @@ The backend wraps all responses in standard envelopes defined in `apiTypes.js`:
 ```
 
 ### Validation Error Envelope (ValidationErrorResponseDTO)
+
 ```json
 {
   "message": "Validation failed",
@@ -242,7 +248,7 @@ The backend wraps all responses in standard envelopes defined in `apiTypes.js`:
 NProgress.configure({ showSpinner: false, speed: 400, minimum: 0.1 });
 ```
 
-- **No spinner** — only the thin horizontal progress bar at the top of the page
+- **No spinner** - only the thin horizontal progress bar at the top of the page
 - **Speed:** 400ms transitions
 - **Minimum:** 10% fill before animation starts
 

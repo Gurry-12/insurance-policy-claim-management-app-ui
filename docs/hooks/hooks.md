@@ -44,7 +44,7 @@ const { user, logout } = useAuth();
 
 ### Purpose
 
-Provides access to the `ThemeContext` — the current theme and a function to toggle it.
+Provides access to the `ThemeContext` - the current theme and a function to toggle it.
 
 ### Returns
 
@@ -60,9 +60,9 @@ const { theme, toggleTheme } = useTheme();
 ### Side Effects
 
 When `theme` changes:
-- `document.documentElement.setAttribute('data-theme', theme)` — enables CSS custom property theming
-- `document.documentElement.setAttribute('data-bs-theme', theme)` — enables Bootstrap dark mode
-- `localStorage.setItem('ss_theme', theme)` — persists preference
+- `document.documentElement.setAttribute('data-theme', theme)` - enables CSS custom property theming
+- `document.documentElement.setAttribute('data-bs-theme', theme)` - enables Bootstrap dark mode
+- `localStorage.setItem('ss_theme', theme)` - persists preference
 
 ---
 
@@ -341,7 +341,7 @@ Sets the browser tab title (`document.title`) for the current page.
 ### Signature
 
 ```js
-useDocumentTitle("Login — InsureFlow");
+useDocumentTitle("Login - InsureFlow");
 ```
 
 ---
@@ -358,4 +358,4 @@ Custom hooks for generating and downloading PDF reports using `jsPDF` and `jsPDF
 
 - [State Management](../contexts/state-management.md)
 - [Services Overview](../services/services-overview.md)
-- [Developer Guide — Adding a Table](../developer-guide.md#adding-a-table)
+- [Developer Guide - Adding a Table](../developer-guide.md#adding-a-table)

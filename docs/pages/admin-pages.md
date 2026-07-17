@@ -3,7 +3,7 @@
 > **What:** All pages in the Admin Portal (`ROLE_ADMIN`).  
 > **Why:** Admins manage the full lifecycle: users, products, plans, policies, claims, and payments.  
 > **Where:** `src/pages/admin/`  
-> **Role Restriction:** `ROLE_ADMIN` — enforced by `RoleProtectedRoute`
+> **Role Restriction:** `ROLE_ADMIN` - enforced by `RoleProtectedRoute`
 
 ---
 
@@ -18,36 +18,37 @@ High-level overview of the system state. Displays key metrics and recent activit
 
 ### Service Used
 
-`dashboardService.getAdminStats()` — aggregates multiple API calls:
+`dashboardService.getAdminStats()` - aggregates multiple API calls:
 
-| Metric | API Call |
-|---|---|
-| Total Customers | `GET /customers` |
-| Active Policies | `GET /plans/active` |
+| Metric                  | API Call                                |
+| ----------------------- | --------------------------------------- |
+| Total Customers         | `GET /customers`                        |
+| Active Policies         | `GET /plans/active`                     |
 | Pending/Reviewed Claims | `GET /claims?pageNumber=0&pageSize=100` |
-| Active Users | `GET /users` |
-| Total Products | `GET /products/active` |
-| Recent Claims | `GET /claims?pageNumber=0&pageSize=5` |
-| Recent Policies | `GET /policies` |
+| Active Users            | `GET /users`                            |
+| Total Products          | `GET /products/active`                  |
+| Recent Claims           | `GET /claims?pageNumber=0&pageSize=5`   |
+| Recent Policies         | `GET /policies`                         |
 
 ### State
 
-| State | Source |
-|---|---|
+| State          | Source                             |
+| -------------- | ---------------------------------- |
 | `stats` object | `dashboardService.getAdminStats()` |
-| `loading` | `useState(true)` initially |
+| `loading`      | `useState(true)` initially         |
 
 ### Components
 
-- `DashboardCard` — displays each metric with icon and value
-- Recent Claims table — compact `DataTable`
-- Recent Policies table — compact `DataTable`
+- `DashboardCard` - displays each metric with icon and value
+- Recent Claims table - compact `DataTable`
+- Recent Policies table - compact `DataTable`
 
 ---
 
 ## User Management
 
 ### UserListPage
+
 **Route:** `/admin/users`  
 **File:** `src/pages/admin/users/UserListPage.jsx`
 
@@ -62,6 +63,7 @@ High-level overview of the system state. Displays key metrics and recent activit
 ---
 
 ### CreateStaffPage
+
 **Route:** `/admin/users/create`  
 **File:** `src/pages/admin/users/CreateStaffPage.jsx`
 
@@ -83,17 +85,20 @@ High-level overview of the system state. Displays key metrics and recent activit
 ---
 
 ### UserDetailPage
+
 **Route:** `/admin/users/:id`  
 **File:** `src/pages/admin/users/UserDetailPage.jsx`
 
 **Purpose:** View a user's full profile, activate/deactivate account.
 
 **APIs:**
+
 - `GET /users/:id`
 - `PATCH /users/:id/activate`
 - `PATCH /users/:id/deactivate`
 
 **Actions:**
+
 - Toggle user active status with a `ConfirmModal`
 
 ---
@@ -101,6 +106,7 @@ High-level overview of the system state. Displays key metrics and recent activit
 ## Customer Management
 
 ### CustomerListPage
+
 **Route:** `/admin/customers`  
 **File:** `src/pages/admin/customers/CustomerListPage.jsx`
 
@@ -115,12 +121,14 @@ High-level overview of the system state. Displays key metrics and recent activit
 ---
 
 ### CustomerDetailPage
+
 **Route:** `/admin/customers/:id`  
 **File:** `src/pages/admin/customers/CustomerDetailPage.jsx`
 
 **Purpose:** View a customer's complete profile, linked policies, and payment history.
 
 **APIs:**
+
 - `GET /customers/:id`
 - `GET /policies/customer/:id`
 - `GET /payments/policy/:policyId` (per policy)
@@ -130,6 +138,7 @@ High-level overview of the system state. Displays key metrics and recent activit
 ## Product Management
 
 ### ProductListPage
+
 **Route:** `/admin/products`  
 **File:** `src/pages/admin/products/ProductListPage.jsx`
 
@@ -144,6 +153,7 @@ High-level overview of the system state. Displays key metrics and recent activit
 ---
 
 ### CreateProductPage
+
 **Route:** `/admin/products/create`  
 **File:** `src/pages/admin/products/CreateProductPage.jsx`
 
@@ -162,24 +172,28 @@ High-level overview of the system state. Displays key metrics and recent activit
 ---
 
 ### EditProductPage
+
 **Route:** `/admin/products/edit/:id`  
 **File:** `src/pages/admin/products/EditProductPage.jsx`
 
 **Purpose:** Edit an existing product's details.
 
 **APIs:**
+
 - `GET /products/:id` (load current values)
 - `PUT /products/:id` (save changes)
 
 ---
 
 ### ProductDetailPage
+
 **Route:** `/admin/products/:id`  
 **File:** `src/pages/admin/products/ProductDetailPage.jsx`
 
 **Purpose:** View a product's full details, its linked plans, and toggle active status.
 
 **APIs:**
+
 - `GET /products/:id`
 - `PATCH /products/:id/activate`
 - `PATCH /products/:id/deactivate`
@@ -189,6 +203,7 @@ High-level overview of the system state. Displays key metrics and recent activit
 ## Plan Management
 
 ### PlanListPage
+
 **Route:** `/admin/plans`  
 **File:** `src/pages/admin/plans/PlanListPage.jsx`
 
@@ -203,12 +218,14 @@ High-level overview of the system state. Displays key metrics and recent activit
 ---
 
 ### CreatePlanPage
+
 **Route:** `/admin/plans/create`  
 **File:** `src/pages/admin/plans/CreatePlanPage.jsx`
 
 **Purpose:** Create a new plan linked to a product.
 
 **APIs:**
+
 - `GET /products/active` (populate product dropdown)
 - `POST /plans`
 
@@ -227,24 +244,28 @@ High-level overview of the system state. Displays key metrics and recent activit
 ---
 
 ### EditPlanPage
+
 **Route:** `/admin/plans/edit/:id`  
 **File:** `src/pages/admin/plans/EditPlanPage.jsx`
 
 **Purpose:** Edit an existing plan's details.
 
 **APIs:**
+
 - `GET /plans/:id`
 - `PUT /plans/:id`
 
 ---
 
 ### PlanDetailPage
+
 **Route:** `/admin/plans/:id`  
 **File:** `src/pages/admin/plans/PlanDetailPage.jsx`
 
 **Purpose:** View a plan's complete details and toggle active status.
 
 **APIs:**
+
 - `GET /plans/:id`
 - `PATCH /plans/:id/activate`
 - `PATCH /plans/:id/deactivate`
@@ -254,6 +275,7 @@ High-level overview of the system state. Displays key metrics and recent activit
 ## Policy Management
 
 ### PolicyListPage
+
 **Route:** `/admin/policies`  
 **File:** `src/pages/admin/policies/PolicyListPage.jsx`
 
@@ -268,12 +290,14 @@ High-level overview of the system state. Displays key metrics and recent activit
 ---
 
 ### PolicyDetailPage
+
 **Route:** `/admin/policies/:id`  
 **File:** `src/pages/admin/policies/PolicyDetailPage.jsx`
 
 **Purpose:** View a policy's complete details, payment history, and associated claims.
 
 **APIs:**
+
 - `GET /policies/:id`
 - `GET /payments/policy/:id`
 - `GET /policies/:id/claims`
@@ -282,12 +306,14 @@ High-level overview of the system state. Displays key metrics and recent activit
 ---
 
 ### IssuePolicyPage
+
 **Route:** `/admin/policies/issue`  
 **File:** `src/pages/admin/policies/IssuePolicyPage.jsx`
 
 **Purpose:** Admin manually issues a policy for a specific customer.
 
 **APIs:**
+
 - `GET /customers` (populate customer dropdown)
 - `GET /plans/active` (populate plan dropdown)
 - `POST /policies/issue`
@@ -304,6 +330,7 @@ High-level overview of the system state. Displays key metrics and recent activit
 ## Claim Management
 
 ### ClaimListPage
+
 **Route:** `/admin/claims`  
 **File:** `src/pages/admin/claims/ClaimListPage.jsx`
 
@@ -318,12 +345,14 @@ High-level overview of the system state. Displays key metrics and recent activit
 ---
 
 ### ClaimDetailPage
+
 **Route:** `/admin/claims/:id`  
 **File:** `src/pages/admin/claims/ClaimDetailPage.jsx`
 
 **Purpose:** View full claim details, audit history, and take approval/rejection decisions.
 
 **APIs:**
+
 - `GET /claims/:id`
 - `GET /claims/:id/history`
 - `PATCH /claims/:id/final-decision` (APPROVED / REJECTED)
@@ -331,6 +360,7 @@ High-level overview of the system state. Displays key metrics and recent activit
 **Business Rule:** Admin can approve or reject claims. Staff can only recommend.
 
 **Components:**
+
 - Claim detail cards
 - Document viewer (shows uploaded documents with preview)
 - Claim history timeline
@@ -341,6 +371,7 @@ High-level overview of the system state. Displays key metrics and recent activit
 ## Payment Management
 
 ### PaymentListPage
+
 **Route:** `/admin/payments`  
 **File:** `src/pages/admin/payments/PaymentListPage.jsx`
 

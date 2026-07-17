@@ -3,7 +3,7 @@
 > **What:** All pages in the Customer Portal (`ROLE_CUSTOMER`).  
 > **Why:** Customers need to browse products, purchase policies, make payments, raise claims, and track their claim status.  
 > **Where:** `src/pages/customer/`  
-> **Role Restriction:** `ROLE_CUSTOMER` — enforced by `RoleProtectedRoute`
+> **Role Restriction:** `ROLE_CUSTOMER` - enforced by `RoleProtectedRoute`
 
 ---
 
@@ -18,20 +18,20 @@ The customer's home screen. Displays their active policy summary, recent claims,
 
 ### APIs Used
 
-- `GET /policies/my-policies` — customer's own policies
-- `GET /claims/my-claims` — customer's own claims
-- `GET /payments/my-payments` — customer's own payments
-- `GET /customers/profile` — customer profile info
+- `GET /policies/my-policies` - customer's own policies
+- `GET /claims/my-claims` - customer's own claims
+- `GET /payments/my-payments` - customer's own payments
+- `GET /customers/profile` - customer profile info
 
 ### State
 
-| State | Purpose |
-|---|---|
+| State      | Purpose                 |
+| ---------- | ----------------------- |
 | `policies` | List of user's policies |
-| `claims` | List of user's claims |
+| `claims`   | List of user's claims   |
 | `payments` | List of user's payments |
-| `profile` | Customer profile object |
-| `loading` | Initial loading state |
+| `profile`  | Customer profile object |
+| `loading`  | Initial loading state   |
 
 ### Quick Actions
 
@@ -42,13 +42,14 @@ The customer's home screen. Displays their active policy summary, recent claims,
 
 ### Profile Completeness Check
 
-If `profile` is null (customer hasn't filled their profile), the dashboard shows a prompt: *"Complete your profile to purchase policies."*
+If `profile` is null (customer hasn't filled their profile), the dashboard shows a prompt: _"Complete your profile to purchase policies."_
 
 ---
 
 ## Profile Pages
 
 ### ProfilePage
+
 **Route:** `/customer/profile` and `/staff/profile`  
 **File:** `src/pages/customer/profile/ProfilePage.jsx`
 
@@ -59,6 +60,7 @@ If `profile` is null (customer hasn't filled their profile), the dashboard shows
 **Response fields:** `customerId`, `userId`, `fullName`, `email`, `mobileNumber`, `dateOfBirth`, `address`, `city`, `state`, `pinCode`, `nomineeName`, `nomineeRelation`, `createdDate`
 
 **Actions:**
+
 - **Edit Profile** → `/customer/profile/edit` (or `/staff/profile/edit`)
 
 **Note:** If profile does not exist yet (404), a "Create Profile" CTA is shown.
@@ -66,15 +68,17 @@ If `profile` is null (customer hasn't filled their profile), the dashboard shows
 ---
 
 ### EditProfilePage
+
 **Route:** `/customer/profile/edit` and `/staff/profile/edit`  
 **File:** `src/pages/customer/profile/EditProfilePage.jsx`
 
 **Purpose:** Create or update the customer's profile details.
 
 **APIs:**
-- `GET /customers/profile` — load current data (for edit mode)
-- `POST /customers` — create new profile
-- `PUT /customers/:customerId` — update existing profile
+
+- `GET /customers/profile` - load current data (for edit mode)
+- `POST /customers` - create new profile
+- `PUT /customers/:customerId` - update existing profile
 
 **Form Fields:**
 | Field | Validation |
@@ -97,6 +101,7 @@ Father, Mother, Spouse, Husband, Wife, Son, Daughter, Brother, Sister, Grandfath
 ## Product Browsing
 
 ### CustomerProductListPage
+
 **Route:** `/customer/products`  
 **File:** `src/pages/customer/products/CustomerProductListPage.jsx`
 
@@ -105,6 +110,7 @@ Father, Mother, Spouse, Husband, Wife, Son, Daughter, Brother, Sister, Grandfath
 **API:** `GET /products/active`
 
 **Layout:** Card grid. Each card shows:
+
 - Product name and type icon
 - Description
 - **"View Plans" button** → navigates to `/customer/products/:productId/plans`
@@ -114,16 +120,19 @@ Father, Mother, Spouse, Husband, Wife, Son, Daughter, Brother, Sister, Grandfath
 ## Plan Browsing
 
 ### CustomerPlanListPage
+
 **Route:** `/customer/plans` or `/customer/products/:productId/plans`  
 **File:** `src/pages/customer/plans/CustomerPlanListPage.jsx`
 
 **Purpose:** Browse available insurance plans. Can be viewed as "all active plans" or filtered by a specific product.
 
 **APIs:**
-- `GET /plans/active` — all plans
-- `GET /plans/:productId/active` — plans for a specific product (when `productId` param exists)
+
+- `GET /plans/active` - all plans
+- `GET /plans/:productId/active` - plans for a specific product (when `productId` param exists)
 
 **Layout:** Card/table view. Each plan shows:
+
 - Plan name, coverage amount, premium amount, premium type, duration
 - **"Purchase Policy" button** → navigates to `/customer/purchase-policy/:planId`
 
@@ -132,6 +141,7 @@ Father, Mother, Spouse, Husband, Wife, Son, Daughter, Brother, Sister, Grandfath
 ## Policy Management
 
 ### PurchasePolicyPage
+
 **Route:** `/customer/purchase-policy/:planId`  
 **File:** `src/pages/customer/policies/PurchasePolicyPage.jsx`
 
@@ -140,8 +150,9 @@ Father, Mother, Spouse, Husband, Wife, Son, Daughter, Brother, Sister, Grandfath
 **Pre-condition:** Customer must have a completed profile. If not, a redirect to `/customer/profile/edit` is shown.
 
 **APIs:**
-- `GET /plans/:planId` — load plan details
-- `GET /customers/profile` — verify profile exists
+
+- `GET /plans/:planId` - load plan details
+- `GET /customers/profile` - verify profile exists
 - `POST /policies/purchase`
 
 **Form Fields:**
@@ -151,6 +162,7 @@ Father, Mother, Spouse, Husband, Wife, Son, Daughter, Brother, Sister, Grandfath
 | Start Date | Required, past or present |
 
 **Request Payload:**
+
 ```json
 {
   "planId": 5,
@@ -159,6 +171,7 @@ Father, Mother, Spouse, Husband, Wife, Son, Daughter, Brother, Sister, Grandfath
 ```
 
 **Success Flow:**
+
 1. Policy created with status `PENDING_PAYMENT`
 2. Toast success
 3. Navigate to `/customer/payments/pay/:policyId` to complete the first payment
@@ -166,6 +179,7 @@ Father, Mother, Spouse, Husband, Wife, Son, Daughter, Brother, Sister, Grandfath
 ---
 
 ### CustomerPolicyListPage
+
 **Route:** `/customer/policies`  
 **File:** `src/pages/customer/policies/CustomerPolicyListPage.jsx`
 
@@ -180,17 +194,20 @@ Father, Mother, Spouse, Husband, Wife, Son, Daughter, Brother, Sister, Grandfath
 ---
 
 ### CustomerPolicyDetailPage
+
 **Route:** `/customer/policies/:policyId`  
 **File:** `src/pages/customer/policies/CustomerPolicyDetailPage.jsx`
 
 **Purpose:** View detailed information about a specific policy.
 
 **APIs:**
+
 - `GET /policies/:policyId`
 - `GET /payments/my-policies/:policyId`
 - `GET /policies/:policyId/claims`
 
 **Actions:**
+
 - **Pay Premium** → `/customer/payments/pay/:policyId` (only if `PENDING_PAYMENT`)
 - **Raise Claim** → `/customer/claims/raise` (only if `ACTIVE`)
 
@@ -199,6 +216,7 @@ Father, Mother, Spouse, Husband, Wife, Son, Daughter, Brother, Sister, Grandfath
 ## Payment Management
 
 ### CustomerPaymentHistoryPage
+
 **Route:** `/customer/payments`  
 **File:** `src/pages/customer/payments/CustomerPaymentHistoryPage.jsx`
 
@@ -211,13 +229,15 @@ Father, Mother, Spouse, Husband, Wife, Son, Daughter, Brother, Sister, Grandfath
 ---
 
 ### RecordPaymentPage
+
 **Route:** `/customer/payments/pay/:policyId`  
 **File:** `src/pages/customer/payments/RecordPaymentPage.jsx`
 
 **Purpose:** Customer submits payment for a policy's premium.
 
 **APIs:**
-- `GET /policies/:policyId` — load policy details + premium amount
+
+- `GET /policies/:policyId` - load policy details + premium amount
 - `POST /payments`
 
 **Form Fields:**
@@ -230,6 +250,7 @@ Father, Mother, Spouse, Husband, Wife, Son, Daughter, Brother, Sister, Grandfath
 **Important:** The payment status is explicitly submitted by the user. This simulates a real payment gateway that would return SUCCESS/FAILED. A `PENDING_PAYMENT` policy becomes `ACTIVE` when a SUCCESS payment is recorded.
 
 **Request Payload:**
+
 ```json
 {
   "policyId": 7,
@@ -246,6 +267,7 @@ Father, Mother, Spouse, Husband, Wife, Son, Daughter, Brother, Sister, Grandfath
 ## Claim Management
 
 ### CustomerClaimListPage
+
 **Route:** `/customer/claims`  
 **File:** `src/pages/customer/claims/CustomerClaimListPage.jsx`
 
@@ -256,6 +278,7 @@ Father, Mother, Spouse, Husband, Wife, Son, Daughter, Brother, Sister, Grandfath
 **Table Columns:** Claim Number, Policy Number, Amount, Reason, Status, Date, Actions
 
 **Status Color Coding:**
+
 - `SUBMITTED` → blue
 - `UNDER_REVIEW` → yellow
 - `RECOMMENDED_FOR_APPROVAL` → cyan
@@ -266,6 +289,7 @@ Father, Mother, Spouse, Husband, Wife, Son, Daughter, Brother, Sister, Grandfath
 ---
 
 ### RaiseClaimPage
+
 **Route:** `/customer/claims/raise`  
 **File:** `src/pages/customer/claims/RaiseClaimPage.jsx`
 
@@ -274,7 +298,8 @@ Father, Mother, Spouse, Husband, Wife, Son, Daughter, Brother, Sister, Grandfath
 **Pre-condition:** Customer must have at least one `ACTIVE` policy.
 
 **APIs:**
-- `GET /policies/my-policies` — load active policies for dropdown
+
+- `GET /policies/my-policies` - load active policies for dropdown
 - `POST /claims/raise` (multipart/form-data)
 
 **Form Fields:**
@@ -285,16 +310,20 @@ Father, Mother, Spouse, Husband, Wife, Son, Daughter, Brother, Sister, Grandfath
 | Claim Reason | Required, descriptive text |
 | Incident Date | Required, must be within policy start and end dates |
 
-**Important — Multipart Form:**  
+**Important - Multipart Form:**  
 The claim is submitted as `multipart/form-data`. The claim details are serialized as a JSON blob:
 
 ```js
 const formData = new FormData();
-formData.append('claim', new Blob([JSON.stringify(claimPayload)], { type: 'application/json' }));
-// Files are optional at raise time — can be uploaded later
+formData.append(
+  "claim",
+  new Blob([JSON.stringify(claimPayload)], { type: "application/json" }),
+);
+// Files are optional at raise time - can be uploaded later
 ```
 
 **Success Flow:**
+
 1. Claim created with status `SUBMITTED`
 2. Toast success
 3. Navigate to `/customer/claims/upload/:claimId` to upload documents
@@ -302,46 +331,52 @@ formData.append('claim', new Blob([JSON.stringify(claimPayload)], { type: 'appli
 ---
 
 ### UploadDocumentsPage
+
 **Route:** `/customer/claims/upload/:claimId`  
 **File:** `src/pages/customer/claims/UploadDocumentsPage.jsx`
 
 **Purpose:** Upload supporting documents for a claim (medical bills, FIR, photos, etc.).
 
 **APIs:**
-- `GET /claims/:claimId` — load claim details (to know the product type)
+
+- `GET /claims/:claimId` - load claim details (to know the product type)
 - `POST /document/upload/:claimId` (multipart/form-data with `files[]`)
 
 **Document Categories (from `documentCategories.js`):**
 
-| Product Type | Document Types |
-|---|---|
-| HEALTH | Hospital Bills, Discharge Summary, Lab Reports, Pharmacy Bills, etc. |
-| MOTOR | RC Book, Driving License, FIR, Vehicle Damage Photos, Garage Invoice, etc. |
-| LIFE | Death Certificate, Nominee Identity Proof, Hospital Records, etc. |
-| TRAVEL | Passport Copy, Flight Ticket, Visa Copy, Police Complaint, etc. |
-| INSURANCE | Policy Copy, Identity Proof, Property Photos, Survey Report, etc. |
+| Product Type | Document Types                                                             |
+| ------------ | -------------------------------------------------------------------------- |
+| HEALTH       | Hospital Bills, Discharge Summary, Lab Reports, Pharmacy Bills, etc.       |
+| MOTOR        | RC Book, Driving License, FIR, Vehicle Damage Photos, Garage Invoice, etc. |
+| LIFE         | Death Certificate, Nominee Identity Proof, Hospital Records, etc.          |
+| TRAVEL       | Passport Copy, Flight Ticket, Visa Copy, Police Complaint, etc.            |
+| INSURANCE    | Policy Copy, Identity Proof, Property Photos, Survey Report, etc.          |
 
 **Success:** Toast + navigate to `/customer/claims/:claimId`
 
 ---
 
 ### ClaimDetailsPage
+
 **Route:** `/customer/claims/:claimId`  
 **File:** `src/pages/customer/claims/ClaimDetailsPage.jsx`
 
 **Purpose:** View full details of a specific claim including status, remarks, and uploaded documents.
 
 **APIs:**
+
 - `GET /claims/:claimId`
 - `GET /claims/:claimId/history`
 
 **Sections:**
+
 - Claim summary (amount, reason, incident date, status)
 - Staff remarks and admin remarks (visible after review)
 - Uploaded documents list with preview links
 - Claim history timeline
 
 **Actions:**
+
 - **Upload More Documents** → `/customer/claims/upload/:claimId` (if not yet resolved)
 
 ---

@@ -1,7 +1,7 @@
 # Business Workflows
 
 > **What:** End-to-end business process flows across all three user roles.  
-> **Why:** Business workflows connect multiple pages, APIs, and state updates — understanding them is essential for feature development and debugging.  
+> **Why:** Business workflows connect multiple pages, APIs, and state updates - understanding them is essential for feature development and debugging.  
 > **How:** Each workflow maps user actions to the exact code that runs.
 
 ---
@@ -81,16 +81,16 @@
 **Success Exit:** `/login`
 
 ```
-STEP 1 — Enter Email:
+STEP 1 - Enter Email:
   POST /auth/forgot-password { email }
   → OTP sent to email
   → advance to step 2
 
-STEP 2 — Verify OTP:
+STEP 2 - Verify OTP:
   POST /auth/verify-otp { email, otp }
   → advance to step 3
 
-STEP 3 — New Password:
+STEP 3 - New Password:
   POST /auth/reset-password { email, otp, newPassword: btoa(newPassword) }
   → toast.success
   → navigate('/login')

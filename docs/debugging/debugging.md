@@ -13,13 +13,15 @@
 **Root cause:** Token expired or missing from localStorage.
 
 **Check:**
+
 ```js
 // In browser console:
-localStorage.getItem('ss_token')
+localStorage.getItem("ss_token");
 // If null → user session expired
 ```
 
 **What happens automatically:**
+
 - `axiosInstance` response interceptor catches 401
 - Removes `ss_token` and `ss_user` from localStorage
 - Dispatches `auth:unauthorized` window event
@@ -34,6 +36,7 @@ localStorage.getItem('ss_token')
 **Root cause:** User is authenticated but doesn't have permission for that resource.
 
 **What happens automatically:**
+
 - `axiosInstance` dispatches `auth:forbidden` event
 - `GlobalApiHandler` navigates to `/unauthorized`
 
@@ -44,11 +47,13 @@ localStorage.getItem('ss_token')
 ### Symptom: API call fails with "Network Error" or no response
 
 **Root causes:**
+
 1. Backend server not running on `VITE_API_BASE_URL`
 2. CORS misconfiguration on backend
 3. Wrong `VITE_API_BASE_URL` in `.env`
 
 **Check:**
+
 ```bash
 # Verify the backend URL in .env:
 cat .env
@@ -70,19 +75,19 @@ curl http://localhost:8081/api/auth/login
 
 ```js
 // Service returns the apiAdapter-normalized response:
-const response = await axiosInstance.get('/endpoint');
+const response = await axiosInstance.get("/endpoint");
 
 // For single objects:
-response.data          // The actual object
-response.policyId      // Also works (backward compat spread)
+response.data; // The actual object
+response.policyId; // Also works (backward compat spread)
 
 // For paginated lists:
-response.data          // Array of items (= response.content)
-response.pagination    // { pageNumber, pageSize, totalPages, ... }
-response.content       // Also works (backward compat)
+response.data; // Array of items (= response.content)
+response.pagination; // { pageNumber, pageSize, totalPages, ... }
+response.content; // Also works (backward compat)
 
 // For arrays:
-response.data          // The array
+response.data; // The array
 // response is also the array (backward compat)
 ```
 
@@ -93,15 +98,17 @@ response.data          // The array
 **Root cause:** Manually setting `Content-Type: multipart/form-data` without the boundary.
 
 **The correct approach (already handled in axiosInstance):**
+
 ```js
 // The request interceptor does this automatically:
 if (config.data instanceof FormData) {
-  delete config.headers['Content-Type'];
+  delete config.headers["Content-Type"];
   // Let the browser set it with the correct boundary
 }
 ```
 
 **If you see a boundary error:** Make sure you're not setting `Content-Type` manually when sending FormData. Remove any:
+
 ```js
 // ❌ Wrong:
 headers: { 'Content-Type': 'multipart/form-data' }
@@ -116,6 +123,7 @@ headers: { 'Content-Type': 'multipart/form-data' }
 **Root cause:** The `fieldErrors` from the backend are not being rendered.
 
 **How it works:**
+
 1. Backend returns `ValidationErrorResponseDTO` with `fieldErrors: { email: "..." }`
 2. `apiAdapter.parseErrorResponse()` extracts `fieldErrors`
 3. `useApiForm.submit()` catches the error, sets `setFieldErrors(error.fieldErrors)`
@@ -134,14 +142,14 @@ headers: { 'Content-Type': 'multipart/form-data' }
 **Fix:** `useApiForm` automatically calls `notify.success(response)`. Don't call it again in the component:
 
 ```jsx
-// ❌ Wrong — double toast:
+// ❌ Wrong - double toast:
 const { submit } = useApiForm(apiFunc, (data) => {
   notify.success("Saved!"); // ← removes this
-  navigate('/success');
+  navigate("/success");
 });
 
 // ✓ Correct:
-const { submit } = useApiForm(apiFunc, () => navigate('/success'));
+const { submit } = useApiForm(apiFunc, () => navigate("/success"));
 // useApiForm already shows the backend's success message
 ```
 
@@ -152,6 +160,7 @@ const { submit } = useApiForm(apiFunc, () => navigate('/success'));
 **Root cause:** Passing a non-string, non-object-with-message to `notify.success/error`.
 
 **Check the `notify` service:**
+
 ```js
 success(response, fallback = "Operation successful") {
   const message = typeof response === 'string'
@@ -162,11 +171,12 @@ success(response, fallback = "Operation successful") {
 ```
 
 **Fix:** Pass either a string or the full response object:
+
 ```js
-notify.success("Done!");           // ✓ String
-notify.success(response);          // ✓ Object with .message
-notify.error("Something failed");  // ✓ String
-notify.error(err);                 // ✓ Error object with .message
+notify.success("Done!"); // ✓ String
+notify.success(response); // ✓ Object with .message
+notify.error("Something failed"); // ✓ String
+notify.error(err); // ✓ Error object with .message
 ```
 
 ---
@@ -176,13 +186,14 @@ notify.error(err);                 // ✓ Error object with .message
 **Check 1:** Is `<GlobalToaster />` rendered in `App.jsx`?
 
 ```jsx
-// In App.jsx — must be present:
+// In App.jsx - must be present:
 <GlobalToaster />
 ```
 
 **Check 2:** Is the `react-hot-toast` import correct?
+
 ```js
-import toast from 'react-hot-toast';
+import toast from "react-hot-toast";
 ```
 
 ---
@@ -195,20 +206,23 @@ import toast from 'react-hot-toast';
 
 **Fix options:**
 
-Option A — Re-fetch after mutation:
+Option A - Re-fetch after mutation:
+
 ```jsx
 const { submit } = useApiForm(
   claimService.approveClaim,
-  () => fetchClaimData() // Re-fetch the claim
+  () => fetchClaimData(), // Re-fetch the claim
 );
 ```
 
-Option B — Update state optimistically:
+Option B - Update state optimistically:
+
 ```jsx
-setClaim(prev => ({ ...prev, claimStatus: 'APPROVED' }));
+setClaim((prev) => ({ ...prev, claimStatus: "APPROVED" }));
 ```
 
-Option C — Force full reload:
+Option C - Force full reload:
+
 ```js
 window.location.reload(); // Last resort, not recommended
 ```
@@ -220,6 +234,7 @@ window.location.reload(); // Last resort, not recommended
 **Root cause:** React unmounts and remounts pages on navigation, resetting all `useState`.
 
 **Fix (if you need to persist form state):**
+
 1. Pass data via `navigate('/path', { state: { formData } })` and read with `useLocation().state`
 2. Store in localStorage/sessionStorage
 3. Use URL query params
@@ -229,6 +244,7 @@ window.location.reload(); // Last resort, not recommended
 ### Symptom: `user` is null in a component that requires it
 
 **Check 1:** Is `useAuth()` returning null?
+
 ```js
 const { user } = useAuth();
 console.log(user); // null = token exists but user parsing failed
@@ -237,8 +253,9 @@ console.log(user); // null = token exists but user parsing failed
 **Root cause:** `ss_user` in localStorage is corrupted JSON.
 
 **Fix:**
+
 ```js
-localStorage.removeItem('ss_user');
+localStorage.removeItem("ss_user");
 // Then log in again
 ```
 
@@ -251,8 +268,9 @@ localStorage.removeItem('ss_user');
 **Root cause:** `ss_token` was removed from localStorage (cleared by another tab, extension, or logout).
 
 **Check:**
+
 ```js
-localStorage.getItem('ss_token'); // Should not be null
+localStorage.getItem("ss_token"); // Should not be null
 ```
 
 ---
@@ -264,12 +282,14 @@ localStorage.getItem('ss_token'); // Should not be null
 **Root cause:** The `validate()` function has a logic bug.
 
 **Debug approach:**
+
 ```js
 const errs = validate(); // Call before return
 console.log(errs); // Check what's returned
 ```
 
 **Common mistake:** Using loose equality `==` or not trimming whitespace:
+
 ```js
 // ❌ Bug:
 if (!formData.fullName) // passes for "   " (spaces only)
@@ -286,9 +306,11 @@ if (!formData.fullName.trim()) // catches whitespace-only
 
 ```jsx
 // Must be in the JSX:
-{fieldErrors.fieldName && (
-  <div className="text-danger small">{fieldErrors.fieldName}</div>
-)}
+{
+  fieldErrors.fieldName && (
+    <div className="text-danger small">{fieldErrors.fieldName}</div>
+  );
+}
 ```
 
 **Check:** Is the field name in `fieldErrors` matching exactly? Backend may send `mobileNumber` but you're checking `mobile`.
@@ -300,21 +322,23 @@ if (!formData.fullName.trim()) // catches whitespace-only
 ### Symptom: After login, user is redirected to the wrong page
 
 **Check:** `ROLE_HOME` in `src/utils/roles.js`:
+
 ```js
 export const ROLE_HOME = {
-  [ROLES.ADMIN]: '/dashboard',       // → DashboardRedirect
-  [ROLES.INTERNAL_STAFF]: '/dashboard',
-  [ROLES.CUSTOMER]: '/dashboard',
+  [ROLES.ADMIN]: "/dashboard", // → DashboardRedirect
+  [ROLES.INTERNAL_STAFF]: "/dashboard",
+  [ROLES.CUSTOMER]: "/dashboard",
 };
 ```
 
 `/dashboard` is handled by `DashboardRedirect` component which redirects to the role-specific dashboard.
 
 **Check:** Is `user.role` being set correctly after login?
+
 ```js
 // In authService.login():
 const user = {
-  role: payload.role || (decoded.role ?? decoded.roles?.[0] ?? null)
+  role: payload.role || (decoded.role ?? decoded.roles?.[0] ?? null),
 };
 ```
 
@@ -325,6 +349,7 @@ If `payload.role` is `null`, it falls back to the JWT decoded role.
 ### Symptom: "Route not found" (blank page or 404 UI)
 
 **Check:** Does the route exist in `App.jsx`? Search for the path string:
+
 ```bash
 grep -n "/your/path" src/App.jsx
 ```
@@ -338,6 +363,7 @@ grep -n "/your/path" src/App.jsx
 **Expected behavior:** `GuestRoute` should redirect authenticated users.
 
 **Check:** Is the user's `token` in localStorage and is `isAuthenticated` true?
+
 ```js
 const { isAuthenticated } = useAuth();
 // Should be true for logged-in users
@@ -352,8 +378,9 @@ const { isAuthenticated } = useAuth();
 **Root cause:** `isLoggingOut` flag in localStorage was not cleared.
 
 **Fix:**
+
 ```js
-localStorage.removeItem('isLoggingOut');
+localStorage.removeItem("isLoggingOut");
 ```
 
 ---
@@ -364,13 +391,12 @@ localStorage.removeItem('isLoggingOut');
 
 ```jsx
 // In App.jsx:
-<GlobalApiHandler />  // Must be present
+<GlobalApiHandler /> // Must be present
 ```
 
 The component listens for `auth:unauthorized` DOM events. If it's not rendered, no toast will appear.
 
 ---
-
 
 ## Performance Issues
 
@@ -389,6 +415,7 @@ The component listens for `auth:unauthorized` DOM events. If it's not rendered, 
 **Root cause:** The effect dependencies include non-memoized objects/functions.
 
 **Fix:** Use `JSON.stringify` or memoize the dependency:
+
 ```js
 useEffect(() => {
   fetchData();
@@ -396,7 +423,7 @@ useEffect(() => {
   tableState.currentPage,
   tableState.sortBy,
   tableState.sortDirection,
-  JSON.stringify(tableState.filters) // ← stringify prevents reference equality issues
+  JSON.stringify(tableState.filters), // ← stringify prevents reference equality issues
 ]);
 ```
 

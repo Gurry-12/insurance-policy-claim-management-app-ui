@@ -1,4 +1,4 @@
-# 🔐 Auth Flow — Login & Register
+# 🔐 Auth Flow - Login & Register
 
 > Covers: `pages/auth/Login.jsx`, `pages/auth/Register.jsx`, `context/AuthContext.jsx`, `hooks/useAuth.js`, `services/authService.js`, `api/axiosInstance.js`
 
@@ -7,29 +7,30 @@
 ## 📌 Overview
 
 The auth flow handles:
-1. **Login** — submits credentials, receives JWT, decodes role, redirects to role-based dashboard
-2. **Register** — public sign-up for **Customer** role only (Admin/Agent created by Admin)
-3. **Token Persistence** — JWT stored in `localStorage` via `storageUtils.js`
-4. **Auto-redirect** — if token exists, skip login and go to dashboard
-5. **Logout** — clears storage and resets context state
+
+1. **Login** - submits credentials, receives JWT, decodes role, redirects to role-based dashboard
+2. **Register** - public sign-up for **Customer** role only (Admin/Agent created by Admin)
+3. **Token Persistence** - JWT stored in `localStorage` via `storageUtils.js`
+4. **Auto-redirect** - if token exists, skip login and go to dashboard
+5. **Logout** - clears storage and resets context state
 
 ---
 
 ## 🗂️ Files Involved
 
-| File | Role in Auth Flow |
-|------|------------------|
-| `pages/auth/Login.jsx` | Login form UI + submission handler |
-| `pages/auth/Register.jsx` | Register form UI + submission handler |
-| `context/AuthContext.jsx` | Global auth state provider |
-| `hooks/useAuth.js` | Exposes `{ user, token, login, logout }` from context |
-| `services/authService.js` | `login()` and `register()` API calls |
-| `api/axiosInstance.js` | Attaches `Authorization: Bearer <token>` header |
-| `utils/storageUtils.js` | `getToken()`, `saveToken()`, `removeToken()` |
-| `utils/roles.js` | Role constants for redirect logic |
-| `utils/validators.js` | Email, password, required field validators |
-| `routes/ProtectedRoute.jsx` | Blocks non-authenticated users |
-| `routes/RoleProtectedRoute.jsx` | Blocks users with wrong role |
+| File                            | Role in Auth Flow                                     |
+| ------------------------------- | ----------------------------------------------------- |
+| `pages/auth/Login.jsx`          | Login form UI + submission handler                    |
+| `pages/auth/Register.jsx`       | Register form UI + submission handler                 |
+| `context/AuthContext.jsx`       | Global auth state provider                            |
+| `hooks/useAuth.js`              | Exposes `{ user, token, login, logout }` from context |
+| `services/authService.js`       | `login()` and `register()` API calls                  |
+| `api/axiosInstance.js`          | Attaches `Authorization: Bearer <token>` header       |
+| `utils/storageUtils.js`         | `getToken()`, `saveToken()`, `removeToken()`          |
+| `utils/roles.js`                | Role constants for redirect logic                     |
+| `utils/validators.js`           | Email, password, required field validators            |
+| `routes/ProtectedRoute.jsx`     | Blocks non-authenticated users                        |
+| `routes/RoleProtectedRoute.jsx` | Blocks users with wrong role                          |
 
 ---
 
@@ -86,7 +87,7 @@ Token expiry (401 response)
 
 ---
 
-## 📝 AuthContext.jsx — What It Manages
+## 📝 AuthContext.jsx - What It Manages
 
 ```jsx
 // State shape inside AuthContext
@@ -105,7 +106,7 @@ Token expiry (401 response)
 
 ---
 
-## 📝 useAuth.js — Custom Hook
+## 📝 useAuth.js - Custom Hook
 
 ```js
 // Usage in any component:
@@ -119,11 +120,13 @@ This hook wraps `useContext(AuthContext)` so you never need to import `AuthConte
 ## 🧩 Component Breakdown
 
 ### `Login.jsx`
+
 - State: `email`, `password`, `error`, `loading`
 - Uses: `FormInput`, `LoadingSpinner`, `ErrorAlert`
 - On success: calls `useNavigate()` from React Router
 
 ### `Register.jsx`
+
 - State: `formData { name, email, password, phone, ... }`, `errors`, `loading`
 - Uses: `FormInput`, `FormSelect` (for optional fields), `ErrorAlert`
 
@@ -150,36 +153,36 @@ RoleProtectedRoute.jsx:
 
 ## 📐 Concepts to Learn
 
-| Concept | Link |
-|---------|------|
-| JWT decoding with `jwt-decode` | [npm: jwt-decode](https://www.npmjs.com/package/jwt-decode) |
-| React Context + useReducer | [React Docs](https://react.dev/learn/scaling-up-with-reducer-and-context) |
-| Axios request interceptors | [Axios interceptors](https://axios-http.com/docs/interceptors) |
-| React Router `<Navigate>` | [Navigate API](https://reactrouter.com/api/components/Navigate) |
-| localStorage in React | [MDN Web Storage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) |
-| React Hook Form (optional) | [react-hook-form.com](https://react-hook-form.com/) |
+| Concept                        | Link                                                                                    |
+| ------------------------------ | --------------------------------------------------------------------------------------- |
+| JWT decoding with `jwt-decode` | [npm: jwt-decode](https://www.npmjs.com/package/jwt-decode)                             |
+| React Context + useReducer     | [React Docs](https://react.dev/learn/scaling-up-with-reducer-and-context)               |
+| Axios request interceptors     | [Axios interceptors](https://axios-http.com/docs/interceptors)                          |
+| React Router `<Navigate>`      | [Navigate API](https://reactrouter.com/api/components/Navigate)                         |
+| localStorage in React          | [MDN Web Storage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) |
+| React Hook Form (optional)     | [react-hook-form.com](https://react-hook-form.com/)                                     |
 
 ---
 
 ## ✅ Checklist
 
-- [ ] `AuthContext.jsx` — createContext, Provider, login/logout functions
-- [ ] `useAuth.js` — wraps useContext
-- [ ] `storageUtils.js` — token save/get/remove
-- [ ] `axiosInstance.js` — request interceptor adds token; response interceptor handles 401
-- [ ] `authService.js` — login() and register() functions
-- [ ] `Login.jsx` — form, submit, redirect by role
-- [ ] `Register.jsx` — form, validation, submit
-- [ ] `ProtectedRoute.jsx` — auth guard
-- [ ] `RoleProtectedRoute.jsx` — role guard
+- [ ] `AuthContext.jsx` - createContext, Provider, login/logout functions
+- [ ] `useAuth.js` - wraps useContext
+- [ ] `storageUtils.js` - token save/get/remove
+- [ ] `axiosInstance.js` - request interceptor adds token; response interceptor handles 401
+- [ ] `authService.js` - login() and register() functions
+- [ ] `Login.jsx` - form, submit, redirect by role
+- [ ] `Register.jsx` - form, validation, submit
+- [ ] `ProtectedRoute.jsx` - auth guard
+- [ ] `RoleProtectedRoute.jsx` - role guard
 
 ---
 
 ## ⚠️ Common Pitfalls
 
-| Issue | Fix |
-|-------|-----|
-| Token not persisting on refresh | Initialize state from `localStorage` inside `AuthContext` |
-| 401 loop (interceptor calling logout infinitely) | Add a flag to prevent interceptor from triggering on `/auth/login` endpoint |
-| Role comparison fails | Ensure token roles match your `roles.js` constants exactly (`ROLE_ADMIN` vs `admin`) |
-| Form submit without validation | Always validate before calling service |
+| Issue                                            | Fix                                                                                  |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| Token not persisting on refresh                  | Initialize state from `localStorage` inside `AuthContext`                            |
+| 401 loop (interceptor calling logout infinitely) | Add a flag to prevent interceptor from triggering on `/auth/login` endpoint          |
+| Role comparison fails                            | Ensure token roles match your `roles.js` constants exactly (`ROLE_ADMIN` vs `admin`) |
+| Form submit without validation                   | Always validate before calling service                                               |

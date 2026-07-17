@@ -1,6 +1,6 @@
 # Design System
 
-> **What:** The visual design language of InsureFlow — colors, typography, components, spacing, and theming.  
+> **What:** The visual design language of InsureFlow - colors, typography, components, spacing, and theming.  
 > **Why:** A unified design system ensures visual consistency and makes it easy to maintain the look and feel.  
 > **How:** CSS custom properties in `src/index.css`, Bootstrap 5 as a foundation, Bootstrap Icons for iconography.  
 > **Where:** `src/index.css`, `src/components/` styles
@@ -11,9 +11,9 @@
 
 The application supports **Light** and **Dark** themes. Theme is controlled by:
 
-1. `ThemeContext` — stores `'light'` or `'dark'` in `localStorage:ss_theme`
-2. `data-theme` attribute — set on `<html>` element via `document.documentElement.setAttribute('data-theme', theme)`
-3. `data-bs-theme` attribute — enables Bootstrap 5 built-in dark mode
+1. `ThemeContext` - stores `'light'` or `'dark'` in `localStorage:ss_theme`
+2. `data-theme` attribute - set on `<html>` element via `document.documentElement.setAttribute('data-theme', theme)`
+3. `data-bs-theme` attribute - enables Bootstrap 5 built-in dark mode
 
 CSS custom properties change based on `[data-theme]`:
 
@@ -70,10 +70,10 @@ These classes can customize sidebar gradients, accent colors, and badge colors p
 
 **Font:** System font stack (Bootstrap 5 default + browser defaults)  
 **Weight usage:**
-- `fw-bold` / `600` — headings, labels
-- `fw-medium` / `500` — button text, column headers
-- `fw-normal` / `400` — body text
-- `fw-light` — secondary info
+- `fw-bold` / `600` - headings, labels
+- `fw-medium` / `500` - button text, column headers
+- `fw-normal` / `400` - body text
+- `fw-light` - secondary info
 
 **Scale:**
 | Usage | Class / Size |
@@ -123,7 +123,7 @@ Built on Bootstrap 5 button system:
 | Export | `btn btn-outline-primary` | CSV Export |
 | Icon button | `btn btn-icon border-0` | Navigation, toggle |
 
-**Loading state:** Wrap with `<LoadingButton isLoading={loading}>` — shows spinner + disables button.
+**Loading state:** Wrap with `<LoadingButton isLoading={loading}>` - shows spinner + disables button.
 
 ---
 
@@ -145,11 +145,11 @@ Built on Bootstrap 5 button system:
 ```
 
 **Custom Classes:**
-- `.pristine-input` — styled input with custom focus ring
-- `.custom-field-label` — label weight + spacing style
-- `.input-embedded-wrapper` — container for input with embedded button (e.g., password toggle)
-- `.input-embedded-trigger` — the embedded button (eye icon)
-- `.input-error-tip` — small error text below field
+- `.pristine-input` - styled input with custom focus ring
+- `.custom-field-label` - label weight + spacing style
+- `.input-embedded-wrapper` - container for input with embedded button (e.g., password toggle)
+- `.input-embedded-trigger` - the embedded button (eye icon)
+- `.input-error-tip` - small error text below field
 
 ---
 
@@ -190,35 +190,35 @@ Built on Bootstrap 5 `table table-hover`:
 ## Sidebar
 
 **Layout classes:**
-- `.ip-sidebar` — fixed-position sidebar
-- `.ip-sidebar-header` — brand + collapse toggle area
-- `.ip-sidebar-brand` — logo + title row
-- `.ip-sidebar-logo` — logo image
-- `.ip-sidebar-portal-name` — role portal name text
-- `.ip-nav-section` — section divider label
-- `.ip-nav-item` — individual nav link
-- `.ip-nav-item.active` — active route highlight
-- `.ip-sidebar-footer` — user info + logout area
-- `.ip-sidebar-avatar` — initials avatar circle
-- `.ip-sidebar-toggle` — collapse/expand button
-- `.collapsed` modifier — icon-only mode
-- `.mobile-open` modifier — mobile overlay visible
-- `.ip-sidebar-overlay` — backdrop behind mobile sidebar
+- `.ip-sidebar` - fixed-position sidebar
+- `.ip-sidebar-header` - brand + collapse toggle area
+- `.ip-sidebar-brand` - logo + title row
+- `.ip-sidebar-logo` - logo image
+- `.ip-sidebar-portal-name` - role portal name text
+- `.ip-nav-section` - section divider label
+- `.ip-nav-item` - individual nav link
+- `.ip-nav-item.active` - active route highlight
+- `.ip-sidebar-footer` - user info + logout area
+- `.ip-sidebar-avatar` - initials avatar circle
+- `.ip-sidebar-toggle` - collapse/expand button
+- `.collapsed` modifier - icon-only mode
+- `.mobile-open` modifier - mobile overlay visible
+- `.ip-sidebar-overlay` - backdrop behind mobile sidebar
 
 **Main area classes:**
-- `.ip-main-wrapper` — content area next to sidebar
-- `.ip-topbar` — top navigation bar
-- `.ip-content` — page content area
+- `.ip-main-wrapper` - content area next to sidebar
+- `.ip-topbar` - top navigation bar
+- `.ip-content` - page content area
 
 ---
 
 ## Modals
 
 Modals use a layered approach:
-- `Modal.jsx` — base modal with overlay, close button, scroll body
-- `ConfirmModal.jsx` — extends Modal with Yes/No buttons
-- `AlertModal.jsx` — extends Modal with single OK button
-- `DocumentPreviewModal.jsx` — extends Modal for file preview
+- `Modal.jsx` - base modal with overlay, close button, scroll body
+- `ConfirmModal.jsx` - extends Modal with Yes/No buttons
+- `AlertModal.jsx` - extends Modal with single OK button
+- `DocumentPreviewModal.jsx` - extends Modal for file preview
 
 All modals animate in using CSS transition classes.
 
@@ -228,8 +228,8 @@ All modals animate in using CSS transition classes.
 
 Two types used:
 
-1. **Native `<select>`** — via `FormSelect` component for simple option lists
-2. **React Select** — via `ModernSelect` component for searchable, long option lists (e.g., 100+ customers)
+1. **Native `<select>`** - via `FormSelect` component for simple option lists
+2. **React Select** - via `ModernSelect` component for searchable, long option lists (e.g., 100+ customers)
 
 React Select uses custom styling to match the design system theme.
 

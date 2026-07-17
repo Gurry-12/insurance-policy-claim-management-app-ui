@@ -1,7 +1,7 @@
 # Auth Pages
 
 > **What:** The four authentication pages of InsureFlow.  
-> **Why:** Entry point for all users — handles account creation, login, and password recovery.  
+> **Why:** Entry point for all users - handles account creation, login, and password recovery.  
 > **Where:** `src/pages/auth/`
 
 ---
@@ -18,11 +18,11 @@ Authenticates a user by email and password. On success, stores the JWT and user 
 
 ### Components Used
 
-| Component | Purpose |
-|---|---|
-| `react-hook-form` | Form state and validation |
-| `LoadingButton` | Submit button with loading state |
-| `ResendOtp` | Modal shown if user is unverified |
+| Component         | Purpose                           |
+| ----------------- | --------------------------------- |
+| `react-hook-form` | Form state and validation         |
+| `LoadingButton`   | Submit button with loading state  |
+| `ResendOtp`       | Modal shown if user is unverified |
 
 ### API Used
 
@@ -34,21 +34,21 @@ Response: LoginResponseDTO { userId, fullName, email, role, token, tokenType }
 
 ### Validation Rules
 
-| Field | Rule |
-|---|---|
-| `email` | Required, must match `^[^\s@]+@[^\s@]+\.[^\s@]+$` |
+| Field      | Rule                                                                            |
+| ---------- | ------------------------------------------------------------------------------- |
+| `email`    | Required, must match `^[^\s@]+@[^\s@]+\.[^\s@]+$`                               |
 | `password` | Required, must match `^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{6,15}$` |
 
 Validation mode: `onTouched` (validates after user leaves the field).
 
 ### State
 
-| State | Type | Purpose |
-|---|---|---|
-| `loading` | `boolean` | Disables form and shows spinner |
-| `showPw` | `boolean` | Toggles password visibility |
+| State                 | Type      | Purpose                                                    |
+| --------------------- | --------- | ---------------------------------------------------------- |
+| `loading`             | `boolean` | Disables form and shows spinner                            |
+| `showPw`              | `boolean` | Toggles password visibility                                |
 | `showUnverifiedModal` | `boolean` | Shows OTP resend modal if login fails with "verif" message |
-| `errors` (RHF) | `object` | Field validation errors |
+| `errors` (RHF)        | `object`  | Field validation errors                                    |
 
 ### Success Flow
 
@@ -83,10 +83,10 @@ Allows new users to self-register as customers. Creates an account and redirects
 
 ### Components Used
 
-| Component | Purpose |
-|---|---|
-| `useState` | Manual form state management |
-| `LoadingButton` | Async submit button |
+| Component          | Purpose                                          |
+| ------------------ | ------------------------------------------------ |
+| `useState`         | Manual form state management                     |
+| `LoadingButton`    | Async submit button                              |
 | `PasswordStrength` | Inline password strength meter (local component) |
 
 ### API Used
@@ -104,26 +104,27 @@ Response: ApiResponseDTO<string>
 
 ### Validation Rules
 
-| Field | Rule |
-|---|---|
-| `fullName` | Required, non-empty |
-| `mobileNumber` | Required, exactly 10 digits (`^\d{10}$`) |
-| `email` | Required, valid email format |
-| `password` | Required, 6–15 chars, one uppercase, one lowercase, one digit, one special char |
-| `confirmPassword` | Must match `password` |
+| Field             | Rule                                                                            |
+| ----------------- | ------------------------------------------------------------------------------- |
+| `fullName`        | Required, non-empty                                                             |
+| `mobileNumber`    | Required, exactly 10 digits (`^\d{10}$`)                                        |
+| `email`           | Required, valid email format                                                    |
+| `password`        | Required, 6–15 chars, one uppercase, one lowercase, one digit, one special char |
+| `confirmPassword` | Must match `password`                                                           |
 
 Validation runs:
+
 - **On-blur / on-change** for `confirmPassword` (real-time comparison)
 - **On submit** for all fields via `validate()` function
 
 ### State
 
-| State | Type | Purpose |
-|---|---|---|
-| `formData` | `object` | Controlled form values |
-| `errors` | `object` | Field error messages |
-| `loading` | `boolean` | Submission loading |
-| `showPw` | `boolean` | Toggle password visibility |
+| State           | Type      | Purpose                            |
+| --------------- | --------- | ---------------------------------- |
+| `formData`      | `object`  | Controlled form values             |
+| `errors`        | `object`  | Field error messages               |
+| `loading`       | `boolean` | Submission loading                 |
+| `showPw`        | `boolean` | Toggle password visibility         |
 | `showConfirmPw` | `boolean` | Toggle confirm password visibility |
 
 ### PasswordStrength Component
@@ -131,6 +132,7 @@ Validation runs:
 An inline component rendered when `password` has a value.
 
 Scoring logic:
+
 - +1 if length ≥ 6
 - +1 if length ≥ 10
 - +1 if contains uppercase
@@ -141,7 +143,7 @@ Score → Label: Very Weak → Weak → Fair → Good → Strong
 
 ### Success Flow
 
-1. `validate()` runs — returns errors object
+1. `validate()` runs - returns errors object
 2. If no errors: `authService.register(payload)`
 3. Mobile number formatted to `+91XXXXXXXXXX`
 4. `toast.success("Account created! Redirecting...")`
@@ -163,6 +165,7 @@ Score → Label: Very Weak → Weak → Fair → Good → Strong
 ### Purpose
 
 Multi-step password recovery flow:
+
 1. Enter email → OTP sent
 2. Verify OTP
 3. Set new password
@@ -182,14 +185,14 @@ Body: { email: string, otp: string, newPassword: string }
 
 ### State
 
-| State | Purpose |
-|---|---|
-| `step` (1, 2, 3) | Current step in the flow |
-| `email` | Entered email, passed between steps |
-| `otp` | Entered OTP |
-| `formData` (step 3) | New password + confirm password |
-| `loading` | API call in progress |
-| `errors` | Field-level errors |
+| State               | Purpose                             |
+| ------------------- | ----------------------------------- |
+| `step` (1, 2, 3)    | Current step in the flow            |
+| `email`             | Entered email, passed between steps |
+| `otp`               | Entered OTP                         |
+| `formData` (step 3) | New password + confirm password     |
+| `loading`           | API call in progress                |
+| `errors`            | Field-level errors                  |
 
 ### Success Flow
 
@@ -237,6 +240,7 @@ Body: { email: string }
 ## Shared Auth Design
 
 All auth pages share:
+
 - **CSS:** `src/pages/css/Login.css`
 - **Layout:** Two-column glassmorphism card (form left, brand character right)
 - **Logo:** `src/assets/logo/insurance-heart-vector.png`

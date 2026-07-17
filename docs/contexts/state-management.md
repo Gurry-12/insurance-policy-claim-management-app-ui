@@ -32,7 +32,7 @@ Both providers wrap the entire application, so any component at any depth can ac
 |---|---|---|---|
 | `token` | `string \| null` | `localStorage:ss_token` | Current JWT |
 | `user` | `object \| null` | `localStorage:ss_user` | `{ id, email, role, name, productSpeciality }` |
-| `isAuthenticated` | `boolean` (derived) | — | `!!token` |
+| `isAuthenticated` | `boolean` (derived) | - | `!!token` |
 
 ### Initialization (persistent login)
 
