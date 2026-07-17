@@ -148,7 +148,7 @@ src/
    ↓
 10. notify.success() or notify.error() fires a React Hot Toast
     ↓
-11. React re-renders with new state — UI reflects the change
+11. React re-renders with new state - UI reflects the change
 ```
 
 ---
@@ -157,13 +157,13 @@ src/
 
 The application uses **role-based isolation** at every layer:
 
-| Layer | Mechanism |
-|---|---|
-| **Routes** | `RoleProtectedRoute` component checks `user.role` |
-| **Sidebar Navigation** | `NAV_ITEMS_BY_ROLE` map in `UnifiedLayout.jsx` |
-| **Theme** | `THEME_CLASS_BY_ROLE` CSS class per role |
-| **Portal Title** | `PORTAL_TITLE_BY_ROLE` string per role |
-| **Services** | Separate API endpoints per role (e.g., `/policies/my-policies` vs `/policies`) |
+| Layer                  | Mechanism                                                                      |
+| ---------------------- | ------------------------------------------------------------------------------ |
+| **Routes**             | `RoleProtectedRoute` component checks `user.role`                              |
+| **Sidebar Navigation** | `NAV_ITEMS_BY_ROLE` map in `UnifiedLayout.jsx`                                 |
+| **Theme**              | `THEME_CLASS_BY_ROLE` CSS class per role                                       |
+| **Portal Title**       | `PORTAL_TITLE_BY_ROLE` string per role                                         |
+| **Services**           | Separate API endpoints per role (e.g., `/policies/my-policies` vs `/policies`) |
 
 ---
 
@@ -184,16 +184,16 @@ index.html → main.jsx
 
 ## Security Architecture
 
-| Concern | Implementation |
-|---|---|
-| **Token Storage** | `localStorage` under key `ss_token` |
-| **Token Injection** | Axios request interceptor reads `ss_token` and injects `Authorization: Bearer <token>` |
-| **Token Expiry (401)** | Axios response interceptor clears token, dispatches `auth:unauthorized` window event |
-| **Forbidden (403)** | Dispatches `auth:forbidden` event → navigates to `/unauthorized` |
-| **Route Guard** | `ProtectedRoute` → redirects to `/login` if not authenticated |
-| **Role Guard** | `RoleProtectedRoute` → redirects to correct dashboard if wrong role |
-| **Guest Guard** | `GuestRoute` → redirects authenticated users away from login/register |
-| **Password Encoding** | Passwords encoded with `btoa()` before transmission |
+| Concern                | Implementation                                                                         |
+| ---------------------- | -------------------------------------------------------------------------------------- |
+| **Token Storage**      | `localStorage` under key `ss_token`                                                    |
+| **Token Injection**    | Axios request interceptor reads `ss_token` and injects `Authorization: Bearer <token>` |
+| **Token Expiry (401)** | Axios response interceptor clears token, dispatches `auth:unauthorized` window event   |
+| **Forbidden (403)**    | Dispatches `auth:forbidden` event → navigates to `/unauthorized`                       |
+| **Route Guard**        | `ProtectedRoute` → redirects to `/login` if not authenticated                          |
+| **Role Guard**         | `RoleProtectedRoute` → redirects to correct dashboard if wrong role                    |
+| **Guest Guard**        | `GuestRoute` → redirects authenticated users away from login/register                  |
+| **Password Encoding**  | Passwords encoded with `btoa()` before transmission                                    |
 
 ---
 

@@ -237,4 +237,4 @@ The `key` prop changes on every navigation, triggering a re-mount and the animat
 - [Architecture Overview](../architecture/overview.md)
 - [Routing](../routing/routing.md)
 - [Design System](../design-system/design-system.md)
-- [Developer Guide — Adding a Nav Item](../developer-guide.md#adding-a-nav-item)
+- [Developer Guide - Adding a Nav Item](../developer-guide.md#adding-a-nav-item)

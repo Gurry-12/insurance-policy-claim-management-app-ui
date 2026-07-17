@@ -16,35 +16,37 @@
 
 **Props:**
 
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `columns` | `array` | required | Column definitions |
-| `data` | `array` | required | Row data |
-| `loading` | `boolean` | `false` | Shows skeleton placeholders |
-| `onRowClick` | `function` | — | Row click handler (makes rows focusable + keyboard accessible) |
-| `emptyIcon` | `string` | `"bi-table"` | Bootstrap Icons class for empty state |
-| `emptyMessage` | `string` | `"No data available"` | Empty state message |
-| `compact` | `boolean` | `false` | Reduces padding and font size |
+| Prop           | Type       | Default               | Description                                                    |
+| -------------- | ---------- | --------------------- | -------------------------------------------------------------- |
+| `columns`      | `array`    | required              | Column definitions                                             |
+| `data`         | `array`    | required              | Row data                                                       |
+| `loading`      | `boolean`  | `false`               | Shows skeleton placeholders                                    |
+| `onRowClick`   | `function` | -                     | Row click handler (makes rows focusable + keyboard accessible) |
+| `emptyIcon`    | `string`   | `"bi-table"`          | Bootstrap Icons class for empty state                          |
+| `emptyMessage` | `string`   | `"No data available"` | Empty state message                                            |
+| `compact`      | `boolean`  | `false`               | Reduces padding and font size                                  |
 
 **Column Definition:**
 
 ```js
 const columns = [
   {
-    header: "Policy Number",        // Displayed in <th>
-    accessor: "policyNumber",       // Key to read from row object
-    minWidth: "140px",              // Optional min-width CSS
-    cell: (row, index) => (         // Optional custom render function
-      <span className="fw-bold">{row.policyNumber}</span>
-    )
-  }
+    header: "Policy Number", // Displayed in <th>
+    accessor: "policyNumber", // Key to read from row object
+    minWidth: "140px", // Optional min-width CSS
+    cell: (
+      row,
+      index, // Optional custom render function
+    ) => <span className="fw-bold">{row.policyNumber}</span>,
+  },
 ];
 ```
 
 **States:**
-1. **Loading** — renders 5 placeholder skeleton rows
-2. **Empty** — renders `EmptyState` component
-3. **Data** — renders `table-hover` Bootstrap table
+
+1. **Loading** - renders 5 placeholder skeleton rows
+2. **Empty** - renders `EmptyState` component
+3. **Data** - renders `table-hover` Bootstrap table
 
 **Accessibility:** Rows with `onRowClick` get `tabIndex={0}` and `onKeyDown` handler for Enter/Space keys.
 
@@ -58,10 +60,10 @@ const columns = [
 
 **Props:**
 
-| Prop | Type | Description |
-|---|---|---|
-| `currentPage` | `number` | 1-indexed current page |
-| `totalPages` | `number` | Total page count |
+| Prop           | Type       | Description                 |
+| -------------- | ---------- | --------------------------- |
+| `currentPage`  | `number`   | 1-indexed current page      |
+| `totalPages`   | `number`   | Total page count            |
 | `onPageChange` | `function` | Called with new page number |
 
 **Algorithm:** Shows pages 1 and last always. Shows `currentPage ± 2` range. Adds `...` when there are gaps.
@@ -100,16 +102,16 @@ const columns = [
 
 **Props:**
 
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `label` | `string` | — | Field label |
-| `type` | `string` | `'text'` | Input type. `'date'` renders `ModernDatePicker` |
-| `name` | `string` | required | Input name + id |
-| `value` | `any` | — | Controlled value |
-| `onChange` | `function` | — | Change handler |
-| `placeholder` | `string` | — | Placeholder text |
-| `error` | `string` | — | Validation error message (shows red invalid-feedback) |
-| `required` | `boolean` | `false` | Shows `*` in label |
+| Prop          | Type       | Default  | Description                                           |
+| ------------- | ---------- | -------- | ----------------------------------------------------- |
+| `label`       | `string`   | -        | Field label                                           |
+| `type`        | `string`   | `'text'` | Input type. `'date'` renders `ModernDatePicker`       |
+| `name`        | `string`   | required | Input name + id                                       |
+| `value`       | `any`      | -        | Controlled value                                      |
+| `onChange`    | `function` | -        | Change handler                                        |
+| `placeholder` | `string`   | -        | Placeholder text                                      |
+| `error`       | `string`   | -        | Validation error message (shows red invalid-feedback) |
+| `required`    | `boolean`  | `false`  | Shows `*` in label                                    |
 
 **Usage:**
 
@@ -186,21 +188,21 @@ const columns = [
 
 **Color Mapping** (defined inside the component):
 
-| Status | Badge Color |
-|---|---|
-| ACTIVE | success (green) |
-| PENDING_PAYMENT | warning (yellow) |
-| EXPIRED | secondary (gray) |
-| CANCELLED | dark |
-| SUBMITTED | info (blue) |
-| UNDER_REVIEW | warning (yellow) |
-| RECOMMENDED_FOR_APPROVAL | cyan |
-| RECOMMENDED_FOR_REJECTION | orange |
-| APPROVED | success (green) |
-| REJECTED | danger (red) |
-| SUCCESS | success |
-| FAILED | danger |
-| PENDING | warning |
+| Status                    | Badge Color      |
+| ------------------------- | ---------------- |
+| ACTIVE                    | success (green)  |
+| PENDING_PAYMENT           | warning (yellow) |
+| EXPIRED                   | secondary (gray) |
+| CANCELLED                 | dark             |
+| SUBMITTED                 | info (blue)      |
+| UNDER_REVIEW              | warning (yellow) |
+| RECOMMENDED_FOR_APPROVAL  | cyan             |
+| RECOMMENDED_FOR_REJECTION | orange           |
+| APPROVED                  | success (green)  |
+| REJECTED                  | danger (red)     |
+| SUCCESS                   | success          |
+| FAILED                    | danger           |
+| PENDING                   | warning          |
 
 ---
 
@@ -388,7 +390,10 @@ const columns = [
 ```js
 const columns = [
   { header: "Policy Number", accessor: "policyNumber" },
-  { header: "Status", exportValue: (row) => row.policyStatus.replace(/_/g, ' ') }
+  {
+    header: "Status",
+    exportValue: (row) => row.policyStatus.replace(/_/g, " "),
+  },
 ];
 ```
 
@@ -410,7 +415,7 @@ This is placed once in `App.jsx` and handles all toasts globally.
 
 **Purpose:** Listens to DOM custom events fired by `axiosInstance` and handles app-level responses (401 → logout, 403 → unauthorized page, 500 → error toast).
 
-Returns `null` — renders nothing in the UI. It's purely a side-effect component.
+Returns `null` - renders nothing in the UI. It's purely a side-effect component.
 
 ---
 

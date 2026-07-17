@@ -15,12 +15,13 @@ src/pages/<role>/<module>/MyNewPage.jsx
 ```
 
 Minimum structure:
+
 ```jsx
-import PageHeader from '../../../components/common/PageHeader';
-import useDocumentTitle from '../../../hooks/useDocumentTitle';
+import PageHeader from "../../../components/common/PageHeader";
+import useDocumentTitle from "../../../hooks/useDocumentTitle";
 
 const MyNewPage = () => {
-  useDocumentTitle('My New Page — InsureFlow');
+  useDocumentTitle("My New Page - InsureFlow");
 
   return (
     <div>
@@ -40,7 +41,7 @@ export default MyNewPage;
 
 ```js
 // In src/App.jsx
-const MyNewPage = lazy(() => import('./pages/admin/mymodule/MyNewPage'));
+const MyNewPage = lazy(() => import("./pages/admin/mymodule/MyNewPage"));
 ```
 
 ### Step 3: Add the route in App.jsx
@@ -64,9 +65,10 @@ const MyNewPage = lazy(() => import('./pages/admin/mymodule/MyNewPage'));
 ```
 
 **Files to modify:**
-- `src/pages/<role>/<module>/MyNewPage.jsx` — **NEW**
-- `src/App.jsx` — add import + route
-- `src/components/layouts/UnifiedLayout.jsx` — add nav item (if needed)
+
+- `src/pages/<role>/<module>/MyNewPage.jsx` - **NEW**
+- `src/App.jsx` - add import + route
+- `src/components/layouts/UnifiedLayout.jsx` - add nav item (if needed)
 
 ---
 
@@ -106,7 +108,8 @@ useEffect(() => {
 ```
 
 **Files to modify:**
-- `src/services/<service>.js` — add the API function
+
+- `src/services/<service>.js` - add the API function
 - The calling page or hook
 
 ### For POST/PUT with a form, use `useApiForm`:
@@ -114,14 +117,16 @@ useEffect(() => {
 ```jsx
 const { submit, loading, fieldErrors } = useApiForm(
   myService.createSomething,
-  (data) => navigate('/success-path')
+  (data) => navigate("/success-path"),
 );
 
 // On form submit:
 submit(formPayload);
 
 // Show field errors:
-{fieldErrors.fieldName && <span>{fieldErrors.fieldName}</span>}
+{
+  fieldErrors.fieldName && <span>{fieldErrors.fieldName}</span>;
+}
 ```
 
 ---
@@ -138,8 +143,8 @@ submit(formPayload);
 ```js
 // 1. Add to initial state:
 const [formData, setFormData] = useState({
-  existingField: '',
-  newField: '',       // ← add
+  existingField: "",
+  newField: "", // ← add
 });
 
 // 2. Add input in JSX:
@@ -149,12 +154,12 @@ const [formData, setFormData] = useState({
   value={formData.newField}
   onChange={handleChange}
   error={errors.newField}
-/>
+/>;
 
 // 3. Add validation:
 const validate = () => {
   const errs = {};
-  if (!formData.newField.trim()) errs.newField = 'New field is required.';
+  if (!formData.newField.trim()) errs.newField = "New field is required.";
   return errs;
 };
 
@@ -171,13 +176,16 @@ const payload = {
 <input
   {...register("newField", {
     required: "New field is required.",
-    pattern: { value: /regex/, message: "Error message" }
+    pattern: { value: /regex/, message: "Error message" },
   })}
-/>
-{errors.newField && <div>{errors.newField.message}</div>}
+/>;
+{
+  errors.newField && <div>{errors.newField.message}</div>;
+}
 ```
 
 **Files to modify:**
+
 - The form page component
 - The corresponding service file (if new DTO field)
 
@@ -188,12 +196,12 @@ const payload = {
 ### Step 1: Set up table state
 
 ```jsx
-import useTableState from '../../../hooks/useTableState';
+import useTableState from "../../../hooks/useTableState";
 
 const tableState = useTableState({
-  initialSortBy: 'createdDate',
-  initialSortDirection: 'desc',
-  initialFilters: { status: '' }
+  initialSortBy: "createdDate",
+  initialSortDirection: "desc",
+  initialFilters: { status: "" },
 });
 ```
 
@@ -218,7 +226,12 @@ useEffect(() => {
     }
   };
   fetch();
-}, [tableState.currentPage, tableState.sortBy, tableState.sortDirection, tableState.filters]);
+}, [
+  tableState.currentPage,
+  tableState.sortBy,
+  tableState.sortDirection,
+  tableState.filters,
+]);
 ```
 
 ### Step 3: Define columns
@@ -226,24 +239,24 @@ useEffect(() => {
 ```js
 const columns = [
   {
-    header: 'Sr. No.',
-    cell: (_, index) => tableState.getSrNo(index)
+    header: "Sr. No.",
+    cell: (_, index) => tableState.getSrNo(index),
   },
   {
-    header: 'Name',
-    accessor: 'name',
-    minWidth: '150px'
+    header: "Name",
+    accessor: "name",
+    minWidth: "150px",
   },
   {
-    header: 'Status',
-    cell: (row) => <StatusBadge status={row.status} />
+    header: "Status",
+    cell: (row) => <StatusBadge status={row.status} />,
   },
   {
-    header: 'Actions',
+    header: "Actions",
     cell: (row) => (
       <button onClick={() => navigate(`/path/${row.id}`)}>View</button>
-    )
-  }
+    ),
+  },
 ];
 ```
 
@@ -326,13 +339,14 @@ if (!/^new-regex/.test(formData.field)) {
 ```
 
 **Available shared validators** in `src/utils/validators.js`:
+
 ```js
-isRequired(value, fieldName)
-isEmail(value)
-isMinLength(value, min)
-isMaxLength(value, max)
-isPhone(value)
-validateField(value, [validator1, validator2])
+isRequired(value, fieldName);
+isEmail(value);
+isMinLength(value, min);
+isMaxLength(value, max);
+isPhone(value);
+validateField(value, [validator1, validator2]);
 ```
 
 ### Backend Validation (field errors)
@@ -340,8 +354,11 @@ validateField(value, [validator1, validator2])
 When the backend rejects input, `apiAdapter.parseErrorResponse()` extracts `fieldErrors` from the `ValidationErrorResponseDTO`. These are surfaced via `useApiForm.fieldErrors`.
 
 Display them:
+
 ```jsx
-{fieldErrors.email && <div className="text-danger">{fieldErrors.email}</div>}
+{
+  fieldErrors.email && <div className="text-danger">{fieldErrors.email}</div>;
+}
 ```
 
 ---
@@ -362,12 +379,13 @@ Move the `<Route>` from one `RoleProtectedRoute` block to another.
 ### Add a new role
 
 1. Add to `src/utils/roles.js`:
+
 ```js
 export const ROLES = {
-  ADMIN: 'ROLE_ADMIN',
-  INTERNAL_STAFF: 'ROLE_INTERNAL_STAFF',
-  CUSTOMER: 'ROLE_CUSTOMER',
-  SUPERVISOR: 'ROLE_SUPERVISOR',  // ← new
+  ADMIN: "ROLE_ADMIN",
+  INTERNAL_STAFF: "ROLE_INTERNAL_STAFF",
+  CUSTOMER: "ROLE_CUSTOMER",
+  SUPERVISOR: "ROLE_SUPERVISOR", // ← new
 };
 ```
 
@@ -393,18 +411,18 @@ case 'NEW_STATUS':
 
 ## Required Files Summary
 
-| Task | Files to Create | Files to Modify |
-|---|---|---|
-| New page | `src/pages/<role>/<module>/<Page>.jsx` | `App.jsx`, `UnifiedLayout.jsx` |
-| New API function | — | `src/services/<service>.js` |
-| New service module | `src/services/<newService>.js` | Calling component/hook |
-| New table | — | Page component |
-| New form field | — | Page component, service (DTO) |
-| New nav item | — | `UnifiedLayout.jsx` |
-| New role | — | `roles.js`, `App.jsx`, `UnifiedLayout.jsx` |
-| New status color | — | `StatusBadge.jsx` |
-| New filter option | — | `options.js`, page component |
-| New document category | — | `documentCategories.js` |
+| Task                  | Files to Create                        | Files to Modify                            |
+| --------------------- | -------------------------------------- | ------------------------------------------ |
+| New page              | `src/pages/<role>/<module>/<Page>.jsx` | `App.jsx`, `UnifiedLayout.jsx`             |
+| New API function      | -                                      | `src/services/<service>.js`                |
+| New service module    | `src/services/<newService>.js`         | Calling component/hook                     |
+| New table             | -                                      | Page component                             |
+| New form field        | -                                      | Page component, service (DTO)              |
+| New nav item          | -                                      | `UnifiedLayout.jsx`                        |
+| New role              | -                                      | `roles.js`, `App.jsx`, `UnifiedLayout.jsx` |
+| New status color      | -                                      | `StatusBadge.jsx`                          |
+| New filter option     | -                                      | `options.js`, page component               |
+| New document category | -                                      | `documentCategories.js`                    |
 
 ---
 

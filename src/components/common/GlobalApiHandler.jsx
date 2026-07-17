@@ -1,4 +1,4 @@
-﻿import { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { notify } from '../../utils/notificationService';
 import useAuth from '../../hooks/useAuth';
@@ -11,7 +11,7 @@ const GlobalApiHandler = () => {
   useEffect(() => {
     const handleUnauthorized = (event) => {
       const detail = event.detail;
-      logout();
+      logout(true);
       if (location.pathname !== '/login') {
         if (detail && typeof detail === 'string') {
           notify.error(detail, 'Session expired. Please log in again.');

@@ -18,13 +18,13 @@ const LandingPage = () => {
       icon: "🏥",
       bg: "#eff6ff",
       title: "Health, Life, Motor & Travel Plans",
-      desc: "Browse real insurance products with multiple plans. Compare coverage amounts, premiums, and terms — then purchase directly from your customer dashboard.",
+      desc: "Browse real insurance products with multiple plans. Compare coverage amounts, premiums, and terms - then purchase directly from your customer dashboard.",
     },
     {
       icon: "📋",
       bg: "#fefce8",
       title: "Policy Purchase & Issuance",
-      desc: "Customers purchase plans online. Staff issue policies with coverage details, start/end dates, and premium schedules — all tracked in one place.",
+      desc: "Customers purchase plans online. Staff issue policies with coverage details, start/end dates, and premium schedules - all tracked in one place.",
     },
     {
       icon: "📤",
@@ -36,19 +36,19 @@ const LandingPage = () => {
       icon: "🔄",
       bg: "#fdf4ff",
       title: "6-Stage Claim Lifecycle",
-      desc: "Every claim moves through: SUBMITTED → UNDER_REVIEW → RECOMMENDED → APPROVED / REJECTED — with a full timestamped status history.",
+      desc: "Every claim moves through: SUBMITTED → UNDER_REVIEW → RECOMMENDED → APPROVED / REJECTED - with a full timestamped status history.",
     },
     {
       icon: "💳",
       bg: "#fff7ed",
       title: "Premium Payment Tracking",
-      desc: "Track every premium payment against your policy. View payment history, due dates, and total premiums paid — right from your dashboard.",
+      desc: "Track every premium payment against your policy. View payment history, due dates, and total premiums paid - right from your dashboard.",
     },
     {
       icon: "📄",
       bg: "#ecfdf5",
       title: "PDF Export for Everything",
-      desc: "Download claim summaries and policy details as formatted PDFs in one click — available from both Staff and Customer portals.",
+      desc: "Download claim summaries and policy details as formatted PDFs in one click - available from both Staff and Customer portals.",
     },
   ];
 
@@ -70,8 +70,8 @@ const LandingPage = () => {
     },
     {
       num: "04",
-      title: "Staff Reviews — Admin Decides",
-      desc: "Your assigned staff member reviews and recommends a decision. The Admin makes the final APPROVED or REJECTED call — all tracked in real time.",
+      title: "Staff Reviews - Admin Decides",
+      desc: "Your assigned staff member reviews and recommends a decision. The Admin makes the final APPROVED or REJECTED call - all tracked in real time.",
     },
   ];
 
@@ -112,15 +112,29 @@ const LandingPage = () => {
           <span>InsuranceFlow</span>
         </Link>
         <ul className="lp-nav-links">
-          <li><a href="#features">Features</a></li>
-          <li><a href="#how-it-works">How It Works</a></li>
-          <li><a href="#portals">Portals</a></li>
+          <li>
+            <a href="#features">Features</a>
+          </li>
+          <li>
+            <a href="#how-it-works">How It Works</a>
+          </li>
+          <li>
+            <a href="#portals">Portals</a>
+          </li>
         </ul>
         <div className="lp-nav-cta">
-          <Link to="/login" className="lp-btn-secondary" style={{ padding: "0.55rem 1.25rem", fontSize: "0.875rem" }}>
+          <Link
+            to="/login"
+            className="lp-btn-secondary"
+            style={{ padding: "0.55rem 1.25rem", fontSize: "0.875rem" }}
+          >
             Sign In
           </Link>
-          <Link to="/register" className="lp-btn-primary" style={{ padding: "0.55rem 1.25rem", fontSize: "0.875rem" }}>
+          <Link
+            to="/register"
+            className="lp-btn-primary"
+            style={{ padding: "0.55rem 1.25rem", fontSize: "0.875rem" }}
+          >
             Get Started
           </Link>
         </div>
@@ -139,11 +153,14 @@ const LandingPage = () => {
               </div>
               <h1>
                 Policies, Claims &<br />
-                <span className="lp-gradient-text">Payments — all</span><br />
+                <span className="lp-gradient-text">Payments - all</span>
+                <br />
                 in one platform.
               </h1>
               <p className="lp-hero-sub">
-                InsuranceFlow connects customers, staff, and admins in a single end-to-end insurance management system — from purchasing a policy to getting a claim settled.
+                InsuranceFlow connects customers, staff, and admins in a single
+                end-to-end insurance management system - from purchasing a
+                policy to getting a claim settled.
               </p>
               <div className="lp-hero-actions">
                 <Link to="/register" className="lp-btn-primary">
@@ -164,7 +181,9 @@ const LandingPage = () => {
                 </div>
                 <div>
                   <div className="lp-hero-stat-val">3 Portals</div>
-                  <div className="lp-hero-stat-label">Admin · Staff · Customer</div>
+                  <div className="lp-hero-stat-label">
+                    Admin · Staff · Customer
+                  </div>
                 </div>
               </div>
             </div>
@@ -192,13 +211,44 @@ const LandingPage = () => {
                   }}
                 >
                   <div className="d-flex align-items-center gap-2 mb-1">
-                    <div style={{ width: 32, height: 32, borderRadius: 8, background: "#dcfce7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1rem" }}>✅</div>
+                    <div
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: 8,
+                        background: "#dcfce7",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "1rem",
+                      }}
+                    >
+                      ✅
+                    </div>
                     <div>
-                      <div style={{ fontSize: "0.7rem", color: "#64748b", fontWeight: 600 }}>Claim #CLM-0091</div>
-                      <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#16a34a" }}>APPROVED</div>
+                      <div
+                        style={{
+                          fontSize: "0.7rem",
+                          color: "#64748b",
+                          fontWeight: 600,
+                        }}
+                      >
+                        Claim #CLM-0091
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "0.75rem",
+                          fontWeight: 700,
+                          color: "#16a34a",
+                        }}
+                      >
+                        APPROVED
+                      </div>
                     </div>
                   </div>
-                  <div style={{ fontSize: "0.7rem", color: "#94a3b8" }}>Staff reviewed · Admin decided</div>
+                  <div style={{ fontSize: "0.7rem", color: "#94a3b8" }}>
+                    Staff reviewed · Admin decided
+                  </div>
                 </div>
                 {/* Floating policy card */}
                 <div
@@ -212,9 +262,35 @@ const LandingPage = () => {
                     animationDelay: "-3s",
                   }}
                 >
-                  <div style={{ fontSize: "0.7rem", color: "#64748b", fontWeight: 600, marginBottom: "0.4rem" }}>🏥 Health Insurance Policy</div>
-                  <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#1d4ed8", marginBottom: "0.25rem" }}>₹5,00,000 Coverage</div>
-                  <div style={{ fontSize: "0.7rem", color: "#22c55e", fontWeight: 600 }}>● ACTIVE · Premium Paid</div>
+                  <div
+                    style={{
+                      fontSize: "0.7rem",
+                      color: "#64748b",
+                      fontWeight: 600,
+                      marginBottom: "0.4rem",
+                    }}
+                  >
+                    🏥 Health Insurance Policy
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.85rem",
+                      fontWeight: 700,
+                      color: "#1d4ed8",
+                      marginBottom: "0.25rem",
+                    }}
+                  >
+                    ₹5,00,000 Coverage
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.7rem",
+                      color: "#22c55e",
+                      fontWeight: 600,
+                    }}
+                  >
+                    ● ACTIVE · Premium Paid
+                  </div>
                 </div>
               </div>
             </div>
@@ -227,9 +303,14 @@ const LandingPage = () => {
         <div className="container">
           <div className="text-center mb-5">
             <div className="lp-badge mx-auto mb-3">Platform Features</div>
-            <h2 className="lp-section-title">Everything you need,<br />nothing you don't.</h2>
+            <h2 className="lp-section-title">
+              Everything you need,
+              <br />
+              nothing you don't.
+            </h2>
             <p className="lp-section-sub mx-auto" style={{ maxWidth: 520 }}>
-              From policy issuance to claim settlement, every step is handled with precision and transparency.
+              From policy issuance to claim settlement, every step is handled
+              with precision and transparency.
             </p>
           </div>
           <div className="row g-4">
@@ -253,12 +334,24 @@ const LandingPage = () => {
         <div className="container">
           <div className="row align-items-center g-5">
             <div className="col-lg-5">
-              <div className="lp-badge mb-3" style={{ background: "rgba(255,255,255,0.1)", color: "#93c5fd", borderColor: "rgba(255,255,255,0.15)" }}>
+              <div
+                className="lp-badge mb-3"
+                style={{
+                  background: "rgba(255,255,255,0.1)",
+                  color: "#93c5fd",
+                  borderColor: "rgba(255,255,255,0.15)",
+                }}
+              >
                 Simple Process
               </div>
-              <h2 className="lp-section-title">How claims actually<br />get processed.</h2>
+              <h2 className="lp-section-title">
+                How claims actually
+                <br />
+                get processed.
+              </h2>
               <p className="lp-section-sub" style={{ maxWidth: 380 }}>
-                We've eliminated the complexity of traditional insurance so you can focus on what matters.
+                We've eliminated the complexity of traditional insurance so you
+                can focus on what matters.
               </p>
             </div>
             <div className="col-lg-7">
@@ -283,9 +376,14 @@ const LandingPage = () => {
         <div className="container">
           <div className="text-center mb-5">
             <div className="lp-badge mx-auto mb-3">Role-Based Portals</div>
-            <h2 className="lp-section-title">Three portals,<br />one connected system.</h2>
+            <h2 className="lp-section-title">
+              Three portals,
+              <br />
+              one connected system.
+            </h2>
             <p className="lp-section-sub mx-auto" style={{ maxWidth: 500 }}>
-              Every role has a purpose-built experience — customers purchase, staff process, admins decide.
+              Every role has a purpose-built experience - customers purchase,
+              staff process, admins decide.
             </p>
           </div>
           <div className="row g-4">
@@ -297,7 +395,9 @@ const LandingPage = () => {
                     background: p.highlight
                       ? "linear-gradient(135deg, #1d4ed8 0%, #0ea5e9 100%)"
                       : "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
-                    border: p.highlight ? "none" : "1px solid rgba(255,255,255,0.08)",
+                    border: p.highlight
+                      ? "none"
+                      : "1px solid rgba(255,255,255,0.08)",
                   }}
                 >
                   <div className="lp-portal-icon" style={{ background: p.bg }}>
@@ -307,7 +407,9 @@ const LandingPage = () => {
                   <p>{p.desc}</p>
                   <Link
                     to={p.link}
-                    className={p.highlight ? "lp-btn-white" : "lp-btn-secondary"}
+                    className={
+                      p.highlight ? "lp-btn-white" : "lp-btn-secondary"
+                    }
                     style={
                       p.highlight
                         ? {}
@@ -331,9 +433,19 @@ const LandingPage = () => {
       <section className="lp-section">
         <div className="container">
           <div className="lp-cta-band">
-            <h2>Start managing insurance<br />the right way.</h2>
-            <p>Register as a customer, browse real plans, and experience the full claim journey — from submission to settlement.</p>
-            <div className="d-flex justify-content-center gap-3 flex-wrap" style={{ position: "relative", zIndex: 1 }}>
+            <h2>
+              Start managing insurance
+              <br />
+              the right way.
+            </h2>
+            <p>
+              Register as a customer, browse real plans, and experience the full
+              claim journey - from submission to settlement.
+            </p>
+            <div
+              className="d-flex justify-content-center gap-3 flex-wrap"
+              style={{ position: "relative", zIndex: 1 }}
+            >
               <Link to="/register" className="lp-btn-white">
                 Create free account <i className="bi bi-arrow-right" />
               </Link>
@@ -355,7 +467,8 @@ const LandingPage = () => {
                   zIndex: 1,
                 }}
               >
-                Already have an account? <i className="bi bi-box-arrow-in-right" />
+                Already have an account?{" "}
+                <i className="bi bi-box-arrow-in-right" />
               </Link>
             </div>
           </div>
@@ -375,10 +488,31 @@ const LandingPage = () => {
             </div>
             <div className="col-md-6 text-md-end">
               <div className="d-flex gap-3 justify-content-md-end">
-                <Link to="/login" style={{ color: "#64748b", textDecoration: "none", fontSize: "0.875rem" }}>Sign In</Link>
-                <Link to="/register" style={{ color: "#64748b", textDecoration: "none", fontSize: "0.875rem" }}>Register</Link>
+                <Link
+                  to="/login"
+                  style={{
+                    color: "#64748b",
+                    textDecoration: "none",
+                    fontSize: "0.875rem",
+                  }}
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/register"
+                  style={{
+                    color: "#64748b",
+                    textDecoration: "none",
+                    fontSize: "0.875rem",
+                  }}
+                >
+                  Register
+                </Link>
               </div>
-              <p className="mt-2 mb-0" style={{ fontSize: "0.8rem", color: "#334155" }}>
+              <p
+                className="mt-2 mb-0"
+                style={{ fontSize: "0.8rem", color: "#334155" }}
+              >
                 © {new Date().getFullYear()} InsuranceFlow. All rights reserved.
               </p>
             </div>

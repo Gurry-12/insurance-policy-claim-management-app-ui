@@ -1,4 +1,4 @@
-# 📦 Insurance Policy & Claim Management — Project Overview
+# 📦 Insurance Policy & Claim Management - Project Overview
 
 > **Stack**: React 19 + Vite + React Router v7 + Bootstrap 5 + Axios + JWT
 
@@ -6,15 +6,15 @@
 
 ## 🗂️ Table of Contents
 
-| # | Flow | File |
-|---|------|------|
-| 1 | Project Overview (this file) | `00_PROJECT_OVERVIEW.md` |
-| 2 | Authentication — Login & Register | `01_AUTH_FLOW.md` |
-| 3 | Admin Flow | `02_ADMIN_FLOW.md` |
-| 4 | Agent Flow | `03_AGENT_FLOW.md` |
-| 5 | Customer Flow | `04_CUSTOMER_FLOW.md` |
-| 6 | Shared / Common Components | `05_SHARED_COMPONENTS.md` |
-| 7 | API & Services Layer | `06_API_SERVICES.md` |
+| #   | Flow                              | File                      |
+| --- | --------------------------------- | ------------------------- |
+| 1   | Project Overview (this file)      | `00_PROJECT_OVERVIEW.md`  |
+| 2   | Authentication - Login & Register | `01_AUTH_FLOW.md`         |
+| 3   | Admin Flow                        | `02_ADMIN_FLOW.md`        |
+| 4   | Agent Flow                        | `03_AGENT_FLOW.md`        |
+| 5   | Customer Flow                     | `04_CUSTOMER_FLOW.md`     |
+| 6   | Shared / Common Components        | `05_SHARED_COMPONENTS.md` |
+| 7   | API & Services Layer              | `06_API_SERVICES.md`      |
 
 ---
 
@@ -61,11 +61,11 @@ src/
 
 ## 🔐 Role System
 
-| Role | Value | Access Level |
-|------|-------|--------------|
-| Admin | `ROLE_ADMIN` | Full system control |
-| Agent | `ROLE_AGENT` | Claims review, customer & policy management |
-| Customer | `ROLE_CUSTOMER` | Own data, purchase policies, raise claims |
+| Role     | Value           | Access Level                                |
+| -------- | --------------- | ------------------------------------------- |
+| Admin    | `ROLE_ADMIN`    | Full system control                         |
+| Agent    | `ROLE_AGENT`    | Claims review, customer & policy management |
+| Customer | `ROLE_CUSTOMER` | Own data, purchase policies, raise claims   |
 
 Roles are decoded from the **JWT token** after login and stored in `AuthContext`.
 
@@ -99,27 +99,27 @@ Page sets state → renders DataTable / Cards
 
 ## 📐 Key Concepts You Need to Know
 
-| Concept | Where Used | Learn From |
-|---------|-----------|------------|
-| React Context API | `AuthContext`, `ThemeContext` | [React Docs – Context](https://react.dev/reference/react/createContext) |
-| React Router v7 | `App.jsx`, `routes/` | [React Router Docs](https://reactrouter.com/home) |
-| Axios Interceptors | `axiosInstance.js` | [Axios Docs](https://axios-http.com/docs/interceptors) |
-| JWT (JSON Web Tokens) | Auth flow, `useAuth` | [jwt.io](https://jwt.io/introduction) |
-| Custom Hooks | `hooks/` folder | [React Docs – Custom Hooks](https://react.dev/learn/reusing-logic-with-custom-hooks) |
-| Protected Routes | `routes/ProtectedRoute.jsx` | [React Router Auth Guide](https://reactrouter.com/how-to/redirecting) |
-| Bootstrap 5 | All UI components | [Bootstrap 5 Docs](https://getbootstrap.com/docs/5.3) |
+| Concept               | Where Used                    | Learn From                                                                           |
+| --------------------- | ----------------------------- | ------------------------------------------------------------------------------------ |
+| React Context API     | `AuthContext`, `ThemeContext` | [React Docs – Context](https://react.dev/reference/react/createContext)              |
+| React Router v7       | `App.jsx`, `routes/`          | [React Router Docs](https://reactrouter.com/home)                                    |
+| Axios Interceptors    | `axiosInstance.js`            | [Axios Docs](https://axios-http.com/docs/interceptors)                               |
+| JWT (JSON Web Tokens) | Auth flow, `useAuth`          | [jwt.io](https://jwt.io/introduction)                                                |
+| Custom Hooks          | `hooks/` folder               | [React Docs – Custom Hooks](https://react.dev/learn/reusing-logic-with-custom-hooks) |
+| Protected Routes      | `routes/ProtectedRoute.jsx`   | [React Router Auth Guide](https://reactrouter.com/how-to/redirecting)                |
+| Bootstrap 5           | All UI components             | [Bootstrap 5 Docs](https://getbootstrap.com/docs/5.3)                                |
 
 ---
 
 ## 📁 Utility Files Reference
 
-| File | Purpose |
-|------|---------|
-| `utils/constants.js` | API base URL, pagination defaults, status values |
-| `utils/formatters.js` | Date, currency, phone number formatting |
-| `utils/roles.js` | Role constants (`ADMIN`, `AGENT`, `CUSTOMER`) |
-| `utils/storageUtils.js` | `localStorage` get/set/remove for token & user |
-| `utils/validators.js` | Form field validation functions |
+| File                    | Purpose                                          |
+| ----------------------- | ------------------------------------------------ |
+| `utils/constants.js`    | API base URL, pagination defaults, status values |
+| `utils/formatters.js`   | Date, currency, phone number formatting          |
+| `utils/roles.js`        | Role constants (`ADMIN`, `AGENT`, `CUSTOMER`)    |
+| `utils/storageUtils.js` | `localStorage` get/set/remove for token & user   |
+| `utils/validators.js`   | Form field validation functions                  |
 
 ---
 

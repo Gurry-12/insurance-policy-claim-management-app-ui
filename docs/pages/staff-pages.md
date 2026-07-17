@@ -3,7 +3,7 @@
 > **What:** All pages in the Staff Console (`ROLE_INTERNAL_STAFF`).  
 > **Why:** Staff members handle day-to-day operations: reviewing claims, issuing policies, recording payments, and assisting customers.  
 > **Where:** `src/pages/staff/`  
-> **Role Restriction:** `ROLE_INTERNAL_STAFF` — enforced by `RoleProtectedRoute`
+> **Role Restriction:** `ROLE_INTERNAL_STAFF` - enforced by `RoleProtectedRoute`
 
 ---
 
@@ -18,10 +18,10 @@ Provides a staff member's workspace overview. Shows assigned claims, pending act
 
 ### APIs Used
 
-- `GET /claims` — claims assigned to/relevant for staff
-- `GET /customers` — customer count
-- `GET /policies` — recent policies
-- `GET /payments/page` — recent payments
+- `GET /claims` - claims assigned to/relevant for staff
+- `GET /customers` - customer count
+- `GET /policies` - recent policies
+- `GET /payments/page` - recent payments
 
 ### State
 
@@ -143,9 +143,9 @@ if (user?.role === "INTERNAL_STAFF" && user?.productSpeciality && item.specialit
 **APIs:**
 - `GET /claims/:id`
 - `GET /claims/:id/history`
-- `PATCH /claims/:id/assign` — assigns claim to the logged-in staff member
-- `PATCH /claims/:id/under-review` — changes status to UNDER_REVIEW
-- `PATCH /claims/:id/review` — submits recommendation (RECOMMENDED_FOR_APPROVAL / RECOMMENDED_FOR_REJECTION)
+- `PATCH /claims/:id/assign` - assigns claim to the logged-in staff member
+- `PATCH /claims/:id/under-review` - changes status to UNDER_REVIEW
+- `PATCH /claims/:id/review` - submits recommendation (RECOMMENDED_FOR_APPROVAL / RECOMMENDED_FOR_REJECTION)
 
 ### Claim Review Workflow (Staff)
 
@@ -224,6 +224,6 @@ The `ProfilePage` component detects the user's role and renders accordingly.
 ## Related Documentation
 
 - [Customer Pages](./customer-pages.md)
-- [Workflows — Claim Review](../workflows/workflows.md#claim-review-workflow)
+- [Workflows - Claim Review](../workflows/workflows.md#claim-review-workflow)
 - [Claim Service](../services/services-overview.md#claimservice)
 - [Routing](../routing/routing.md)

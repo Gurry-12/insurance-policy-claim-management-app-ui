@@ -1,13 +1,13 @@
-﻿import { useState } from 'react';
-import { exportToCSV } from '../../utils/exportUtils';
-import { notify } from '../../utils/notificationService';
+﻿import { useState } from "react";
+import { exportToCSV } from "../../utils/exportUtils";
+import { notify } from "../../utils/notificationService";
 
 /**
- * ExportButton â€” exports ALL data (not just current page).
+ * ExportButton - exports ALL data (not just current page).
  *
  * Props:
  *  - data       : current page data (fallback if fetchAll not provided)
- *  - fetchAll   : async () => full array â€” called on click to get every record
+ *  - fetchAll   : async () => full array - called on click to get every record
  *  - columns    : [{ header, accessor, exportValue }]
  *  - filename   : output filename
  *  - label      : button label
@@ -38,7 +38,7 @@ const ExportButton = ({
       exportToCSV(rows, columns, filename);
       notify.success(rows.length + " records exported successfully.");
     } catch (error) {
-      console.error('Export failed:', error);
+      console.error("Export failed:", error);
       notify.error(error, "Export failed. Please try again.");
     } finally {
       setLoading(false);
@@ -51,12 +51,12 @@ const ExportButton = ({
       disabled={loading}
       className="btn btn-outline-primary d-inline-flex align-items-center gap-2"
       style={{
-        borderRadius: '8px',
-        padding: '0.4rem 0.8rem',
-        fontSize: '0.85rem',
+        borderRadius: "8px",
+        padding: "0.4rem 0.8rem",
+        fontSize: "0.85rem",
         fontWeight: 500,
-        transition: 'all 0.25s ease',
-        minWidth: '110px',
+        transition: "all 0.25s ease",
+        minWidth: "110px",
       }}
     >
       {loading ? (
