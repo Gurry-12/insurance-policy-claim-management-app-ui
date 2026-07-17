@@ -72,23 +72,23 @@ The auth flow handles:
 
 ```mermaid
 flowchart TD
-    Login[Login Success] --> Save[Save JWT to localStorage]
+    Login["Login Success"] --> Save["Save JWT to localStorage"]
     
-    Save --> Request{Axios Request Interceptor}
-    Request --> |Reads Token| Attach[Attach Authorization Header]
+    Save --> Request{"Axios Request Interceptor"}
+    Request --> |Reads Token| Attach["Attach Authorization Header"]
     
     Attach --> API((Backend API))
     
-    API -- 200 OK --> Data[Return Data]
-    API -- 401 Unauthorized --> Intercept{Axios Response Interceptor}
+    API -- 200 OK --> Data["Return Data"]
+    API -- 401 Unauthorized --> Intercept{"Axios Response Interceptor"}
     
-    Intercept --> Catch401[Catch 401 Error]
-    Catch401 --> Dispatch[Dispatch auth:unauthorized event]
+    Intercept --> Catch401["Catch 401 Error"]
+    Catch401 --> Dispatch["Dispatch auth:unauthorized event"]
     
-    Dispatch --> GlobalHandler[GlobalApiHandler catches event]
+    Dispatch --> GlobalHandler["GlobalApiHandler catches event"]
     GlobalHandler --> Logout[AuthContext.logout]
-    Logout --> Clear[Clear localStorage]
-    Clear --> Redirect[Redirect to /login]
+    Logout --> Clear["Clear localStorage"]
+    Clear --> Redirect["Redirect to /login"]
 ```
 
 ---

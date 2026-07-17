@@ -94,34 +94,34 @@ A **Customer** is the end-user of the insurance system. Customer can:
 
 ```mermaid
 flowchart TD
-    A[Customer opens CustomerProductListPage<br/>Browses by product type] --> B[Clicks on a Product]
-    B --> C[CustomerPlanListPage shows plans for product<br/>plan name, premium, coverage, duration]
-    C --> D[Customer clicks Buy Plan or View Details]
-    D --> E[CustomerPlanDetailPage shows full details<br/>Click Purchase Policy]
-    E --> F[PurchasePolicyPage<br/>Form: Confirm details + start date]
-    F --> G[Submit policyService.purchasePolicy]
-    G --> H[Policy created with status PENDING_PAYMENT<br/>Redirect to CustomerPolicyListPage]
+    A["Customer opens CustomerProductListPage<br/>Browses by product type"] --> B["Clicks on a Product"]
+    B --> C["CustomerPlanListPage shows plans for product<br/>plan name, premium, coverage, duration"]
+    C --> D["Customer clicks Buy Plan or View Details"]
+    D --> E["CustomerPlanDetailPage shows full details<br/>Click Purchase Policy"]
+    E --> F["PurchasePolicyPage<br/>Form: Confirm details + start date"]
+    F --> G["Submit policyService.purchasePolicy"]
+    G --> H["Policy created with status PENDING_PAYMENT<br/>Redirect to CustomerPolicyListPage"]
 ```
 
 ### Premium Payment Workflow
 
 ```mermaid
 flowchart TD
-    A[Customer opens CustomerPolicyListPage<br/>Sees policy PENDING_PAYMENT] --> B[Clicks Pay Premium]
-    B --> C[RecordPaymentPage<br/>Form: Select policy, amount, mode]
-    C --> D[Submit paymentService.recordPayment]
-    D --> E[Policy status changes to ACTIVE<br/>Redirect to CustomerPaymentHistoryPage]
+    A["Customer opens CustomerPolicyListPage<br/>Sees policy PENDING_PAYMENT"] --> B["Clicks Pay Premium"]
+    B --> C["RecordPaymentPage<br/>Form: Select policy, amount, mode"]
+    C --> D["Submit paymentService.recordPayment"]
+    D --> E["Policy status changes to ACTIVE<br/>Redirect to CustomerPaymentHistoryPage"]
 ```
 
 ### Raise Claim Workflow
 
 ```mermaid
 flowchart TD
-    A[Customer opens CustomerPolicyListPage<br/>Selects ACTIVE policy] --> B[Clicks Raise Claim]
-    B --> C[RaiseClaimPage<br/>Form: Select policy, description, amount]
-    C --> D[Submit claimService.raiseClaim]
-    D --> E[Claim created with status PENDING<br/>Redirect to CustomerClaimListPage]
-    E --> F[View status history at ClaimStatusHistoryPage]
+    A["Customer opens CustomerPolicyListPage<br/>Selects ACTIVE policy"] --> B["Clicks Raise Claim"]
+    B --> C["RaiseClaimPage<br/>Form: Select policy, description, amount"]
+    C --> D["Submit claimService.raiseClaim"]
+    D --> E["Claim created with status PENDING<br/>Redirect to CustomerClaimListPage"]
+    E --> F["View status history at ClaimStatusHistoryPage"]
 ```
 
 ---
@@ -130,9 +130,9 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A[ClaimStatusHistoryPage receives claimId] --> B[useEffect claimHistoryService.getHistoryByClaimId]
-    B --> C[Returns array of status change events<br/>PENDING, UNDER_REVIEW, APPROVED]
-    C --> D[Rendered as vertical timeline/status stepper UI]
+    A["ClaimStatusHistoryPage receives claimId"] --> B["useEffect claimHistoryService.getHistoryByClaimId"]
+    B --> C["Returns array of status change events<br/>PENDING, UNDER_REVIEW, APPROVED"]
+    C --> D["Rendered as vertical timeline/status stepper UI"]
 ```
 
 ---

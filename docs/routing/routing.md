@@ -13,21 +13,21 @@ Three guard components protect routes in `App.jsx`:
 
 ```mermaid
 flowchart TD
-    User([User navigates to URL]) --> AuthCheck{isAuthenticated?}
+    User([User navigates to URL]) --> AuthCheck{"isAuthenticated?"}
     
-    AuthCheck -- No --> GuestCheck{Is Route GuestRoute?}
-    GuestCheck -- Yes --> RenderGuest[Render Login/Register]
-    GuestCheck -- No --> RedirectLogin[Redirect to /login]
+    AuthCheck -- No --> GuestCheck{"Is Route GuestRoute?"}
+    GuestCheck -- Yes --> RenderGuest["Render Login/Register"]
+    GuestCheck -- No --> RedirectLogin["Redirect to /login"]
     
-    AuthCheck -- Yes --> GuardCheck{Route Guard Type}
+    AuthCheck -- Yes --> GuardCheck{"Route Guard Type"}
     
-    GuardCheck -- GuestRoute --> RedirectDash[Redirect to User's Dashboard]
+    GuardCheck -- GuestRoute --> RedirectDash["Redirect to User's Dashboard"]
     
-    GuardCheck -- ProtectedRoute --> RenderProtected1[Render Page]
+    GuardCheck -- ProtectedRoute --> RenderProtected1["Render Page"]
     
-    GuardCheck -- RoleProtectedRoute --> RoleCheck{Does User Role Match?}
-    RoleCheck -- Yes --> RenderProtected2[Render Page]
-    RoleCheck -- No --> RedirectOwnDash[Redirect to User's Dashboard]
+    GuardCheck -- RoleProtectedRoute --> RoleCheck{"Does User Role Match?"}
+    RoleCheck -- Yes --> RenderProtected2["Render Page"]
+    RoleCheck -- No --> RedirectOwnDash["Redirect to User's Dashboard"]
 ```
 
 ### 1. `GuestRoute`
