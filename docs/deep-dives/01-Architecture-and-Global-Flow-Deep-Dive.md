@@ -23,19 +23,15 @@ sequenceDiagram
     DOM->>Main: Executes src/main.jsx
     Main->>Theme: Mounts <ThemeProvider>
     
-    rect rgb(255, 250, 240)
         Theme->>Theme: Reads localStorage('ss_theme')
         Theme->>Theme: setState(theme)
         Theme->>Browser: useEffect: setAttribute('data-theme', theme)
-    end
     
     Theme->>Auth: Mounts <AuthProvider>
     
-    rect rgb(240, 248, 255)
         Auth->>Auth: Reads localStorage('ss_token')
         Auth->>Auth: Reads localStorage('ss_user')
         Auth->>Auth: setState(token, user)
-    end
     
     Auth->>Router: Mounts <BrowserRouter>
     Router->>Router: Initializes history stack

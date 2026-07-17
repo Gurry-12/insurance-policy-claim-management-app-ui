@@ -34,10 +34,7 @@ graph TD
     
     API -->|HTTP REST| Backend["(Java Backend API)"]
     
-    classDef React fill:#61dafb,stroke:#000,stroke-width:2px,color:#000
-    classDef Node fill:#fff,stroke:#333,stroke-width:1px
     
-    class Main,Theme,Auth,Router,App,Routes React
 ```
 
 ---
@@ -152,18 +149,14 @@ sequenceDiagram
     Hook->>Service: call domain function (e.g., claimService)
     Service->>Axios: invoke HTTP request
     
-    rect rgb(240, 248, 255)
         Note over Axios: Request Interceptor
         Axios-->>Axios: Attach Bearer Token & NProgress
-    end
     
     Axios->>API: HTTP Request (GET/POST)
     API-->>Axios: HTTP Response (JSON envelope)
     
-    rect rgb(240, 255, 240)
         Note over Axios: Response Interceptor
         Axios-->>Axios: Parse envelope (apiAdapter)
-    end
     
     Axios-->>Service: Extracted Payload / Normalized Error
     Service-->>Hook: Return Promise
