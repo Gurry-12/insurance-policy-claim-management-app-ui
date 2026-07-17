@@ -8,8 +8,42 @@
 export const exportToCSV = (data, columns, filename = "export.csv") => {
   if (!data || !data.length) return;
 
-  // Filter out any existing 'Sr. No.' column to avoid duplicates
-  const exportColumns = columns.filter(col => col.header !== 'Sr. No.');
+  // Collect all unique keys from the DTO dataset that have at least one non-null value
+  const allKeys = new Set();
+  data.forEach(row => {
+    if (row && typeof row === 'object') {
+      Object.keys(row).forEach(key => {
+        if (row[key] !== null && row[key] !== undefined && row[key] !== "") {
+          allKeys.add(key);
+        }
+      });
+    }
+  });
+
+  // Filter out any IDs per user request ('id', 'customerId', 'productId', etc.)
+  const filteredKeys = Array.from(allKeys).filter(key => 
+    key.toLowerCase() !== 'id' && !key.toLowerCase().endsWith('id')
+  );
+
+  // Helper to convert camelCase to Title Case
+  const toTitleCase = (str) => {
+    const result = str.replace(/([A-Z])/g, " $1");
+    return result.charAt(0).toUpperCase() + result.slice(1).trim();
+  };
+
+  // Filter out any existing 'Sr. No.' column from explicitly provided columns
+  const explicitColumns = columns.filter(col => col.header !== 'Sr. No.');
+  const explicitAccessors = new Set(explicitColumns.map(c => c.accessor).filter(Boolean));
+  
+  // Add auto-discovered columns that are not already explicitly configured
+  const autoColumns = filteredKeys
+    .filter(key => !explicitAccessors.has(key))
+    .map(key => ({
+      header: toTitleCase(key),
+      accessor: key,
+    }));
+
+  const exportColumns = [...explicitColumns, ...autoColumns];
 
   const headers = ["Sr. No.", ...exportColumns.map(col => col.header || "")];
   const csvRows = [];
@@ -25,7 +59,11 @@ export const exportToCSV = (data, columns, filename = "export.csv") => {
         val = col.exportValue(row);
       } else if (col.accessor) {
         const rawVal = row[col.accessor];
-        val = rawVal !== undefined && rawVal !== null ? rawVal : "";
+        if (rawVal !== undefined && rawVal !== null) {
+          val = typeof rawVal === 'object' ? JSON.stringify(rawVal) : rawVal;
+        } else {
+          val = "";
+        }
       }
       let stringVal = String(val);
       // Force Excel/Sheets to treat phone numbers as text by prepending a tab
