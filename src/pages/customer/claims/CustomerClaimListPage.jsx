@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { getMyClaims } from "../../../services/claimService";
 import PageHeader from "../../../components/common/PageHeader";
 import StatusBadge from "../../../components/ui/StatusBadge";
-import { Eye, FileText, Calendar, IndianRupee, Clock, CheckCircle, XCircle, AlertTriangle, ArrowRight, FilePlus } from "lucide-react";
+import { Eye, FileText, Calendar, IndianRupee, ArrowRight, FilePlus } from "lucide-react";
 import ExportButton from "../../../components/common/ExportButton";
 
 const CustomerClaimListPage = () => {
@@ -28,16 +28,6 @@ const CustomerClaimListPage = () => {
     loadClaims();
   }, []);
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "APPROVED": return <CheckCircle size={16} className="me-1" />;
-      case "PENDING": return <Clock size={16} className="me-1" />;
-      case "UNDER_REVIEW": return <AlertTriangle size={16} className="me-1" />;
-      case "REJECTED": return <XCircle size={16} className="me-1" />;
-      default: return null;
-    }
-  };
-
   const getCardStyle = (status) => {
     switch (status) {
       case "APPROVED": return { border: "var(--ip-success-subtle)", bg: "linear-gradient(135deg, var(--ip-claim-approved-bg) 0%, var(--ip-surface) 100%)" };
@@ -58,8 +48,8 @@ const CustomerClaimListPage = () => {
           <div className="d-flex gap-2">
             <ExportButton
               fetchAll={async () => {
-                const res = await getMyClaims({...tableState.getQueryParams(), pageSize: tableState.totalElements || 1000, pageNumber: 0});
-                return res.content || [];
+                const res = await getMyClaims();
+                return res.data || res.content || [];
               }}
               columns={[
                 { header: "Claim Number", accessor: "claimNumber" },

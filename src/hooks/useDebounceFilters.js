@@ -1,9 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const useDebounceFilters = (initialFilters, onFilterChange, delay = 500) => {
   const [localFilters, setLocalFilters] = useState(initialFilters);
+  const prevFiltersRef = useRef(initialFilters);
 
   useEffect(() => {
+    if (prevFiltersRef.current === localFilters) {
+      return;
+    }
+    prevFiltersRef.current = localFilters;
+
     const handler = setTimeout(() => {
       onFilterChange(localFilters);
     }, delay);

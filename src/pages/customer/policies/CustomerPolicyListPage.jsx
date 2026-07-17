@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getMyPolicies } from "../../../services/policyService";
 import { Link } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
 import StatusBadge from "../../../components/ui/StatusBadge";
-import { Shield, CheckCircle, Clock, XCircle, AlertCircle, Eye, ArrowRight, IndianRupee, Calendar, PlusCircle } from "lucide-react";
+import { Shield, ArrowRight, IndianRupee, Calendar, PlusCircle } from "lucide-react";
 import useTableState from "../../../hooks/useTableState";
 import PaginationBar from "../../../components/tables/PaginationBar";
 import ExportButton from "../../../components/common/ExportButton";
@@ -15,34 +15,26 @@ const CustomerPolicyListPage = () => {
     initialSortBy: 'id'
   });
 
-  const fetchPolicies = async () => {
+  const { getQueryParams, setIsLoading, setTotalPages, setTotalElements } = tableState;
+
+  const fetchPolicies = useCallback(async () => {
     try {
-      tableState.setIsLoading(true);
-      const params = tableState.getQueryParams();
+      setIsLoading(true);
+      const params = getQueryParams();
       const response = await getMyPolicies(params);
       setPolicies(response.content || []);
-      tableState.setTotalPages(response.totalPages || 1);
-      tableState.setTotalElements(response.totalElements || response.totalRecords || 0);
+      setTotalPages(response.totalPages || 1);
+      setTotalElements(response.totalElements || response.totalRecords || 0);
     } catch (error) {
       console.error(error);
     } finally {
-      tableState.setIsLoading(false);
+      setIsLoading(false);
     }
-  };
+  }, [getQueryParams, setIsLoading, setTotalPages, setTotalElements]);
 
   useEffect(() => {
     fetchPolicies();
-  }, [tableState.currentPage, tableState.sortBy, tableState.sortDirection]);
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "ACTIVE": return <CheckCircle size={16} className="me-1" />;
-      case "PENDING_PAYMENT": return <AlertCircle size={16} className="me-1" />;
-      case "EXPIRED": return <Clock size={16} className="me-1" />;
-      case "CANCELLED": return <XCircle size={16} className="me-1" />;
-      default: return null;
-    }
-  };
+  }, [fetchPolicies]);
 
   const getCardGradient = (status) => {
     switch (status) {

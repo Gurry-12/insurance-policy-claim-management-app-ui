@@ -354,7 +354,7 @@ If `payload.role` is `null`, it falls back to the JWT decoded role.
 grep -n "/your/path" src/App.jsx
 ```
 
-**Check:** Is the page component imported correctly? Check for typos in the `lazy(() => import(...))` path.
+**Check:** Is the page component imported correctly? Check for typos in the static `import` path.
 
 ---
 

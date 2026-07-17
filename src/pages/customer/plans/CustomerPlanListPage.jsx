@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getActivePlans, getPlansByProduct } from "../../../services/planService";
 import PageHeader from "../../../components/common/PageHeader";
@@ -7,7 +7,7 @@ const CustomerPlanListPage = () => {
   const [plans, setPlans] = useState([]);
   const { productId } = useParams();
 
-  const fetchPlans = async () => {
+  const fetchPlans = useCallback(async () => {
     try {
       let response;
       if (productId) {
@@ -19,11 +19,11 @@ const CustomerPlanListPage = () => {
     } catch (error) {
       console.error(error);
     }
-  };
+  }, [productId]);
 
   useEffect(() => {
     fetchPlans();
-  }, []);
+  }, [fetchPlans]);
 
   
 

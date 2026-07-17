@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import DataTable from '../../../components/tables/DataTable';
@@ -31,34 +31,30 @@ const PolicyListPage = () => {
     initialFilters: { status: '', startDate: '', endDate: '' }
   });
 
-  const { localFilters, handleFilterChange, clearFilters } = useDebounceFilters(
+  const { localFilters, clearFilters } = useDebounceFilters(
     tableState.filters,
     tableState.handleFilterChange
   );
 
-  const fetchPolicies = () => {
+  const { getQueryParams, setTotalPages, setTotalElements } = tableState;
+
+  const fetchPolicies = useCallback(() => {
     setLoading(true);
-    const params = tableState.getQueryParams();
+    const params = getQueryParams();
 
     getAllPoliciesPaginated(params)
       .then((res) => {
         setPolicies(res.content);
-        tableState.setTotalPages(res.totalPages);
-        tableState.setTotalElements(res.totalElements || res.totalRecords || 0);
+        setTotalPages(res.totalPages);
+        setTotalElements(res.totalElements || res.totalRecords || 0);
       })
       .catch(() => setError('Could not load policies. Please check your API connection.'))
       .finally(() => setLoading(false));
-  };
+  }, [getQueryParams, setTotalPages, setTotalElements]);
 
   useEffect(() => {
     fetchPolicies();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    tableState.currentPage, 
-    JSON.stringify(tableState.filters),
-    tableState.sortBy, 
-    tableState.sortDirection
-  ]);
+  }, [fetchPolicies]);
 
   const renderHeader = (label, field) => (
     <SortableHeader 

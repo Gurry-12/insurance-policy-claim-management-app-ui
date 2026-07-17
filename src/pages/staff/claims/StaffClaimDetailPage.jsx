@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import LoadingSpinner from "../../../components/common/LoadingSpinner";
 import ErrorAlert from "../../../components/ui/ErrorAlert";
@@ -19,7 +19,7 @@ import DocumentPreviewModal from "../../../components/modals/DocumentPreviewModa
 import FormTextarea from "../../../components/forms/FormTextarea";
 import Drawer from "../../../components/ui/Drawer";
 import ClaimHistoryTimeline from "../../../components/claims/ClaimHistoryTimeline";
-import { ExternalLink, Clock, Upload, Eye, Lock } from "lucide-react";
+import {  Upload, Eye, Lock } from "lucide-react";
 
 const StaffClaimDetailPage = () => {
   const { id } = useParams();

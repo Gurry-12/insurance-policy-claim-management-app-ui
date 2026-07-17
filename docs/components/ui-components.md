@@ -12,7 +12,7 @@
 
 **File:** [`src/components/tables/DataTable.jsx`](../../src/components/tables/DataTable.jsx)
 
-**Purpose:** Generic, accessible, scrollable data table with loading skeletons and empty state support.
+**Purpose:** Generic, accessible, scrollable data table with stale-while-revalidate data dimming and empty state support.
 
 **Props:**
 
@@ -20,7 +20,7 @@
 | -------------- | ---------- | --------------------- | -------------------------------------------------------------- |
 | `columns`      | `array`    | required              | Column definitions                                             |
 | `data`         | `array`    | required              | Row data                                                       |
-| `loading`      | `boolean`  | `false`               | Shows skeleton placeholders                                    |
+| `loading`      | `boolean`  | `false`               | Triggers inline spinner (cold load) or 55% opacity dimming (warm load) |
 | `onRowClick`   | `function` | -                     | Row click handler (makes rows focusable + keyboard accessible) |
 | `emptyIcon`    | `string`   | `"bi-table"`          | Bootstrap Icons class for empty state                          |
 | `emptyMessage` | `string`   | `"No data available"` | Empty state message                                            |
@@ -44,9 +44,10 @@ const columns = [
 
 **States:**
 
-1. **Loading** - renders 5 placeholder skeleton rows
-2. **Empty** - renders `EmptyState` component
-3. **Data** - renders `table-hover` Bootstrap table
+1. **Loading (Cold)** - renders an inline `<LoadingSpinner />` centered in the table body.
+2. **Loading (Warm)** - keeps previous data in the DOM but dims it to 55% opacity (Stale-While-Revalidate).
+3. **Empty** - renders `EmptyState` component.
+4. **Data** - renders `table-hover` Bootstrap table.
 
 **Accessibility:** Rows with `onRowClick` get `tabIndex={0}` and `onKeyDown` handler for Enter/Space keys.
 

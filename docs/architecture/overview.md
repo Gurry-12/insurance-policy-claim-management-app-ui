@@ -197,7 +197,7 @@ index.html → main.jsx
               └─ App.jsx
                   ├─ GlobalApiHandler (window event listeners for auth events)
                   ├─ GlobalToaster (react-hot-toast configuration)
-                  └─ <Routes> (with Suspense + lazy-loaded pages)
+                  └─ <Routes> (with statically imported, zero-latency pages)
 ```
 
 ---

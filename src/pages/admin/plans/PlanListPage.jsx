@@ -36,7 +36,7 @@ const PlanListPage = () => {
     initialFilters: { planName: '', minCoverageAmount: '', maxCoverageAmount: '', minPremiumAmount: '', maxPremiumAmount: '' }
   });
 
-  const { localFilters, handleFilterChange, clearFilters } = useDebounceFilters(
+  const { localFilters, clearFilters } = useDebounceFilters(
     tableState.filters,
     tableState.handleFilterChange
   );
@@ -60,6 +60,7 @@ const PlanListPage = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     tableState.currentPage, 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     JSON.stringify(tableState.filters),
     tableState.sortBy, 
     tableState.sortDirection

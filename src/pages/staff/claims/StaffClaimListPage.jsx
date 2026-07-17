@@ -1,10 +1,9 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getAllClaimsPaginated } from "../../../services/claimService";
 import { useNavigate, Outlet } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import ExportButton from "../../../components/common/ExportButton";
-import useClaimPdf from "../../../hooks/PdfDownload/useClaimPdf";
 import useTableState from "../../../hooks/useTableState";
 import PaginationBar from "../../../components/tables/PaginationBar";
 import DataTable from "../../../components/tables/DataTable";
@@ -28,7 +27,6 @@ const StaffClaimListPage = () => {
   const [claims, setClaims] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { downloadClaim } = useClaimPdf();
 
   const tableState = useTableState({
     initialSortBy: "createdDate",
@@ -36,22 +34,22 @@ const StaffClaimListPage = () => {
     initialFilters: { status: '', minClaimAmount: '', maxClaimAmount: '' }
   });
 
-  const { localFilters, handleFilterChange, clearFilters } = useDebounceFilters(
+  const { localFilters, clearFilters } = useDebounceFilters(
     tableState.filters,
     tableState.handleFilterChange
   );
+
+  const { getQueryParams, setTotalPages, setTotalElements } = tableState;
 
   useEffect(() => {
     const loadClaims = async () => {
       try {
         setLoading(true);
-        const params = tableState.getQueryParams();
+        const params = getQueryParams();
         const data = await getAllClaimsPaginated(params);
         setClaims(data.content || []);
-        tableState.setTotalPages(data.totalPages || 1);
-        tableState.setTotalElements(
-          data.totalRecords || data.totalElements || 0,
-        );
+        setTotalPages(data.totalPages || 1);
+        setTotalElements(data.totalRecords || data.totalElements || 0);
       } catch (error) {
         console.error("Error loading claims:", error);
       } finally {
@@ -60,7 +58,7 @@ const StaffClaimListPage = () => {
     };
 
     loadClaims();
-  }, [tableState.currentPage, JSON.stringify(tableState.filters), tableState.sortBy, tableState.sortDirection]);
+  }, [getQueryParams, setTotalPages, setTotalElements]);
 
   const renderHeader = (label, field) => (
     <SortableHeader 

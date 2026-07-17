@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import FormTextarea from '../../../components/forms/FormTextarea';
 import StatusBadge from '../../../components/ui/StatusBadge';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
@@ -12,7 +12,7 @@ import DocumentPreviewModal from '../../../components/modals/DocumentPreviewModa
 import Drawer from '../../../components/ui/Drawer';
 import Modal from '../../../components/ui/Modal';
 import ClaimHistoryTimeline from '../../../components/claims/ClaimHistoryTimeline';
-import { ExternalLink, Clock, Upload, Eye } from 'lucide-react';
+import { Upload, Eye } from 'lucide-react';
 
 const ClaimDetailPage = () => {
   const { id } = useParams();

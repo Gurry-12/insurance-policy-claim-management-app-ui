@@ -1,7 +1,16 @@
-﻿import React from 'react';
-import ModernSelect from './ModernSelect';
+﻿import ModernSelect from "./ModernSelect";
 
-const FormSelect = ({ label, name, value, onChange, options, error, required = false, placeholder = 'Select an option', ...props }) => {
+const FormSelect = ({
+  label,
+  name,
+  value,
+  onChange,
+  options,
+  error,
+  required = false,
+  placeholder = "Select an option",
+  ...props
+}) => {
   return (
     <ModernSelect
       label={label}

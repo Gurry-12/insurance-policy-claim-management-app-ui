@@ -1,10 +1,8 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getAllPoliciesPaginated } from "../../../services/policyService";
 import { useNavigate, Link } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
 import StatusBadge from "../../../components/ui/StatusBadge";
-import { Eye } from "lucide-react";
-import usePolicyPdf from "../../../hooks/PdfDownload/usePolicyPdf";
 import ExportButton from "../../../components/common/ExportButton";
 import useTableState from "../../../hooks/useTableState";
 import PaginationBar from "../../../components/tables/PaginationBar";
@@ -29,23 +27,23 @@ const StaffPolicyListPage = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const { downloadPolicy } = usePolicyPdf();
-
   const tableState = useTableState({
     initialSortBy: "id",
     initialFilters: { status: '', startDate: '', endDate: '' }
   });
 
-  const { localFilters, handleFilterChange, clearFilters } = useDebounceFilters(
+  const { localFilters, clearFilters } = useDebounceFilters(
     tableState.filters,
     tableState.handleFilterChange
   );
+
+  const { getQueryParams, setTotalPages, setTotalElements } = tableState;
 
   useEffect(() => {
     const loadPolicies = async () => {
       try {
         setLoading(true);
-        const params = tableState.getQueryParams();
+        const params = getQueryParams();
         
         // Match old specific 'status' logic mapped to 'PAYMENT_PENDING' etc
         if (params.status === 'PAYMENT_PENDING') {
@@ -54,8 +52,8 @@ const StaffPolicyListPage = () => {
 
         const res = await getAllPoliciesPaginated(params);
         setPolicies(res.content || []);
-        tableState.setTotalPages(res.totalPages || 1);
-        tableState.setTotalElements(res.totalElements || res.totalRecords || 0);
+        setTotalPages(res.totalPages || 1);
+        setTotalElements(res.totalElements || res.totalRecords || 0);
       } catch (error) {
         console.error("Error loading policies:", error);
       } finally {
@@ -64,12 +62,7 @@ const StaffPolicyListPage = () => {
     };
 
     loadPolicies();
-  }, [
-    tableState.currentPage,
-    JSON.stringify(tableState.filters),
-    tableState.sortBy,
-    tableState.sortDirection,
-  ]);
+  }, [getQueryParams, setTotalPages, setTotalElements]);
 
   const renderHeader = (label, field) => (
     <SortableHeader 

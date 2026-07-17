@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getAllPaymentsPaginated } from "../../../services/paymentService";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
@@ -39,17 +39,17 @@ const StaffPaymentListPage = () => {
     tableState.handleFilterChange
   );
 
+  const { getQueryParams, setTotalPages, setTotalElements } = tableState;
+
   useEffect(() => {
     const loadPayments = async () => {
       try {
         setLoading(true);
-        const params = tableState.getQueryParams();
+        const params = getQueryParams();
         const data = await getAllPaymentsPaginated(params);
         setPayments(data.content || []);
-        tableState.setTotalPages(data.totalPages || 1);
-        tableState.setTotalElements(
-          data.totalRecords || data.totalElements || 0,
-        );
+        setTotalPages(data.totalPages || 1);
+        setTotalElements(data.totalRecords || data.totalElements || 0);
       } catch (error) {
         console.error("Error loading payments:", error);
       } finally {
@@ -57,13 +57,7 @@ const StaffPaymentListPage = () => {
       }
     };
     loadPayments();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    tableState.currentPage,
-    JSON.stringify(tableState.filters),
-    tableState.sortBy,
-    tableState.sortDirection,
-  ]);
+  }, [getQueryParams, setTotalPages, setTotalElements]);
 
   const renderHeader = (label, field) => (
     <SortableHeader 

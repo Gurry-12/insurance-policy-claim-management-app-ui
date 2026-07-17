@@ -30,7 +30,7 @@ const useTableState = ({ initialSortBy = 'id', initialSortDirection = 'desc', in
     setCurrentPage(1);
   }, [setCurrentPage]);
 
-  const getQueryParams = () => {
+  const getQueryParams = useCallback(() => {
     const params = {
       ...pagination.pageParams,
       sortBy,
@@ -44,11 +44,11 @@ const useTableState = ({ initialSortBy = 'id', initialSortDirection = 'desc', in
     });
     
     return params;
-  };
+  }, [pagination.pageParams, sortBy, sortDirection, filters]);
 
-  const getSrNo = (index) => {
+  const getSrNo = useCallback((index) => {
     return (pagination.currentPage - 1) * pagination.pageSize + index + 1;
-  };
+  }, [pagination.currentPage, pagination.pageSize]);
 
   return {
     ...pagination, // currentPage, setCurrentPage, totalPages, setTotalPages, etc.

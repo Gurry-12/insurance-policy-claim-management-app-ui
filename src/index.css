@@ -1063,6 +1063,22 @@ textarea.form-control {
   animation: slideUp 0.4s ease-out forwards;
 }
 
+/* Data table rows fade in smoothly when data replaces skeleton */
+@keyframes dt-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dt-data-reveal {
+  animation: dt-reveal 0.2s ease-out forwards;
+}
+
 /* Shake (for ErrorAlerts) */
 @keyframes shake {
   0%,
@@ -1105,19 +1121,37 @@ textarea.form-control {
   background-color: var(--ip-surface-raised);
 }
 
-/* NProgress Customization */
+/* ── NProgress – smooth progress bar ───────────────────── */
+#nprogress {
+  pointer-events: none;
+}
 #nprogress .bar {
-  background: var(--ip-brand) !important;
+  background: linear-gradient(
+    to right,
+    var(--ip-brand),
+    #60a5fa
+  ) !important;
   height: 3px !important;
+  /* Ease-in-out so the bar accelerates into view and decelerates out */
+  transition: width 300ms ease !important;
 }
 #nprogress .peg {
+  /* Softer glow — feels premium, not neon */
   box-shadow:
-    0 0 10px var(--ip-brand),
-    0 0 5px var(--ip-brand) !important;
+    0 0 8px rgba(37, 99, 235, 0.6),
+    0 0 3px rgba(96, 165, 250, 0.4) !important;
 }
-#nprogress .spinner-icon {
-  border-top-color: var(--ip-brand) !important;
-  border-left-color: var(--ip-brand) !important;
+/* Hide the spinner dot completely — we use skeleton instead */
+#nprogress .spinner {
+  display: none !important;
+}
+/* Fade the bar out instead of snapping it away */
+#nprogress.nprogress-custom-parent {
+  overflow: hidden;
+  position: relative;
+}
+.nprogress-container #nprogress .bar {
+  position: absolute;
 }
 
 /* ============================================================
@@ -1731,4 +1765,42 @@ textarea.form-control {
   .modern-datepicker-wrapper
   .react-datepicker__day--keyboard-selected {
   background-color: rgba(37, 99, 235, 0.2);
+}
+
+/* ============================================================
+   PAGE SKELETON  –  shimmer loading state (Suspense + DataTable)
+   ============================================================ */
+
+@keyframes sk-shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+/* Shared shimmer bone — used by PageSkeleton AND DataTable loading state */
+.sk-bone {
+  display: block;
+  background: linear-gradient(
+    90deg,
+    var(--ip-surface-raised, #e5e7eb) 25%,
+    var(--ip-border,          #f1f5f9) 50%,
+    var(--ip-surface-raised, #e5e7eb) 75%
+  );
+  background-size: 600px 100%;
+  animation: sk-shimmer 1.4s infinite linear;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .sk-bone {
+  background: linear-gradient(
+    90deg,
+    var(--ip-surface-raised, #27272a) 25%,
+    var(--ip-border,          #3f3f46) 50%,
+    var(--ip-surface-raised, #27272a) 75%
+  );
+  background-size: 600px 100%;
+  animation: sk-shimmer 1.4s infinite linear;
+}
+
+.sk-page {
+  width: 100%;
 }

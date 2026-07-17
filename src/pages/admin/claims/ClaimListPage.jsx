@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, Outlet } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import DataTable from '../../../components/tables/DataTable';
@@ -31,7 +31,7 @@ const ClaimListPage = () => {
     initialFilters: { status: '', minClaimAmount: '', maxClaimAmount: '', startDate: '', endDate: '' }
   });
 
-  const { localFilters, handleFilterChange, clearFilters } = useDebounceFilters(
+  const { localFilters, clearFilters } = useDebounceFilters(
     tableState.filters,
     tableState.handleFilterChange
   );
@@ -67,6 +67,7 @@ const ClaimListPage = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     tableState.currentPage, 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     JSON.stringify(tableState.filters), 
     tableState.sortBy, 
     tableState.sortDirection

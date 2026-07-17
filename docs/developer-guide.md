@@ -37,11 +37,11 @@ const MyNewPage = () => {
 export default MyNewPage;
 ```
 
-### Step 2: Add the lazy import in App.jsx
+### Step 2: Add the static import in App.jsx
 
 ```js
 // In src/App.jsx
-const MyNewPage = lazy(() => import("./pages/admin/mymodule/MyNewPage"));
+import MyNewPage from "./pages/admin/mymodule/MyNewPage";
 ```
 
 ### Step 3: Add the route in App.jsx
@@ -319,7 +319,7 @@ src/
 **Files to modify:**
 
 ```
-src/App.jsx                             ← Add lazy imports + routes
+src/App.jsx                             ← Add static imports + routes
 src/components/layouts/UnifiedLayout.jsx ← Add nav items
 ```
 

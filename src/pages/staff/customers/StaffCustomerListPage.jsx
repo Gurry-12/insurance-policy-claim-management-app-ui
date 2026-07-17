@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getAllCustomersPaginated } from "../../../services/customerService";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
@@ -28,20 +28,22 @@ const StaffCustomerListPage = () => {
     initialFilters: { city: '', state: '', pinCode: '' }
   });
 
-  const { localFilters, handleFilterChange, clearFilters } = useDebounceFilters(
+  const { localFilters, clearFilters } = useDebounceFilters(
     tableState.filters,
     tableState.handleFilterChange
   );
+
+  const { getQueryParams, setTotalPages, setTotalElements } = tableState;
 
   useEffect(() => {
     const loadCustomers = async () => {
       try {
         setLoading(true);
-        const params = tableState.getQueryParams();
+        const params = getQueryParams();
         const res = await getAllCustomersPaginated(params);
         setCustomers(res.content || []);
-        tableState.setTotalPages(res.totalPages || 1);
-        tableState.setTotalElements(res.totalElements || res.totalRecords || 0);
+        setTotalPages(res.totalPages || 1);
+        setTotalElements(res.totalElements || res.totalRecords || 0);
       } catch (error) {
         console.error("Error loading customers:", error);
       } finally {
@@ -50,7 +52,7 @@ const StaffCustomerListPage = () => {
     };
 
     loadCustomers();
-  }, [tableState.currentPage, JSON.stringify(tableState.filters), tableState.sortBy, tableState.sortDirection]);
+  }, [getQueryParams, setTotalPages, setTotalElements]);
 
   const renderHeader = (label, field) => (
     <SortableHeader 
