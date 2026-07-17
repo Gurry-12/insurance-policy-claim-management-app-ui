@@ -23,6 +23,18 @@ Both providers wrap the entire application, so any component at any depth can ac
 
 ## AuthContext
 
+```mermaid
+stateDiagram-v2
+    [*] --> Initialize
+    Initialize --> CheckStorage: Read localStorage
+    
+    CheckStorage --> Unauthenticated: ss_token == null
+    CheckStorage --> Authenticated: ss_token exists
+    
+    Unauthenticated --> Authenticated: login(token, user)
+    Authenticated --> Unauthenticated: logout() / 401 API Error
+```
+
 **File:** [`src/context/AuthContext.jsx`](../../src/context/AuthContext.jsx)  
 **Hook:** [`src/hooks/useAuth.js`](../../src/hooks/useAuth.js)
 
@@ -90,6 +102,18 @@ const MyComponent = () => {
 ---
 
 ## ThemeContext
+
+```mermaid
+stateDiagram-v2
+    [*] --> Initialize
+    Initialize --> ReadStorage: Read localStorage('ss_theme')
+    
+    ReadStorage --> LightTheme: fallback / 'light'
+    ReadStorage --> DarkTheme: 'dark'
+    
+    LightTheme --> DarkTheme: toggleTheme()
+    DarkTheme --> LightTheme: toggleTheme()
+```
 
 **File:** [`src/context/ThemeContext.jsx`](../../src/context/ThemeContext.jsx)  
 **Hook:** [`src/hooks/useTheme.js`](../../src/hooks/useTheme.js)

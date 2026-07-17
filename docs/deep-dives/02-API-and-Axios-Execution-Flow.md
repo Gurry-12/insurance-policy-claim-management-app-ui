@@ -7,47 +7,48 @@
 
 ## 1. The Global Axios Interceptor Flow
 
-### Request Flow (Component to Network)
+### Request & Response Flow
 
-```text
-Component calls a service method:
-  └─ e.g., `authService.login(payload)`
-↓
-Service calls Axios:
-  └─ `axiosInstance.post('/auth/login', payload)`
-↓
-Axios Request Interceptor Fires (`src/api/axiosInstance.js`):
-  1. `NProgress.start()` → Triggers top loading bar.
-  2. Evaluates payload type:
-     - If `config.data instanceof FormData`: 
-       └─ Deletes `config.headers['Content-Type']`. 
-       └─ Reason: The browser must set the multipart boundary automatically; if hardcoded to `multipart/form-data`, it fails.
-  3. Evaluates Auth:
-     - `localStorage.getItem('ss_token')`
-     - If exists → sets `config.headers.Authorization = 'Bearer {token}'`.
-  4. Returns `config` → Network request dispatched to Backend.
-```
+```mermaid
+sequenceDiagram
+    participant Component
+    participant Service
+    participant Axios as Axios Interceptors
+    participant NProgress
+    participant Backend
 
-### Response Flow (Network to Component)
-
-```text
-Backend returns 200 OK (ApiResponseDTO)
-↓
-Axios Response Interceptor Fires (Success path):
-  1. `NProgress.done()` → Stops top loading bar.
-  2. Passes raw Axios response to `parseSuccessResponse(response)` in `apiAdapter.js`.
-↓
-`apiAdapter.js` processing:
-  1. Extracts `response.data` (which is the JSON from Spring Boot).
-  2. Evaluates if the data is a `PageResponseDTO` (contains `content` and `pageNumber`):
-     - If YES → Flattens `payload.data.content` into `data`, builds `pagination` object.
-     - If NO → Checks if data is an Array.
-       - If Array → Returns the array directly but attaches `.success`, `.message`, and `.data` (for backward compatibility).
-       - If Object → Returns standard `{ success, message, data, timeStamp }` object.
-↓
-Service method receives parsed object and returns it to the Component.
-↓
-Component updates state and re-renders.
+    Component->>Service: Call API Method (e.g. login)
+    Service->>Axios: axiosInstance.post()
+    
+    rect rgb(240, 248, 255)
+        Note over Axios: Request Interceptor
+        Axios->>NProgress: start()
+        Axios->>Axios: Check config.data (Delete Content-Type if FormData)
+        Axios->>Axios: Read ss_token & Set Authorization Header
+    end
+    
+    Axios->>Backend: HTTP Request
+    
+    alt Success (2xx)
+        Backend-->>Axios: 200 OK (ApiResponseDTO)
+        rect rgb(240, 255, 240)
+            Note over Axios: Response Interceptor
+            Axios->>NProgress: done()
+            Axios->>Axios: apiAdapter.parseSuccessResponse()
+        end
+        Axios-->>Service: Parsed Standard Data
+        Service-->>Component: Returns Payload (Updates State)
+    else Error (4xx/5xx)
+        Backend-->>Axios: Error Response
+        rect rgb(255, 240, 240)
+            Note over Axios: Response Error Interceptor
+            Axios->>NProgress: done()
+            Axios->>Axios: Check 401/403 (Dispatch Event)
+            Axios->>Axios: apiAdapter.parseErrorResponse()
+        end
+        Axios-->>Service: Promise.reject(parsedError)
+        Service-->>Component: throws error (toast/UI)
+    end
 ```
 
 ---

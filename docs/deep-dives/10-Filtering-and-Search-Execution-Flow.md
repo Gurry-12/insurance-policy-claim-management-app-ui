@@ -27,45 +27,36 @@ Resulting State:
   2. `localFilters`: The draft state that the user is actively typing into.
 ```
 
-## 2. Keystroke & Debounce Execution Flow
+## 2 & 3. Keystroke Debounce & API Execution Flow
 
-```text
-User types "New York" into the City input inside `<FilterPanel />`.
-↓
-`onChange` inside FilterPanel fires.
-↓
-FilterPanel updates its internal draft state immediately (controlled inputs).
-↓
-User stops typing for 500ms OR presses "Apply".
-↓
-`<FilterPanel />` calls `onApply(draft)`.
-↓
-`tableState.handleFilterChange(draft)` executes.
-↓
-`useTableState` reducer updates `state.filters` and resets `state.currentPage = 0` (Because changing a filter invalidates pagination).
-```
+```mermaid
+sequenceDiagram
+    actor User
+    participant FilterPanel
+    participant useTableState
+    participant Component
+    participant Service
 
-## 3. API Execution & Dependency Tracking
-
-```text
-Component Re-renders due to `tableState.filters` updating.
-↓
-React `useEffect` tracking `[tableState.currentPage, JSON.stringify(tableState.filters), tableState.sortBy, ...]` detects a change.
-↓
-`fetchUsers()` (or `fetchCustomers()`, `fetchPolicies()`) is called.
-↓
-`const params = tableState.getQueryParams()` is executed.
-  └─ This strips out empty filters so we don't send `?city=&state=` to the backend.
-↓
-`getAllUsers(params)` calls Axios GET `/users`.
-↓
-Axios returns 200 OK with paginated `content`, `totalPages`, `totalElements`.
-↓
-State updates:
-  `setUsers(res.content)`
-  `tableState.setTotalElements(res.totalElements)`
-↓
-UI Re-renders with filtered data.
+    User->>FilterPanel: Types "New York"
+    FilterPanel->>FilterPanel: Updates local state (Immediate UI)
+    
+    User->>User: Stops typing (500ms elapsed) or clicks Apply
+    FilterPanel->>useTableState: onApply(draft)
+    
+    useTableState->>useTableState: Updates state.filters
+    useTableState->>useTableState: Resets currentPage = 0
+    
+    useTableState-->>Component: Re-renders Component
+    
+    Component->>Component: useEffect detects state.filters change
+    Component->>useTableState: getQueryParams() (Strips empty values)
+    useTableState-->>Component: { city: 'New York' }
+    
+    Component->>Service: API Call (e.g., getAllUsers)
+    Service-->>Component: 200 OK (Paginated Data)
+    
+    Component->>Component: setUsers() & setTotalElements()
+    Component-->>User: UI Re-renders with filtered data
 ```
 
 ## 4. Filter Chips & Removal Flow

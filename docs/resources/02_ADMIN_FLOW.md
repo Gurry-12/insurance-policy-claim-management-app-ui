@@ -116,39 +116,23 @@ The **Admin** is the most privileged role. Admin can:
 
 ### Product → Plan → Policy chain
 
-```
-Admin creates Product
-    │  (name, type, description)
-    ▼
-Admin creates Plan under Product
-    │  (coverage amount, premium, duration)
-    ▼
-Customer selects Plan → purchases Policy
-    │
-    ▼
-Admin can view Policy in PolicyListPage
-Admin can also manually Issue Policy via IssuePolicyPage
+```mermaid
+flowchart TD
+    A[Admin creates Product<br/>name, type, description] --> B[Admin creates Plan under Product<br/>coverage, premium, duration]
+    B --> C[Customer selects Plan & purchases Policy]
+    C --> D[Admin views Policy in PolicyListPage]
+    C --> E[Admin manually Issues Policy via IssuePolicyPage]
 ```
 
 ### Claim Approval Workflow
 
-```
-Customer raises Claim
-    │
-    ▼
-Agent reviews Claim → sets recommendation (APPROVE/REJECT)
-    │
-    ▼
-Admin sees Claim in ClaimListPage (status = UNDER_REVIEW)
-    │
-    ▼
-Admin opens ClaimDetailPage
-    │  sees: claim info, policy info, agent recommendation
-    ▼
-Admin clicks APPROVE or REJECT button
-    │  calls claimService.approveClaim(id) or rejectClaim(id)
-    ▼
-Claim status updates → Customer notified (future scope)
+```mermaid
+flowchart TD
+    A[Customer raises Claim] --> B[Agent reviews Claim<br/>Sets recommendation APPROVE/REJECT]
+    B --> C[Admin sees Claim in ClaimListPage<br/>Status = UNDER_REVIEW]
+    C --> D[Admin opens ClaimDetailPage<br/>Sees claim info, policy info, recommendation]
+    D --> E[Admin clicks APPROVE or REJECT button<br/>calls claimService]
+    E --> F[Claim status updates<br/>Customer notified]
 ```
 
 ---

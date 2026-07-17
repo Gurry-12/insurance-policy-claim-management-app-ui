@@ -9,28 +9,39 @@
 
 The React application mounts here.
 
-```text
-Browser loads index.html
-↓
-Executes src/main.jsx
-↓
-createRoot(document.getElementById("root")).render(...)
-↓
-1. <ThemeProvider> mounts
-   └─ Reads localStorage('ss_theme') or defaults to 'light'
-   └─ setState(theme)
-   └─ useEffect fires: document.documentElement.setAttribute('data-theme', theme)
-↓
-2. <AuthProvider> mounts
-   └─ Reads localStorage('ss_token')
-   └─ Reads localStorage('ss_user') (JSON parsed)
-   └─ setState(token, user)
-↓
-3. <BrowserRouter> mounts
-   └─ Initializes history stack for React Router
-↓
-4. <App /> mounts
-   └─ The routing tree is initialized.
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant DOM as document.getElementById('root')
+    participant Main as main.jsx (createRoot)
+    participant Theme as ThemeProvider
+    participant Auth as AuthProvider
+    participant Router as BrowserRouter
+    participant App as App
+
+    Browser->>DOM: Loads index.html
+    DOM->>Main: Executes src/main.jsx
+    Main->>Theme: Mounts <ThemeProvider>
+    
+    rect rgb(255, 250, 240)
+        Theme->>Theme: Reads localStorage('ss_theme')
+        Theme->>Theme: setState(theme)
+        Theme->>Browser: useEffect: setAttribute('data-theme', theme)
+    end
+    
+    Theme->>Auth: Mounts <AuthProvider>
+    
+    rect rgb(240, 248, 255)
+        Auth->>Auth: Reads localStorage('ss_token')
+        Auth->>Auth: Reads localStorage('ss_user')
+        Auth->>Auth: setState(token, user)
+    end
+    
+    Auth->>Router: Mounts <BrowserRouter>
+    Router->>Router: Initializes history stack
+    
+    Router->>App: Mounts <App />
+    App->>App: Initializes routing tree
 ```
 
 ---

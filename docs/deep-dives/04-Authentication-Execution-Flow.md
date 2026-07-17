@@ -28,50 +28,38 @@ If invalid:
 
 ### Submit Execution Flow
 
-```text
-User clicks "Sign In"
-↓
-`react-hook-form` intercepts `onSubmit`.
-↓
-Validates all registered fields.
-↓
-If valid, calls custom `onSubmit(data)` with `{ email, password }`.
-↓
-`setLoading(true)` → Sign In button shows spinner.
-↓
-`loginService(data)` executes.
-  └─ Calls Axios POST `/auth/login`.
-↓
-Backend validates credentials.
+```mermaid
+sequenceDiagram
+    actor User
+    participant Login as Login.jsx
+    participant RHF as react-hook-form
+    participant Service as authService
+    participant Context as AuthContext
+    participant Router as React Router
 
---- IF SUCCESS (200 OK) ---
-↓
-Response parsed by `apiAdapter.js`.
-↓
-Component receives `{ token, user }`.
-↓
-Component calls `login(token, user)` from `useAuth()` (AuthContext).
-  └─ AuthContext sets `localStorage.setItem('ss_token', token)`.
-  └─ AuthContext updates `token` and `user` state.
-↓
-React Router detects `isAuthenticated = true` in `<ProtectedRoute>`.
-↓
-`toast.success("Logged in successfully!")`
-↓
-`navigate(from || ROLE_HOME[user.role] || "/", { replace: true })`
-↓
-Browser redirects to Admin, Staff, or Customer dashboard (replacing history).
-
---- IF UNVERIFIED EMAIL ERROR (403 or 400) ---
-↓
-`catch(err)` block evaluates:
-  └─ `err.message.toLowerCase().includes("verif")`
-↓
-Condition matches.
-↓
-`setShowUnverifiedModal(true)`
-↓
-`<ResendOtp />` modal mounts.
+    User->>Login: Clicks "Sign In"
+    Login->>RHF: handleSubmit(onSubmit)
+    
+    alt Invalid Input
+        RHF-->>Login: populate errors
+        Login-->>User: Show validation errors
+    else Valid Input
+        RHF->>Login: onSubmit({ email, password })
+        Login->>Login: setLoading(true)
+        Login->>Service: login(data)
+        
+        alt API Success (200)
+            Service-->>Login: { token, user }
+            Login->>Context: login(token, user)
+            Context->>Context: Save to localStorage
+            Login->>Login: toast.success()
+            Login->>Router: navigate(dashboard, replace: true)
+        else API Error (e.g. Unverified)
+            Service-->>Login: Promise.reject(err)
+            Login->>Login: catch(err) -> check "verif"
+            Login-->>User: Show Resend OTP Modal
+        end
+    end
 ```
 
 ---
@@ -125,39 +113,22 @@ Renders 5 flex-bars. Bars index < score get colored, rest get gray.
 
 ### Submit Execution Flow
 
-```text
-User clicks "Register for free"
-↓
-`handleSubmit(e)` fires (standard React event).
-↓
-`e.preventDefault()` stops page reload.
-↓
-`validate()` function executes manually:
-  └─ Checks regex for mobile number.
-  └─ Checks regex for email.
-  └─ Checks complex regex for password.
-  └─ Returns `errs` object.
-↓
-If `Object.keys(errs).length > 0`:
-  └─ `setErrors(errs)`
-  └─ Return early (stops execution).
-↓
-If Valid:
-  1. `setLoading(true)`
-  2. Builds `payload`: Trims whitespace, prefixes `+91` to `mobileNumber` if missing.
-  3. `registerService(payload)`
-↓
-Axios POST `/auth/register` executes.
-
---- IF SUCCESS ---
-↓
-`toast.success("Account created! Redirecting to verify email and phone...")`
-↓
-`setTimeout(..., 2200)` starts.
-↓
-Waits 2.2 seconds.
-↓
-`navigate("/verify-otp", { state: { registered: true, email: payload.email } })`
-↓
-Redirects to OTP screen.
+```mermaid
+flowchart TD
+    User([User clicks Register]) --> Submit[handleSubmit executes]
+    Submit --> Prevent[e.preventDefault]
+    Prevent --> Validate{Manual Validation}
+    
+    Validate -- Invalid --> SetErrors[setErrors state]
+    SetErrors --> RenderErrors[UI displays errors]
+    
+    Validate -- Valid --> SetLoading[setLoading true]
+    SetLoading --> BuildPayload[Build Payload: Trim & Prefix +91]
+    BuildPayload --> API[registerService.register]
+    
+    API -- Success --> Toast[toast.success]
+    Toast --> Wait[Wait 2.2 seconds]
+    Wait --> Redirect[navigate to /verify-otp]
+    
+    API -- Error --> ToastErr[toast.error]
 ```

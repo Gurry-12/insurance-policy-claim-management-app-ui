@@ -92,96 +92,47 @@ A **Customer** is the end-user of the insurance system. Customer can:
 
 ### Policy Purchase Workflow
 
-```
-Customer opens CustomerProductListPage
-    │  browses by product type (Health, Motor, Life, etc.)
-    ▼
-Clicks on a Product
-    │
-    ▼
-CustomerPlanListPage shows all plans for that product
-    │  (plan name, premium, coverage amount, duration)
-    ▼
-Customer clicks "Buy Plan" or "View Details"
-    │
-    ▼
-CustomerPlanDetailPage shows full details
-    │  Click "Purchase Policy"
-    ▼
-PurchasePolicyPage
-    │  Form: Confirm plan details + Policy start date
-    ▼
-Submit → policyService.purchasePolicy({ planId, startDate })
-    │
-    ▼
-Policy created with status = PENDING_PAYMENT
-Redirect to CustomerPolicyListPage
+```mermaid
+flowchart TD
+    A[Customer opens CustomerProductListPage<br/>Browses by product type] --> B[Clicks on a Product]
+    B --> C[CustomerPlanListPage shows plans for product<br/>plan name, premium, coverage, duration]
+    C --> D[Customer clicks Buy Plan or View Details]
+    D --> E[CustomerPlanDetailPage shows full details<br/>Click Purchase Policy]
+    E --> F[PurchasePolicyPage<br/>Form: Confirm details + start date]
+    F --> G[Submit policyService.purchasePolicy]
+    G --> H[Policy created with status PENDING_PAYMENT<br/>Redirect to CustomerPolicyListPage]
 ```
 
 ### Premium Payment Workflow
 
-```
-Customer opens CustomerPolicyListPage
-    │  sees policy with status = PENDING_PAYMENT
-    ▼
-Clicks "Pay Premium" or navigates to RecordPaymentPage
-    │
-    ▼
-RecordPaymentPage
-    │  Form: Select policy (pre-filled if came from policy list)
-    │  Enter amount + payment mode (CASH, ONLINE, CHEQUE)
-    ▼
-Submit → paymentService.recordPayment({ policyId, amount, mode, date })
-    │
-    ▼
-Policy status changes → ACTIVE
-Redirect to CustomerPaymentHistoryPage
+```mermaid
+flowchart TD
+    A[Customer opens CustomerPolicyListPage<br/>Sees policy PENDING_PAYMENT] --> B[Clicks Pay Premium]
+    B --> C[RecordPaymentPage<br/>Form: Select policy, amount, mode]
+    C --> D[Submit paymentService.recordPayment]
+    D --> E[Policy status changes to ACTIVE<br/>Redirect to CustomerPaymentHistoryPage]
 ```
 
 ### Raise Claim Workflow
 
-```
-Customer opens CustomerPolicyListPage
-    │  selects ACTIVE policy
-    ▼
-Clicks "Raise Claim" → navigates to RaiseClaimPage
-    │
-    ▼
-RaiseClaimPage
-    │  Form: Select policy → enter claim description → enter claim amount
-    │  (optional: document reference)
-    ▼
-Submit → claimService.raiseClaim({ policyId, description, amount })
-    │
-    ▼
-Claim created with status = PENDING
-Redirect to CustomerClaimListPage
-    │
-    ▼
-Customer can view status history at ClaimStatusHistoryPage
-    │  (PENDING → UNDER_REVIEW → APPROVED/REJECTED)
+```mermaid
+flowchart TD
+    A[Customer opens CustomerPolicyListPage<br/>Selects ACTIVE policy] --> B[Clicks Raise Claim]
+    B --> C[RaiseClaimPage<br/>Form: Select policy, description, amount]
+    C --> D[Submit claimService.raiseClaim]
+    D --> E[Claim created with status PENDING<br/>Redirect to CustomerClaimListPage]
+    E --> F[View status history at ClaimStatusHistoryPage]
 ```
 
 ---
 
 ## 🔄 Claim Status History (Timeline View)
 
-```
-ClaimStatusHistoryPage receives claimId from URL params
-    │
-    ▼
-useEffect → claimHistoryService.getHistoryByClaimId(claimId)
-    │
-    ▼
-Returns array of status change events:
-  [
-    { status: "PENDING", timestamp: "...", note: "Claim submitted" },
-    { status: "UNDER_REVIEW", timestamp: "...", note: "Assigned to agent" },
-    { status: "APPROVED", timestamp: "...", note: "Claim approved by admin" }
-  ]
-    │
-    ▼
-Rendered as a vertical timeline / status stepper UI
+```mermaid
+flowchart TD
+    A[ClaimStatusHistoryPage receives claimId] --> B[useEffect claimHistoryService.getHistoryByClaimId]
+    B --> C[Returns array of status change events<br/>PENDING, UNDER_REVIEW, APPROVED]
+    C --> D[Rendered as vertical timeline/status stepper UI]
 ```
 
 ---

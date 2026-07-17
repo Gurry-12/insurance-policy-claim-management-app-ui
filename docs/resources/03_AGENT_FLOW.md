@@ -75,60 +75,31 @@ An **Agent** acts as a middle-tier reviewer. Agent can:
 
 ### Claim Review Workflow (Agent's core job)
 
-```
-Agent opens AgentClaimListPage
-    │  filters by status = PENDING
-    ▼
-Agent clicks on a Claim row
-    │
-    ▼
-AgentClaimDetailPage loads:
-    ├── Claim details (description, date, amount)
-    ├── Policy details (policy number, plan name)
-    └── Customer details (name, contact)
-    │
-    ▼
-Agent writes a Recommendation Note
-Agent selects: RECOMMEND_APPROVE or RECOMMEND_REJECT
-    │
-    ▼
-Submit → claimService.setRecommendation(claimId, { recommendation, notes })
-    │
-    ▼
-Claim status changes to UNDER_REVIEW
-Admin can now see it and make final decision
+```mermaid
+flowchart TD
+    A[Agent opens AgentClaimListPage<br/>filters by status = PENDING] --> B[Agent clicks on a Claim row]
+    B --> C[AgentClaimDetailPage loads<br/>details of claim, policy, customer]
+    C --> D[Agent writes Recommendation Note<br/>Selects RECOMMEND_APPROVE or RECOMMEND_REJECT]
+    D --> E[Submit claimService.setRecommendation]
+    E --> F[Claim status changes to UNDER_REVIEW<br/>Admin can now see it]
 ```
 
 ### Record Payment Workflow
 
-```
-Agent opens AgentRecordPaymentPage
-    │
-    ▼
-Form: Select Customer → Select Policy → Enter Amount → Payment Date
-    │
-    ▼
-Submit → paymentService.recordPayment(paymentData)
-    │
-    ▼
-Policy status may change to ACTIVE (if first payment)
-Redirect to AgentPaymentListPage
+```mermaid
+flowchart TD
+    A[Agent opens AgentRecordPaymentPage] --> B[Form: Select Customer, Policy, Amount, Date]
+    B --> C[Submit paymentService.recordPayment]
+    C --> D[Policy status may change to ACTIVE<br/>Redirect to AgentPaymentListPage]
 ```
 
 ### Issue Policy Workflow (Agent)
 
-```
-Agent opens AgentIssuePolicyPage
-    │
-    ▼
-Form: Select Customer → Select Product → Select Plan → Policy start date
-    │
-    ▼
-Submit → policyService.issuePolicy(policyData)
-    │
-    ▼
-Policy created with status = PENDING_PAYMENT
-Redirect to AgentPolicyListPage
+```mermaid
+flowchart TD
+    A[Agent opens AgentIssuePolicyPage] --> B[Form: Select Customer, Product, Plan, Start Date]
+    B --> C[Submit policyService.issuePolicy]
+    C --> D[Policy created with PENDING_PAYMENT status<br/>Redirect to AgentPolicyListPage]
 ```
 
 ---
