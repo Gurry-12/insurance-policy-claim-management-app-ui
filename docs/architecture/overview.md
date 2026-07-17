@@ -8,24 +8,36 @@
 
 ## System-Level Architecture
 
-```
-Browser
-  │
-  └─ React SPA (Vite)
-       │
-       ├─ main.jsx  ─── Providers: ThemeProvider > AuthProvider > BrowserRouter
-       │
-       ├─ App.jsx   ─── Route tree (GuestRoute / ProtectedRoute / RoleProtectedRoute)
-       │
-       ├─ Pages     ─── Feature-scoped pages (admin/ staff/ customer/ auth/)
-       │
-       ├─ Components─── Reusable UI (tables/ forms/ layouts/ modals/ cards/ ui/)
-       │
-       ├─ Services  ─── Domain API functions (authService, claimService, etc.)
-       │
-       └─ API Layer ─── axiosInstance + apiAdapter (request/response transform)
-                             │
-                             └─ Backend REST API (http://localhost:8081/api)
+```mermaid
+graph TD
+    Browser[Browser / Client] -->|Loads| Vite[React SPA Vite]
+    
+    subgraph Frontend [InsureFlow Frontend Architecture]
+        Main[main.jsx] -->|Providers| Theme[ThemeProvider]
+        Theme --> Auth[AuthProvider]
+        Auth --> Router[BrowserRouter]
+        
+        Router --> App[App.jsx]
+        
+        App --> Routes{Route Guards}
+        Routes -->|Guest| AuthPages[Auth Pages]
+        Routes -->|Admin| AdminPages[Admin Pages]
+        Routes -->|Staff| StaffPages[Staff Pages]
+        Routes -->|Customer| CustPages[Customer Pages]
+        
+        AdminPages & StaffPages & CustPages & AuthPages -.-> Components[Reusable Components]
+        
+        AdminPages & StaffPages & CustPages & AuthPages --> Services[Services Layer]
+        
+        Services --> API[Axios API Layer]
+    end
+    
+    API -->|HTTP REST| Backend[(Java Backend API)]
+    
+    classDef React fill:#61dafb,stroke:#000,stroke-width:2px,color:#000
+    classDef Node fill:#fff,stroke:#333,stroke-width:1px
+    
+    class Main,Theme,Auth,Router,App,Routes React
 ```
 
 ---
@@ -125,30 +137,45 @@ src/
 
 ## Data Flow: From User Action to UI Update
 
-```
-1. User interacts with UI (clicks button, submits form)
-   ↓
-2. React component event handler fires
-   ↓
-3. Hook method called (submit from useApiForm / fetchData from useApiTable)
-   ↓
-4. Service function called (e.g., claimService.raiseClaim(formData))
-   ↓
-5. axiosInstance sends HTTP request
-   - request interceptor: attaches Bearer token, starts NProgress bar
-   ↓
-6. Backend processes the request
-   ↓
-7. Response received by axios response interceptor
-   - parseSuccessResponse() or parseErrorResponse() transforms the envelope
-   ↓
-8. Service returns the parsed response to the hook
-   ↓
-9. Hook updates React state (setData / setLoading / setFieldErrors)
-   ↓
-10. notify.success() or notify.error() fires a React Hot Toast
-    ↓
-11. React re-renders with new state - UI reflects the change
+```mermaid
+sequenceDiagram
+    actor User
+    participant UI as React Component
+    participant Hook as Custom Hook
+    participant Service as Service Layer
+    participant Axios as Axios Interceptors
+    participant API as Backend API
+    participant Toast as GlobalToaster
+
+    User->>UI: Clicks Submit / Interact
+    UI->>Hook: trigger action (e.g., submit form)
+    Hook->>Service: call domain function (e.g., claimService)
+    Service->>Axios: invoke HTTP request
+    
+    rect rgb(240, 248, 255)
+        Note over Axios: Request Interceptor
+        Axios-->>Axios: Attach Bearer Token & NProgress
+    end
+    
+    Axios->>API: HTTP Request (GET/POST)
+    API-->>Axios: HTTP Response (JSON envelope)
+    
+    rect rgb(240, 255, 240)
+        Note over Axios: Response Interceptor
+        Axios-->>Axios: Parse envelope (apiAdapter)
+    end
+    
+    Axios-->>Service: Extracted Payload / Normalized Error
+    Service-->>Hook: Return Promise
+    
+    alt Success
+        Hook-->>UI: Update State (setData, setLoading: false)
+        UI-->>User: Re-renders with new Data
+        UI->>Toast: notify.success()
+    else Error
+        Hook-->>UI: Set Error State
+        UI->>Toast: notify.error()
+    end
 ```
 
 ---
