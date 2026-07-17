@@ -115,20 +115,20 @@ Renders 5 flex-bars. Bars index < score get colored, rest get gray.
 
 ```mermaid
 flowchart TD
-    User([User clicks Register]) --> Submit[handleSubmit executes]
+    User([User clicks Register]) --> Submit["handleSubmit executes"]
     Submit --> Prevent[e.preventDefault]
-    Prevent --> Validate{Manual Validation}
+    Prevent --> Validate{"Manual Validation"}
     
-    Validate -- Invalid --> SetErrors[setErrors state]
-    SetErrors --> RenderErrors[UI displays errors]
+    Validate -- Invalid --> SetErrors["setErrors state"]
+    SetErrors --> RenderErrors["UI displays errors"]
     
-    Validate -- Valid --> SetLoading[setLoading true]
-    SetLoading --> BuildPayload[Build Payload: Trim & Prefix +91]
+    Validate -- Valid --> SetLoading["setLoading true"]
+    SetLoading --> BuildPayload["Build Payload: Trim & Prefix +91"]
     BuildPayload --> API[registerService.register]
     
     API -- Success --> Toast[toast.success]
-    Toast --> Wait[Wait 2.2 seconds]
-    Wait --> Redirect[navigate to /verify-otp]
+    Toast --> Wait["Wait 2.2 seconds"]
+    Wait --> Redirect["navigate to /verify-otp"]
     
     API -- Error --> ToastErr[toast.error]
 ```

@@ -12,7 +12,7 @@ The React application mounts here.
 ```mermaid
 sequenceDiagram
     participant Browser
-    participant DOM as document.getElementById('root')
+    participant DOM as "document.getElementById('root')"
     participant Main as main.jsx (createRoot)
     participant Theme as ThemeProvider
     participant Auth as AuthProvider

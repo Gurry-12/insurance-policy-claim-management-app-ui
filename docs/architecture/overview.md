@@ -10,7 +10,7 @@
 
 ```mermaid
 graph TD
-    Browser[Browser / Client] -->|Loads| Vite[React SPA Vite]
+    Browser["Browser / Client"] -->|Loads| Vite["React SPA Vite"]
     
     subgraph Frontend [InsureFlow Frontend Architecture]
         Main[main.jsx] -->|Providers| Theme[ThemeProvider]
@@ -19,20 +19,20 @@ graph TD
         
         Router --> App[App.jsx]
         
-        App --> Routes{Route Guards}
-        Routes -->|Guest| AuthPages[Auth Pages]
-        Routes -->|Admin| AdminPages[Admin Pages]
-        Routes -->|Staff| StaffPages[Staff Pages]
-        Routes -->|Customer| CustPages[Customer Pages]
+        App --> Routes{"Route Guards"}
+        Routes -->|Guest| AuthPages["Auth Pages"]
+        Routes -->|Admin| AdminPages["Admin Pages"]
+        Routes -->|Staff| StaffPages["Staff Pages"]
+        Routes -->|Customer| CustPages["Customer Pages"]
         
-        AdminPages & StaffPages & CustPages & AuthPages -.-> Components[Reusable Components]
+        AdminPages & StaffPages & CustPages & AuthPages -.-> Components["Reusable Components"]
         
-        AdminPages & StaffPages & CustPages & AuthPages --> Services[Services Layer]
+        AdminPages & StaffPages & CustPages & AuthPages --> Services["Services Layer"]
         
-        Services --> API[Axios API Layer]
+        Services --> API["Axios API Layer"]
     end
     
-    API -->|HTTP REST| Backend[(Java Backend API)]
+    API -->|HTTP REST| Backend["(Java Backend API)"]
     
     classDef React fill:#61dafb,stroke:#000,stroke-width:2px,color:#000
     classDef Node fill:#fff,stroke:#333,stroke-width:1px

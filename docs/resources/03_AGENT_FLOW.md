@@ -77,29 +77,29 @@ An **Agent** acts as a middle-tier reviewer. Agent can:
 
 ```mermaid
 flowchart TD
-    A[Agent opens AgentClaimListPage<br/>filters by status = PENDING] --> B[Agent clicks on a Claim row]
-    B --> C[AgentClaimDetailPage loads<br/>details of claim, policy, customer]
-    C --> D[Agent writes Recommendation Note<br/>Selects RECOMMEND_APPROVE or RECOMMEND_REJECT]
-    D --> E[Submit claimService.setRecommendation]
-    E --> F[Claim status changes to UNDER_REVIEW<br/>Admin can now see it]
+    A["Agent opens AgentClaimListPage<br/>filters by status = PENDING"] --> B["Agent clicks on a Claim row"]
+    B --> C["AgentClaimDetailPage loads<br/>details of claim, policy, customer"]
+    C --> D["Agent writes Recommendation Note<br/>Selects RECOMMEND_APPROVE or RECOMMEND_REJECT"]
+    D --> E["Submit claimService.setRecommendation"]
+    E --> F["Claim status changes to UNDER_REVIEW<br/>Admin can now see it"]
 ```
 
 ### Record Payment Workflow
 
 ```mermaid
 flowchart TD
-    A[Agent opens AgentRecordPaymentPage] --> B[Form: Select Customer, Policy, Amount, Date]
-    B --> C[Submit paymentService.recordPayment]
-    C --> D[Policy status may change to ACTIVE<br/>Redirect to AgentPaymentListPage]
+    A["Agent opens AgentRecordPaymentPage"] --> B["Form: Select Customer, Policy, Amount, Date"]
+    B --> C["Submit paymentService.recordPayment"]
+    C --> D["Policy status may change to ACTIVE<br/>Redirect to AgentPaymentListPage"]
 ```
 
 ### Issue Policy Workflow (Agent)
 
 ```mermaid
 flowchart TD
-    A[Agent opens AgentIssuePolicyPage] --> B[Form: Select Customer, Product, Plan, Start Date]
-    B --> C[Submit policyService.issuePolicy]
-    C --> D[Policy created with PENDING_PAYMENT status<br/>Redirect to AgentPolicyListPage]
+    A["Agent opens AgentIssuePolicyPage"] --> B["Form: Select Customer, Product, Plan, Start Date"]
+    B --> C["Submit policyService.issuePolicy"]
+    C --> D["Policy created with PENDING_PAYMENT status<br/>Redirect to AgentPolicyListPage"]
 ```
 
 ---
