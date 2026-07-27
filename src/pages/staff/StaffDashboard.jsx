@@ -16,8 +16,8 @@ import DataTable from "../../components/tables/DataTable";
 const StatTile = ({ icon, label, value, color }) => (
   <BentoCard className="ip-bento-stat-tile">
     <div className="d-flex align-items-center gap-3">
-      <div className="ip-bento-stat-icon" style={{ background: `${color}18` }}>
-        <i className={`bi ${icon}`} style={{ color }} />
+      <div className="ip-bento-stat-icon" style={{ background: color }}>
+        <i className={`bi ${icon}`} style={{ color: '#fff' }} />
       </div>
       <div>
         <div className="ip-bento-stat-value">
@@ -39,9 +39,9 @@ const QuickAction = ({ icon, label, to, color }) => (
       <div className="d-flex align-items-center gap-3">
         <div
           className="ip-bento-stat-icon"
-          style={{ background: `${color}18` }}
+          style={{ background: color }}
         >
-          <i className={`bi ${icon}`} style={{ color, fontSize: "1.1rem" }} />
+          <i className={`bi ${icon}`} style={{ color: '#fff', fontSize: "1.1rem" }} />
         </div>
         <span
           style={{
@@ -132,37 +132,37 @@ const StaffDashboard = () => {
       icon: "bi-people-fill",
       label: "My Clients",
       value: stats.customersCount,
-      color: "#0d9488",
+      color: "var(--ip-success)",
     },
     {
       icon: "bi-shield-fill-check",
       label: "Active Policies",
       value: stats.policiesCount,
-      color: "#059669",
+      color: "var(--ip-success)",
     },
     {
       icon: "bi-shield-exclamation",
       label: "Pending Claims",
       value: stats.pendingClaimsCount,
-      color: "#d97706",
+      color: "var(--ip-warning)",
     },
     {
       icon: "bi-shield-fill-x",
       label: "Reviewed Claims",
       value: stats.reviewedClaimsCount,
-      color: "#6b7280",
+      color: "var(--ip-text-muted)",
     },
     {
       icon: "bi-credit-card-fill",
       label: "Premium Payments",
       value: stats.paymentsCount,
-      color: "#2563eb",
+      color: "var(--ip-brand)",
     },
     {
       icon: "bi-file-earmark-plus",
       label: "Issued Policies",
       value: stats.issuedPoliciesCount,
-      color: "#7c3aed",
+      color: "var(--ip-brand, #7c3aed)",
     },
   ];
 
@@ -171,19 +171,19 @@ const StaffDashboard = () => {
       icon: "bi-file-earmark-plus",
       label: "Issue Policy",
       to: "/staff/issue-policy",
-      color: "#0d9488",
+      color: "var(--ip-success)",
     },
     {
       icon: "bi-people",
       label: "View Clients",
       to: "/staff/customers",
-      color: "#0ea5e9",
+      color: "var(--ip-info)",
     },
     {
       icon: "bi-shield-check",
       label: "View Policies",
       to: "/staff/policies",
-      color: "#059669",
+      color: "var(--ip-success)",
     },
   ];
 
@@ -231,7 +231,7 @@ const StaffDashboard = () => {
           <BentoCard
             title="Staff Actions"
             icon="bi-lightning-charge-fill"
-            iconColor="#f59e0b"
+            iconColor="var(--ip-warning)"
           >
             <div className="row g-2">
               {QUICK_ACTIONS.map((a) => (
@@ -248,7 +248,7 @@ const StaffDashboard = () => {
           <BentoCard
             title="Recent Claims"
             icon="bi-shield-exclamation"
-            iconColor="#d97706"
+            iconColor="var(--ip-warning)"
             linkTo="/staff/claims"
             linkLabel="View all"
           >
@@ -310,7 +310,7 @@ const StaffDashboard = () => {
           <BentoCard
             title="Recent Clients"
             icon="bi-people-fill"
-            iconColor="#0d9488"
+            iconColor="var(--ip-success)"
             linkTo="/staff/customers"
             linkLabel="View all"
           >
@@ -367,7 +367,7 @@ const StaffDashboard = () => {
           <BentoCard
             title="Recent Policies"
             icon="bi-file-earmark-text"
-            iconColor="#3b82f6"
+            iconColor="var(--ip-brand)"
             linkTo="/staff/policies"
             linkLabel="View all"
           >
@@ -391,7 +391,7 @@ const StaffDashboard = () => {
                     { header: 'Sr No.', accessor: 'policyId', cell: (_, i) => <span style={{ fontWeight: 600 }}>{i + 1}</span> },
                     { header: 'Customer', accessor: 'customerName', cell: (p) => p.customerName || "Customer" },
                     { header: 'Product', accessor: 'productName', cell: (p) => <span style={{ color: 'var(--ip-text-muted)' }}>{p.productName || "Standard Plan"}</span> },
-                    { header: 'Premium', accessor: 'premiumAmount', cell: (p) => <span style={{ fontWeight: 600 }}>₹{Number(p.premiumAmount || p.premium || 0).toLocaleString("en-IN")}</span> },
+                    { header: 'Premium', accessor: 'calculatedPremium', cell: (p) => <span style={{ fontWeight: 600 }}>₹{Number(p.calculatedPremium || p.premium || 0).toLocaleString("en-IN")}</span> },
                     { header: 'Status', accessor: 'policyStatus', cell: (p) => <StatusBadge status={p.policyStatus || p.status} /> },
                     { header: 'Start Date', accessor: 'startDate', cell: (p) => <span style={{ color: 'var(--ip-text-muted)' }}>{p.startDate || "-"}</span> }
                   ]}

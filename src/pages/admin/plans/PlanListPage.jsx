@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import DataTable from '../../../components/tables/DataTable';
@@ -76,6 +76,21 @@ const PlanListPage = () => {
     />
   );
 
+  const getCoverageRange = (plan) => {
+    if (!plan.coverageOptions || plan.coverageOptions.length === 0) return 'No coverage options';
+    const amounts = plan.coverageOptions.map(opt => opt.coverageAmount || opt);
+    const min = Math.min(...amounts);
+    const max = Math.max(...amounts);
+    return `₹${min.toLocaleString('en-IN')} - ₹${max.toLocaleString('en-IN')}`;
+  };
+
+  const getDurationRange = (plan) => {
+    if (!plan.allowedDurations || plan.allowedDurations.length === 0) return 'No durations';
+    const min = Math.min(...plan.allowedDurations);
+    const max = Math.max(...plan.allowedDurations);
+    return min === max ? `${min} yr` : `${min} - ${max} yrs`;
+  };
+
   const columns = [
     { 
       header: "Sr. No.",
@@ -85,18 +100,20 @@ const PlanListPage = () => {
     { header: renderHeader("Plan Name", "planName"), accessor: "planName" },
     { header: "Product Name", accessor: "productName" },
     {
-      header: renderHeader("Coverage (₹)", "coverageAmount"),
-      cell: (row) => `₹${row.coverageAmount?.toLocaleString("en-IN") || 0}`,
+      header: "Coverage Range (₹)",
+      cell: (row) => getCoverageRange(row),
     },
     {
-      header: renderHeader("Premium (₹)", "premiumAmount"),
-      cell: (row) => `₹${row.premiumAmount?.toLocaleString("en-IN") || 0}`,
+      header: "Premium Type",
+      cell: (row) => row.supportedPremiumType
+        ? row.supportedPremiumType.replace('_', ' ')
+        : row.supportedPremiumTypes?.join(", ") || "None",
     },
-    { header: "Duration", cell: (row) => `${row.duration} yrs` },
+    { header: "Duration", cell: (row) => getDurationRange(row) },
     { header: renderHeader("Created", "createdDate"), cell: (row) => new Date(row.createdDate).toLocaleDateString() },
     {
       header: "Status",
-      cell: (row) => (row.active ? <StatusBadge status={"Active"} /> : <StatusBadge status={"InActive"} />),
+      cell: (row) => ((row.isActive ?? row.active) ? <StatusBadge status={"Active"} /> : <StatusBadge status={"InActive"} />),
     },
     {
       header: "Actions",
@@ -142,11 +159,10 @@ const PlanListPage = () => {
               columns={[
                 { header: "Plan Name", accessor: "planName" },
                 { header: "Product Name", accessor: "productName" },
-                { header: "Coverage Amount (₹)", accessor: "coverageAmount" },
-                { header: "Premium Amount (₹)", accessor: "premiumAmount" },
-                { header: "Premium Type", accessor: "premiumType" },
-                { header: "Duration (Years)", accessor: "duration" },
-                { header: "Active Status", exportValue: (r) => r.isActive ? "Active" : "Inactive" }
+                { header: "Coverage Range (₹)", exportValue: (r) => getCoverageRange(r) },
+                { header: "Premium Type", exportValue: (r) => r.supportedPremiumType?.replace('_', ' ') || r.supportedPremiumTypes?.join(", ") || "None" },
+                { header: "Duration Range (Years)", exportValue: (r) => getDurationRange(r) },
+                { header: "Active Status", exportValue: (r) => (r.isActive ?? r.active) ? "Active" : "Inactive" }
               ]}
               filename="plans_list.csv"
             />

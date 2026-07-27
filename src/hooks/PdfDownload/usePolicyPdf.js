@@ -50,14 +50,14 @@ const usePolicyPdf = () => {
         ["Product Type", policy.productType || "-"],
         [
           "Coverage Amount",
-          policy.coverageAmount != null
-            ? `Rs. ${Number(policy.coverageAmount).toLocaleString("en-IN")}`
+          policy.selectedCoverage != null
+            ? `Rs. ${Number(policy.selectedCoverage).toLocaleString("en-IN")}`
             : "-",
         ],
         [
           "Premium Amount",
-          policy.premiumAmount != null
-            ? `Rs. ${Number(policy.premiumAmount).toLocaleString("en-IN")}`
+          policy.calculatedPremium != null
+            ? `Rs. ${Number(policy.calculatedPremium).toLocaleString("en-IN")}`
             : "-",
         ],
         ["Premium Type", policy.premiumType || "-"],
@@ -123,7 +123,7 @@ const usePolicyPdf = () => {
       { align: "center" },
     );
 
-    doc.save(`Policy_${policy.policyNumber || policy.policyId}.pdf`);
+    doc.save(`Policy_${policy.policyNumber || 'Doc'}.pdf`);
   };
 
   return { downloadPolicy };

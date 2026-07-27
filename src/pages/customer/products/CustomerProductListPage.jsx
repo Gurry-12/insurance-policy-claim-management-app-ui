@@ -5,13 +5,20 @@ import PageHeader from "../../../components/common/PageHeader";
 
 const CustomerProductListPage = () => {
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const fetchProducts = async () => {
     try {
+      setLoading(true);
+      setError("");
       const response = await getActiveProducts();
       setProducts(response.data || []);
     } catch (error) {
       console.error(error);
+      setError("Failed to load products. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -19,7 +26,33 @@ const CustomerProductListPage = () => {
     fetchProducts();
   }, []);
 
-  
+  if (loading) {
+    return (
+      <div className="animate-fade-in">
+        <PageHeader
+          title="Insurance Products"
+          subtitle="Browse our comprehensive range of insurance products"
+        />
+        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "300px" }}>
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="animate-fade-in">
+        <PageHeader
+          title="Insurance Products"
+          subtitle="Browse our comprehensive range of insurance products"
+        />
+        <div className="alert alert-danger m-4">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fade-in">
@@ -40,8 +73,8 @@ const CustomerProductListPage = () => {
                   <h5 className="card-title text-primary fw-bold mb-0">
                     {product.productName}
                   </h5>
-                  <span className={`badge ${product.active ? 'bg-success-subtle text-success border-success-subtle' : 'bg-secondary-subtle text-secondary border-secondary-subtle'} border rounded-pill px-3 py-2`}>
-                    {product.active ? "Active" : "Inactive"}
+                  <span className={`badge ${(product.isActive ?? product.active) ? 'bg-success-subtle text-success border-success-subtle' : 'bg-secondary-subtle text-secondary border-secondary-subtle'} border rounded-pill px-3 py-2`}>
+                    {(product.isActive ?? product.active) ? "Active" : "Inactive"}
                   </span>
                 </div>
 

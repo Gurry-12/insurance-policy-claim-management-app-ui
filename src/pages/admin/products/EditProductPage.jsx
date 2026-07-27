@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import FormInput from '../../../components/forms/FormInput';
@@ -34,7 +34,7 @@ const EditProductPage = () => {
             name: data.productName || '',
             category: data.productType || 'HEALTH',
             description: data.description || data.productDescription || '',
-            status: data.activeStatus ?? data.active ?? true
+            status: data.active ?? data.isActive ?? true
           });
         }
       })
@@ -102,7 +102,7 @@ const EditProductPage = () => {
     <div style={{ maxWidth: "800px", margin: "0 auto" }}>
       <PageHeader
         title="Edit Product"
-        subtitle={`Editing Product: ${id}`}
+        subtitle={`Editing Product: ${formData.name || 'Details'}`}
         onBack={() => navigate("/admin/products")}
       />
 

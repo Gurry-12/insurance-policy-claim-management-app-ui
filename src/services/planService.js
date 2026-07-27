@@ -18,7 +18,7 @@ export const getAllPlans = async () => {
 };
 
 export const createPlan = async (payload) => {
-  const response = await axiosInstance.post('/plans', payload);
+  const response = await axiosInstance.post('/plans/wizard', payload);
   return response;
 };
 
@@ -34,6 +34,23 @@ export const activatePlan = async (planId) => {
 
 export const deactivatePlan = async (planId) => {
   const response = await axiosInstance.patch(`/plans/${planId}/deactivate`);
+  return response;
+};
+
+/**
+ * Regenerate coverage options for a plan based on min/max/increment.
+ * Creates new coverage tiers and replaces existing ones.
+ */
+export const regenerateCoverageOptions = async (planId, payload) => {
+  const response = await axiosInstance.post(`/admin/policy-plans/${planId}/coverage-options/regenerate`, payload);
+  return response;
+};
+
+/**
+ * Update an existing pricing rule by rule ID.
+ */
+export const updatePricingRule = async (ruleId, payload) => {
+  const response = await axiosInstance.put(`/admin/pricing-rules/${ruleId}`, payload);
   return response;
 };
 

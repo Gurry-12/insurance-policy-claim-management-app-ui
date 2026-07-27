@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import StatusBadge from '../../../components/ui/StatusBadge';
@@ -56,11 +56,11 @@ const StaffPolicyDetailPage = () => {
 
   const customerName = policy.customerName || 'Customer';
   const planName = policy.planName || 'Insurance Plan';
-  const premium = Number(policy.premiumAmount || policy.totalPremiumPaid || 0);
+  const premium = Number(policy.calculatedPremium || policy.totalPremiumPaid || 0);
   const status = (policy.policyStatus || 'ACTIVE').toUpperCase();
   const startDate = policy.startDate || (policy.issueDate ? new Date(policy.issueDate).toLocaleDateString('en-IN') : null) || 'N/A';
   const endDate = policy.endDate || (policy.expiryDate ? new Date(policy.expiryDate).toLocaleDateString('en-IN') : null) || 'N/A';
-  const coverageAmount = Number(policy.coverageAmount || 0);
+  const coverageAmount = Number(policy.selectedCoverage || 0);
   const premiumType = policy.premiumType || 'N/A';
   const productType = policy.productType || 'N/A';
 
@@ -84,7 +84,7 @@ const StaffPolicyDetailPage = () => {
     <div className="animate-fade-in" style={{ maxWidth: '1000px', margin: '0 auto' }}>
       <PageHeader 
         title="Policy Details" 
-        subtitle={`Viewing details for Policy #${policy.policyNumber || policy.policyId}`}
+        subtitle={`Viewing details for Policy #${policy.policyNumber || 'Pending'}`}
         action={
           <div className="d-flex gap-2">
             <button
@@ -114,7 +114,7 @@ const StaffPolicyDetailPage = () => {
                   <i className="bi bi-file-earmark-text"></i>
                 </div>
               </div>
-              <h5 className="fw-bold mb-1">#{policy.policyNumber || policy.policyId}</h5>
+              <h5 className="fw-bold mb-1">#{policy.policyNumber || 'Pending'}</h5>
               <p className="text-muted mb-3">{planName}</p>
               <div className="d-flex justify-content-center gap-2 mb-2">
                 <StatusBadge status={status} />
@@ -140,7 +140,7 @@ const StaffPolicyDetailPage = () => {
               {showPayButton && (
                 <Link
                   to={`/staff/payments/pay/${policy.policyId}`}
-                  state={{ amount: policy.premiumAmount }}
+                  state={{ amount: policy.calculatedPremium }}
                   className="btn btn-success w-100 py-2 d-inline-flex align-items-center justify-content-center gap-2 mt-3"
                   style={{ borderRadius: "8px" }}
                 >
@@ -171,7 +171,7 @@ const StaffPolicyDetailPage = () => {
                     <tbody>
                       {claims.map((claim, idx) => (
                         <tr key={idx}>
-                          <td className="fw-bold text-dark">{claim.claimNumber || claim.claimId}</td>
+                          <td className="fw-bold text-dark">{claim.claimNumber || 'Pending'}</td>
                           <td className="fw-bold">₹{Number(claim.claimAmount).toLocaleString('en-IN')}</td>
                           <td><StatusBadge status={claim.claimStatus} /></td>
                         </tr>
@@ -256,7 +256,7 @@ const StaffPolicyDetailPage = () => {
                     <tbody>
                       {payments.map((payment, idx) => (
                         <tr key={idx}>
-                          <td className="fw-bold text-dark">{payment.transactionReference || payment.paymentId}</td>
+                          <td className="fw-bold text-dark">{payment.transactionReference || 'Processing'}</td>
                           <td className="text-muted">{new Date(payment.paymentDate || payment.paymentTime).toLocaleDateString('en-IN')}</td>
                           <td className="fw-bold">₹{Number(payment.amount).toLocaleString('en-IN')}</td>
                           <td>{payment.paymentMode || 'N/A'}</td>

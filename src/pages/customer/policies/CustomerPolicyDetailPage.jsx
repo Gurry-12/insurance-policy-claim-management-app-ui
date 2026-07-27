@@ -115,7 +115,7 @@ const showPayButton =
               <div className="text-start mb-4">
                 <div className="mb-3">
                   <small className="text-muted d-block fw-bold">Premium Amount</small>
-                  <span className="fs-5 fw-bold text-dark">₹{policy.premiumAmount?.toLocaleString()}</span>
+                  <span className="fs-5 fw-bold text-dark">₹{policy.calculatedPremium?.toLocaleString()}</span>
                 </div>
                 <div className="mb-3">
                   <small className="text-muted d-block fw-bold">Start Date</small>
@@ -163,11 +163,11 @@ const showPayButton =
                 </div>
                 <div className="col-sm-6">
                   <div className="text-muted small mb-1">Coverage Amount</div>
-                  <div className="fw-semibold">₹{policy.coverageAmount?.toLocaleString()}</div>
+                  <div className="fw-semibold">₹{policy.selectedCoverage?.toLocaleString()}</div>
                 </div>
                 <div className="col-sm-6">
                   <div className="text-muted small mb-1">Remaining Claim Amount</div>
-                  <div className="fw-semibold text-success">₹{policy.remainingClaimAmount?.toLocaleString() ?? policy.coverageAmount?.toLocaleString()}</div>
+                  <div className="fw-semibold text-success">₹{policy.remainingClaimAmount?.toLocaleString() ?? policy.selectedCoverage?.toLocaleString()}</div>
                 </div>
                 <div className="col-sm-6">
                   <div className="text-muted small mb-1">Total Premium Paid</div>

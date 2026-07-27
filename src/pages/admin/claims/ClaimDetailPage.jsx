@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import FormTextarea from '../../../components/forms/FormTextarea';
 import StatusBadge from '../../../components/ui/StatusBadge';
@@ -105,7 +105,7 @@ const ClaimDetailPage = () => {
     <Drawer 
       isOpen={true} 
       onClose={() => navigate('/admin/claims')} 
-      title={claim ? `Reviewing Claim #${claim.claimNumber || claim.id}` : 'Claim Details'}
+      title={claim ? `Reviewing Claim #${claim.claimNumber || 'Pending'}` : 'Claim Details'}
       width="900px"
     >
       <div className="p-4">
@@ -168,11 +168,11 @@ const ClaimDetailPage = () => {
                         <>
                           <div className="col-md-6 mt-3">
                             <small className="text-muted d-block fw-bold mb-1">Total Coverage</small>
-                            <span className="fw-bold">₹{Number(policy.coverageAmount || 0).toLocaleString('en-IN')}</span>
+                            <span className="fw-bold">₹{Number(policy.selectedCoverage || 0).toLocaleString('en-IN')}</span>
                           </div>
                           <div className="col-md-6 mt-3">
                             <small className="text-muted d-block fw-bold mb-1">Remaining Coverage</small>
-                            <span className="fw-bold text-success">₹{Number(policy.remainingClaimAmount ?? policy.coverageAmount ?? 0).toLocaleString('en-IN')}</span>
+                            <span className="fw-bold text-success">₹{Number(policy.remainingClaimAmount ?? policy.selectedCoverage ?? 0).toLocaleString('en-IN')}</span>
                           </div>
                         </>
                       )}
@@ -315,11 +315,11 @@ const ClaimDetailPage = () => {
             </div>
             <div className="d-flex justify-content-between mb-2">
               <small className="fw-bold text-muted">Total Coverage:</small>
-              <span className="fw-bold">₹{Number(policy.coverageAmount || 0).toLocaleString('en-IN')}</span>
+              <span className="fw-bold">₹{Number(policy.selectedCoverage || 0).toLocaleString('en-IN')}</span>
             </div>
             <div className="d-flex justify-content-between">
               <small className="fw-bold text-muted">Remaining Coverage:</small>
-              <span className="fw-bold text-success">₹{Number(policy.remainingClaimAmount ?? policy.coverageAmount ?? 0).toLocaleString('en-IN')}</span>
+              <span className="fw-bold text-success">₹{Number(policy.remainingClaimAmount ?? policy.selectedCoverage ?? 0).toLocaleString('en-IN')}</span>
             </div>
           </div>
         )}

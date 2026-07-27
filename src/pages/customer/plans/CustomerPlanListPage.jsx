@@ -5,10 +5,14 @@ import PageHeader from "../../../components/common/PageHeader";
 
 const CustomerPlanListPage = () => {
   const [plans, setPlans] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const { productId } = useParams();
 
   const fetchPlans = useCallback(async () => {
     try {
+      setLoading(true);
+      setError("");
       let response;
       if (productId) {
         response = await getPlansByProduct(productId);
@@ -18,6 +22,9 @@ const CustomerPlanListPage = () => {
       setPlans(response.data || []);
     } catch (error) {
       console.error(error);
+      setError("Failed to load plans. Please try again.");
+    } finally {
+      setLoading(false);
     }
   }, [productId]);
 
@@ -25,7 +32,33 @@ const CustomerPlanListPage = () => {
     fetchPlans();
   }, [fetchPlans]);
 
-  
+  if (loading) {
+    return (
+      <div className="animate-fade-in">
+        <PageHeader
+          title="Browse Plans"
+          subtitle="Explore our insurance plans and find the best coverage for you"
+        />
+        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "300px" }}>
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="animate-fade-in">
+        <PageHeader
+          title="Browse Plans"
+          subtitle="Explore our insurance plans and find the best coverage for you"
+        />
+        <div className="alert alert-danger m-4">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fade-in">
@@ -56,16 +89,14 @@ const CustomerPlanListPage = () => {
 
                 <div className="mt-auto">
                   <div className="row g-3 mb-4">
-                    <div className="col-6">
+                    <div className="col-12">
                       <div className="p-3 bg-light rounded text-center h-100">
-                        <small className="text-muted d-block mb-1">Coverage</small>
-                        <strong className="fs-5 text-dark">₹{plan.coverageAmount?.toLocaleString() || plan.coverageAmount}</strong>
-                      </div>
-                    </div>
-                    <div className="col-6">
-                      <div className="p-3 bg-light rounded text-center h-100">
-                        <small className="text-muted d-block mb-1">Premium</small>
-                        <strong className="fs-5 text-dark">₹{plan.premiumAmount?.toLocaleString() || plan.premiumAmount}</strong>
+                        <small className="text-muted d-block mb-1">Available Coverage Options</small>
+                        <strong className="fs-6 text-dark text-break">
+                          {plan.coverageOptions && plan.coverageOptions.length > 0 
+                            ? plan.coverageOptions.map(opt => `₹${((opt.coverageAmount || opt) / 100000)}L`).join(' • ')
+                            : "Configure to view"}
+                        </strong>
                       </div>
                     </div>
                   </div>
@@ -73,13 +104,15 @@ const CustomerPlanListPage = () => {
                   <div className="d-flex justify-content-between align-items-center mt-2">
                     <span className="text-muted fw-medium">
                       <i className="bi bi-clock me-2 text-secondary"></i>
-                      {plan.duration} Years
+                      {plan.allowedDurations && plan.allowedDurations.length > 0
+                        ? `${plan.allowedDurations.join(', ')} Years`
+                        : "Custom Term"}
                     </span>
                     <Link
                       className="btn btn-primary px-4 py-2 rounded-pill shadow-sm"
                       to={`/customer/purchase-policy/${plan.planId}`}
                     >
-                      Purchase
+                      Get Quote & Purchase
                     </Link>
                   </div>
                 </div>

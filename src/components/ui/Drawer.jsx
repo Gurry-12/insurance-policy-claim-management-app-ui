@@ -1,4 +1,4 @@
-﻿import { useEffect } from 'react';
+﻿import { useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 
 const Drawer = ({ isOpen, onClose, title, children, width = '700px' }) => {
@@ -13,6 +13,17 @@ const Drawer = ({ isOpen, onClose, title, children, width = '700px' }) => {
     };
   }, [isOpen]);
 
+  const handleEscape = useCallback((e) => {
+    if (e.key === 'Escape' && isOpen) {
+      onClose();
+    }
+  }, [isOpen, onClose]);
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [handleEscape]);
+
   if (!isOpen) return null;
 
   const handleBackdropClick = (e) => {
@@ -25,6 +36,9 @@ const Drawer = ({ isOpen, onClose, title, children, width = '700px' }) => {
     <div
       className="ip-drawer-backdrop"
       onClick={handleBackdropClick}
+      role="dialog"
+      aria-modal="true"
+      aria-label={title || 'Drawer'}
       style={{
         position: 'fixed',
         top: 0,
@@ -42,7 +56,7 @@ const Drawer = ({ isOpen, onClose, title, children, width = '700px' }) => {
       <div
         className="ip-drawer-content"
         style={{
-          width: width,
+          width: `min(${width}, 100vw)`,
           maxWidth: '100%',
           backgroundColor: 'var(--ip-surface)',
           height: '100vh',
@@ -68,8 +82,8 @@ const Drawer = ({ isOpen, onClose, title, children, width = '700px' }) => {
             <button 
               className="btn btn-icon border-0 bg-transparent" 
               onClick={onClose}
+              aria-label="Close drawer"
               style={{ color: 'var(--ip-text-muted)' }}
-              title="Close"
             >
               <i className="bi bi-x-lg"></i>
             </button>
@@ -80,6 +94,7 @@ const Drawer = ({ isOpen, onClose, title, children, width = '700px' }) => {
             <button 
               className="btn btn-icon border-0 bg-transparent" 
               onClick={onClose}
+              aria-label="Close drawer"
               style={{ color: 'var(--ip-text-muted)' }}
             >
               <i className="bi bi-x-lg"></i>

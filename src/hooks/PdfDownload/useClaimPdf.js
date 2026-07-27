@@ -107,7 +107,7 @@ const useClaimPdf = () => {
       { align: "center" },
     );
 
-    doc.save(`Claim_${claim.claimNumber || claim.claimId}.pdf`);
+    doc.save(`Claim_${claim.claimNumber || 'Doc'}.pdf`);
   };
 
   return { downloadClaim };
