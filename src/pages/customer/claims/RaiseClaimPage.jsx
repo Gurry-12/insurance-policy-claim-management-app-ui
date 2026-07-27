@@ -51,7 +51,7 @@ const RaiseClaimPage = () => {
 
       if (claim.claimAmount) {
         const amount = Number(claim.claimAmount);
-        const remaining = selectedPolicyDetails.remainingClaimAmount ?? selectedPolicyDetails.coverageAmount ?? 0;
+        const remaining = selectedPolicyDetails.remainingClaimAmount ?? selectedPolicyDetails.selectedCoverage ?? 0;
         if (amount <= 0) {
           if (newErrors.claimAmount !== 'Claim amount must be greater than 0') {
             newErrors.claimAmount = 'Claim amount must be greater than 0';
@@ -174,7 +174,7 @@ const RaiseClaimPage = () => {
       if (amount <= 0) {
         errs.claimAmount = 'Claim amount must be greater than 0';
       } else if (selectedPolicyDetails) {
-        const remaining = selectedPolicyDetails.remainingClaimAmount ?? selectedPolicyDetails.coverageAmount ?? 0;
+        const remaining = selectedPolicyDetails.remainingClaimAmount ?? selectedPolicyDetails.selectedCoverage ?? 0;
         if (amount > remaining) {
           errs.claimAmount = `Cannot exceed remaining coverage (₹${remaining.toLocaleString()})`;
         }
@@ -352,7 +352,7 @@ const RaiseClaimPage = () => {
                         <div className="flex-grow-1">
                           <div className="text-muted small fw-medium mb-1">Available Claim Coverage</div>
                           <h4 className="mb-0 fw-bold text-success">
-                            ₹{(selectedPolicyDetails.remainingClaimAmount ?? selectedPolicyDetails.coverageAmount ?? 0).toLocaleString()}
+                            ₹{(selectedPolicyDetails.remainingClaimAmount ?? selectedPolicyDetails.selectedCoverage ?? 0).toLocaleString()}
                           </h4>
                         </div>
                       </div>
@@ -369,12 +369,14 @@ const RaiseClaimPage = () => {
                       </span>
                       <input
                         type="number"
+                        step="1"
                         min="1"
                         className={`form-control border-start-0 ps-0 bg-light ${errors.claimAmount ? 'is-invalid' : ''}`}
                         name="claimAmount"
                         value={claim.claimAmount}
                         onChange={handleChange}
                         placeholder="e.g. 5000"
+                        onKeyDown={(e) => { if (e.key === '.' || e.key === 'e') e.preventDefault(); }}
                       />
                       {errors.claimAmount && <div className="invalid-feedback">{errors.claimAmount}</div>}
                     </div>

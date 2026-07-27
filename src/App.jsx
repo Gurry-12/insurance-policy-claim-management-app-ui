@@ -5,7 +5,6 @@ import { ROLES } from "./utils/roles";
 import MainLayout from "./components/layouts/UnifiedLayout";
 import GlobalToaster from "./components/common/GlobalToaster";
 import GlobalApiHandler from "./components/common/GlobalApiHandler";
-import LoadingSpinner from "./components/common/LoadingSpinner";
 
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";

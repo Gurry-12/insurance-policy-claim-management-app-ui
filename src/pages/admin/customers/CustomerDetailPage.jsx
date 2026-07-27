@@ -196,8 +196,8 @@ const CustomerDetailPage = () => {
                         <tr key={p.policyId}>
                           <td className="fw-bold">{p.policyNumber}</td>
                           <td>{p.planName}</td>
-                          <td>₹{Number(p.coverageAmount || 0).toLocaleString("en-IN")}</td>
-                          <td>₹{Number(p.premiumAmount || p.totalPremiumPaid || p.premium || 0).toLocaleString("en-IN")}</td>
+                          <td>₹{Number(p.selectedCoverage || 0).toLocaleString("en-IN")}</td>
+                          <td>₹{Number(p.calculatedPremium || p.totalPremiumPaid || p.premium || 0).toLocaleString("en-IN")}</td>
                           <td>{p.endDate}</td>
                           <td>
                             <StatusBadge status={p.policyStatus} />

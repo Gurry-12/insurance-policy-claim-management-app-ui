@@ -85,7 +85,7 @@ const StaffPolicyListPage = () => {
     { header: "Plan Name", accessor: "planName" },
     {
       header: "Premium Amount (₹)",
-      cell: (row) => <span className="fw-semibold">₹{row.premiumAmount?.toLocaleString("en-IN") || 0}</span>,
+      cell: (row) => <span className="fw-semibold">₹{row.calculatedPremium?.toLocaleString("en-IN") || 0}</span>,
     },
     { header: "Start Date", accessor: "startDate" },
     { header: "Expiry Date", accessor: "endDate" },
@@ -135,7 +135,7 @@ const StaffPolicyListPage = () => {
                 { header: "Policy Number", accessor: "policyNumber" },
                 { header: "Customer Name", accessor: "customerName" },
                 { header: "Plan Name", accessor: "planName" },
-                { header: "Premium Amount (₹)", accessor: "premiumAmount" },
+                { header: "Premium Amount (₹)", accessor: "calculatedPremium" },
                 { header: "Status", accessor: "policyStatus" },
               ]}
               filename="Staff_policies_list.csv"

@@ -182,6 +182,7 @@ const Register = () => {
                       id="reg-mobile"
                       name="mobileNumber"
                       type="number"
+                      step="1"
                       autoComplete="tel-national"
                       className={`form-control pristine-input border-start-0 ps-1 ${errors.mobileNumber ? 'is-invalid' : ''}`}
                       placeholder="9876543210"
@@ -190,6 +191,7 @@ const Register = () => {
                       disabled={loading}
                       aria-invalid={errors.mobileNumber ? "true" : "false"}
                       aria-describedby={errors.mobileNumber ? "mobile-error" : undefined}
+                      onKeyDown={(e) => { if (e.key === '.' || e.key === 'e') e.preventDefault(); }}
                       style={{ boxShadow: 'none' }}
                       onWheel={(e) => e.target.blur()} // prevent scrolling from changing number
                     />

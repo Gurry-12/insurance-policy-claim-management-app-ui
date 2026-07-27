@@ -1,57 +1,78 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
-import FormInput from '../../../components/forms/FormInput';
-import FormSelect from '../../../components/forms/FormSelect';
-import FormTextarea from '../../../components/forms/FormTextarea';
-import AlertModal from '../../../components/modals/AlertModal';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import { getAllProducts } from '../../../services/productService';
 import { getPlanById, updatePlan } from '../../../services/planService';
-import { notify } from "../../../utils/notificationService";
-import { PREMIUM_TYPE_OPTIONS, STATUS_OPTIONS } from "../../../utils/options";
+import { notify } from '../../../utils/notificationService';
+import { PREMIUM_TYPE_OPTIONS } from '../../../utils/options';
+
+const DURATION_OPTIONS = [1, 2, 3, 5, 7, 10, 15, 20, 25, 30];
+
+const sectionCard = {
+  borderRadius: 'var(--ip-radius-lg)',
+  boxShadow: 'var(--ip-shadow-md)',
+};
+
+const sectionHeader = {
+  fontSize: '0.8rem',
+  fontWeight: 700,
+  textTransform: 'uppercase',
+  letterSpacing: '0.05em',
+  color: 'var(--ip-text-muted)',
+  marginBottom: '1rem',
+};
+
+const inputStyle = {
+  borderRadius: 'var(--ip-radius-sm)',
+  border: '1.5px solid var(--ip-border)',
+  padding: '0.6rem 0.85rem',
+  fontSize: '0.88rem',
+  backgroundColor: 'var(--ip-surface)',
+  color: 'var(--ip-text-primary)',
+  transition: 'border-color 0.2s, box-shadow 0.2s',
+};
+
+const labelStyle = {
+  fontSize: '0.78rem',
+  fontWeight: 600,
+  color: 'var(--ip-text-muted)',
+  marginBottom: '0.35rem',
+};
 
 const EditPlanPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    name: '',
-    productId: '',
-    premium: '',
-    coverage: '',
-    premiumType: 'ANNUAL',
-    duration: '1',
-    termsAndConditions: '',
-    status: true
-  });
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
 
-  const [errors, setErrors] = useState({});
+  const [form, setForm] = useState({
+    planName: '',
+    productId: '',
+    premiumType: 'ANNUAL',
+    durations: [],
+    termsAndConditions: '',
+  });
 
   useEffect(() => {
-     
-    setLoading(true);
     Promise.all([
       getAllProducts().catch(() => []),
-      getPlanById(id).catch(() => null)
+      getPlanById(id).catch(() => null),
     ])
       .then(([productsData, planData]) => {
-        setProducts(productsData || []);
+        const list = productsData?.data || productsData || [];
+        setProducts(Array.isArray(list) ? list : []);
+
         if (planData) {
-          setFormData({
-            name: planData.planName || '',
+          setForm({
+            planName: planData.planName || '',
             productId: planData.productId || '',
-            premium: planData.premiumAmount || '',
-            coverage: planData.coverageAmount || '',
-            premiumType: planData.premiumType || 'ANNUAL',
-            duration: planData.duration || '1',
+            premiumType: planData.supportedPremiumType || planData.supportedPremiumTypes?.[0] || 'ANNUAL',
+            durations: planData.allowedDurations || [],
             termsAndConditions: planData.termsAndConditions || '',
-            status: planData.activeStatus ?? planData.active ?? true
           });
         } else {
           setError('Could not load plan details.');
@@ -61,260 +82,247 @@ const EditPlanPage = () => {
       .finally(() => setLoading(false));
   }, [id]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+  const toggleDuration = (yr) => {
+    setForm((f) => ({
+      ...f,
+      durations: f.durations.includes(yr)
+        ? f.durations.filter((d) => d !== yr)
+        : [...f.durations, yr].sort((a, b) => a - b),
+    }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
+    if (!form.planName.trim()) return notify.error('Plan name is required');
+    if (!form.productId) return notify.error('Select a product');
+    if (form.durations.length === 0) return notify.error('Select at least one duration');
+    if (!form.termsAndConditions.trim()) return notify.error('Terms & conditions are required');
+
     setSubmitting(true);
-    const errs = {};
-
-    const nameRegex = /^[a-zA-Z\s]*$/;
-    if (!formData.name?.trim()) {
-      errs.name = 'Plan Name is required.';
-    } else if (!nameRegex.test(formData.name)) {
-      errs.name = 'Only letters and spaces are allowed in the plan name.';
-    }
-
-    if (!formData.productId) {
-      errs.productId = 'Product is required.';
-    }
-
-    if (!formData.premium) {
-      errs.premium = 'Base premium is required.';
-    } else if (Number(formData.premium) <= 0) {
-      errs.premium = 'Base premium must be greater than zero.';
-    }
-
-    if (!formData.coverage) {
-      errs.coverage = 'Coverage amount is required.';
-    } else if (Number(formData.coverage) <= 0) {
-      errs.coverage = 'Coverage amount must be greater than zero.';
-    }
-
     try {
-      const Big = (await import('big.js')).default;
-      if (new Big(formData.coverage).lte(new Big(formData.premium))) {
-        errs.coverage = 'Coverage amount must strictly exceed the premium amount.';
-      }
-    } catch {
-      if (Number(formData.coverage) <= Number(formData.premium)) {
-         errs.coverage = 'Coverage amount must strictly exceed the premium amount.';
-      }
-    }
-
-    if (!formData.duration) {
-      errs.duration = 'Duration is required.';
-    } else if (Number(formData.duration) <= 0 || !Number.isInteger(Number(formData.duration))) {
-      errs.duration = 'Duration must be a positive integer.';
-    } else if (Number(formData.duration) > 40) {
-      errs.duration = 'Duration cannot exceed 40 years.';
-    }
-
-    if (!formData.termsAndConditions.trim()) {
-      errs.termsAndConditions = 'Terms and conditions are required.';
-    }
-
-    if (Object.keys(errs).length > 0) {
-      setErrors(errs);
+      await updatePlan(id, {
+        productId: Number(form.productId),
+        planName: form.planName,
+        supportedPremiumType: form.premiumType,
+        allowedDurations: form.durations,
+        termsAndConditions: form.termsAndConditions,
+      });
+      notify.success('Plan updated successfully!');
+      navigate(`/admin/plans/${id}`);
+    } catch (err) {
+      notify.error(err.message || 'Failed to update plan');
+    } finally {
       setSubmitting(false);
-      return;
     }
-
-    const payload = {
-      productId: Number(formData.productId),
-      planName: formData.name,
-      coverageAmount: Number(formData.coverage),
-      premiumAmount: Number(formData.premium),
-      premiumType: formData.premiumType,
-      duration: Number(formData.duration),
-      termsAndConditions: formData.termsAndConditions,
-      activeStatus: formData.status
-    };
-
-    updatePlan(id, payload)
-      .then(async (res) => {
-        notify.success(res, 'Plan updated successfully!');
-        navigate(`/admin/plans/${id}`);
-      })
-      .catch((err) => {
-        if (err.fieldErrors) {
-          setErrors(err.fieldErrors);
-          notify.error("Please correct the highlighted fields.");
-        } else {
-          notify.error(err);
-        }
-      })
-      .finally(() => setSubmitting(false));
   };
 
-  const productOptions = products.map(p => ({
-    value: p.id || p.productId,
-    label: p.productName || 'Unnamed Product'
-  }));
-
-  if (loading) {
-    return <LoadingSpinner text="Loading plan details..." />;
+  if (loading) return <LoadingSpinner text="Loading plan details..." />;
+  if (error) {
+    return (
+      <div>
+        <PageHeader title="Edit Plan" onBack={() => navigate('/admin/plans')} />
+        <ErrorAlert message={error} />
+      </div>
+    );
   }
 
+  const selectedProduct = products.find((p) => (p.productId || p.id) == form.productId);
+
   return (
-    <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+    <div style={{ maxWidth: '800px', margin: '0 auto' }}>
       <PageHeader
         title="Edit Plan"
-        subtitle={`Editing Plan: ${id}`}
-        onBack={() => navigate("/admin/plans")}
+        subtitle={form.planName}
+        onBack={() => navigate(`/admin/plans/${id}`)}
       />
 
-      <ErrorAlert message={error} />
+      <div className="d-flex flex-column gap-4">
 
-      {!error && (
-        <div
-          className="card border-0"
-          style={{ borderRadius: 16, boxShadow: "var(--ip-shadow-md)" }}
-        >
-          <div className="card-body p-4 p-md-5">
-            <form onSubmit={handleSubmit} noValidate>
-              <div className="row">
-                <div className="col-md-6">
-                  <FormInput
-                    label="Plan Name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    error={errors.name}
-                  />
-                </div>
-                <div className="col-md-6">
-                  <FormSelect
-                    label="Product"
-                    name="productId"
-                    value={formData.productId}
-                    onChange={handleChange}
-                    required
-                    options={productOptions}
-                    error={errors.productId}
-                  />
-                </div>
+        {/* Basic Info */}
+        <div className="card border-0" style={sectionCard}>
+          <div className="card-body p-4">
+            <div style={sectionHeader}>
+              <i className="bi bi-info-circle me-2" style={{ color: 'var(--ip-brand)' }} />
+              Basic Information
+            </div>
+            <div className="row g-3">
+              <div className="col-md-8">
+                <label style={labelStyle}>Plan Name *</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  style={inputStyle}
+                  value={form.planName}
+                  onChange={(e) => setForm((f) => ({ ...f, planName: e.target.value }))}
+                  placeholder="e.g. Health Guard Platinum"
+                />
               </div>
-
-              <div className="row mt-2">
-                <div className="col-md-6">
-                  <FormInput
-                    label="Premium Amount (₹)"
-                    name="premium"
-                    type="number"
-                    value={formData.premium}
-                    onChange={handleChange}
-                    required
-                    error={errors.premium}
-                  />
-                </div>
-                <div className="col-md-6">
-                  <FormInput
-                    label="Coverage Amount (₹)"
-                    name="coverage"
-                    type="number"
-                    value={formData.coverage}
-                    onChange={handleChange}
-                    required
-                    error={errors.coverage}
-                  />
-                </div>
-              </div>
-
-              <div className="row mt-2">
-                <div className="col-md-6">
-                  <FormSelect
-                    label="Premium Type"
-                    name="premiumType"
-                    value={formData.premiumType}
-                    onChange={handleChange}
-                    required
-                    options={PREMIUM_TYPE_OPTIONS}
-                    error={errors.premiumType}
-                  />
-                </div>
-                <div className="col-md-6">
-                  <FormInput
-                    label="Duration (Years)"
-                    name="duration"
-                    type="number"
-                    value={formData.duration}
-                    onChange={handleChange}
-                    required
-                    placeholder="e.g. 1"
-                    error={errors.duration}
-                  />
-                </div>
-              </div>
-
-              <div className="row mt-2">
-                <div className="col-md-6">
-                  <FormSelect
-                    label="Status"
-                    name="status"
-                    value={formData.status}
-                    onChange={handleChange}
-                    required
-                    options={STATUS_OPTIONS}
-                    error={errors.status}
-                  />
-                </div>
-              </div>
-
-              <div className="row mt-2">
-                <div className="col-12">
-                  <FormTextarea
-                    label="Terms & Conditions"
-                    name="termsAndConditions"
-                    value={formData.termsAndConditions}
-                    onChange={handleChange}
-                    required
-                    placeholder="Describe coverage terms, rules, and conditions..."
-                    rows={4}
-                    error={errors.termsAndConditions}
-                  />
-                </div>
-              </div>
-
-              <div className="d-flex justify-content-end gap-3 mt-5">
-                <button
-                  type="button"
-                  className="btn btn-light px-4"
-                  style={{ borderRadius: "8px" }}
-                  onClick={() => navigate("/admin/plans")}
-                  disabled={submitting}
+              <div className="col-md-4">
+                <label style={labelStyle}>Product *</label>
+                <select
+                  className="form-select"
+                  style={inputStyle}
+                  value={form.productId}
+                  onChange={(e) => setForm((f) => ({ ...f, productId: e.target.value }))}
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary px-4"
-                  style={{ borderRadius: "8px" }}
-                  disabled={submitting || productOptions.length === 0}
-                >
-                  {submitting ? "Saving..." : "Save Changes"}
-                </button>
+                  <option value="">Select product...</option>
+                  {products.map((p) => (
+                    <option key={p.productId || p.id} value={p.productId || p.id}>
+                      {p.productName}
+                    </option>
+                  ))}
+                </select>
               </div>
-            </form>
+            </div>
           </div>
         </div>
-      )}
 
-      <AlertModal
-        isOpen={showSuccess}
-        type="success"
-        title="Plan Updated!"
-        message="The changes to the plan have been saved successfully."
-        onClose={() => {
-          setShowSuccess(false);
-          navigate("/admin/plans");
-        }}
-      />
+        {/* Premium Type */}
+        <div className="card border-0" style={sectionCard}>
+          <div className="card-body p-4">
+            <div style={sectionHeader}>
+              <i className="bi bi-credit-card me-2" style={{ color: 'var(--ip-brand)' }} />
+              Premium Type
+            </div>
+            <div className="d-flex flex-wrap gap-2">
+              {PREMIUM_TYPE_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  className="btn"
+                  style={{
+                    borderRadius: 'var(--ip-radius-pill)',
+                    padding: '0.5rem 1.25rem',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    border: form.premiumType === opt.value ? 'none' : '1.5px solid var(--ip-border)',
+                    backgroundColor: form.premiumType === opt.value ? 'var(--ip-brand)' : 'transparent',
+                    color: form.premiumType === opt.value ? '#fff' : 'var(--ip-text-secondary)',
+                    transition: 'all 0.2s',
+                  }}
+                  onClick={() => setForm((f) => ({ ...f, premiumType: opt.value }))}
+                >
+                  {form.premiumType === opt.value && <i className="bi bi-check2 me-1" />}
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Durations */}
+        <div className="card border-0" style={sectionCard}>
+          <div className="card-body p-4">
+            <div style={sectionHeader}>
+              <i className="bi bi-clock-history me-2" style={{ color: 'var(--ip-brand)' }} />
+              Allowed Durations *
+            </div>
+            <div className="d-flex flex-wrap gap-2">
+              {DURATION_OPTIONS.map((yr) => {
+                const selected = form.durations.includes(yr);
+                return (
+                  <button
+                    key={yr}
+                    type="button"
+                    className="btn"
+                    style={{
+                      borderRadius: 'var(--ip-radius-pill)',
+                      padding: '0.45rem 1rem',
+                      fontSize: '0.82rem',
+                      fontWeight: 600,
+                      minWidth: '72px',
+                      border: selected ? 'none' : '1.5px solid var(--ip-border)',
+                      backgroundColor: selected ? 'var(--ip-success)' : 'transparent',
+                      color: selected ? '#fff' : 'var(--ip-text-secondary)',
+                      transition: 'all 0.2s',
+                    }}
+                    onClick={() => toggleDuration(yr)}
+                  >
+                    {yr} {yr === 1 ? 'Yr' : 'Yrs'}
+                  </button>
+                );
+              })}
+            </div>
+            {form.durations.length === 0 && (
+              <div className="text-danger small mt-2">
+                <i className="bi bi-exclamation-circle me-1" />
+                Select at least one duration
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Terms & Conditions */}
+        <div className="card border-0" style={sectionCard}>
+          <div className="card-body p-4">
+            <div style={sectionHeader}>
+              <i className="bi bi-file-text me-2" style={{ color: 'var(--ip-brand)' }} />
+              Terms & Conditions *
+            </div>
+            <textarea
+              className="form-control"
+              style={{ ...inputStyle, resize: 'vertical' }}
+              rows={4}
+              value={form.termsAndConditions}
+              onChange={(e) => setForm((f) => ({ ...f, termsAndConditions: e.target.value }))}
+              placeholder="Describe coverage terms, rules, and conditions..."
+            />
+          </div>
+        </div>
+
+        {/* Info Banner */}
+        <div
+          className="p-3"
+          style={{
+            borderRadius: 'var(--ip-radius-md)',
+            backgroundColor: 'var(--ip-brand-light)',
+            border: '1px solid var(--ip-brand-muted)',
+          }}
+        >
+          <div className="d-flex align-items-start gap-2">
+            <i className="bi bi-info-circle text-primary mt-1" />
+            <div className="small" style={{ color: 'var(--ip-text-secondary)' }}>
+              <strong style={{ color: 'var(--ip-brand)' }}>Coverage options and pricing rules</strong>{' '}
+              are managed from the{' '}
+              <strong style={{ color: 'var(--ip-brand)' }}>Plan Details</strong> page after saving.
+            </div>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="d-flex justify-content-end gap-3 pb-2">
+          <button
+            className="btn px-4"
+            style={{
+              borderRadius: 'var(--ip-radius-pill)',
+              fontWeight: 600,
+              border: '1.5px solid var(--ip-border)',
+              color: 'var(--ip-text-secondary)',
+            }}
+            onClick={() => navigate(`/admin/plans/${id}`)}
+            disabled={submitting}
+          >
+            Cancel
+          </button>
+          <button
+            className="btn px-5"
+            style={{
+              borderRadius: 'var(--ip-radius-pill)',
+              fontWeight: 700,
+              backgroundColor: 'var(--ip-brand)',
+              color: '#fff',
+              boxShadow: 'var(--ip-shadow-sm)',
+            }}
+            onClick={handleSubmit}
+            disabled={submitting}
+          >
+            {submitting ? (
+              <><span className="spinner-border spinner-border-sm me-2" /> Saving...</>
+            ) : (
+              <><i className="bi bi-check-lg me-2" /> Save Changes</>
+            )}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

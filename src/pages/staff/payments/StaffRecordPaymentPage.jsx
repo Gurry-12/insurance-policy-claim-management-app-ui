@@ -32,7 +32,7 @@ const StaffRecordPaymentPage = () => {
           if (!formData.amount) {
             setFormData((prev) => ({
               ...prev,
-              amount: res.premiumAmount || "",
+              amount: res.calculatedPremium || "",
             }));
           }
         })

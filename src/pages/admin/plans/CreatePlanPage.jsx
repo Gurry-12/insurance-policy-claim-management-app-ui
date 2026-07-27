@@ -1,290 +1,705 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { notify } from "../../../utils/notificationService";
-import { PREMIUM_TYPE_OPTIONS, STATUS_OPTIONS } from "../../../utils/options";
-import PageHeader from '../../../components/common/PageHeader';
-import FormInput from '../../../components/forms/FormInput';
-import FormSelect from '../../../components/forms/FormSelect';
-import FormTextarea from '../../../components/forms/FormTextarea';
-import AlertModal from '../../../components/modals/AlertModal';
 import { getAllProducts } from '../../../services/productService';
 import { createPlan } from '../../../services/planService';
+import { notify } from '../../../utils/notificationService';
+import PageHeader from '../../../components/common/PageHeader';
+import LoadingSpinner from '../../../components/common/LoadingSpinner';
+import { PREMIUM_TYPE_OPTIONS } from '../../../utils/options';
+
+const DURATION_OPTIONS = [1, 2, 3, 5, 7, 10, 15, 20, 25, 30];
+
+const sectionCard = {
+  borderRadius: 'var(--ip-radius-lg)',
+  boxShadow: 'var(--ip-shadow-md)',
+};
+
+const sectionHeader = {
+  fontSize: '0.8rem',
+  fontWeight: 700,
+  textTransform: 'uppercase',
+  letterSpacing: '0.05em',
+  color: 'var(--ip-text-muted)',
+  marginBottom: '1rem',
+};
+
+const inputStyle = {
+  borderRadius: 'var(--ip-radius-sm)',
+  border: '1.5px solid var(--ip-border)',
+  padding: '0.6rem 0.85rem',
+  fontSize: '0.88rem',
+  backgroundColor: 'var(--ip-surface)',
+  color: 'var(--ip-text-primary)',
+  transition: 'border-color 0.2s, box-shadow 0.2s',
+};
+
+const labelStyle = {
+  fontSize: '0.78rem',
+  fontWeight: 600,
+  color: 'var(--ip-text-muted)',
+  marginBottom: '0.35rem',
+};
 
 const CreatePlanPage = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    name: '',
-    productId: '',
-    premium: '',
-    coverage: '',
-    premiumType: 'ANNUAL',
-    duration: '1',
-    termsAndConditions: '',
-    status: true
-  });
-  const [products, setProducts] = useState([]);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [products, setProducts] = useState([]);
 
-  const [errors, setErrors] = useState({});
+  const [form, setForm] = useState({
+    planName: '',
+    productId: '',
+    premiumType: 'ANNUAL',
+    durations: [1, 2, 3, 5],
+    minCoverage: 100000,
+    maxCoverage: 1000000,
+    coverageStep: 100000,
+    baseRiskRate: 0.025,
+    processingFee: 100,
+    gst: 18,
+    termsAndConditions: '',
+  });
 
   useEffect(() => {
     getAllProducts()
-      .then((data) => {
-        setProducts(data || []);
-        if (data && data.length > 0) {
-          setFormData(prev => ({ ...prev, productId: data[0].id || data[0].productId }));
-        }
+      .then((res) => {
+        const list = res?.data || res || [];
+        setProducts(Array.isArray(list) ? list : []);
       })
-      .catch((err) => console.error("Could not load products:", err));
+      .catch(() => notify.error('Failed to load products'))
+      .finally(() => setLoading(false));
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+  const coveragePreview = useMemo(() => {
+    const min = Number(form.minCoverage);
+    const max = Number(form.maxCoverage);
+    const step = Number(form.coverageStep);
+    if (!min || !max || !step || min >= max || step <= 0) return [];
+    const tiers = [];
+    for (let amt = min; amt <= max; amt += step) tiers.push(amt);
+    return tiers;
+  }, [form.minCoverage, form.maxCoverage, form.coverageStep]);
+
+  const premiumPreview = useMemo(() => {
+    const rate = Number(form.baseRiskRate) || 0;
+    const fee = Number(form.processingFee) || 0;
+    const gstPct = Number(form.gst) || 0;
+    const sample = 500000;
+    const base = sample * rate;
+    const beforeGst = base + fee;
+    const gst = beforeGst * (gstPct / 100);
+    return { base, fee, gst, total: beforeGst + gst };
+  }, [form.baseRiskRate, form.processingFee, form.gst]);
+
+  const toggleDuration = (yr) => {
+    setForm((f) => ({
+      ...f,
+      durations: f.durations.includes(yr)
+        ? f.durations.filter((d) => d !== yr)
+        : [...f.durations, yr].sort((a, b) => a - b),
+    }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
+    if (!form.planName.trim()) return notify.error('Plan name is required');
+    if (!form.productId) return notify.error('Select a product');
+    if (form.durations.length === 0) return notify.error('Select at least one duration');
+    if (coveragePreview.length === 0) return notify.error('Configure valid coverage range');
+    if (!form.termsAndConditions.trim()) return notify.error('Terms & conditions are required');
+
     setSubmitting(true);
-    const errs = {};
-
-    const nameRegex = /^[a-zA-Z\s]*$/;
-    if (!formData.name?.trim()) {
-      errs.name = 'Plan Name is required.';
-    } else if (!nameRegex.test(formData.name)) {
-      errs.name = 'Only letters and spaces are allowed in the plan name.';
-    }
-
-    if (!formData.productId) {
-      errs.productId = 'Product is required.';
-    }
-
-    if (!formData.premium) {
-      errs.premium = 'Base premium is required.';
-    } else if (Number(formData.premium) <= 0) {
-      errs.premium = 'Base premium must be greater than zero.';
-    }
-
-    if (!formData.coverage) {
-      errs.coverage = 'Coverage amount is required.';
-    } else if (Number(formData.coverage) <= 0) {
-      errs.coverage = 'Coverage amount must be greater than zero.';
-    }
-
     try {
-      const Big = (await import('big.js')).default;
-      if (new Big(formData.coverage).lte(new Big(formData.premium))) {
-        errs.coverage = 'Coverage amount must strictly exceed the premium amount.';
-      }
-    } catch {
-      if (Number(formData.coverage) <= Number(formData.premium)) {
-         errs.coverage = 'Coverage amount must strictly exceed the premium amount.';
-      }
-    }
-
-    if (!formData.duration) {
-      errs.duration = 'Duration is required.';
-    } else if (Number(formData.duration) <= 0 || !Number.isInteger(Number(formData.duration))) {
-      errs.duration = 'Duration must be a positive integer.';
-    } else if (Number(formData.duration) > 40) {
-      errs.duration = 'Duration cannot exceed 40 years.';
-    }
-
-    if (!formData.termsAndConditions.trim()) {
-      errs.termsAndConditions = 'Terms and conditions are required.';
-    }
-
-    if (Object.keys(errs).length > 0) {
-      setErrors(errs);
+      await createPlan({
+        planDetails: {
+          productId: Number(form.productId),
+          planName: form.planName,
+          supportedPremiumType: form.premiumType,
+          allowedDurations: form.durations,
+          termsAndConditions: form.termsAndConditions,
+          activeStatus: true,
+        },
+        coverageOptions: coveragePreview.map((amt, i) => ({
+          coverageAmount: amt,
+          label: `₹${(amt / 100000).toLocaleString('en-IN')} Lakhs`,
+          displayOrder: i + 1,
+          activeStatus: true,
+        })),
+        pricingRule: {
+          baseRiskRate: Number(form.baseRiskRate),
+          processingFee: Number(form.processingFee),
+          gst: Number(form.gst),
+          effectiveFrom: new Date().toISOString(),
+          remarks: `Created with plan: ${form.planName}`,
+        },
+      });
+      notify.success('Plan created successfully!');
+      navigate('/admin/plans');
+    } catch (err) {
+      notify.error(err.message || 'Failed to create plan');
+    } finally {
       setSubmitting(false);
-      return;
     }
-
-    const payload = {
-      productId: Number(formData.productId),
-      planName: formData.name,
-      coverageAmount: Number(formData.coverage),
-      premiumAmount: Number(formData.premium),
-      premiumType: formData.premiumType,
-      duration: Number(formData.duration),
-      termsAndConditions: formData.termsAndConditions,
-      activeStatus: formData.status
-    };
-
-    createPlan(payload)
-      .then((res) => {
-        notify.success(res, 'Plan created successfully!');
-        navigate('/admin/plans');
-      })
-      .catch((err) => {
-        if (err.fieldErrors) {
-          setErrors(err.fieldErrors);
-          notify.error("Please correct the highlighted fields.");
-        } else {
-          notify.error(err);
-        }
-      })
-      .finally(() => setSubmitting(false));
   };
 
-  const productOptions = products.map(p => ({
-    value: p.id || p.productId,
-    label: p.productName || 'Unnamed Product'
-  }));
+  if (loading) return <LoadingSpinner text="Loading products..." />;
+
+  const selectedProduct = products.find((p) => (p.productId || p.id) == form.productId);
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <PageHeader 
-        title="Create Plan" 
-        subtitle="Add a new plan to an existing product"
+    <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+      <PageHeader
+        title="Create Plan"
+        subtitle="Set up a new insurance plan with coverage tiers and pricing"
         onBack={() => navigate('/admin/plans')}
       />
 
-      <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
-        <div className="card-body p-4 p-md-5">
-          <form onSubmit={handleSubmit} noValidate>
-            <div className="row">
-              <div className="col-md-6">
-                <FormInput 
-                  label="Plan Name" 
-                  name="name" 
-                  value={formData.name} 
-                  onChange={handleChange} 
-                  required 
-                  placeholder="e.g. Individual Platinum"
-                  error={errors.name}
-                />
-              </div>
-              <div className="col-md-6">
-                <FormSelect 
-                  label="Product" 
-                  name="productId" 
-                  value={formData.productId} 
-                  onChange={handleChange} 
-                  required 
-                  options={productOptions}
-                  error={errors.productId}
-                />
+      <div className="row g-4">
+        {/* ── Left Column: Form ── */}
+        <div className="col-lg-7">
+          <div className="d-flex flex-column gap-4">
+
+            {/* Basic Info */}
+            <div className="card border-0" style={sectionCard}>
+              <div className="card-body p-4">
+                <div style={sectionHeader}>
+                  <i className="bi bi-info-circle me-2" style={{ color: 'var(--ip-brand)' }} />
+                  Basic Information
+                </div>
+                <div className="row g-3">
+                  <div className="col-md-8">
+                    <label style={labelStyle}>Plan Name *</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      style={inputStyle}
+                      value={form.planName}
+                      onChange={(e) => setForm((f) => ({ ...f, planName: e.target.value }))}
+                      placeholder="e.g. Health Guard Platinum"
+                    />
+                  </div>
+                  <div className="col-md-4">
+                    <label style={labelStyle}>Product *</label>
+                    <select
+                      className="form-select"
+                      style={inputStyle}
+                      value={form.productId}
+                      onChange={(e) => setForm((f) => ({ ...f, productId: e.target.value }))}
+                    >
+                      <option value="">Select product...</option>
+                      {products.map((p) => (
+                        <option key={p.productId || p.id} value={p.productId || p.id}>
+                          {p.productName}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="row mt-2">
-              <div className="col-md-6">
-                <FormInput 
-                  label="Premium Amount (₹)" 
-                  name="premium" 
-                  type="number"
-                  value={formData.premium} 
-                  onChange={handleChange} 
-                  required 
-                  placeholder="e.g. 15000"
-                  error={errors.premium}
-                />
-              </div>
-              <div className="col-md-6">
-                <FormInput 
-                  label="Coverage Amount (₹)" 
-                  name="coverage" 
-                  type="number"
-                  value={formData.coverage} 
-                  onChange={handleChange} 
-                  required 
-                  placeholder="e.g. 500000"
-                  error={errors.coverage}
-                />
-              </div>
-            </div>
-
-            <div className="row mt-2">
-              <div className="col-md-6">
-                <FormSelect 
-                  label="Premium Type" 
-                  name="premiumType" 
-                  value={formData.premiumType} 
-                  onChange={handleChange} 
-                  required 
-                  options={PREMIUM_TYPE_OPTIONS}
-                  error={errors.premiumType}
-                />
-              </div>
-              <div className="col-md-6">
-                <FormInput 
-                  label="Duration (Years)" 
-                  name="duration" 
-                  type="number"
-                  value={formData.duration} 
-                  onChange={handleChange} 
-                  required 
-                  placeholder="e.g. 1"
-                  error={errors.duration}
-                />
+            {/* Premium Type */}
+            <div className="card border-0" style={sectionCard}>
+              <div className="card-body p-4">
+                <div style={sectionHeader}>
+                  <i className="bi bi-credit-card me-2" style={{ color: 'var(--ip-brand)' }} />
+                  Premium Type
+                </div>
+                <div className="d-flex flex-wrap gap-2">
+                  {PREMIUM_TYPE_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      className="btn"
+                      style={{
+                        borderRadius: 'var(--ip-radius-pill)',
+                        padding: '0.5rem 1.25rem',
+                        fontSize: '0.85rem',
+                        fontWeight: 600,
+                        border: form.premiumType === opt.value ? 'none' : '1.5px solid var(--ip-border)',
+                        backgroundColor: form.premiumType === opt.value ? 'var(--ip-brand)' : 'transparent',
+                        color: form.premiumType === opt.value ? '#fff' : 'var(--ip-text-secondary)',
+                        transition: 'all 0.2s',
+                      }}
+                      onClick={() => setForm((f) => ({ ...f, premiumType: opt.value }))}
+                    >
+                      {form.premiumType === opt.value && <i className="bi bi-check2 me-1" />}
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
-            <div className="row mt-2">
-              <div className="col-md-6">
-                <FormSelect 
-                  label="Status" 
-                  name="status" 
-                  value={formData.status} 
-                  onChange={handleChange} 
-                  required 
-                  options={STATUS_OPTIONS}
-                  error={errors.status}
-                />
+            {/* Durations */}
+            <div className="card border-0" style={sectionCard}>
+              <div className="card-body p-4">
+                <div style={sectionHeader}>
+                  <i className="bi bi-clock-history me-2" style={{ color: 'var(--ip-brand)' }} />
+                  Allowed Durations *
+                </div>
+                <div className="d-flex flex-wrap gap-2">
+                  {DURATION_OPTIONS.map((yr) => {
+                    const selected = form.durations.includes(yr);
+                    return (
+                      <button
+                        key={yr}
+                        type="button"
+                        className="btn"
+                        style={{
+                          borderRadius: 'var(--ip-radius-pill)',
+                          padding: '0.45rem 1rem',
+                          fontSize: '0.82rem',
+                          fontWeight: 600,
+                          minWidth: '72px',
+                          border: selected ? 'none' : '1.5px solid var(--ip-border)',
+                          backgroundColor: selected ? 'var(--ip-success)' : 'transparent',
+                          color: selected ? '#fff' : 'var(--ip-text-secondary)',
+                          transition: 'all 0.2s',
+                        }}
+                        onClick={() => toggleDuration(yr)}
+                      >
+                        {yr} {yr === 1 ? 'Yr' : 'Yrs'}
+                      </button>
+                    );
+                  })}
+                </div>
+                {form.durations.length === 0 && (
+                  <div className="text-danger small mt-2">
+                    <i className="bi bi-exclamation-circle me-1" />
+                    Select at least one duration
+                  </div>
+                )}
               </div>
             </div>
 
-            <div className="row mt-2">
-              <div className="col-12">
-                <FormTextarea 
-                  label="Terms & Conditions" 
-                  name="termsAndConditions" 
-                  value={formData.termsAndConditions} 
-                  onChange={handleChange} 
-                  required 
-                  placeholder="Describe coverage terms, rules, and conditions..."
+            {/* Coverage Tiers */}
+            <div className="card border-0" style={sectionCard}>
+              <div className="card-body p-4">
+                <div style={sectionHeader}>
+                  <i className="bi bi-shield-check me-2" style={{ color: 'var(--ip-brand)' }} />
+                  Coverage Tiers *
+                </div>
+                <div className="row g-3 mb-3">
+                  <div className="col-md-4">
+                    <label style={labelStyle}>Min (₹)</label>
+                    <input
+                      type="number"
+                      step="1"
+                      min="1000"
+                      className="form-control"
+                      style={inputStyle}
+                      value={form.minCoverage}
+                      onChange={(e) => setForm((f) => ({ ...f, minCoverage: e.target.value }))}
+                      onKeyDown={(e) => { if (e.key === '.' || e.key === 'e') e.preventDefault(); }}
+                    />
+                  </div>
+                  <div className="col-md-4">
+                    <label style={labelStyle}>Max (₹)</label>
+                    <input
+                      type="number"
+                      step="1"
+                      min="1000"
+                      className="form-control"
+                      style={inputStyle}
+                      value={form.maxCoverage}
+                      onChange={(e) => setForm((f) => ({ ...f, maxCoverage: e.target.value }))}
+                      onKeyDown={(e) => { if (e.key === '.' || e.key === 'e') e.preventDefault(); }}
+                    />
+                  </div>
+                  <div className="col-md-4">
+                    <label style={labelStyle}>Step (₹)</label>
+                    <input
+                      type="number"
+                      step="1"
+                      min="1000"
+                      className="form-control"
+                      style={inputStyle}
+                      value={form.coverageStep}
+                      onChange={(e) => setForm((f) => ({ ...f, coverageStep: e.target.value }))}
+                      onKeyDown={(e) => { if (e.key === '.' || e.key === 'e') e.preventDefault(); }}
+                    />
+                  </div>
+                </div>
+                {coveragePreview.length > 0 && (
+                  <div
+                    className="p-3"
+                    style={{
+                      borderRadius: 'var(--ip-radius-md)',
+                      backgroundColor: 'var(--ip-success-bg)',
+                      border: '1px solid var(--ip-success-subtle)',
+                    }}
+                  >
+                    <div className="d-flex align-items-center gap-2 mb-2">
+                      <span
+                        className="badge"
+                        style={{
+                          backgroundColor: 'var(--ip-success)',
+                          color: '#fff',
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          padding: '4px 10px',
+                          borderRadius: 'var(--ip-radius-pill)',
+                        }}
+                      >
+                        {coveragePreview.length} tiers
+                      </span>
+                      <small className="text-muted">
+                        ₹{Math.min(...coveragePreview).toLocaleString('en-IN')} — ₹{Math.max(...coveragePreview).toLocaleString('en-IN')}
+                      </small>
+                    </div>
+                    <div className="d-flex flex-wrap gap-1.5">
+                      {coveragePreview.map((amt, i) => (
+                        <span
+                          key={i}
+                          className="badge"
+                          style={{
+                            backgroundColor: 'var(--ip-success-subtle)',
+                            color: 'var(--ip-success)',
+                            fontWeight: 600,
+                            fontSize: '0.78rem',
+                            padding: '5px 10px',
+                            borderRadius: 'var(--ip-radius-sm)',
+                          }}
+                        >
+                          ₹{(amt / 100000).toLocaleString('en-IN')}L
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {coveragePreview.length === 0 && (
+                  <div className="text-center py-3 text-muted small">
+                    <i className="bi bi-info-circle me-1" />
+                    Configure min, max, and step to generate tiers
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Pricing */}
+            <div className="card border-0" style={sectionCard}>
+              <div className="card-body p-4">
+                <div style={sectionHeader}>
+                  <i className="bi bi-calculator me-2" style={{ color: 'var(--ip-brand)' }} />
+                  Pricing
+                </div>
+                <div className="row g-3">
+                  <div className="col-md-4">
+                    <label style={labelStyle}>Base Risk Rate (0–1)</label>
+                    <input
+                      type="number"
+                      step="0.001"
+                      min="0"
+                      max="1"
+                      className="form-control"
+                      style={inputStyle}
+                      value={form.baseRiskRate}
+                      onChange={(e) => setForm((f) => ({ ...f, baseRiskRate: e.target.value }))}
+                    />
+                    <div className="form-text mt-1">
+                      <span
+                        className="badge"
+                        style={{
+                          backgroundColor: 'var(--ip-brand-light)',
+                          color: 'var(--ip-brand)',
+                          fontWeight: 600,
+                          fontSize: '0.72rem',
+                          padding: '3px 8px',
+                        }}
+                      >
+                        {(form.baseRiskRate * 100).toFixed(1)}%
+                      </span>
+                    </div>
+                  </div>
+                  <div className="col-md-4">
+                    <label style={labelStyle}>Processing Fee (₹)</label>
+                    <input
+                      type="number"
+                      step="1"
+                      min="0"
+                      className="form-control"
+                      style={inputStyle}
+                      value={form.processingFee}
+                      onChange={(e) => setForm((f) => ({ ...f, processingFee: e.target.value }))}
+                      onKeyDown={(e) => { if (e.key === '.' || e.key === 'e') e.preventDefault(); }}
+                    />
+                  </div>
+                  <div className="col-md-4">
+                    <label style={labelStyle}>GST (%)</label>
+                    <input
+                      type="number"
+                      step="1"
+                      min="0"
+                      max="100"
+                      className="form-control"
+                      style={inputStyle}
+                      value={form.gst}
+                      onChange={(e) => setForm((f) => ({ ...f, gst: e.target.value }))}
+                      onKeyDown={(e) => { if (e.key === '.' || e.key === 'e') e.preventDefault(); }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Terms & Conditions */}
+            <div className="card border-0" style={sectionCard}>
+              <div className="card-body p-4">
+                <div style={sectionHeader}>
+                  <i className="bi bi-file-text me-2" style={{ color: 'var(--ip-brand)' }} />
+                  Terms & Conditions *
+                </div>
+                <textarea
+                  className="form-control"
+                  style={{ ...inputStyle, resize: 'vertical' }}
                   rows={4}
-                  error={errors.termsAndConditions}
+                  value={form.termsAndConditions}
+                  onChange={(e) => setForm((f) => ({ ...f, termsAndConditions: e.target.value }))}
+                  placeholder="Describe coverage terms, rules, and conditions..."
                 />
               </div>
             </div>
 
-            <div className="d-flex justify-content-end gap-3 mt-5">
-              <button 
-                type="button" 
-                className="btn btn-light px-4" 
-                style={{ borderRadius: '8px' }}
+            {/* Submit */}
+            <div className="d-flex justify-content-end gap-3 pb-2">
+              <button
+                className="btn px-4"
+                style={{
+                  borderRadius: 'var(--ip-radius-pill)',
+                  fontWeight: 600,
+                  border: '1.5px solid var(--ip-border)',
+                  color: 'var(--ip-text-secondary)',
+                }}
                 onClick={() => navigate('/admin/plans')}
                 disabled={submitting}
               >
                 Cancel
               </button>
-              <button 
-                type="submit" 
-                className="btn btn-primary px-4" 
-                style={{ borderRadius: '8px' }}
-                disabled={submitting || productOptions.length === 0}
+              <button
+                className="btn px-5"
+                style={{
+                  borderRadius: 'var(--ip-radius-pill)',
+                  fontWeight: 700,
+                  backgroundColor: 'var(--ip-success)',
+                  color: '#fff',
+                  boxShadow: 'var(--ip-shadow-sm)',
+                }}
+                onClick={handleSubmit}
+                disabled={submitting}
               >
-                {submitting ? 'Creating...' : 'Create Plan'}
+                {submitting ? (
+                  <><span className="spinner-border spinner-border-sm me-2" /> Creating...</>
+                ) : (
+                  <><i className="bi bi-check-lg me-2" /> Create Plan</>
+                )}
               </button>
             </div>
-          </form>
+          </div>
+        </div>
+
+        {/* ── Right Column: Live Preview ── */}
+        <div className="col-lg-5">
+          <div
+            className="card border-0 sticky-top"
+            style={{ ...sectionCard, top: '80px' }}
+          >
+            <div className="card-body p-4">
+              {/* Preview Header */}
+              <div className="d-flex align-items-center gap-2 mb-4">
+                <div
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 'var(--ip-radius-sm)',
+                    backgroundColor: 'var(--ip-brand-light)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'var(--ip-brand)',
+                  }}
+                >
+                  <i className="bi bi-eye-fill" />
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--ip-text-primary)' }}>
+                    Live Preview
+                  </div>
+                  <small className="text-muted" style={{ fontSize: '0.72rem' }}>
+                    Updates as you type
+                  </small>
+                </div>
+              </div>
+
+              {/* Plan Identity */}
+              <div
+                className="p-3 mb-4"
+                style={{
+                  borderRadius: 'var(--ip-radius-md)',
+                  background: 'linear-gradient(135deg, var(--ip-brand) 0%, #764ba2 100%)',
+                  color: '#fff',
+                }}
+              >
+                <div className="fw-bold" style={{ fontSize: '1.05rem' }}>
+                  {form.planName || 'Plan Name'}
+                </div>
+                <small className="opacity-75">
+                  {selectedProduct?.productName || 'Select a product'}
+                </small>
+                <div className="mt-2 d-flex gap-2 flex-wrap">
+                  <span
+                    className="badge"
+                    style={{
+                      backgroundColor: 'rgba(255,255,255,0.2)',
+                      color: '#fff',
+                      fontWeight: 600,
+                      fontSize: '0.72rem',
+                    }}
+                  >
+                    {PREMIUM_TYPE_OPTIONS.find((o) => o.value === form.premiumType)?.label || form.premiumType}
+                  </span>
+                  {form.durations.length > 0 && (
+                    <span
+                      className="badge"
+                      style={{
+                        backgroundColor: 'rgba(255,255,255,0.2)',
+                        color: '#fff',
+                        fontWeight: 600,
+                        fontSize: '0.72rem',
+                      }}
+                    >
+                      {form.durations.length} duration{form.durations.length !== 1 ? 's' : ''}
+                    </span>
+                  )}
+                  {coveragePreview.length > 0 && (
+                    <span
+                      className="badge"
+                      style={{
+                        backgroundColor: 'rgba(255,255,255,0.2)',
+                        color: '#fff',
+                        fontWeight: 600,
+                        fontSize: '0.72rem',
+                      }}
+                    >
+                      {coveragePreview.length} tiers
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Durations */}
+              {form.durations.length > 0 && (
+                <div className="mb-3">
+                  <small className="text-muted d-block fw-bold mb-2" style={{ fontSize: '0.72rem' }}>
+                    DURATIONS
+                  </small>
+                  <div className="d-flex flex-wrap gap-1.5">
+                    {form.durations.map((d) => (
+                      <span
+                        key={d}
+                        className="badge"
+                        style={{
+                          backgroundColor: 'var(--ip-surface-raised)',
+                          color: 'var(--ip-text-secondary)',
+                          fontWeight: 600,
+                          fontSize: '0.78rem',
+                          padding: '4px 10px',
+                        }}
+                      >
+                        {d} {d === 1 ? 'Year' : 'Years'}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Coverage Range */}
+              {coveragePreview.length > 0 && (
+                <div className="mb-3">
+                  <small className="text-muted d-block fw-bold mb-2" style={{ fontSize: '0.72rem' }}>
+                    COVERAGE RANGE
+                  </small>
+                  <div className="d-flex align-items-center gap-2">
+                    <span className="fw-semibold" style={{ color: 'var(--ip-text-primary)', fontSize: '0.92rem' }}>
+                      ₹{Math.min(...coveragePreview).toLocaleString('en-IN')}
+                    </span>
+                    <span className="text-muted">—</span>
+                    <span className="fw-semibold" style={{ color: 'var(--ip-text-primary)', fontSize: '0.92rem' }}>
+                      ₹{Math.max(...coveragePreview).toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <hr style={{ borderColor: 'var(--ip-border)', opacity: 0.6 }} />
+
+              {/* Premium Preview */}
+              <div className="mb-2">
+                <small className="text-muted d-block fw-bold mb-3" style={{ fontSize: '0.72rem' }}>
+                  PREMIUM PREVIEW · ₹5 LAKHS COVERAGE
+                </small>
+                <div className="row g-2">
+                  <div className="col-6">
+                    <div
+                      className="p-2 text-center"
+                      style={{
+                        borderRadius: 'var(--ip-radius-sm)',
+                        backgroundColor: 'var(--ip-surface-raised)',
+                      }}
+                    >
+                      <div className="text-muted" style={{ fontSize: '0.68rem' }}>Base Premium</div>
+                      <div className="fw-bold" style={{ color: 'var(--ip-brand)', fontSize: '0.95rem' }}>
+                        ₹{premiumPreview.base.toLocaleString('en-IN')}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-6">
+                    <div
+                      className="p-2 text-center"
+                      style={{
+                        borderRadius: 'var(--ip-radius-sm)',
+                        backgroundColor: 'var(--ip-surface-raised)',
+                      }}
+                    >
+                      <div className="text-muted" style={{ fontSize: '0.68rem' }}>Processing Fee</div>
+                      <div className="fw-bold" style={{ color: 'var(--ip-brand)', fontSize: '0.95rem' }}>
+                        ₹{premiumPreview.fee.toLocaleString('en-IN')}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-6">
+                    <div
+                      className="p-2 text-center"
+                      style={{
+                        borderRadius: 'var(--ip-radius-sm)',
+                        backgroundColor: 'var(--ip-surface-raised)',
+                      }}
+                    >
+                      <div className="text-muted" style={{ fontSize: '0.68rem' }}>GST ({form.gst}%)</div>
+                      <div className="fw-bold" style={{ color: 'var(--ip-brand)', fontSize: '0.95rem' }}>
+                        ₹{premiumPreview.gst.toLocaleString('en-IN')}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-6">
+                    <div
+                      className="p-2 text-center"
+                      style={{
+                        borderRadius: 'var(--ip-radius-sm)',
+                        backgroundColor: 'var(--ip-success-subtle)',
+                      }}
+                    >
+                      <div className="text-muted" style={{ fontSize: '0.68rem' }}>Total</div>
+                      <div className="fw-bold" style={{ color: 'var(--ip-success)', fontSize: '1.1rem' }}>
+                        ₹{premiumPreview.total.toLocaleString('en-IN')}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
-      <AlertModal 
-        isOpen={showSuccess}
-        type="success"
-        title="Plan Created!"
-        message="The new insurance plan has been successfully added."
-        onClose={() => {
-          setShowSuccess(false);
-          navigate('/admin/plans');
-        }}
-      />
     </div>
   );
 };

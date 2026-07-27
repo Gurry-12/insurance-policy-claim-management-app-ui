@@ -36,7 +36,7 @@ const RecordPaymentPage = () => {
           if (selected) {
             setFormData(prev => ({
               ...prev,
-              amount: selected.premiumAmount || selected.premium || ""
+              amount: selected.calculatedPremium || selected.premium || ""
             }));
           }
         }
@@ -58,7 +58,7 @@ const RecordPaymentPage = () => {
       setFormData(prev => ({
         ...prev,
         policyId: value,
-        amount: selected ? (selected.premiumAmount || selected.premium || "") : ""
+        amount: selected ? (selected.calculatedPremium || selected.premium || "") : ""
       }));
     } else {
       setFormData(prev => ({

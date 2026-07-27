@@ -13,8 +13,8 @@ import DataTable   from '../../components/tables/DataTable';
 const StatTile = ({ icon, label, value, color }) => (
   <BentoCard className="ip-bento-stat-tile">
     <div className="d-flex align-items-center gap-3">
-      <div className="ip-bento-stat-icon" style={{ background: `${color}18` }}>
-        <i className={`bi ${icon}`} style={{ color }} />
+      <div className="ip-bento-stat-icon" style={{ background: color }}>
+        <i className={`bi ${icon}`} style={{ color: '#fff' }} />
       </div>
       <div>
         <div className="ip-bento-stat-value">{value ?? <span className="placeholder col-4" />}</div>
@@ -28,8 +28,8 @@ const QuickAction = ({ icon, label, to, color }) => (
   <Link to={to} className="text-decoration-none" style={{ display: 'contents' }}>
     <BentoCard>
       <div className="d-flex align-items-center gap-3">
-        <div className="ip-bento-stat-icon" style={{ background: `${color}18` }}>
-          <i className={`bi ${icon}`} style={{ color, fontSize: '1.1rem' }} />
+        <div className="ip-bento-stat-icon" style={{ background: color }}>
+          <i className={`bi ${icon}`} style={{ color: '#fff', fontSize: '1.1rem' }} />
         </div>
         <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--ip-text-primary)' }}>{label}</span>
       </div>
@@ -53,19 +53,19 @@ const AdminDashboard = () => {
   const s = stats ?? {};
 
   const STATS = [
-    { icon: 'bi-people-fill',        label: 'Total Customers',   value: s.totalCustomers, color: '#3b82f6' },
-    { icon: 'bi-shield-fill-check',  label: 'Active Plans',      value: s.activePolicies, color: '#22c55e' },
-    { icon: 'bi-shield-exclamation', label: 'Submitted Claims',  value: s.claims?.pendingClaims, color: '#f59e0b' },
-    { icon: 'bi-shield-fill-x',      label: 'Reviewed Claims',   value: s.claims?.reviewedClaims, color: '#6b7280' },
-    { icon: 'bi-person-badge-fill',  label: 'Active Users',      value: s.activeUsers,   color: '#06b6d4' },
-    { icon: 'bi-box-seam-fill',      label: 'Products',          value: s.totalProducts, color: '#f05a28' },
+    { icon: 'bi-people-fill',        label: 'Total Customers',   value: s.totalCustomers, color: 'var(--ip-brand)' },
+    { icon: 'bi-shield-fill-check',  label: 'Active Plans',      value: s.activePolicies, color: 'var(--ip-success)' },
+    { icon: 'bi-shield-exclamation', label: 'Submitted Claims',  value: s.claims?.pendingClaims, color: 'var(--ip-warning)' },
+    { icon: 'bi-shield-fill-x',      label: 'Reviewed Claims',   value: s.claims?.reviewedClaims, color: 'var(--ip-text-muted)' },
+    { icon: 'bi-person-badge-fill',  label: 'Active Users',      value: s.activeUsers,   color: 'var(--ip-info)' },
+    { icon: 'bi-box-seam-fill',      label: 'Products',          value: s.totalProducts, color: 'var(--ip-accent-orange, #f05a28)' },
   ];
 
   const QUICK_ACTIONS = [
-    { icon: 'bi-person-plus',       label: 'New Staff',   to: '/admin/users/create',    color: '#3b82f6' },
-    { icon: 'bi-box-seam',          label: 'New Product', to: '/admin/products/create', color: '#f05a28' },
-    { icon: 'bi-layers',            label: 'New Plan',    to: '/admin/plans/create',    color: '#22c55e' },
-    { icon: 'bi-file-earmark-plus', label: 'Issue Policy',to: '/admin/policies/issue',  color: '#a855f7' },
+    { icon: 'bi-person-plus',       label: 'New Staff',   to: '/admin/users/create',    color: 'var(--ip-brand)' },
+    { icon: 'bi-box-seam',          label: 'New Product', to: '/admin/products/create', color: 'var(--ip-accent-orange, #f05a28)' },
+    { icon: 'bi-layers',            label: 'New Plan',    to: '/admin/plans/create',    color: 'var(--ip-success)' },
+    { icon: 'bi-file-earmark-plus', label: 'Issue Policy',to: '/admin/policies/issue',  color: 'var(--ip-brand, #a855f7)' },
   ];
 
   return (
@@ -94,7 +94,7 @@ const AdminDashboard = () => {
       <div className="ip-bento-grid cols-3 mb-4">
         {/* Quick Actions */}
         <div className="ip-bento-span-1">
-          <BentoCard title="Quick Actions" icon="bi-lightning-charge-fill" iconColor="#f59e0b">
+          <BentoCard title="Quick Actions" icon="bi-lightning-charge-fill" iconColor="var(--ip-warning)">
             <div className="row g-2">
               {QUICK_ACTIONS.map(a => (
                 <div key={a.label} className="col-6">
@@ -107,7 +107,7 @@ const AdminDashboard = () => {
 
         {/* Recent Claims */}
         <div className="ip-bento-span-2">
-          <BentoCard title="Recent Claims" icon="bi-shield-exclamation" iconColor="#f05a28" linkTo="/admin/claims" linkLabel="View all">
+          <BentoCard title="Recent Claims" icon="bi-shield-exclamation" iconColor="var(--ip-accent-orange, #f05a28)" linkTo="/admin/claims" linkLabel="View all">
             {loading ? (
               <div className="d-flex flex-column gap-2">
                 {[1, 2, 3].map(i => (
@@ -143,7 +143,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Recent Policies - full width */}
-      <BentoCard title="Recent Policies" icon="bi-file-earmark-text" iconColor="#3b82f6" linkTo="/admin/policies" linkLabel="View all">
+      <BentoCard title="Recent Policies" icon="bi-file-earmark-text" iconColor="var(--ip-brand)" linkTo="/admin/policies" linkLabel="View all">
         {loading ? (
           <div className="placeholder-glow">
             {[1, 2, 3].map(i => (

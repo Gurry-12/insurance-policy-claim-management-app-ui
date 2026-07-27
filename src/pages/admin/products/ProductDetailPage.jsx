@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import StatusBadge from '../../../components/ui/StatusBadge';
@@ -50,7 +50,7 @@ const ProductDetailPage = () => {
   }, [id]);
 
   const handleStatusToggle = () => {
-    const isActive = (product?.activeStatus ?? product?.active);
+    const isActive = (product?.active ?? product?.isActive);
     const action = isActive ? deactivateProduct(id) : activateProduct(id);
     
     setActionLoading(true);
@@ -90,7 +90,7 @@ const ProductDetailPage = () => {
   const name = product.productName || 'N/A';
   const category = product.productType || 'N/A';
   const description = product.description || product.productDescription || 'No description provided.';
-  const status = (product.activeStatus ?? product.active) ? 'Active' : 'InActive';
+  const status = (product.active ?? product.isActive) ? 'Active' : 'InActive';
   const createdDate = product.createdDate?.split('T')[0] || 'N/A';
 
   return (
@@ -185,7 +185,7 @@ const ProductDetailPage = () => {
 
           <div className="card border-0" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
             <div className="card-body p-4">
-              <h6 className="fw-bold mb-3">Active Coverage Plans</h6>
+               <h6 className="fw-bold mb-3">Active Coverage Plans</h6>
               {plans.length === 0 ? (
                 <div className="text-center py-4 text-muted">
                   <i className="bi bi-file-earmark-break d-block fs-3 mb-2"></i>
@@ -193,26 +193,43 @@ const ProductDetailPage = () => {
                 </div>
               ) : (
                 <div className="list-group list-group-flush">
-                  {plans.map((plan, index) => (
-                    <div 
-                      key={plan.planId || index} 
-                      className="list-group-item px-0 py-3 d-flex justify-content-between align-items-center"
-                      style={{ borderBottom: '1px solid var(--ip-border-light)' }}
-                    >
-                      <div>
-                        <h6 className="fw-bold mb-1">
-                          <Link to={`/admin/plans/${plan.planId}`} className="text-decoration-none text-dark hover-primary">
-                            {plan.planName}
-                          </Link>
-                        </h6>
-                        <span className="text-muted small">Duration: {plan.duration} years</span>
+                  {plans.map((plan, index) => {
+                    const getCoverageRange = (p) => {
+                      if (!p.coverageOptions || p.coverageOptions.length === 0) return 'No coverage options';
+                      const amounts = p.coverageOptions.map(opt => opt.coverageAmount || opt);
+                      const min = Math.min(...amounts);
+                      const max = Math.max(...amounts);
+                      return `₹${min.toLocaleString('en-IN')} - ₹${max.toLocaleString('en-IN')}`;
+                    };
+
+                    const getDurationRange = (p) => {
+                      if (!p.allowedDurations || p.allowedDurations.length === 0) return 'No durations';
+                      const min = Math.min(...p.allowedDurations);
+                      const max = Math.max(...p.allowedDurations);
+                      return min === max ? `${min} year` : `${min} - ${max} years`;
+                    };
+
+                    return (
+                      <div 
+                        key={plan.planId || index} 
+                        className="list-group-item px-0 py-3 d-flex justify-content-between align-items-center"
+                        style={{ borderBottom: '1px solid var(--ip-border-light)' }}
+                      >
+                        <div>
+                          <h6 className="fw-bold mb-1">
+                            <Link to={`/admin/plans/${plan.planId}`} className="text-decoration-none text-dark hover-primary">
+                              {plan.planName}
+                            </Link>
+                          </h6>
+                          <span className="text-muted small">Duration: {getDurationRange(plan)}</span>
+                        </div>
+                        <div className="text-end">
+                          <div className="fw-bold text-primary">{getCoverageRange(plan)}</div>
+                          <span className="text-muted small">Coverage Range</span>
+                        </div>
                       </div>
-                      <div className="text-end">
-                        <div className="fw-bold text-primary">₹{plan.premiumAmount?.toLocaleString('en-IN')}</div>
-                        <span className="text-muted small">Premium Amount</span>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

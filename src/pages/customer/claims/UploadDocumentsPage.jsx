@@ -58,14 +58,30 @@ const UploadDocumentsPage = () => {
       return;
     }
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const newFiles = Array.from(e.dataTransfer.files).map(file => ({
-        file, docType: selectedDocType
-      }));
-      setFiles(prev => [...prev, ...newFiles]);
-      if (errors.files) {
-        setErrors(prev => ({ ...prev, files: '' }));
-      }
+      const valid = validateFiles(Array.from(e.dataTransfer.files));
+      if (valid.length === 0) return;
+      setFiles(prev => [...prev, ...valid.map(file => ({ file, docType: selectedDocType }))]);
+      if (errors.files) setErrors(prev => ({ ...prev, files: '' }));
     }
+  };
+
+  const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+
+  const validateFiles = (rawFiles) => {
+    const valid = [];
+    for (const file of rawFiles) {
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        notify.error(`"${file.name}" is not allowed. Only PDF and image files are accepted.`);
+        continue;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        notify.error(`"${file.name}" exceeds the 5 MB limit.`);
+        continue;
+      }
+      valid.push(file);
+    }
+    return valid;
   };
 
   const handleFileChange = (e) => {
@@ -74,13 +90,10 @@ const UploadDocumentsPage = () => {
       return;
     }
     if (e.target.files && e.target.files.length > 0) {
-      const newFiles = Array.from(e.target.files).map(file => ({
-        file, docType: selectedDocType
-      }));
-      setFiles(prev => [...prev, ...newFiles]);
-      if (errors.files) {
-        setErrors(prev => ({ ...prev, files: '' }));
-      }
+      const valid = validateFiles(Array.from(e.target.files));
+      if (valid.length === 0) return;
+      setFiles(prev => [...prev, ...valid.map(file => ({ file, docType: selectedDocType }))]);
+      if (errors.files) setErrors(prev => ({ ...prev, files: '' }));
     }
   };
 
@@ -93,14 +106,16 @@ const UploadDocumentsPage = () => {
     const errs = {};
 
     if (files.length === 0) {
-      errs.files = "Please select files to upload";
+      errs.files = "Please select at least one file to upload.";
     }
-
-    // Check file sizes
-    const maxFileSize = 10 * 1024 * 1024; // 10 MB
+    // Type & size check (defence-in-depth against drag-drop bypass)
     for (let i = 0; i < files.length; i++) {
-      if (files[i].file.size > maxFileSize) {
-        errs.files = "Each document must not exceed 10 MB in size.";
+      if (!ALLOWED_TYPES.includes(files[i].file.type)) {
+        errs.files = "Only PDF and image files (JPG, PNG, GIF, WEBP) are allowed.";
+        break;
+      }
+      if (files[i].file.size > MAX_FILE_SIZE) {
+        errs.files = "Each file must not exceed 5 MB.";
         break;
       }
     }
@@ -140,7 +155,7 @@ const UploadDocumentsPage = () => {
     <div className="animate-fade-in">
       <PageHeader
         title="Upload Documents"
-        subtitle={`Add documents to claim #${claimId}`}
+        subtitle="Add documents to your claim"
         action={
           <Link to="/customer/claims" className="btn btn-outline-secondary">
             <ArrowLeft size={18} className="me-2" />

@@ -37,6 +37,9 @@ const getTotalProducts = async () => {
 };
 
 const getActiveUsers = async () => {
+  // /users is ADMIN-only — guard to prevent 403 for INTERNAL_STAFF
+  const role = localStorage.getItem('role') || sessionStorage.getItem('role') || '';
+  if (!role.includes('ADMIN')) return 0;
   const response = await axiosInstance.get('/users');
   return (response.data || []).length;
 };
@@ -79,7 +82,7 @@ const getRecentPolicies = async () => {
     customerName:
       p.customerName,
     productName: p.productName || p.planName || (p.plan ? p.plan.name : "Plan"),
-    premium: p.premiumAmount,
+    premium: p.calculatedPremium,
     status: p.policyStatus,
     startDate:
       p.startDate ||

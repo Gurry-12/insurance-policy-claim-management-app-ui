@@ -16,8 +16,8 @@ import { EMPTY_STATES } from '../../utils/labels';
 const StatTile = ({ icon, label, value, color }) => (
   <BentoCard className="ip-bento-stat-tile">
     <div className="d-flex align-items-center gap-3">
-      <div className="ip-bento-stat-icon" style={{ background: `${color}18` }}>
-        <i className={`bi ${icon}`} style={{ color }} />
+      <div className="ip-bento-stat-icon" style={{ background: color }}>
+        <i className={`bi ${icon}`} style={{ color: '#fff' }} />
       </div>
       <div>
         <div className="ip-bento-stat-value">{value}</div>
@@ -31,8 +31,8 @@ const QuickAction = ({ icon, label, to, color }) => (
   <Link to={to} className="text-decoration-none" style={{ display: 'contents' }}>
     <BentoCard>
       <div className="d-flex align-items-center gap-3">
-        <div className="ip-bento-stat-icon" style={{ background: `${color}18` }}>
-          <i className={`bi ${icon}`} style={{ color, fontSize: '1.1rem' }} />
+        <div className="ip-bento-stat-icon" style={{ background: color }}>
+          <i className={`bi ${icon}`} style={{ color: '#fff', fontSize: '1.1rem' }} />
         </div>
         <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--ip-text-primary)' }}>{label}</span>
       </div>
@@ -86,17 +86,17 @@ const CustomerDashboard = () => {
   }, []);
 
   const STATS = [
-    { icon: 'bi-file-earmark-text', label: 'My Policies',      value: stats.totalPolicies,  color: '#0284c7' },
-    { icon: 'bi-credit-card',       label: 'Pending Payments', value: stats.pendingPolicies,color: '#ef4444' },
-    { icon: 'bi-shield-exclamation',label: 'Total Claims',     value: stats.totalClaims,    color: '#d97706' },
-    { icon: 'bi-receipt',           label: 'Payment History',  value: stats.totalPayments,  color: '#10b981' },
+    { icon: 'bi-file-earmark-text', label: 'My Policies',      value: stats.totalPolicies,  color: 'var(--ip-info)' },
+    { icon: 'bi-credit-card',       label: 'Pending Payments', value: stats.pendingPolicies,color: 'var(--ip-danger)' },
+    { icon: 'bi-shield-exclamation',label: 'Total Claims',     value: stats.totalClaims,    color: 'var(--ip-warning)' },
+    { icon: 'bi-receipt',           label: 'Payment History',  value: stats.totalPayments,  color: 'var(--ip-success)' },
   ];
 
   const QUICK_ACTIONS = [
-    { icon: 'bi-search',            label: 'Browse Products', to: '/customer/products',     color: '#0284c7' },
-    { icon: 'bi-layers',            label: 'Browse Plans',    to: '/customer/plans',        color: '#10b981' },
-    { icon: 'bi-shield-exclamation',label: 'Raise Claim',     to: '/customer/claims/raise', color: '#ef4444' },
-    { icon: 'bi-credit-card',       label: 'Make Payment',    to: '/customer/policies',     color: '#f59e0b' },
+    { icon: 'bi-search',            label: 'Browse Products', to: '/customer/products',     color: 'var(--ip-info)' },
+    { icon: 'bi-layers',            label: 'Browse Plans',    to: '/customer/plans',        color: 'var(--ip-success)' },
+    { icon: 'bi-shield-exclamation',label: 'Raise Claim',     to: '/customer/claims/raise', color: 'var(--ip-danger)' },
+    { icon: 'bi-credit-card',       label: 'Make Payment',    to: '/customer/policies',     color: 'var(--ip-warning)' },
   ];
 
   return (
@@ -125,7 +125,7 @@ const CustomerDashboard = () => {
       <div className="ip-bento-grid cols-3 mb-4">
         {/* Quick Actions */}
         <div className="ip-bento-span-1">
-          <BentoCard title="Quick Actions" icon="bi-lightning-charge-fill" iconColor="#10b981">
+          <BentoCard title="Quick Actions" icon="bi-lightning-charge-fill" iconColor="var(--ip-success)">
             <div className="row g-2">
               {QUICK_ACTIONS.map(a => (
                 <div key={a.label} className="col-6">
@@ -138,7 +138,7 @@ const CustomerDashboard = () => {
 
         {/* Recent Claims */}
         <div className="ip-bento-span-2">
-          <BentoCard title="Recent Claims" icon="bi-shield-exclamation" iconColor="#d97706" linkTo="/customer/claims" linkLabel="View all">
+          <BentoCard title="Recent Claims" icon="bi-shield-exclamation" iconColor="var(--ip-warning)" linkTo="/customer/claims" linkLabel="View all">
             {loading ? (
               <div className="d-flex flex-column gap-2">
                 {[1, 2, 3, 4].map(i => (
@@ -174,7 +174,7 @@ const CustomerDashboard = () => {
       </div>
 
       {/* Active Policies Cards */}
-      <BentoCard title="My Active Policies" icon="bi-file-earmark-text" iconColor="#0284c7" linkTo="/customer/policies" linkLabel="View all">
+      <BentoCard title="My Active Policies" icon="bi-file-earmark-text" iconColor="var(--ip-info)" linkTo="/customer/policies" linkLabel="View all">
         {loading ? (
           <div className="row g-3">
             {[1, 2, 3].map(i => (
@@ -196,7 +196,7 @@ const CustomerDashboard = () => {
                 >
                   <div className="d-flex justify-content-between align-items-start mb-2">
                     <span className="badge bg-white text-dark border shadow-sm rounded-pill px-2 py-1 fw-medium" style={{ fontSize: '0.7rem' }}>
-                      #{p.policyNumber || p.policyId || p.id}
+                      #{p.policyNumber || 'Pending'}
                     </span>
                     <StatusBadge status={p.policyStatus || p.status} />
                   </div>
@@ -205,7 +205,7 @@ const CustomerDashboard = () => {
                   <div className="d-flex justify-content-between align-items-center mt-auto pt-2 border-top">
                     <div>
                       <div className="text-muted" style={{ fontSize: '0.65rem', textTransform: 'uppercase' }}>Premium</div>
-                      <div className="fw-bold" style={{ fontSize: '0.85rem' }}>₹{Number(p.premiumAmount || p.premium || 0).toLocaleString('en-IN')}</div>
+                      <div className="fw-bold" style={{ fontSize: '0.85rem' }}>₹{Number(p.calculatedPremium || p.premium || 0).toLocaleString('en-IN')}</div>
                     </div>
                     <div>
                       {p.policyStatus === POLICY_STATUS.PENDING_PAYMENT ? (

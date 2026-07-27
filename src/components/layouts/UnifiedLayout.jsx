@@ -54,7 +54,7 @@ const NAV_ITEMS_BY_ROLE = {
       label: "Payments",
       section: null,
     },
-  ],
+    ],
   [ROLES.INTERNAL_STAFF]: [
     {
       to: "/staff/dashboard",

@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import PageHeader from "../../../components/common/PageHeader";
 import StatusBadge from "../../../components/ui/StatusBadge";
@@ -197,7 +197,7 @@ const StaffCustomerDetailPage = () => {
                         <tr key={p.policyId}>
                           <td className="fw-bold">{p.policyNumber}</td>
                           <td>{p.planName}</td>
-                          <td>₹{p.coverageAmount.toLocaleString("en-IN")}</td>
+                          <td>₹{p.selectedCoverage?.toLocaleString("en-IN") || 0}</td>
                           <td>{p.endDate}</td>
                           <td>
                             <StatusBadge status={p.policyStatus} />

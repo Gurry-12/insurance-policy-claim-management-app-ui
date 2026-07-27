@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   createProfile,
@@ -73,8 +73,16 @@ const EditProfilePage = () => {
     if (!formData.address?.trim()) errs.address = "Address is required";
     if (!formData.city?.trim()) errs.city = "City is required";
     if (!formData.state?.trim()) errs.state = "State is required";
-    if (!formData.pinCode?.trim()) errs.pinCode = "Pin Code is required";
-    if (!formData.nomineeName?.trim()) errs.nomineeName = "Nominee Name is required";
+    if (!formData.pinCode?.trim()) {
+      errs.pinCode = "Pin Code is required";
+    } else if (!/^\d{6}$/.test(formData.pinCode.trim())) {
+      errs.pinCode = "Pin Code must be exactly 6 digits.";
+    }
+    if (!formData.nomineeName?.trim()) {
+      errs.nomineeName = "Nominee Name is required";
+    } else if (!/^[a-zA-Z\s]+$/.test(formData.nomineeName.trim())) {
+      errs.nomineeName = "Nominee Name must contain letters only.";
+    }
     if (!formData.nomineeRelation) errs.nomineeRelation = "Nominee Relation is required";
 
     if (Object.keys(errs).length > 0) {

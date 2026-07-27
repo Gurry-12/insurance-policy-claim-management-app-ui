@@ -326,6 +326,7 @@ const FilterPanel = ({ fields = [], localFilters, onApply, onClear }) => {
                           <span className="ip-filter-range-label">Min (₹)</span>
                           <input
                             type="number"
+                            step="1"
                             className={`form-control ip-filter-input${hasErr ? " is-invalid" : ""}`}
                             placeholder="0"
                             value={draft[field.minName] || ""}
@@ -334,6 +335,7 @@ const FilterPanel = ({ fields = [], localFilters, onApply, onClear }) => {
                             }
                             min="0"
                             aria-label="Minimum amount"
+                            onKeyDown={(e) => { if (e.key === '.' || e.key === 'e') e.preventDefault(); }}
                           />
                         </div>
                         <i className="bi bi-dash ip-filter-range-arrow" />
@@ -341,12 +343,14 @@ const FilterPanel = ({ fields = [], localFilters, onApply, onClear }) => {
                           <span className="ip-filter-range-label">Max (₹)</span>
                           <input
                             type="number"
+                            step="1"
                             className={`form-control ip-filter-input${hasErr ? " is-invalid" : ""}`}
                             placeholder="Any"
                             value={draft[field.maxName] || ""}
                             onChange={(e) =>
                               updateDraft(field.maxName, e.target.value)
                             }
+                            onKeyDown={(e) => { if (e.key === '.' || e.key === 'e') e.preventDefault(); }}
                             min="0"
                             aria-label="Maximum amount"
                           />

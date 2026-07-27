@@ -139,37 +139,71 @@ isActive: boolean
 createdDate: datetime
 PlanRequestDTO
 
-productId: long
-planName: string (Regex: ^[a-zA-Z\s]*$)
-coverageAmount: decimal (Positive)
-premiumAmount: decimal (Positive)
-premiumType: enum (ONE_TIME, ANNUAL)
-duration: integer (Max 40 years)
-termsAndConditions: string
-activeStatus: boolean
+productId: long (Required)
+planName: string (Regex: ^[a-zA-Z\s]*$, Required)
+allowedDurations: Set<integer> (Required, e.g. [1, 2, 3, 5])
+supportedPremiumTypes: Set<PremiumType> (Required, e.g. ["ANNUAL", "MONTHLY"])
+termsAndConditions: string (Required)
+activeStatus: boolean (Required)
 PlanResponseDTO
 
 planId: long
 productId: long
 productName: string
 planName: string
-coverageAmount: decimal
-premiumAmount: decimal
-premiumType: string
-duration: integer
+planVersion: integer
+allowedDurations: Set<integer>
+supportedPremiumTypes: Set<PremiumType>
+coverageOptions: List<CoverageOptionResponseDTO>
 termsAndConditions: string
 isActive: boolean
+createdDate: datetime
+CoverageOptionResponseDTO
+
+id: long
+coverageAmount: decimal
+label: string (e.g. "₹5.00 Lakhs")
+displayOrder: integer
+isActive: boolean
+PricingRuleResponseDTO (Managed separately via /api/admin/pricing-rules)
+
+pricingRuleId: long
+planId: long
+planVersion: integer
+riskRate: decimal
+processingFee: decimal
+gstPercentage: decimal
+isActive: boolean
+remarks: string
 createdDate: datetime
 2.4 Policies & Premium Payments
 PolicyPurchaseRequestDTO
 
-planId: long
-startDate: date (Past or Present)
-PolicyIssueRequestDTO (Admin only)
+quoteId: long (Required — generate via POST /api/premium/calculate first)
+paymentReferenceId: string (Optional)
+PolicyIssueRequestDTO (Admin/Staff only)
 
-customerId: long
-planId: long
-startDate: date (Past or Present)
+customerId: long (Required)
+quoteId: long (Required — generate via POST /api/premium/calculate first)
+startDate: date (Past or Present, Required)
+PremiumCalculationRequest (POST /api/premium/calculate)
+
+planId: long (Required)
+coverageAmount: decimal (Required, Positive)
+duration: integer (Required, Positive — must be in plan's allowedDurations)
+premiumType: PremiumType (Required — MONTHLY, QUARTERLY, HALF_YEARLY, ANNUAL)
+PremiumQuote (Response from /api/premium/calculate)
+
+quoteId: long
+selectedCoverage: decimal
+duration: integer
+premiumType: string
+annualPremium: decimal
+processingFee: decimal
+gst: decimal
+totalPremium: decimal
+expiresAt: datetime
+status: QuoteStatus
 PolicyResponseDTO
 
 policyId: long

@@ -56,7 +56,7 @@ const ClaimDetailsPage = () => {
     <Drawer 
       isOpen={true} 
       onClose={() => navigate('/customer/claims')} 
-      title={`Claim ${claim.claimNumber || claim.claimId}`}
+      title={`Claim ${claim.claimNumber || 'Pending'}`}
       width="900px"
     >
       <div className="p-4">

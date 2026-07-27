@@ -104,7 +104,7 @@ const useCustomerPdf = () => {
     );
 
     doc.save(
-      `Customer_${customer.fullName?.replace(/\s+/g, "_") || customer.customerId}.pdf`,
+      `Customer_${customer.fullName?.replace(/\s+/g, "_") || 'Profile'}.pdf`,
     );
   };
 

@@ -182,12 +182,14 @@ const CreateStaffPage = () => {
                     id="phone"
                     name="phone"
                     type="number"
+                    step="1"
                     className={`form-control border-start-0 ps-1 ${errors.phone ? 'is-invalid' : ''}`}
                     placeholder="9876543210"
                     value={formData.phone}
                     onChange={handleChange}
                     style={{ boxShadow: 'none' }}
-                    onWheel={(e) => e.target.blur()} // prevent scrolling from changing number
+                    onWheel={(e) => e.target.blur()}
+                    onKeyDown={(e) => { if (e.key === '.' || e.key === 'e') e.preventDefault(); }}
                   />
                   {errors.phone && <div className="invalid-feedback">{errors.phone}</div>}
                 </div>

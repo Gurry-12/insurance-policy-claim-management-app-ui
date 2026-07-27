@@ -71,8 +71,8 @@ const CustomerPolicyListPage = () => {
             columns={[
               { header: "Policy Number", accessor: "policyNumber" },
               { header: "Plan Name", accessor: "planName" },
-              { header: "Premium Amount (₹)", accessor: "premiumAmount" },
-              { header: "Coverage Amount (₹)", accessor: "coverageAmount" },
+              { header: "Premium Amount (₹)", accessor: "calculatedPremium" },
+              { header: "Coverage Amount (₹)", accessor: "selectedCoverage" },
               { header: "Status", accessor: "policyStatus" }
             ]}
             filename="my_policies.csv"
@@ -127,13 +127,13 @@ const CustomerPolicyListPage = () => {
                           <div className="text-muted small mb-1 d-flex align-items-center">
                             <IndianRupee size={14} className="me-1" /> Premium
                           </div>
-                          <div className="fw-bold text-dark fs-5">₹{policy.premiumAmount?.toLocaleString()}</div>
+                          <div className="fw-bold text-dark fs-5">₹{policy.calculatedPremium?.toLocaleString()}</div>
                         </div>
                         <div className="col-6 border-start">
                           <div className="text-muted small mb-1 ps-2 d-flex align-items-center">
                             <Shield size={14} className="me-1" /> Coverage
                           </div>
-                          <div className="fw-bold text-dark fs-5 ps-2">₹{policy.coverageAmount?.toLocaleString()}</div>
+                          <div className="fw-bold text-dark fs-5 ps-2">₹{policy.selectedCoverage?.toLocaleString()}</div>
                         </div>
                       </div>
                     </div>

@@ -148,7 +148,7 @@ const StaffClaimDetailPage = () => {
       onClose={() => navigate("/staff/claims")}
       title={
         claim
-          ? `Viewing Claim #${claim.claimNumber || claim.id}`
+          ? `Viewing Claim #${claim.claimNumber || 'Pending'}`
           : "Claim Details"
       }
       width="900px"
@@ -265,7 +265,7 @@ const StaffClaimDetailPage = () => {
                             <span className="fw-bold">
                               ₹
                               {Number(
-                                policy.coverageAmount || 0,
+                                policy.selectedCoverage || 0,
                               ).toLocaleString("en-IN")}
                             </span>
                           </div>
@@ -277,7 +277,7 @@ const StaffClaimDetailPage = () => {
                               ₹
                               {Number(
                                 policy.remainingClaimAmount ??
-                                  policy.coverageAmount ??
+                                  policy.selectedCoverage ??
                                   0,
                               ).toLocaleString("en-IN")}
                             </span>
@@ -452,11 +452,11 @@ const StaffClaimDetailPage = () => {
             </div>
             <div className="d-flex justify-content-between mb-2">
               <small className="fw-bold text-muted">Total Coverage:</small>
-              <span className="fw-bold">₹{Number(policy.coverageAmount || 0).toLocaleString('en-IN')}</span>
+              <span className="fw-bold">₹{Number(policy.selectedCoverage || 0).toLocaleString('en-IN')}</span>
             </div>
             <div className="d-flex justify-content-between">
               <small className="fw-bold text-muted">Remaining Coverage:</small>
-              <span className="fw-bold text-success">₹{Number(policy.remainingClaimAmount ?? policy.coverageAmount ?? 0).toLocaleString('en-IN')}</span>
+              <span className="fw-bold text-success">₹{Number(policy.remainingClaimAmount ?? policy.selectedCoverage ?? 0).toLocaleString('en-IN')}</span>
             </div>
           </div>
         )}
