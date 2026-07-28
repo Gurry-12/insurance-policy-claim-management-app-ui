@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   getActivePricingRuleForPlan,
   getAllPricingRulesForPlan,
@@ -51,6 +51,18 @@ const PricingRulePanel = ({ planId }) => {
 
   useEffect(() => { fetchRules(); }, [fetchRules]);
 
+  const isRuleFormValid = React.useMemo(() => {
+    const rate = Number(form.baseRiskRate);
+    const fee = Number(form.processingFee);
+    const gstVal = Number(form.gst);
+    if (!form.baseRiskRate || isNaN(rate) || rate <= 0 || rate > 1) return false;
+    if (form.processingFee === '' || isNaN(fee) || fee < 0) return false;
+    if (form.gst === '' || isNaN(gstVal) || gstVal < 0 || gstVal > 100) return false;
+    if (!form.effectiveFrom) return false;
+    if (!form.remarks || !form.remarks.trim()) return false;
+    return true;
+  }, [form]);
+
   const handleCreate = async (e) => {
     e.preventDefault();
     const errs = {};
@@ -98,6 +110,10 @@ const PricingRulePanel = ({ planId }) => {
   };
 
   const handleActivate = async (ruleId) => {
+    if (activeRule && activeRule.id !== ruleId) {
+      toast.error('An active pricing rule already exists for this plan. Please deactivate it first before activating a new one.');
+      return;
+    }
     setActivating(true);
     try {
       await activatePricingRule(ruleId);
@@ -291,8 +307,24 @@ const PricingRulePanel = ({ planId }) => {
                       onChange={e => setForm(f => ({ ...f, remarks: e.target.value }))} required />
                   </div>
                 </div>
+                {!isRuleFormValid && (
+                  <div className="alert alert-danger py-2 px-3 small my-2 d-flex align-items-center gap-2">
+                    <i className="bi bi-exclamation-triangle-fill fs-6 flex-shrink-0" />
+                    <div>
+                      <strong>Incomplete Rule:</strong> Please fill all pricing fields and remarks correctly.
+                    </div>
+                  </div>
+                )}
                 <div className="d-flex justify-content-end">
-                  <button type="submit" className="btn btn-sm btn-success px-4" disabled={submitting}>
+                  <button
+                    type="submit"
+                    className="btn btn-sm btn-success px-4"
+                    style={{
+                      cursor: !isRuleFormValid ? 'not-allowed' : 'pointer',
+                      opacity: !isRuleFormValid ? 0.65 : 1,
+                    }}
+                    disabled={submitting || !isRuleFormValid}
+                  >
                     {submitting
                       ? <><span className="spinner-border spinner-border-sm me-2" />Creating…</>
                       : <><i className="bi bi-plus-circle me-2" />Create Rule</>}

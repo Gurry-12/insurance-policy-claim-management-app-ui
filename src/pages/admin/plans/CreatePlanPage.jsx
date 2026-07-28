@@ -1,13 +1,42 @@
-import { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAllProducts } from '../../../services/productService';
 import { createPlan } from '../../../services/planService';
 import { notify } from '../../../utils/notificationService';
 import PageHeader from '../../../components/common/PageHeader';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
+import ErrorAlert from '../../../components/ui/ErrorAlert';
 import { PREMIUM_TYPE_OPTIONS } from '../../../utils/options';
 
 const DURATION_OPTIONS = [1, 2, 3, 5, 7, 10, 15, 20, 25, 30];
+
+const COVERAGE_STEP_OPTIONS = [
+  { value: 50000, label: '₹50,000 (50k)' },
+  { value: 100000, label: '₹1,00,000 (1 Lakh)' },
+  { value: 200000, label: '₹2,00,000 (2 Lakhs)' },
+  { value: 250000, label: '₹2,50,000 (2.5 Lakhs)' },
+  { value: 500000, label: '₹5,00,000 (5 Lakhs)' },
+  { value: 1000000, label: '₹10,00,000 (10 Lakhs)' },
+  { value: 2500000, label: '₹25,00,000 (25 Lakhs)' },
+  { value: 5000000, label: '₹50,00,000 (50 Lakhs)' },
+  { value: 10000000, label: '₹1,00,00,000 (1 Crore)' },
+];
+
+const COVERAGE_SLAB_OPTIONS = [
+  { value: 50000, label: '₹50,000 (50k)' },
+  { value: 100000, label: '₹1,00,000 (1 Lakh)' },
+  { value: 200000, label: '₹2,00,000 (2 Lakhs)' },
+  { value: 300000, label: '₹3,00,000 (3 Lakhs)' },
+  { value: 500000, label: '₹5,00,000 (5 Lakhs)' },
+  { value: 1000000, label: '₹10,00,000 (10 Lakhs)' },
+  { value: 1500000, label: '₹15,00,000 (15 Lakhs)' },
+  { value: 2000000, label: '₹20,00,000 (20 Lakhs)' },
+  { value: 2500000, label: '₹25,00,000 (25 Lakhs)' },
+  { value: 5000000, label: '₹50,00,000 (50 Lakhs)' },
+  { value: 10000000, label: '₹1,00,00,000 (1 Crore)' },
+  { value: 20000000, label: '₹2,00,00,000 (2 Crores)' },
+  { value: 50000000, label: '₹5,00,00,000 (5 Crores)' },
+];
 
 const sectionCard = {
   borderRadius: 'var(--ip-radius-lg)',
@@ -44,6 +73,7 @@ const CreatePlanPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
   const [products, setProducts] = useState([]);
 
   const [form, setForm] = useState({
@@ -69,6 +99,48 @@ const CreatePlanPage = () => {
       .catch(() => notify.error('Failed to load products'))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (!form.productId || products.length === 0) return;
+    const product = products.find((p) => (p.productId || p.id) == form.productId);
+    if (!product) return;
+
+    const defaults = {
+      baseRiskRate: 0.02,
+      processingFee: 100,
+      gst: 18,
+    };
+
+    switch (product.productType) {
+      case 'HEALTH':
+        defaults.baseRiskRate = 0.025;
+        defaults.processingFee = 100;
+        defaults.gst = 0;
+        break;
+      case 'LIFE':
+        defaults.baseRiskRate = 0.008;
+        defaults.processingFee = 200;
+        defaults.gst = 0;
+        break;
+      case 'MOTOR':
+        defaults.baseRiskRate = 0.03;
+        defaults.processingFee = 150;
+        defaults.gst = 18;
+        break;
+      case 'TRAVEL':
+        defaults.baseRiskRate = 0.015;
+        defaults.processingFee = 50;
+        defaults.gst = 18;
+        break;
+    }
+
+    setForm((f) => ({
+      ...f,
+      baseRiskRate: defaults.baseRiskRate,
+      processingFee: defaults.processingFee,
+      gst: defaults.gst,
+    }));
+  }, [form.productId, products]);
 
   const coveragePreview = useMemo(() => {
     const min = Number(form.minCoverage);
@@ -100,12 +172,62 @@ const CreatePlanPage = () => {
     }));
   };
 
+  const isFormValid = React.useMemo(() => {
+    if (!form.planName || form.planName.trim().length < 2) return false;
+    if (!form.productId) return false;
+    if (!form.premiumType) return false;
+    if (!form.durations || form.durations.length === 0) return false;
+    if (Number(form.minCoverage) < 50000 || Number(form.minCoverage) % 50000 !== 0) return false;
+    if (Number(form.maxCoverage) <= Number(form.minCoverage) || Number(form.maxCoverage) > 50000000) return false;
+    if (coveragePreview.length === 0 || coveragePreview.length > 30) return false;
+    if (form.baseRiskRate === '' || Number(form.baseRiskRate) < 0 || Number(form.baseRiskRate) > 1) return false;
+    if (form.processingFee === '' || Number(form.processingFee) < 0) return false;
+    if (form.gst === '' || Number(form.gst) < 0) return false;
+    if (!form.termsAndConditions || !form.termsAndConditions.trim()) return false;
+    return true;
+  }, [form, coveragePreview]);
+
   const handleSubmit = async () => {
-    if (!form.planName.trim()) return notify.error('Plan name is required');
-    if (!form.productId) return notify.error('Select a product');
-    if (form.durations.length === 0) return notify.error('Select at least one duration');
-    if (coveragePreview.length === 0) return notify.error('Configure valid coverage range');
-    if (!form.termsAndConditions.trim()) return notify.error('Terms & conditions are required');
+    setError('');
+    if (!form.planName.trim()) {
+      const msg = 'Plan name is required';
+      setError(msg); return notify.error(msg);
+    }
+    if (!form.productId) {
+      const msg = 'Select a product';
+      setError(msg); return notify.error(msg);
+    }
+    if (form.durations.length === 0) {
+      const msg = 'Select at least one duration';
+      setError(msg); return notify.error(msg);
+    }
+    if (coveragePreview.length === 0) {
+      const msg = 'Configure valid coverage range';
+      setError(msg); return notify.error(msg);
+    }
+    const minAmt = Number(form.minCoverage);
+    const maxAmt = Number(form.maxCoverage);
+    const stepAmt = Number(form.coverageStep);
+    if (minAmt < 50000 || minAmt % 50000 !== 0) {
+      const msg = 'Minimum coverage must be at least ₹50,000 and a multiple of 50,000';
+      setError(msg); return notify.error(msg);
+    }
+    if (stepAmt < 50000 || stepAmt % 50000 !== 0) {
+      const msg = 'Coverage step must be at least ₹50,000 and a multiple of 50,000';
+      setError(msg); return notify.error(msg);
+    }
+    if (maxAmt > 50000000 || maxAmt <= minAmt) {
+      const msg = 'Maximum coverage cannot exceed ₹5,00,00,000 (5 Crores) and must be greater than minimum';
+      setError(msg); return notify.error(msg);
+    }
+    if (coveragePreview.length > 30) {
+      const msg = 'Coverage tiers must be between 1 and 30 slabs. Please adjust step amount or range.';
+      setError(msg); return notify.error(msg);
+    }
+    if (!form.termsAndConditions.trim()) {
+      const msg = 'Terms & conditions are required';
+      setError(msg); return notify.error(msg);
+    }
 
     setSubmitting(true);
     try {
@@ -135,7 +257,9 @@ const CreatePlanPage = () => {
       notify.success('Plan created successfully!');
       navigate('/admin/plans');
     } catch (err) {
-      notify.error(err.message || 'Failed to create plan');
+      const msg = err.message || 'Failed to create plan';
+      setError(msg);
+      notify.error(msg);
     } finally {
       setSubmitting(false);
     }
@@ -152,6 +276,12 @@ const CreatePlanPage = () => {
         subtitle="Set up a new insurance plan with coverage tiers and pricing"
         onBack={() => navigate('/admin/plans')}
       />
+
+      {error && (
+        <div className="mb-4">
+          <ErrorAlert message={error} onClose={() => setError('')} />
+        </div>
+      )}
 
       <div className="row g-4">
         {/* ── Left Column: Form ── */}
@@ -170,17 +300,20 @@ const CreatePlanPage = () => {
                     <label style={labelStyle}>Plan Name *</label>
                     <input
                       type="text"
-                      className="form-control"
+                      className={`form-control ${!form.planName.trim() ? 'is-invalid' : ''}`}
                       style={inputStyle}
                       value={form.planName}
                       onChange={(e) => setForm((f) => ({ ...f, planName: e.target.value }))}
                       placeholder="e.g. Health Guard Platinum"
                     />
+                    {!form.planName.trim() && (
+                      <div className="text-danger small mt-1">Plan name is required (min 2 chars)</div>
+                    )}
                   </div>
                   <div className="col-md-4">
                     <label style={labelStyle}>Product *</label>
                     <select
-                      className="form-select"
+                      className={`form-select ${!form.productId ? 'is-invalid' : ''}`}
                       style={inputStyle}
                       value={form.productId}
                       onChange={(e) => setForm((f) => ({ ...f, productId: e.target.value }))}
@@ -192,6 +325,9 @@ const CreatePlanPage = () => {
                         </option>
                       ))}
                     </select>
+                    {!form.productId && (
+                      <div className="text-danger small mt-1">Please select an insurance product</div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -279,47 +415,66 @@ const CreatePlanPage = () => {
                   <i className="bi bi-shield-check me-2" style={{ color: 'var(--ip-brand)' }} />
                   Coverage Tiers *
                 </div>
-                <div className="row g-3 mb-3">
+                <div className="row g-3 mb-2">
                   <div className="col-md-4">
-                    <label style={labelStyle}>Min (₹)</label>
-                    <input
-                      type="number"
-                      step="1"
-                      min="1000"
-                      className="form-control"
+                    <label style={labelStyle}>Min (₹) *</label>
+                    <select
+                      className="form-select"
                       style={inputStyle}
                       value={form.minCoverage}
-                      onChange={(e) => setForm((f) => ({ ...f, minCoverage: e.target.value }))}
-                      onKeyDown={(e) => { if (e.key === '.' || e.key === 'e') e.preventDefault(); }}
-                    />
+                      onChange={(e) => setForm((f) => ({ ...f, minCoverage: Number(e.target.value) }))}
+                    >
+                      {COVERAGE_SLAB_OPTIONS.map((s) => (
+                        <option key={s.value} value={s.value}>
+                          {s.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="col-md-4">
-                    <label style={labelStyle}>Max (₹)</label>
-                    <input
-                      type="number"
-                      step="1"
-                      min="1000"
-                      className="form-control"
+                    <label style={labelStyle}>Max (₹) *</label>
+                    <select
+                      className={`form-select ${Number(form.maxCoverage) <= Number(form.minCoverage) ? 'is-invalid' : ''}`}
                       style={inputStyle}
                       value={form.maxCoverage}
-                      onChange={(e) => setForm((f) => ({ ...f, maxCoverage: e.target.value }))}
-                      onKeyDown={(e) => { if (e.key === '.' || e.key === 'e') e.preventDefault(); }}
-                    />
+                      onChange={(e) => setForm((f) => ({ ...f, maxCoverage: Number(e.target.value) }))}
+                    >
+                      {COVERAGE_SLAB_OPTIONS.map((s) => (
+                        <option
+                          key={s.value}
+                          value={s.value}
+                          disabled={s.value <= Number(form.minCoverage)}
+                        >
+                          {s.label}
+                        </option>
+                      ))}
+                    </select>
+                    {Number(form.maxCoverage) <= Number(form.minCoverage) && (
+                      <div className="text-danger small mt-1">Max must be greater than Min</div>
+                    )}
                   </div>
                   <div className="col-md-4">
-                    <label style={labelStyle}>Step (₹)</label>
-                    <input
-                      type="number"
-                      step="1"
-                      min="1000"
-                      className="form-control"
+                    <label style={labelStyle}>Step (₹) *</label>
+                    <select
+                      className="form-select"
                       style={inputStyle}
                       value={form.coverageStep}
-                      onChange={(e) => setForm((f) => ({ ...f, coverageStep: e.target.value }))}
-                      onKeyDown={(e) => { if (e.key === '.' || e.key === 'e') e.preventDefault(); }}
-                    />
+                      onChange={(e) => setForm((f) => ({ ...f, coverageStep: Number(e.target.value) }))}
+                    >
+                      {COVERAGE_STEP_OPTIONS.map((s) => (
+                        <option key={s.value} value={s.value}>
+                          {s.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
+                {coveragePreview.length > 30 && (
+                  <div className="text-danger small mb-2 fw-semibold">
+                    <i className="bi bi-exclamation-triangle-fill me-1" />
+                    Too many slabs ({coveragePreview.length}). Maximum 30 slabs allowed. Increase Step amount.
+                  </div>
+                )}
                 {coveragePreview.length > 0 && (
                   <div
                     className="p-3"
@@ -450,17 +605,31 @@ const CreatePlanPage = () => {
                   Terms & Conditions *
                 </div>
                 <textarea
-                  className="form-control"
+                  className={`form-control ${!form.termsAndConditions.trim() ? 'is-invalid' : ''}`}
                   style={{ ...inputStyle, resize: 'vertical' }}
                   rows={4}
                   value={form.termsAndConditions}
                   onChange={(e) => setForm((f) => ({ ...f, termsAndConditions: e.target.value }))}
                   placeholder="Describe coverage terms, rules, and conditions..."
                 />
+                {!form.termsAndConditions.trim() && (
+                  <div className="text-danger small mt-1">
+                    <i className="bi bi-exclamation-circle me-1" />
+                    Terms & conditions are required
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Submit */}
+            {!isFormValid && (
+              <div className="alert alert-danger py-2 px-3 small mb-2 d-flex align-items-center gap-2" style={{ borderRadius: 'var(--ip-radius-md)' }}>
+                <i className="bi bi-exclamation-triangle-fill fs-6 flex-shrink-0" />
+                <div>
+                  <strong>Form Incomplete:</strong> Please fill all required fields correctly to enable the Create Plan button.
+                </div>
+              </div>
+            )}
             <div className="d-flex justify-content-end gap-3 pb-2">
               <button
                 className="btn px-4"
@@ -480,12 +649,14 @@ const CreatePlanPage = () => {
                 style={{
                   borderRadius: 'var(--ip-radius-pill)',
                   fontWeight: 700,
-                  backgroundColor: 'var(--ip-success)',
+                  backgroundColor: !isFormValid ? 'var(--ip-border)' : 'var(--ip-success)',
                   color: '#fff',
                   boxShadow: 'var(--ip-shadow-sm)',
+                  cursor: !isFormValid ? 'not-allowed' : 'pointer',
+                  opacity: !isFormValid ? 0.65 : 1,
                 }}
                 onClick={handleSubmit}
-                disabled={submitting}
+                disabled={submitting || !isFormValid}
               >
                 {submitting ? (
                   <><span className="spinner-border spinner-border-sm me-2" /> Creating...</>

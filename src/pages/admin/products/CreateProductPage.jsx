@@ -1,10 +1,11 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import FormInput from '../../../components/forms/FormInput';
 import FormSelect from '../../../components/forms/FormSelect';
 import FormTextarea from '../../../components/forms/FormTextarea';
 import AlertModal from '../../../components/modals/AlertModal';
+import ErrorAlert from '../../../components/ui/ErrorAlert';
 import { createProduct } from '../../../services/productService';
 import { notify } from '../../../utils/notificationService';
 import { STATUS_OPTIONS } from "../../../utils/options";
@@ -19,6 +20,7 @@ const CreateProductPage = () => {
   });
   const [showSuccess, setShowSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [globalError, setGlobalError] = useState('');
 
   const [errors, setErrors] = useState({});
 
@@ -26,11 +28,13 @@ const CreateProductPage = () => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+    if (globalError) setGlobalError('');
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitting(true);
+    setGlobalError('');
     const errs = {};
 
     if (!formData.name?.trim()) {
@@ -45,6 +49,7 @@ const CreateProductPage = () => {
 
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
+      setGlobalError('Please fix the highlighted errors below before submitting.');
       setSubmitting(false);
       return;
     }
@@ -64,9 +69,12 @@ const CreateProductPage = () => {
       .catch((err) => {
         if (err.fieldErrors) {
           setErrors(err.fieldErrors);
+          setGlobalError("Please correct the highlighted fields.");
           notify.error("Please correct the highlighted fields.");
         } else {
-          notify.error(err);
+          const msg = err.message || err || 'Failed to create product.';
+          setGlobalError(msg);
+          notify.error(msg);
         }
       })
       .finally(() => setSubmitting(false));
@@ -79,6 +87,12 @@ const CreateProductPage = () => {
         subtitle="Add a new insurance product"
         onBack={() => navigate("/admin/products")}
       />
+
+      {globalError && (
+        <div className="mb-4">
+          <ErrorAlert message={globalError} onClose={() => setGlobalError('')} />
+        </div>
+      )}
 
       <div
         className="card border-0"

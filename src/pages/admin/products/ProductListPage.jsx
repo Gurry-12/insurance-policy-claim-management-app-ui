@@ -92,7 +92,7 @@ const ProductListPage = () => {
     { header: "Created", accessor: "createdDate" },
     {
       header: "Status",
-      cell: (row) => row.active ? <StatusBadge status={"Active"}/> : <StatusBadge status={"InActive"}/>,
+      cell: (row) => (row.isActive ?? row.active) ? <StatusBadge status={"Active"}/> : <StatusBadge status={"InActive"}/>,
     },
     {
       header: "Actions",

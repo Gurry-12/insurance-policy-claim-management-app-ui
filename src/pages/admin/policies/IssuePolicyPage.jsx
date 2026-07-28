@@ -236,7 +236,7 @@ const IssuePolicyPage = () => {
                 <label style={labelStyle}>Coverage Slab *</label>
                 <div className="d-flex flex-wrap gap-2">
                   {selectedPlan.coverageOptions
-                    .filter(opt => opt.isActive ?? opt.active !== false)
+                    .filter(opt => (opt.isActive ?? opt.active) !== false)
                     .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
                     .map((opt) => {
                       const amt = Number(opt.coverageAmount);
