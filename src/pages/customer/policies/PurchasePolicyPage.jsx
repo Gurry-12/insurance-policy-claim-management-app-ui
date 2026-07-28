@@ -11,6 +11,8 @@ import ErrorAlert from "../../../components/ui/ErrorAlert";
 import PremiumBreakdownCard from "../../../components/customer/PremiumBreakdownCard";
 import QuoteCountdownTimer from "../../../components/customer/QuoteCountdownTimer";
 import { Shield, ArrowRight, ArrowLeft, CheckCircle } from "lucide-react";
+import {PREMIUM_TYPE_OPTIONS} from "../../../utils/options";
+
 
 const STEPS = ["Coverage", "Duration", "Quote", "Payment", "Policy"];
 
@@ -44,7 +46,13 @@ const PurchasePolicyPage = () => {
     const fetchPlan = async () => {
       try {
         const data = await getPlanById(planId);
-        setPlanDetails(data.data || data);
+        const plan = data.data || data;
+        setPlanDetails(plan);
+        // Auto-set premium type since each plan supports exactly one type
+        const type = plan.supportedPremiumType ||
+          (Array.isArray(plan.supportedPremiumTypes) && plan.supportedPremiumTypes[0]) ||
+          '';
+        setSelectedPremiumType(type);
       } catch (error) {
         notify.error("Failed to load plan details");
       } finally {
@@ -189,7 +197,10 @@ const PurchasePolicyPage = () => {
       {globalError && (
         <div className="row justify-content-center mt-3">
           <div className="col-md-10 col-lg-8">
-            <ErrorAlert message={globalError} onClose={() => setGlobalError('')} />
+            <ErrorAlert
+              message={globalError}
+              onClose={() => setGlobalError("")}
+            />
           </div>
         </div>
       )}
@@ -197,7 +208,11 @@ const PurchasePolicyPage = () => {
       <div className="row justify-content-center mt-4">
         <div className="col-md-10 col-lg-8">
           {/* Stepper */}
-          <Stepper steps={STEPS} currentStep={currentStep} onStepClick={handleStepClick} />
+          <Stepper
+            steps={STEPS}
+            currentStep={currentStep}
+            onStepClick={handleStepClick}
+          />
 
           <div className="card border-0 shadow-sm">
             <div className="card-body p-4 p-md-5">
@@ -208,7 +223,9 @@ const PurchasePolicyPage = () => {
                     <Shield size={20} className="text-primary me-2" />
                     Select Coverage Amount
                   </h5>
-                  <p className="text-muted small mb-4">Choose the coverage amount that best suits your needs.</p>
+                  <p className="text-muted small mb-4">
+                    Choose the coverage amount that best suits your needs.
+                  </p>
 
                   <div className="row g-3">
                     {planDetails.coverageOptions?.map((opt, idx) => {
@@ -225,13 +242,18 @@ const PurchasePolicyPage = () => {
                             style={{ cursor: "pointer" }}
                             onClick={() => setSelectedCoverage(String(amount))}
                           >
-                            <div className={`fw-bold fs-5 ${isSelected ? "text-primary" : "text-dark"}`}>
+                            <div
+                              className={`fw-bold fs-5 ${isSelected ? "text-primary" : "text-dark"}`}
+                            >
                               ₹{(amount / 100000).toLocaleString("en-IN")}L
                             </div>
                             <small className="text-muted">Coverage</small>
                             {isSelected && (
                               <div className="mt-2">
-                                <CheckCircle size={18} className="text-primary" />
+                                <CheckCircle
+                                  size={18}
+                                  className="text-primary"
+                                />
                               </div>
                             )}
                           </div>
@@ -245,11 +267,17 @@ const PurchasePolicyPage = () => {
               {/* Step 1: Duration & Premium Type */}
               {currentStep === 1 && (
                 <div className="animate-fade-in">
-                  <h5 className="fw-bold mb-1">Select Duration & Payment Type</h5>
-                  <p className="text-muted small mb-4">Choose your policy term and premium payment frequency.</p>
+                  <h5 className="fw-bold mb-1">
+                    Select Duration & Payment Type
+                  </h5>
+                  <p className="text-muted small mb-4">
+                    Choose your policy term and premium payment frequency.
+                  </p>
 
                   <div className="mb-4">
-                    <label className="form-label fw-bold">Policy Duration</label>
+                    <label className="form-label fw-bold">
+                      Policy Duration
+                    </label>
                     <div className="d-flex flex-wrap gap-2">
                       {planDetails.allowedDurations?.map((dur, idx) => (
                         <button
@@ -265,33 +293,49 @@ const PurchasePolicyPage = () => {
 
                   <div className="mb-4">
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                      <label className="form-label fw-bold mb-0">Premium Payment Frequency</label>
-                      {selectedDuration > 1 && (
-                        <span className="badge bg-success-subtle text-success small py-1 px-2">
-                          <i className="bi bi-tag-fill me-1"></i>
-                          Up to 20% Duration Discount on One-Time Upfront Payment!
-                        </span>
-                      )}
+                      <label className="form-label fw-bold mb-0">
+                        Premium Payment Type
+                      </label>
+                      {selectedDuration > 1 &&
+                        (
+                          planDetails.supportedPremiumType === 'ONE_TIME' ||
+                          (Array.isArray(planDetails.supportedPremiumTypes) &&
+                            planDetails.supportedPremiumTypes.includes('ONE_TIME'))
+                        ) && (
+                          <span className="badge bg-success-subtle text-success small py-1 px-2">
+                            <i className="bi bi-tag-fill me-1" />
+                            Up to 20% Duration Discount on One-Time Upfront Payment!
+                          </span>
+                        )}
                     </div>
-                    <div className="d-flex flex-wrap gap-2">
-                      {(planDetails.supportedPremiumType
-                        ? [planDetails.supportedPremiumType]
-                        : planDetails.supportedPremiumTypes || []
-                      ).map((type, idx) => (
-                        <button
-                          key={idx}
-                          className={`btn ${selectedPremiumType === type ? "btn-primary" : "btn-outline-primary"}`}
-                          onClick={() => setSelectedPremiumType(type)}
-                        >
-                          {type.replace('_', ' ')}
-                        </button>
-                      ))}
+                    {/* Display only — plan has exactly one premium type, no choice needed */}
+                    <div
+                      className="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3 border border-primary bg-primary bg-opacity-10"
+                    >
+                      <i className="bi bi-check-circle-fill text-primary" />
+                      <span className="fw-semibold text-primary">
+                        {selectedPremiumType.replace('_', ' ')}
+                      </span>
+                      <span className="text-muted small ms-1">
+                        {selectedPremiumType === 'ANNUAL'
+                          ? '— Pay every year'
+                          : selectedPremiumType === 'ONE_TIME'
+                          ? '— Pay once upfront'
+                          : ''}
+                      </span>
                     </div>
                   </div>
 
                   {/* Selection Summary */}
-                  <div className="p-3 rounded-3" style={{ backgroundColor: 'var(--ip-surface-raised, #f8fafc)' }}>
-                    <small className="text-muted d-block mb-2 fw-bold">Your Selection</small>
+                  <div
+                    className="p-3 rounded-3"
+                    style={{
+                      backgroundColor: "var(--ip-surface-raised, #f8fafc)",
+                    }}
+                  >
+                    <small className="text-muted d-block mb-2 fw-bold">
+                      Your Selection
+                    </small>
                     <div className="d-flex gap-4">
                       <div>
                         <span className="text-muted small">Coverage: </span>
@@ -301,7 +345,9 @@ const PurchasePolicyPage = () => {
                       </div>
                       <div>
                         <span className="text-muted small">Duration: </span>
-                        <span className="fw-bold">{selectedDuration} Year(s)</span>
+                        <span className="fw-bold">
+                          {selectedDuration} Year(s)
+                        </span>
                       </div>
                       <div>
                         <span className="text-muted small">Payment: </span>
@@ -321,38 +367,59 @@ const PurchasePolicyPage = () => {
                       Your Quote
                     </h5>
                     {quoteData?.expiresAt && (
-                      <QuoteCountdownTimer expiresAt={quoteData.expiresAt} onExpire={() => setQuoteExpired(true)} />
+                      <QuoteCountdownTimer
+                        expiresAt={quoteData.expiresAt}
+                        onExpire={() => setQuoteExpired(true)}
+                      />
                     )}
                   </div>
 
                   {quoteExpired ? (
                     <div className="alert alert-warning">
                       <i className="bi bi-exclamation-triangle me-2" />
-                      Quote has expired. Please go back and generate a new quote.
+                      Quote has expired. Please go back and generate a new
+                      quote.
                     </div>
                   ) : (
                     <>
                       <PremiumBreakdownCard quoteDetails={quoteData} />
 
-                      <div className="p-3 rounded-3 mt-3" style={{ backgroundColor: "var(--ip-success-bg, #f0fdf4)", border: "1px solid var(--ip-success-subtle, #bbf7d0)" }}>
-                        <small className="text-success fw-bold d-block mb-2">Quote Summary</small>
+                      <div
+                        className="p-3 rounded-3 mt-3"
+                        style={{
+                          backgroundColor: "var(--ip-success-bg, #f0fdf4)",
+                          border: "1px solid var(--ip-success-subtle, #bbf7d0)",
+                        }}
+                      >
+                        <small className="text-success fw-bold d-block mb-2">
+                          Quote Summary
+                        </small>
                         <div className="row g-2 small">
                           <div className="col-6">
                             <span className="text-muted">Coverage: </span>
-                            <span className="fw-bold">₹{Number(selectedCoverage).toLocaleString("en-IN")}</span>
+                            <span className="fw-bold">
+                              ₹
+                              {Number(selectedCoverage).toLocaleString("en-IN")}
+                            </span>
                           </div>
                           <div className="col-6">
                             <span className="text-muted">Duration: </span>
-                            <span className="fw-bold">{selectedDuration} Year(s)</span>
+                            <span className="fw-bold">
+                              {selectedDuration} Year(s)
+                            </span>
                           </div>
                           <div className="col-6">
                             <span className="text-muted">Payment Type: </span>
-                            <span className="fw-bold">{selectedPremiumType}</span>
+                            <span className="fw-bold">
+                              {selectedPremiumType}
+                            </span>
                           </div>
                           {quoteData.quoteId && (
                             <div className="col-6">
                               <span className="text-muted">Quote ID: </span>
-                              <span className="fw-bold">#{quoteData.quoteId}</span>
+                              <span className="fw-bold">
+                                #{quoteData.quoteId}
+                              </span>
                             </div>
                           )}
                         </div>
@@ -369,10 +436,17 @@ const PurchasePolicyPage = () => {
                     <i className="bi bi-credit-card text-primary me-2" />
                     Confirm & Purchase
                   </h5>
-                  <p className="text-muted small mb-4">Review your details and confirm your purchase.</p>
+                  <p className="text-muted small mb-4">
+                    Review your details and confirm your purchase.
+                  </p>
 
                   {/* Final Summary */}
-                  <div className="p-4 rounded-3 mb-4" style={{ backgroundColor: 'var(--ip-surface-raised, #f8fafc)' }}>
+                  <div
+                    className="p-4 rounded-3 mb-4"
+                    style={{
+                      backgroundColor: "var(--ip-surface-raised, #f8fafc)",
+                    }}
+                  >
                     <div className="row g-3">
                       <div className="col-6">
                         <small className="text-muted d-block">Plan</small>
@@ -380,14 +454,20 @@ const PurchasePolicyPage = () => {
                       </div>
                       <div className="col-6">
                         <small className="text-muted d-block">Coverage</small>
-                        <span className="fw-bold">₹{Number(selectedCoverage).toLocaleString("en-IN")}</span>
+                        <span className="fw-bold">
+                          ₹{Number(selectedCoverage).toLocaleString("en-IN")}
+                        </span>
                       </div>
                       <div className="col-6">
                         <small className="text-muted d-block">Duration</small>
-                        <span className="fw-bold">{selectedDuration} Year(s)</span>
+                        <span className="fw-bold">
+                          {selectedDuration} Year(s)
+                        </span>
                       </div>
                       <div className="col-6">
-                        <small className="text-muted d-block">Payment Type</small>
+                        <small className="text-muted d-block">
+                          Payment Type
+                        </small>
                         <span className="fw-bold">{selectedPremiumType}</span>
                       </div>
                     </div>
@@ -408,14 +488,19 @@ const PurchasePolicyPage = () => {
                           if (errors.acceptedTerms) setErrors({});
                         }}
                       />
-                      <label className="form-check-label text-muted small" htmlFor="termsCheck">
-                        I declare that the information provided is correct. I agree to the terms and conditions and
-                        acknowledge that my policy coverage will begin starting today. Note: Cancellation policies apply as
-                        per standard terms.
+                      <label
+                        className="form-check-label text-muted small"
+                        htmlFor="termsCheck"
+                      >
+                        I declare that the information provided is correct. I
+                        agree to the terms and conditions and acknowledge that
+                        my policy coverage will begin starting today. Note:
+                        Cancellation policies apply as per standard terms.
                       </label>
                       {errors.acceptedTerms && (
                         <div className="input-error-tip text-danger mt-1">
-                          <i className="bi bi-x-circle-fill" /> {errors.acceptedTerms}
+                          <i className="bi bi-x-circle-fill" />{" "}
+                          {errors.acceptedTerms}
                         </div>
                       )}
                     </div>
@@ -428,15 +513,26 @@ const PurchasePolicyPage = () => {
                 <div className="animate-fade-in text-center py-4">
                   <div
                     className="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
-                    style={{ width: 80, height: 80, backgroundColor: "var(--ip-success-subtle, #d1fae5)", color: "var(--ip-success, #10b981)" }}
+                    style={{
+                      width: 80,
+                      height: 80,
+                      backgroundColor: "var(--ip-success-subtle, #d1fae5)",
+                      color: "var(--ip-success, #10b981)",
+                    }}
                   >
                     <CheckCircle size={40} />
                   </div>
-                  <h4 className="fw-bold text-success mb-2">Policy Purchased Successfully!</h4>
+                  <h4 className="fw-bold text-success mb-2">
+                    Policy Purchased Successfully!
+                  </h4>
                   <p className="text-muted mb-4">
-                    Your policy has been created. You can view your policy details in the My Policies section.
+                    Your policy has been created. You can view your policy
+                    details in the My Policies section.
                   </p>
-                  <button className="btn btn-primary px-4" onClick={() => navigate("/customer/policies")}>
+                  <button
+                    className="btn btn-primary px-4"
+                    onClick={() => navigate("/customer/policies")}
+                  >
                     View My Policies
                   </button>
                 </div>
