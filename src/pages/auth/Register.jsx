@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from 'react-hot-toast';
 import { register as registerService } from "../../services/authService";
@@ -25,6 +25,15 @@ const Register = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // Digits-only enforcement for mobile number, max 10 digits
+    if (name === 'mobileNumber') {
+      const digitsOnly = value.replace(/\D/g, '').slice(0, 10);
+      setFormData((prev) => ({ ...prev, mobileNumber: digitsOnly }));
+      if (errors.mobileNumber) setErrors((prev) => ({ ...prev, mobileNumber: '' }));
+      return;
+    }
+
     setFormData((prev) => {
       const updated = { ...prev, [name]: value };
 
@@ -86,13 +95,11 @@ const Register = () => {
     try {
       setLoading(true);
 
-      // Exact formatted payload blueprint mapping
+      // Always send +91 prefix with strictly 10-digit number
       const payload = {
         fullName: formData.fullName.trim(),
         email: formData.email.trim(),
-        mobileNumber: formData.mobileNumber.replace(/^\+91/, '').trim().length === 10
-          ? "+91" + formData.mobileNumber.replace(/^\+91/, '').trim()
-          : formData.mobileNumber,
+        mobileNumber: "+91" + formData.mobileNumber.trim(),
         password: formData.password,
       };
 
@@ -176,30 +183,67 @@ const Register = () => {
                   <label htmlFor="reg-mobile" className="custom-field-label">
                     Mobile Number <span className="text-danger">*</span>
                   </label>
-                  <div className="input-group">
-                    <span className="input-group-text bg-white text-muted border-end-0 pe-2" id="basic-addon-mobile">+91</span>
+                  <div
+                    className={`d-flex align-items-center rounded overflow-hidden ${
+                      errors.mobileNumber
+                        ? 'border border-danger'
+                        : formData.mobileNumber.length === 10
+                        ? 'border border-success'
+                        : 'border'
+                    }`}
+                    style={{ background: '#fff', transition: 'border-color 0.2s' }}
+                  >
+                    <span
+                      className="px-3 py-2 fw-semibold flex-shrink-0"
+                      style={{
+                        borderRight: '1px solid #dee2e6',
+                        color: errors.mobileNumber ? '#dc3545' : formData.mobileNumber.length === 10 ? '#198754' : 'var(--ip-primary)',
+                        fontSize: '0.9rem',
+                        background: '#f8f9fa',
+                        userSelect: 'none',
+                      }}
+                    >+91</span>
                     <input
                       id="reg-mobile"
                       name="mobileNumber"
-                      type="number"
-                      step="1"
+                      type="tel"
+                      inputMode="numeric"
                       autoComplete="tel-national"
-                      className={`form-control pristine-input border-start-0 ps-1 ${errors.mobileNumber ? 'is-invalid' : ''}`}
+                      maxLength={10}
+                      className="form-control border-0 ps-2"
                       placeholder="9876543210"
                       value={formData.mobileNumber}
                       onChange={handleChange}
+                      onKeyDown={(e) => {
+                        const allowed = ['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Home','End'];
+                        if (!allowed.includes(e.key) && !/^\d$/.test(e.key)) { e.preventDefault(); return; }
+                        if (/^\d$/.test(e.key) && formData.mobileNumber.length >= 10) { e.preventDefault(); }
+                      }}
+                      onPaste={(e) => {
+                        e.preventDefault();
+                        const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 10);
+                        setFormData(prev => ({ ...prev, mobileNumber: pasted }));
+                      }}
                       disabled={loading}
                       aria-invalid={errors.mobileNumber ? "true" : "false"}
                       aria-describedby={errors.mobileNumber ? "mobile-error" : undefined}
-                      onKeyDown={(e) => { if (e.key === '.' || e.key === 'e') e.preventDefault(); }}
-                      style={{ boxShadow: 'none' }}
-                      onWheel={(e) => e.target.blur()} // prevent scrolling from changing number
+                      style={{ boxShadow: 'none', outline: 'none' }}
                     />
+                    <span
+                      className={`pe-2 flex-shrink-0 small ${formData.mobileNumber.length === 10 ? 'text-success fw-semibold' : 'text-muted'}`}
+                      style={{ whiteSpace: 'nowrap', fontSize: '0.75rem' }}
+                    >
+                      {formData.mobileNumber.length}/10
+                    </span>
                   </div>
                   {errors.mobileNumber && (
-                    <div id="mobile-error" className="input-error-tip text-danger mt-1" aria-live="polite">
-                      <i className="bi bi-x-circle-fill" />{" "}
-                      {errors.mobileNumber}
+                    <div id="mobile-error" className="input-error-tip text-danger mt-1" aria-live="polite" style={{ fontSize: '0.8rem' }}>
+                      <i className="bi bi-x-circle-fill me-1" />{errors.mobileNumber}
+                    </div>
+                  )}
+                  {!errors.mobileNumber && formData.mobileNumber.length === 10 && (
+                    <div className="text-success mt-1" style={{ fontSize: '0.8rem' }}>
+                      <i className="bi bi-check-circle-fill me-1" />Looks good!
                     </div>
                   )}
                 </div>
