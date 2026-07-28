@@ -22,6 +22,7 @@ const EditProductPage = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [globalError, setGlobalError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -52,6 +53,7 @@ const EditProductPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setGlobalError('');
     setSubmitting(true);
     const errs = {};
 
@@ -67,6 +69,7 @@ const EditProductPage = () => {
 
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
+      setGlobalError('Please correct the highlighted fields.');
       setSubmitting(false);
       return;
     }
@@ -86,9 +89,12 @@ const EditProductPage = () => {
       .catch((err) => {
         if (err.fieldErrors) {
           setErrors(err.fieldErrors);
+          setGlobalError("Please correct the highlighted fields.");
           notify.error("Please correct the highlighted fields.");
         } else {
-          notify.error(err);
+          const msg = typeof err === 'string' ? err : (err.message || "Failed to update product.");
+          setGlobalError(msg);
+          notify.error(msg);
         }
       })
       .finally(() => setSubmitting(false));
@@ -106,7 +112,7 @@ const EditProductPage = () => {
         onBack={() => navigate("/admin/products")}
       />
 
-      <ErrorAlert message={error} />
+      <ErrorAlert message={globalError || error} onClose={() => { setError(''); setGlobalError(''); }} />
 
       {!error && (
         <div

@@ -8,6 +8,7 @@ import ModernSelect from "../../../components/forms/ModernSelect";
 import ModernDatePicker from "../../../components/forms/ModernDatePicker";
 import { notify } from "../../../utils/notificationService";
 import { PRODUCT_DOCUMENT_CATEGORIES } from "../../../utils/documentCategories";
+import ErrorAlert from "../../../components/ui/ErrorAlert";
 
 const RaiseClaimPage = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const RaiseClaimPage = () => {
 
   const [files, setFiles] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [globalError, setGlobalError] = useState('');
   const [policies, setPolicies] = useState([]);
   const [isLoadingPolicies, setIsLoadingPolicies] = useState(true);
   const [selectedPolicyDetails, setSelectedPolicyDetails] = useState(null);
@@ -197,6 +199,7 @@ const RaiseClaimPage = () => {
 
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
+      setGlobalError('Please fill all required fields correctly.');
       return;
     }
 
@@ -228,9 +231,12 @@ const RaiseClaimPage = () => {
       console.error(error);
       if (error.fieldErrors) {
         setErrors(error.fieldErrors);
+        setGlobalError("Please correct the highlighted fields.");
         notify.error("Please correct the highlighted fields.");
       } else {
-        notify.error(error);
+        const msg = typeof error === 'string' ? error : (error.message || "Failed to submit claim.");
+        setGlobalError(msg);
+        notify.error(msg);
       }
     } finally {
       setIsSubmitting(false);
@@ -250,6 +256,12 @@ const RaiseClaimPage = () => {
           </Link>
         }
       />
+
+      {globalError && (
+        <div className="mt-3">
+          <ErrorAlert message={globalError} onClose={() => setGlobalError('')} />
+        </div>
+      )}
 
       <div className="row g-4 mt-2">
         {/* Left Column: Instructions & Tips */}

@@ -7,6 +7,7 @@ import { generateQuote } from "../../../services/quoteService";
 import PageHeader from "../../../components/common/PageHeader";
 import LoadingSpinner from "../../../components/common/LoadingSpinner";
 import Stepper from "../../../components/common/Stepper";
+import ErrorAlert from "../../../components/ui/ErrorAlert";
 import PremiumBreakdownCard from "../../../components/customer/PremiumBreakdownCard";
 import QuoteCountdownTimer from "../../../components/customer/QuoteCountdownTimer";
 import { Shield, ArrowRight, ArrowLeft, CheckCircle } from "lucide-react";
@@ -19,6 +20,7 @@ const PurchasePolicyPage = () => {
 
   const [loadingPlan, setLoadingPlan] = useState(true);
   const [planDetails, setPlanDetails] = useState(null);
+  const [globalError, setGlobalError] = useState('');
 
   // Step management
   const [currentStep, setCurrentStep] = useState(0);
@@ -59,10 +61,12 @@ const PurchasePolicyPage = () => {
       setQuoteExpired(false);
       setAcceptedTerms(false);
     }
+    setGlobalError('');
   }, [selectedCoverage, selectedDuration, selectedPremiumType]);
 
   const handleGenerateQuote = async () => {
     setIsGeneratingQuote(true);
+    setGlobalError('');
     try {
       const payload = {
         planId: Number(planId),
@@ -77,7 +81,9 @@ const PurchasePolicyPage = () => {
       setCurrentStep(2); // Move to Quote step
     } catch (error) {
       console.error(error);
-      notify.error(error.message || "Failed to generate quote.");
+      const msg = error.message || "Failed to generate quote.";
+      setGlobalError(msg);
+      notify.error(msg);
     } finally {
       setIsGeneratingQuote(false);
     }
@@ -85,12 +91,15 @@ const PurchasePolicyPage = () => {
 
   const handlePurchase = async (e) => {
     e.preventDefault();
+    setGlobalError('');
     if (!acceptedTerms) {
       setErrors({ acceptedTerms: "You must accept the terms and declarations." });
       return;
     }
     if (quoteExpired) {
-      notify.error("Quote has expired. Please generate a new quote.");
+      const msg = "Quote has expired. Please generate a new quote.";
+      setGlobalError(msg);
+      notify.error(msg);
       return;
     }
 
@@ -102,12 +111,14 @@ const PurchasePolicyPage = () => {
         paymentReferenceId: `PAY_${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
       };
 
-      const res = await purchasePolicy(payload);
+      await purchasePolicy(payload);
       notify.success("Policy Purchased Successfully!");
       setCurrentStep(4); // Move to Policy (success) step
     } catch (error) {
       console.error(error);
-      notify.error(error.message || "Failed to purchase policy.");
+      const msg = error.message || "Failed to purchase policy.";
+      setGlobalError(msg);
+      notify.error(msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -174,6 +185,14 @@ const PurchasePolicyPage = () => {
         subtitle="Configure your coverage and complete your purchase"
         onBack={() => navigate(-1)}
       />
+
+      {globalError && (
+        <div className="row justify-content-center mt-3">
+          <div className="col-md-10 col-lg-8">
+            <ErrorAlert message={globalError} onClose={() => setGlobalError('')} />
+          </div>
+        </div>
+      )}
 
       <div className="row justify-content-center mt-4">
         <div className="col-md-10 col-lg-8">
@@ -245,7 +264,15 @@ const PurchasePolicyPage = () => {
                   </div>
 
                   <div className="mb-4">
-                    <label className="form-label fw-bold">Premium Payment Frequency</label>
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <label className="form-label fw-bold mb-0">Premium Payment Frequency</label>
+                      {selectedDuration > 1 && (
+                        <span className="badge bg-success-subtle text-success small py-1 px-2">
+                          <i className="bi bi-tag-fill me-1"></i>
+                          Up to 20% Duration Discount on One-Time Upfront Payment!
+                        </span>
+                      )}
+                    </div>
                     <div className="d-flex flex-wrap gap-2">
                       {(planDetails.supportedPremiumType
                         ? [planDetails.supportedPremiumType]

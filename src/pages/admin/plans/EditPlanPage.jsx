@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
@@ -47,6 +47,7 @@ const EditPlanPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const [form, setForm] = useState({
@@ -55,31 +56,38 @@ const EditPlanPage = () => {
     premiumType: 'ANNUAL',
     durations: [],
     termsAndConditions: '',
+    activeStatus: true,
   });
 
   useEffect(() => {
-    Promise.all([
-      getAllProducts().catch(() => []),
-      getPlanById(id).catch(() => null),
-    ])
-      .then(([productsData, planData]) => {
-        const list = productsData?.data || productsData || [];
-        setProducts(Array.isArray(list) ? list : []);
+    const fetchPlanAndProducts = async () => {
+      try {
+        const [planRes, productsRes] = await Promise.all([
+          getPlanById(id),
+          getAllProducts(),
+        ]);
 
-        if (planData) {
-          setForm({
-            planName: planData.planName || '',
-            productId: planData.productId || '',
-            premiumType: planData.supportedPremiumType || planData.supportedPremiumTypes?.[0] || 'ANNUAL',
-            durations: planData.allowedDurations || [],
-            termsAndConditions: planData.termsAndConditions || '',
-          });
-        } else {
-          setError('Could not load plan details.');
-        }
-      })
-      .catch(() => setError('Could not load plan details.'))
-      .finally(() => setLoading(false));
+        const plan = planRes.data || planRes;
+        const prodList = Array.isArray(productsRes)
+          ? productsRes
+          : productsRes.data || [];
+
+        setProducts(prodList);
+        setForm({
+          planName: plan.planName || '',
+          productId: plan.productId || '',
+          premiumType: plan.supportedPremiumType || 'ANNUAL',
+          durations: plan.allowedDurations || [],
+          termsAndConditions: plan.termsAndConditions || '',
+          activeStatus: plan.activeStatus ?? plan.isActive ?? plan.active ?? true,
+        });
+      } catch (err) {
+        setError(err.message || 'Failed to load plan details');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPlanAndProducts();
   }, [id]);
 
   const toggleDuration = (yr) => {
@@ -91,11 +99,32 @@ const EditPlanPage = () => {
     }));
   };
 
+  const isFormValid = React.useMemo(() => {
+    if (!form.planName || form.planName.trim().length < 2) return false;
+    if (!form.productId) return false;
+    if (!form.durations || form.durations.length === 0) return false;
+    if (!form.termsAndConditions || !form.termsAndConditions.trim()) return false;
+    return true;
+  }, [form]);
+
   const handleSubmit = async () => {
-    if (!form.planName.trim()) return notify.error('Plan name is required');
-    if (!form.productId) return notify.error('Select a product');
-    if (form.durations.length === 0) return notify.error('Select at least one duration');
-    if (!form.termsAndConditions.trim()) return notify.error('Terms & conditions are required');
+    setFormError('');
+    if (!form.planName.trim()) {
+      const msg = 'Plan name is required';
+      setFormError(msg); return notify.error(msg);
+    }
+    if (!form.productId) {
+      const msg = 'Select a product';
+      setFormError(msg); return notify.error(msg);
+    }
+    if (form.durations.length === 0) {
+      const msg = 'Select at least one duration';
+      setFormError(msg); return notify.error(msg);
+    }
+    if (!form.termsAndConditions.trim()) {
+      const msg = 'Terms & conditions are required';
+      setFormError(msg); return notify.error(msg);
+    }
 
     setSubmitting(true);
     try {
@@ -105,11 +134,14 @@ const EditPlanPage = () => {
         supportedPremiumType: form.premiumType,
         allowedDurations: form.durations,
         termsAndConditions: form.termsAndConditions,
+        activeStatus: form.activeStatus ?? true,
       });
       notify.success('Plan updated successfully!');
       navigate(`/admin/plans/${id}`);
     } catch (err) {
-      notify.error(err.message || 'Failed to update plan');
+      const msg = err.message || 'Failed to update plan';
+      setFormError(msg);
+      notify.error(msg);
     } finally {
       setSubmitting(false);
     }
@@ -135,6 +167,12 @@ const EditPlanPage = () => {
         onBack={() => navigate(`/admin/plans/${id}`)}
       />
 
+      {formError && (
+        <div className="mb-4">
+          <ErrorAlert message={formError} onClose={() => setFormError('')} />
+        </div>
+      )}
+
       <div className="d-flex flex-column gap-4">
 
         {/* Basic Info */}
@@ -149,17 +187,20 @@ const EditPlanPage = () => {
                 <label style={labelStyle}>Plan Name *</label>
                 <input
                   type="text"
-                  className="form-control"
+                  className={`form-control ${!form.planName.trim() ? 'is-invalid' : ''}`}
                   style={inputStyle}
                   value={form.planName}
                   onChange={(e) => setForm((f) => ({ ...f, planName: e.target.value }))}
                   placeholder="e.g. Health Guard Platinum"
                 />
+                {!form.planName.trim() && (
+                  <div className="text-danger small mt-1">Plan name is required (min 2 chars)</div>
+                )}
               </div>
               <div className="col-md-4">
                 <label style={labelStyle}>Product *</label>
                 <select
-                  className="form-select"
+                  className={`form-select ${!form.productId ? 'is-invalid' : ''}`}
                   style={inputStyle}
                   value={form.productId}
                   onChange={(e) => setForm((f) => ({ ...f, productId: e.target.value }))}
@@ -171,6 +212,9 @@ const EditPlanPage = () => {
                     </option>
                   ))}
                 </select>
+                {!form.productId && (
+                  <div className="text-danger small mt-1">Please select an insurance product</div>
+                )}
               </div>
             </div>
           </div>
@@ -259,13 +303,47 @@ const EditPlanPage = () => {
               Terms & Conditions *
             </div>
             <textarea
-              className="form-control"
+              className={`form-control ${!form.termsAndConditions.trim() ? 'is-invalid' : ''}`}
               style={{ ...inputStyle, resize: 'vertical' }}
               rows={4}
               value={form.termsAndConditions}
               onChange={(e) => setForm((f) => ({ ...f, termsAndConditions: e.target.value }))}
               placeholder="Describe coverage terms, rules, and conditions..."
             />
+            {!form.termsAndConditions.trim() && (
+              <div className="text-danger small mt-1">
+                <i className="bi bi-exclamation-circle me-1" />
+                Terms & conditions are required
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Plan Status */}
+        <div className="card border-0" style={sectionCard}>
+          <div className="card-body p-4">
+            <div className="d-flex justify-content-between align-items-center">
+              <div>
+                <div style={sectionHeader}>
+                  <i className="bi bi-toggle-on me-2" style={{ color: 'var(--ip-brand)' }} />
+                  Plan Status
+                </div>
+                <div className="small text-muted">Toggle whether this plan is actively available for purchase</div>
+              </div>
+              <div className="form-check form-switch fs-5 mb-0">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="activeStatusSwitch"
+                  checked={form.activeStatus}
+                  onChange={(e) => setForm((f) => ({ ...f, activeStatus: e.target.checked }))}
+                />
+                <label className="form-check-label fs-6 ms-2" htmlFor="activeStatusSwitch">
+                  {form.activeStatus ? <span className="badge bg-success">Active</span> : <span className="badge bg-secondary">Inactive</span>}
+                </label>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -289,6 +367,14 @@ const EditPlanPage = () => {
         </div>
 
         {/* Actions */}
+        {!isFormValid && (
+          <div className="alert alert-danger py-2 px-3 small mb-2 d-flex align-items-center gap-2" style={{ borderRadius: 'var(--ip-radius-md)' }}>
+            <i className="bi bi-exclamation-triangle-fill fs-6 flex-shrink-0" />
+            <div>
+              <strong>Form Incomplete:</strong> Please complete all required fields correctly to enable the Save Changes button.
+            </div>
+          </div>
+        )}
         <div className="d-flex justify-content-end gap-3 pb-2">
           <button
             className="btn px-4"
@@ -308,12 +394,14 @@ const EditPlanPage = () => {
             style={{
               borderRadius: 'var(--ip-radius-pill)',
               fontWeight: 700,
-              backgroundColor: 'var(--ip-brand)',
+              backgroundColor: !isFormValid ? 'var(--ip-border)' : 'var(--ip-brand)',
               color: '#fff',
               boxShadow: 'var(--ip-shadow-sm)',
+              cursor: !isFormValid ? 'not-allowed' : 'pointer',
+              opacity: !isFormValid ? 0.65 : 1,
             }}
             onClick={handleSubmit}
-            disabled={submitting}
+            disabled={submitting || !isFormValid}
           >
             {submitting ? (
               <><span className="spinner-border spinner-border-sm me-2" /> Saving...</>

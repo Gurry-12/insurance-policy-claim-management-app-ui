@@ -90,9 +90,7 @@ const CreateStaffPage = () => {
       fullName: `${formData.firstName} ${formData.lastName}`.trim(),
       email: formData.email,
       password: formData.password,
-      mobileNumber: formData.phone.replace(/^\+91/, '').trim().length === 10
-        ? "+91" + formData.phone.replace(/^\+91/, '').trim()
-        : formData.phone,
+      mobileNumber: formData.phone.trim(),
       productSpeciality: formData.productSpeciality
     };
 

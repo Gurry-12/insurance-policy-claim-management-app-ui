@@ -6,6 +6,7 @@ import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import ErrorAlert from '../../../components/ui/ErrorAlert';
 import ConfirmModal from '../../../components/modals/ConfirmModal';
 import PricingRulePanel from '../../../components/admin/PricingRulePanel';
+import CoverageOptionsManager from '../../../components/admin/CoverageOptionsManager';
 import { getPlanById, activatePlan, deactivatePlan } from '../../../services/planService';
 import toast from 'react-hot-toast';
 
@@ -165,43 +166,20 @@ const PlanDetailPage = () => {
 
         {/* Right Column: Coverage + Pricing */}
         <div className="col-lg-7">
-          {/* Coverage Configuration Card */}
+          {/* Coverage Options Manager (Add, Edit, Enable/Disable) */}
+          <CoverageOptionsManager
+            planId={id}
+            existingOptions={plan.coverageOptions}
+            onUpdate={() => fetchPlanData(id)}
+          />
+
+          {/* Plan Rules Summary Card (Premium Type & Durations) */}
           <div className="card border-0 mb-4" style={{ borderRadius: 16, boxShadow: 'var(--ip-shadow-md)' }}>
             <div className="card-body p-4">
               <h6 className="fw-bold mb-3">
-                <i className="bi bi-shield-check me-2 text-primary" />
-                Coverage Configuration
+                <i className="bi bi-gear me-2 text-primary" />
+                Plan Rules Summary
               </h6>
-
-              {/* Current Tiers */}
-              {plan.coverageOptions && plan.coverageOptions.length > 0 ? (
-                <div className="mb-3">
-                  <div className="d-flex flex-wrap gap-2 mb-3">
-                    {plan.coverageOptions
-                      .sort((a, b) => a.displayOrder - b.displayOrder)
-                      .map((opt, idx) => {
-                        const isActive = opt.isActive ?? opt.active;
-                        return (
-                          <span
-                            key={idx}
-                            className={`badge ${isActive ? 'bg-success' : 'bg-secondary'}`}
-                            style={{ fontSize: '0.85rem', padding: '8px 14px' }}
-                          >
-                            {opt.label || `₹${((opt.coverageAmount || 0) / 100000).toLocaleString('en-IN')}L`}
-                            {!isActive && <span className="ms-1 opacity-50">(inactive)</span>}
-                          </span>
-                        );
-                      })}
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center p-4 bg-light rounded-3 text-muted">
-                  <i className="bi bi-shield-x fs-2 d-block mb-2"></i>
-                  No coverage options configured.
-                </div>
-              )}
-
-              {/* Allowed Options Summary */}
               <div className="row g-3">
                 <div className="col-6">
                   <div className="p-3 rounded-3" style={{ backgroundColor: 'var(--ip-surface-raised)' }}>

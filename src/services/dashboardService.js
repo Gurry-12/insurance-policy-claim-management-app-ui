@@ -17,7 +17,7 @@ const getOpenClaimsCount = async () => {
   const response = await axiosInstance.get('/claims', {
     params: { pageNumber: 0, pageSize: 100 }
   });
-  const claims = response.data?.content || response.data || [];
+  const claims = response.data?.data?.content || response.data?.content || response.data?.data || (Array.isArray(response.data) ? response.data : []);
   const pending = claims.filter(
     (c) => c.claimStatus === "SUBMITTED" || c.claimStatus === "UNDER_REVIEW",
   ).length;
@@ -33,32 +33,33 @@ const getOpenClaimsCount = async () => {
 
 const getTotalProducts = async () => {
   const response = await axiosInstance.get('/products/active');
-  return (response.data || []).length;
+  const products = response.data?.data || response.data?.content || (Array.isArray(response.data) ? response.data : []);
+  return products.length;
 };
 
 const getActiveUsers = async () => {
-  // /users is ADMIN-only — guard to prevent 403 for INTERNAL_STAFF
-  const role = localStorage.getItem('role') || sessionStorage.getItem('role') || '';
-  if (!role.includes('ADMIN')) return 0;
   const response = await axiosInstance.get('/users');
-  return (response.data || []).length;
+  const users = response.data?.data || response.data?.content || (Array.isArray(response.data) ? response.data : []);
+  return users.filter(u => u.isActive !== false && u.activeStatus !== false).length;
 };
 
 const getCustomerCount = async () =>  {
   const response = await axiosInstance.get("/customers");
-  return (response.data || []).length;
+  const customers = response.data?.data || response.data?.content || (Array.isArray(response.data) ? response.data : []);
+  return customers.length;
 };
 
 const getTotalActivePolicies = async () => {
   const response = await axiosInstance.get('/plans/active');
-  return (response.data || []).length;
+  const plans = response.data?.data || response.data?.content || (Array.isArray(response.data) ? response.data : []);
+  return plans.length;
 };
 
 const getRecentClaims = async () => {
   const response = await axiosInstance.get('/claims', {
     params: { pageNumber: 0, pageSize: 5 }
   });
-  const list = response.data?.content || response.data || [];
+  const list = response.data?.data?.content || response.data?.content || response.data?.data || (Array.isArray(response.data) ? response.data : []);
   return list.slice(0, 5).map((c) => ({
     id: c.id || c.claimId || "N/A",
     customerName: c.customerName,
@@ -76,7 +77,7 @@ const getRecentClaims = async () => {
 
 const getRecentPolicies = async () => {
   const response = await axiosInstance.get('/policies');
-  const list = response.data?.content || response.data || [];
+  const list = response.data?.data?.content || response.data?.content || response.data?.data || (Array.isArray(response.data) ? response.data : []);
   return list.slice(0, 5).map((p) => ({
     id: p.id || p.policyId || "N/A",
     customerName:

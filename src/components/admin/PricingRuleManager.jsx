@@ -4,10 +4,12 @@ import { generateQuote } from '../../services/quoteService';
 import { notify } from '../../utils/notificationService';
 import PricingRuleHistoryModal from './PricingRuleHistoryModal';
 import PremiumBreakdownCard from '../customer/PremiumBreakdownCard';
+import ErrorAlert from '../ui/ErrorAlert';
 
 const PricingRuleManager = ({ productId, planId, onUpdate }) => {
   const [activeRule, setActiveRule] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -53,6 +55,7 @@ const PricingRuleManager = ({ productId, planId, onUpdate }) => {
 
   const handleCreateRule = async (e) => {
     e.preventDefault();
+    setError('');
     setIsProcessing(true);
     try {
       const payload = {
@@ -67,7 +70,9 @@ const PricingRuleManager = ({ productId, planId, onUpdate }) => {
       setShowCreateForm(false);
       setShowPreview(true);
     } catch (error) {
-      notify.error(error.message || "Failed to create pricing rule.");
+      const msg = error.message || "Failed to create pricing rule.";
+      setError(msg);
+      notify.error(msg);
     } finally {
       setIsProcessing(false);
     }
@@ -75,6 +80,7 @@ const PricingRuleManager = ({ productId, planId, onUpdate }) => {
 
   const handlePreview = async (e) => {
     e.preventDefault();
+    setError('');
     setIsProcessing(true);
     try {
       const payload = {
@@ -85,13 +91,16 @@ const PricingRuleManager = ({ productId, planId, onUpdate }) => {
       setPreviewResult(res.data || res);
       notify.success("Simulation complete.");
     } catch (error) {
-      notify.error(error.message || "Simulation failed.");
+      const msg = error.message || "Simulation failed.";
+      setError(msg);
+      notify.error(msg);
     } finally {
       setIsProcessing(false);
     }
   };
 
   const handleActivatePreviewRule = async () => {
+    setError('');
     setIsProcessing(true);
     try {
       await activatePricingRule(previewRuleId);
@@ -101,7 +110,9 @@ const PricingRuleManager = ({ productId, planId, onUpdate }) => {
       fetchActiveRule();
       if (onUpdate) onUpdate();
     } catch (error) {
-      notify.error(error.message || "Failed to activate pricing rule.");
+      const msg = error.message || "Failed to activate pricing rule.";
+      setError(msg);
+      notify.error(msg);
     } finally {
       setIsProcessing(false);
     }
@@ -125,6 +136,12 @@ const PricingRuleManager = ({ productId, planId, onUpdate }) => {
             </button>
           )}
         </div>
+
+        {error && (
+          <div className="mb-3">
+            <ErrorAlert message={error} onClose={() => setError('')} />
+          </div>
+        )}
 
         {/* Current Active Rule Display */}
         {!showCreateForm && !showPreview && activeRule && (
@@ -232,8 +249,8 @@ const PricingRuleManager = ({ productId, planId, onUpdate }) => {
                   <div className="mb-4">
                     <label className="form-label small text-muted mb-1">Test Premium Type</label>
                     <select className="form-select form-select-sm" value={previewVars.premiumType} onChange={(e) => setPreviewVars({...previewVars, premiumType: e.target.value})}>
-                      <option value="YEARLY">YEARLY</option>
-                      <option value="MONTHLY">MONTHLY</option>
+                      <option value="ANNUAL">ANNUAL</option>
+                      <option value="ONE_TIME">ONE_TIME</option>
                     </select>
                   </div>
                   <button type="submit" className="btn btn-outline-primary btn-sm w-100" disabled={isProcessing}>
