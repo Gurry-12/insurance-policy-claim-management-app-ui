@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../../components/common/PageHeader';
 import FormInput from '../../../components/forms/FormInput';
@@ -26,6 +26,15 @@ const CreateStaffPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // Digits-only enforcement for phone, max 10 digits
+    if (name === 'phone') {
+      const digitsOnly = value.replace(/\D/g, '').slice(0, 10);
+      setFormData(prev => ({ ...prev, phone: digitsOnly }));
+      if (errors.phone) setErrors(prev => ({ ...prev, phone: '' }));
+      return;
+    }
+
     setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
     if (name === 'firstName' || name === 'lastName') {
@@ -90,7 +99,7 @@ const CreateStaffPage = () => {
       fullName: `${formData.firstName} ${formData.lastName}`.trim(),
       email: formData.email,
       password: formData.password,
-      mobileNumber: formData.phone.trim(),
+      mobileNumber: "+91" + formData.phone.trim(),
       productSpeciality: formData.productSpeciality
     };
 
@@ -174,23 +183,65 @@ const CreateStaffPage = () => {
                 <label htmlFor="phone" className="form-label" style={{ fontSize: "0.85rem", fontWeight: "bold" }}>
                   Phone Number <span className="text-danger">*</span>
                 </label>
-                <div className="input-group">
-                  <span className="input-group-text bg-white text-muted border-end-0 pe-2" id="basic-addon-phone">+91</span>
+                <div
+                  className={`d-flex align-items-center rounded overflow-hidden ${
+                    errors.phone
+                      ? 'border border-danger'
+                      : formData.phone.length === 10
+                      ? 'border border-success'
+                      : 'border'
+                  }`}
+                  style={{ background: '#fff', transition: 'border-color 0.2s' }}
+                >
+                  <span
+                    className="px-3 py-2 fw-semibold flex-shrink-0"
+                    style={{
+                      borderRight: '1px solid #dee2e6',
+                      color: errors.phone ? '#dc3545' : formData.phone.length === 10 ? '#198754' : 'var(--ip-primary)',
+                      fontSize: '0.9rem',
+                      background: '#f8f9fa',
+                      userSelect: 'none',
+                    }}
+                  >+91</span>
                   <input
                     id="phone"
                     name="phone"
-                    type="number"
-                    step="1"
-                    className={`form-control border-start-0 ps-1 ${errors.phone ? 'is-invalid' : ''}`}
+                    type="tel"
+                    inputMode="numeric"
+                    maxLength={10}
+                    className="form-control border-0 ps-2"
                     placeholder="9876543210"
                     value={formData.phone}
                     onChange={handleChange}
-                    style={{ boxShadow: 'none' }}
-                    onWheel={(e) => e.target.blur()}
-                    onKeyDown={(e) => { if (e.key === '.' || e.key === 'e') e.preventDefault(); }}
+                    onKeyDown={(e) => {
+                      const allowed = ['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Home','End'];
+                      if (!allowed.includes(e.key) && !/^\d$/.test(e.key)) { e.preventDefault(); return; }
+                      if (/^\d$/.test(e.key) && formData.phone.length >= 10) { e.preventDefault(); }
+                    }}
+                    onPaste={(e) => {
+                      e.preventDefault();
+                      const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 10);
+                      setFormData(prev => ({ ...prev, phone: pasted }));
+                    }}
+                    style={{ boxShadow: 'none', outline: 'none' }}
                   />
-                  {errors.phone && <div className="invalid-feedback">{errors.phone}</div>}
+                  <span
+                    className={`pe-2 flex-shrink-0 small ${formData.phone.length === 10 ? 'text-success fw-semibold' : 'text-muted'}`}
+                    style={{ whiteSpace: 'nowrap', fontSize: '0.75rem' }}
+                  >
+                    {formData.phone.length}/10
+                  </span>
                 </div>
+                {errors.phone && (
+                  <div className="text-danger mt-1" style={{ fontSize: '0.8rem' }}>
+                    <i className="bi bi-x-circle-fill me-1" />{errors.phone}
+                  </div>
+                )}
+                {!errors.phone && formData.phone.length === 10 && (
+                  <div className="text-success mt-1" style={{ fontSize: '0.8rem' }}>
+                    <i className="bi bi-check-circle-fill me-1" />Looks good!
+                  </div>
+                )}
               </div>
               </div>
             </div>
