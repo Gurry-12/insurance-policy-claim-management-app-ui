@@ -246,8 +246,7 @@
 }
 .lp-hero-stats {
   display: flex;
-  gap: 2rem;
-  row-gap: 1.25rem;
+  gap: 2.5rem;
   margin-top: 3rem;
   flex-wrap: wrap;
   animation: lpFadeUp 0.6s 0.4s ease both;
