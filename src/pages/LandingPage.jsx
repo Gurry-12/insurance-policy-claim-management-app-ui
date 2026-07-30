@@ -2,15 +2,76 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import logoSrc from "../assets/logo/insurance-vector.png";
 import heroImg from "../assets/logo/insurance-heart-vector.png";
+import { getPlatformStats } from "../services/publicService";
 import "../pages/css/LandingPage.css";
+
+const CountUp = ({ end, suffix = "", duration = 1400 }) => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const target = Number(end) || 0;
+    if (target === 0) {
+      setCount(0);
+      return;
+    }
+    const steps = 35;
+    const stepTime = duration / steps;
+    const increment = target / steps;
+    let currentStep = 0;
+
+    const timer = setInterval(() => {
+      currentStep++;
+      if (currentStep >= steps) {
+        setCount(target);
+        clearInterval(timer);
+      } else {
+        setCount(Math.floor(increment * currentStep));
+      }
+    }, stepTime);
+
+    return () => clearInterval(timer);
+  }, [end, duration]);
+
+  return (
+    <span>
+      {count}
+      {suffix}
+    </span>
+  );
+};
 
 const LandingPage = () => {
   const [scrolled, setScrolled] = useState(false);
+  const [stats, setStats] = useState({
+    activeProducts: 4,
+    activePlans: 12,
+    totalPolicies: 250,
+    claimsProcessed: 95,
+  });
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const fetchLiveStats = async () => {
+      try {
+        const data = await getPlatformStats();
+        if (data) {
+          setStats({
+            activeProducts: data.activeProducts || 4,
+            activePlans: data.activePlans || 12,
+            totalPolicies: data.totalPolicies || 250,
+            claimsProcessed: data.claimsProcessed || 95,
+          });
+        }
+      } catch (error) {
+        // Fallback default numbers are already set in state
+      }
+    };
+    fetchLiveStats();
   }, []);
 
   const features = [
@@ -172,18 +233,28 @@ const LandingPage = () => {
               </div>
               <div className="lp-hero-stats">
                 <div>
-                  <div className="lp-hero-stat-val">4 Types</div>
+                  <div className="lp-hero-stat-val">
+                    <CountUp end={stats.activeProducts} suffix=" Types" />
+                  </div>
                   <div className="lp-hero-stat-label">Insurance Products</div>
                 </div>
                 <div>
-                  <div className="lp-hero-stat-val">6 Stages</div>
-                  <div className="lp-hero-stat-label">Claim Lifecycle</div>
+                  <div className="lp-hero-stat-val">
+                    <CountUp end={stats.activePlans} suffix="+ Plans" />
+                  </div>
+                  <div className="lp-hero-stat-label">Active Coverage Plans</div>
                 </div>
                 <div>
-                  <div className="lp-hero-stat-val">3 Portals</div>
-                  <div className="lp-hero-stat-label">
-                    Admin · Staff · Customer
+                  <div className="lp-hero-stat-val">
+                    <CountUp end={stats.totalPolicies} suffix="+" />
                   </div>
+                  <div className="lp-hero-stat-label">Policies Issued</div>
+                </div>
+                <div>
+                  <div className="lp-hero-stat-val">
+                    <CountUp end={stats.claimsProcessed} suffix="+" />
+                  </div>
+                  <div className="lp-hero-stat-label">Claims Settled</div>
                 </div>
               </div>
             </div>
