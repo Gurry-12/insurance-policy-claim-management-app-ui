@@ -10,6 +10,7 @@ import ErrorAlert  from "../../components/ui/ErrorAlert";
 import PageHeader  from "../../components/common/PageHeader";
 import BentoCard   from "../../common/BentoCard";
 import DataTable   from "../../components/tables/DataTable";
+import { formatINR } from "../../utils/formatters";
 import { POLICY_STATUS } from '../../utils/statuses';
 import { EMPTY_STATES } from '../../utils/labels';
 
@@ -159,7 +160,7 @@ const CustomerDashboard = () => {
                   onRowClick={(c) => navigate(`/customer/claims/${c.claimId}`)}
                   columns={[
                     { header: 'Sr No.', accessor: 'claimId', cell: (_, i) => <span style={{ fontWeight: 600 }}>{i + 1}</span> },
-                    { header: 'Amount', accessor: 'claimAmount', cell: (c) => <span style={{ fontWeight: 600 }}>₹{Number(c.claimAmount).toLocaleString('en-IN')}</span> },
+                    { header: 'Amount', accessor: 'claimAmount', cell: (c) => <span style={{ fontWeight: 600 }}>{formatINR(c.claimAmount)}</span> },
                     { header: 'Date', accessor: 'createdDate', cell: (c) => <span style={{ color: 'var(--ip-text-muted)' }}>{c.createdDate ? new Date(c.createdDate).toLocaleDateString() : "-"}</span> },
                     { header: 'Status', accessor: 'claimStatus', cell: (c) => <StatusBadge status={c.claimStatus} /> }
                   ]}
@@ -205,7 +206,7 @@ const CustomerDashboard = () => {
                   <div className="d-flex justify-content-between align-items-center mt-auto pt-2 border-top">
                     <div>
                       <div className="text-muted" style={{ fontSize: '0.65rem', textTransform: 'uppercase' }}>Premium</div>
-                      <div className="fw-bold" style={{ fontSize: '0.85rem' }}>₹{Number(p.calculatedPremium || p.premium || 0).toLocaleString('en-IN')}</div>
+                      <div className="fw-bold" style={{ fontSize: '0.85rem' }}>{formatINR(p.calculatedPremium || p.premium)}</div>
                     </div>
                     <div>
                       {p.policyStatus === POLICY_STATUS.PENDING_PAYMENT ? (

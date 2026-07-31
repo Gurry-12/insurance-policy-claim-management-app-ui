@@ -5,6 +5,7 @@ import PageHeader from "../../../components/common/PageHeader";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import { Eye, FileText, Calendar, IndianRupee, ArrowRight, FilePlus } from "lucide-react";
 import ExportButton from "../../../components/common/ExportButton";
+import { formatINR } from "../../../utils/formatters";
 
 const CustomerClaimListPage = () => {
   const [claims, setClaims] = useState([]);
@@ -118,7 +119,7 @@ const CustomerClaimListPage = () => {
                             <div className="text-muted small mb-1 d-flex align-items-center">
                               <IndianRupee size={14} className="me-1" /> Claim Amount
                             </div>
-                            <div className="fw-bold text-dark fs-5">₹{claim.claimAmount?.toLocaleString()}</div>
+                            <div className="fw-bold text-dark fs-5">{formatINR(claim.claimAmount)}</div>
                           </div>
                           <div className="col-6 border-start">
                             <div className="text-muted small mb-1 ps-2 d-flex align-items-center">
